@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "lib": ["es2020"],
+    "module": "commonjs",
+    "target": "es2020",
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "declaration": true,
+    "esModuleInterop": true,
+    "types": [],
+    "skipLibCheck": true
+  },
+  "exclude": [
+    "node_modules",
+    "./node_modules",
+    "./node_modules/*",
+    "./node_modules/@types/node/index.d.ts"
+  ],
+  "include": ["core/**/*.ts"],
+  "files": ["core/index.ts"]
+}
