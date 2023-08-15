@@ -1,4 +1,4 @@
-import { SchemaItem } from "@ethereum-attestation-service/eas-sdk";
+import { SchemaInterface } from "./class/Schema";
 export type Hex = `0x${string}`;
 
 export type TSchemaName =
@@ -18,6 +18,14 @@ export type TSchemaName =
   | "ProjectDetails"
   | "Tag";
 
+export type TNetwork =
+  // | "mainnet"
+  // | "base-goerli"
+  // | "optimism"
+  // | "optimism-goerli"
+  // | "arbitrum"
+  "sepolia";
+
 export interface EASNetworkConfig {
   url: string;
   chainId: number;
@@ -25,15 +33,13 @@ export interface EASNetworkConfig {
     eas: Hex;
     schema: Hex;
   };
-  schemas?: Record<TSchemaName, string>;
+  /**
+   * A tuple containing the schema name and it's UID for that network
+   */
+  schemas: Record<TSchemaName, string>;
 }
 
-export interface SchemaConfig {
-  name: TSchemaName;
-  schema: SchemaItem[];
-  uid: string;
-  references?: TSchemaName;
-}
+export type IGapSchema = SchemaInterface<TSchemaName>;
 
 export interface EASClientRes {}
 

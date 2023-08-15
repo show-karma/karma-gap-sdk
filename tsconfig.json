@@ -8,7 +8,8 @@
     "declaration": true,
     "esModuleInterop": true,
     "types": [],
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "resolveJsonModule": true
   },
   "exclude": [
     "node_modules",

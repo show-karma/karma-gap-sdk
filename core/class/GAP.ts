@@ -1,14 +1,13 @@
-import { SchemaItem } from "@ethereum-attestation-service/eas-sdk";
-import { Network } from "../consts";
+import { Networks } from "../consts";
 import { EASClient } from "./GraphQL/EASClient";
-import { Hex } from "../types";
-import { Schema } from "./Schema";
-import { SchemaError } from "./SchemaError";
+import { Hex, TNetwork } from "../types";
+import { Schema, SchemaInterface } from "./Schema";
+import { GapSchema } from "./GapSchema";
 
 interface GAPArgs {
-  network: keyof typeof Network;
+  network: TNetwork;
   owner: Hex;
-  schemas: Schema[];
+  schemas: SchemaInterface[];
 }
 
 export class GAP implements GAPArgs {
@@ -16,13 +15,15 @@ export class GAP implements GAPArgs {
 
   readonly eas: EASClient;
   readonly owner: Hex;
-  private _schemas: Schema[];
-  readonly network: keyof typeof Network;
+  readonly network: TNetwork;
+
+  private _schemas: GapSchema[];
 
   private constructor(args: GAPArgs) {
     this.owner = args.owner;
     this.eas = new EASClient({ network: args.network, owner: args.owner });
-    this._schemas = args.schemas;
+    this._schemas = args.schemas.map((schema) => new GapSchema(schema));
+    Schema.validate();
   }
 
   /**
@@ -36,7 +37,7 @@ export class GAP implements GAPArgs {
     from: Hex,
     to: Hex,
     data: T,
-    schema: Schema,
+    schema: GapSchema,
     captureReferences?: boolean
   ) {}
 
@@ -44,23 +45,16 @@ export class GAP implements GAPArgs {
    * Replaces the schema list with a new list.
    * @param schemas
    */
-  replaceSchemas(schemas: Schema[]) {
-    this._schemas = schemas;
+  replaceSchemas(schemas: GapSchema[]) {
+    Schema.replaceAll(schemas);
   }
 
   /**
    *  Replaces a schema from the schema list.
    * @throws {SchemaError} if desired schema name does not exist.
    */
-  replaceSingleSchema(schema: Schema) {
-    const idx = this.schemas.findIndex((item) => schema.name === item.name);
-    if (!~idx)
-      throw new SchemaError(
-        "SCHEMA_NOT_FOUND",
-        `Schema ${schema.name} not found.`
-      );
-
-    this._schemas[idx] = schema;
+  replaceSingleSchema(schema: GapSchema) {
+    Schema.replaceOne(schema);
   }
 
   /**

@@ -1,14 +1,33 @@
-import { SchemaItem } from "@ethereum-attestation-service/eas-sdk";
-import { SchemaConfig, TSchemaName } from "../types";
+import {
+  SchemaEncoder,
+  SchemaItem,
+  SchemaValue,
+} from "@ethereum-attestation-service/eas-sdk";
+import { Hex } from "core/types";
 import { SchemaError } from "./SchemaError";
+import { ethers } from "ethers";
 
-export class Schema implements SchemaConfig {
+export interface SchemaInterface<T extends string = string> {
+  uid: string;
+  name: T;
+  references?: T;
+  attester?: Hex;
+  recipient?: Hex;
+  revoked?: boolean;
+  schema: SchemaItem[];
+}
+
+export abstract class Schema implements SchemaInterface {
+  protected encoder: SchemaEncoder;
   private static schemas: Schema[] = [];
 
-  public readonly name: TSchemaName;
-  public readonly schema: SchemaItem[];
   public readonly uid: string;
-  public readonly references: TSchemaName;
+  public readonly name: string;
+  public readonly attester?: Hex;
+  public readonly recipient?: Hex;
+  public readonly revoked?: boolean;
+  private _schema: SchemaItem[] = [];
+  public references?: string;
 
   /**
    * Creates a new schema instance
@@ -16,9 +35,86 @@ export class Schema implements SchemaConfig {
    * @param strict If true, will throw an error if schema reference is not valid. With this option, user should add schemas
    * in a strict order.
    */
-  constructor(args: SchemaConfig, strict = false) {
+  constructor(args: SchemaInterface, strict = false) {
     this.assert(args, strict);
-    Object.assign(this, args);
+
+    this._schema = args.schema;
+    this.uid = args.uid;
+    this.name = args.name;
+    this.references = args.references;
+    this.attester = args.attester;
+    this.recipient = args.recipient;
+    this.revoked = args.revoked;
+
+    this.encoder = new SchemaEncoder(this.abi);
+    Schema.add(this);
+  }
+
+  /**
+   * Encode the schema to be used as payload in the attestation
+   * @returns
+   */
+  encode() {
+    return this.encoder.encodeData(this._schema);
+  }
+
+  /**
+   * Set a schema field value.
+   * @param key
+   * @param value
+   */
+  setField(key: string, value: SchemaValue) {
+    const idx = this._schema.findIndex((item) => item.name === key);
+    if (!~idx)
+      throw new SchemaError(
+        "INVALID_SCHEMA_FIELD",
+        `Field ${key} not found in schema ${this.name}`
+      );
+
+    this.assertField(this._schema[idx], value);
+    this._schema[idx].value = value;
+  }
+
+  private assertField(item: SchemaItem, value: any) {
+    const { type, name } = item;
+
+    if (type.includes("uint") && /\D/.test(value)) {
+      throw new SchemaError(
+        "INVALID_SCHEMA_FIELD",
+        `Field ${name} is of type ${type} but value is not a number.`
+      );
+    }
+
+    if (type.includes("address") && !ethers.utils.isAddress(value)) {
+      throw new SchemaError(
+        "INVALID_SCHEMA_FIELD",
+        `Field ${name} is of type ${type} but value is not a valid address.`
+      );
+    }
+
+    if (type.includes("bytes") && !value.startsWith("0x")) {
+      throw new SchemaError(
+        "INVALID_SCHEMA_FIELD",
+        `Field ${name} is of type ${type} but value is not a valid hex string.`
+      );
+    }
+
+    if (
+      type.includes("bool") &&
+      (!["true", "false"].includes(value) || typeof value !== "boolean")
+    ) {
+      throw new SchemaError(
+        "INVALID_SCHEMA_FIELD",
+        `Field ${name} is of type ${type} but value is not a valid boolean.`
+      );
+    }
+
+    if (type.includes("tuple") && !Array.isArray(value)) {
+      throw new SchemaError(
+        "INVALID_SCHEMA_FIELD",
+        `Field ${name} is of type ${type} but value is not a valid array.`
+      );
+    }
   }
 
   /**
@@ -26,7 +122,7 @@ export class Schema implements SchemaConfig {
    * > Does not check references if `strict = false`. To check references use `Schema.validate()`
    * @param args
    */
-  private assert(args: SchemaConfig, strict = false) {
+  protected assert(args: SchemaInterface, strict = false) {
     const { name, schema, uid, references } = args;
 
     if (!name) {
@@ -37,9 +133,9 @@ export class Schema implements SchemaConfig {
       throw new SchemaError("MISSING_FIELD", "Schema must be an array.");
     }
 
-    if (!uid) {
-      throw new SchemaError("MISSING_FIELD", "Schema uid is required");
-    }
+    // if (!uid) {
+    //   throw new SchemaError("MISSING_FIELD", "Schema uid is required");
+    // }
 
     if (strict && references && !Schema.exists(references)) {
       throw new SchemaError(
@@ -53,10 +149,9 @@ export class Schema implements SchemaConfig {
     return this.schemas.find((schema) => schema.name === name);
   }
 
-  static add(...schemas: SchemaConfig[]) {
+  static add<T extends Schema>(...schemas: T[]) {
     schemas.forEach((schema) => {
-      const instance = new Schema(schema);
-      if (!this.get(schema.name)) this.schemas.push(instance);
+      if (!this.exists(schema.name)) this.schemas.push(schema);
       else
         throw new SchemaError(
           "SCHEMA_ALREADY_EXISTS",
@@ -65,7 +160,11 @@ export class Schema implements SchemaConfig {
     });
   }
 
-  static get(name: string) {
+  static getAll<T extends Schema>(): T[] {
+    return this.schemas as T[];
+  }
+
+  protected static get<N extends string, T extends Schema>(name: N): T {
     const schema = this.schemas.find((schema) => schema.name === name);
 
     if (!schema)
@@ -74,7 +173,7 @@ export class Schema implements SchemaConfig {
         `Schema ${name} not found. Available schemas: ${Schema.getNames()}`
       );
 
-    return schema;
+    return schema as T;
   }
 
   static getNames(): string[] {
@@ -100,7 +199,47 @@ export class Schema implements SchemaConfig {
         );
     });
 
-    if (errors) throw errors;
+    if (errors.length) throw errors;
     return true;
+  }
+
+  /**
+   * Replaces the schema list with a new list.
+   * @param schemas
+   */
+  static replaceAll(schemas: Schema[]) {
+    this.schemas = schemas;
+  }
+
+  /**
+   *  Replaces a schema from the schema list.
+   * @throws {SchemaError} if desired schema name does not exist.
+   */
+  static replaceOne(schema: Schema) {
+    const idx = this.schemas.findIndex((item) => schema.name === item.name);
+    if (!~idx)
+      throw new SchemaError(
+        "SCHEMA_NOT_FOUND",
+        `Schema ${schema.name} not found.`
+      );
+
+    this.schemas[idx] = schema;
+  }
+
+  get abi() {
+    return this.schema.map((item) => `${item.type} ${item.name}`).join(",");
+  }
+
+  get schema() {
+    return this._schema;
+  }
+
+  /**
+   * Asserts and sets the schema value.
+   */
+  set schema(schema: SchemaItem[]) {
+    schema.forEach((item) => {
+      this.setField(item.name, item.value);
+    });
   }
 }
