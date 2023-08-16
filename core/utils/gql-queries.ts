@@ -29,26 +29,21 @@ export const gqlQueries = {
   attestationsFrom: (schemaId: Hex, attester: Hex) =>
     schemaQuery(
       schemaId,
-      `attestations(where:{attester:{equals:"${attester}"}}){${attestationFields}}`
+      `attestations(where:{attester:{equals:"${attester}"},revoked:{equals:false}}){${attestationFields}}`
     ),
   attestationsOf: (schemaId: Hex, recipient: Hex) =>
     schemaQuery(
       schemaId,
-      `attestations(where:{recipient:{equals:"${recipient}"}}){${attestationFields}}`
+      `attestations(where:{recipient:{equals:"${recipient}"},revoked:{equals:false}}){${attestationFields}}`
     ),
   attestations: (schemaId: Hex, search?: string) =>
     schemaQuery(
       schemaId,
       `attestations
-            ${
-              search
-                ? `(where: {
-                    decodedDataJson: {
-                        contains: "${search}"
-                    }
-                })`
-                : ""
-            }
+            (where: {
+              revoked: {equals:false}
+              ${search ? `decodedDataJson:{contains:"${search}"}` : ""}
+            })
         {${attestationFields}}`
     ),
   schemata: (creator: Hex) => `
