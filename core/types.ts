@@ -54,10 +54,10 @@ export interface AttestationRes {
   recipient: Hex;
   revoked: boolean;
   timeCreated: number;
-  refUID: Hex;
+  refUID?: Hex;
   isOffchain: boolean;
   revocable: boolean;
-  revocationTime: number;
+  revocationTime?: number;
 }
 
 export interface SchemaRes {
