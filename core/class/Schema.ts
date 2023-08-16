@@ -143,6 +143,13 @@ export abstract class Schema<T extends string = string>
     }
   }
 
+  get children() {
+    return Schema.schemas.filter(
+      (schema) =>
+        schema.references === this.name || schema.references === this.uid
+    );
+  }
+
   static exists(name: string) {
     return this.schemas.find((schema) => schema.name === name);
   }

@@ -1,5 +1,8 @@
 import { Hex } from "core/types";
 
+const inStatement = (values: (string | number)[]) =>
+  `[${values.map((v) => `"${v}"`).join(",")}]`;
+
 const attestationFields = `
     uid: id
     attester
@@ -29,23 +32,36 @@ export const gqlQueries = {
   attestationsFrom: (schemaId: Hex, attester: Hex) =>
     schemaQuery(
       schemaId,
-      `attestations(where:{attester:{equals:"${attester}"},revoked:{equals:false}}){${attestationFields}}`
+      `attestations(orderBy:{timeCreated: desc},
+        where:{attester:{equals:"${attester}"},revoked:{equals:false}}){${attestationFields}}`
     ),
   attestationsOf: (schemaId: Hex, recipient: Hex) =>
     schemaQuery(
       schemaId,
-      `attestations(where:{recipient:{equals:"${recipient}"},revoked:{equals:false}}){${attestationFields}}`
+      `attestations(orderBy:{timeCreated: desc},
+        where:{recipient:{equals:"${recipient}"},revoked:{equals:false}}){${attestationFields}}`
     ),
   attestations: (schemaId: Hex, search?: string) =>
     schemaQuery(
       schemaId,
-      `attestations
-            (where: {
-              revoked: {equals:false}
-              ${search ? `decodedDataJson:{contains:"${search}"}` : ""}
-            })
+      `attestations(orderBy:{timeCreated: desc},
+        where: {
+          revoked:{equals:false}
+          ${search ? `decodedDataJson:{contains:"${search}"}` : ""}
+        })
         {${attestationFields}}`
     ),
+
+  dependentsOf: (refs: Hex | Hex[], schemaIds: Hex[]) => `
+    {
+      attestations(
+        where: {
+          refUID:{in: ${inStatement([refs].flat())}}
+          revoked:{equals: false}
+          schemaId:{in: ${inStatement(schemaIds)}}
+      }){${attestationFields}}
+    }
+  `,
   schemata: (creator: Hex) => `
     {
         schemata(where: {creator: {equals: "${creator}"}}) {

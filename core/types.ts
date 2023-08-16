@@ -1,5 +1,6 @@
 import { BytesLike } from "ethers";
 import { SchemaInterface } from "./class/Schema";
+import { Attestation } from "./class/Attestation";
 export type Hex = `0x${string}`;
 
 export type TSchemaName =
@@ -74,65 +75,61 @@ export interface AttestationRes {
   attestation: IAttestation;
 }
 
+export interface AttestationsRes {
+  attestations: IAttestation[];
+}
+
 export interface SchemaRes {
   schema: {
     attestations: IAttestation[];
   };
 }
 
-export interface ExternalLink {
-  uid: Hex;
+/** Attestation interfaces */
+export class ExternalLink extends Attestation {
   url: string;
   type: TExternalLink;
 }
 
-export interface GranteeDetails {
-  uid: Hex;
+export class GranteeDetails extends Attestation {
   name: string;
-  description: string;
+  description?: string;
   ownerAddress: Hex;
   payoutAddress: Hex;
 }
 
-export interface GrantDetails {
-  uid: Hex;
+export class GrantDetails extends Attestation {
   title: string;
-  amount: string;
+  amount: string = "0";
   proposalURL: string;
-  asset: [string, bigint];
-  description: string;
+  asset?: [string, bigint];
+  description?: string;
 }
 
-export interface GrantRound {
-  uid: Hex;
+export class GrantRound extends Attestation {
   name: string;
 }
 
-export interface GrantVerified {
-  uid: Hex;
+export class GrantVerified extends Attestation {
   verified: boolean;
 }
 
-export interface Grant {
-  uid: Hex;
-  details: GrantDetails;
-  verified: boolean;
-  round: GrantRound;
+export class Grant extends Attestation {
+  details?: GrantDetails;
+  verified?: boolean;
+  round?: GrantRound;
 }
 
-export interface MemberDetails {
-  uid: Hex;
+export class MemberDetails extends Attestation {
   name: string;
   profilePictureURL: string;
 }
 
-export interface MemberOf {
-  uid: Hex;
-  details: MemberDetails;
+export class MemberOf extends Attestation {
+  details?: MemberDetails;
 }
 
-export interface Milestone {
-  uid: Hex;
+export class Milestone extends Attestation {
   title: string;
   startsAt: Date;
   endsAt: Date;
@@ -141,35 +138,27 @@ export interface Milestone {
   approved: boolean;
 }
 
-export interface MilestoneCompleted {
-  uid: Hex;
-}
+export class MilestoneCompleted extends Attestation {}
+export class MilestoneApproved extends Attestation {}
 
-export interface MilestoneApproved {
-  uid: Hex;
-}
-
-export interface Tag {
-  uid: Hex;
+export class Tag extends Attestation {
   name: string;
 }
 
-export interface ProjectDetails {
-  uid: Hex;
+export class ProjectDetails extends Attestation {
   title: string;
   description: string;
   imageURL: string;
-  tags: Tag[];
+  tags: Tag[] = [];
 }
-export interface Project {
-  uid: Hex;
-  details: ProjectDetails;
-  members: MemberOf[];
+export class Project extends Attestation {
+  details?: ProjectDetails;
+  members: MemberOf[] = [];
   grants: Grant[];
+  grantee: Grantee;
 }
 
-export interface Grantee {
-  uid: Hex;
-  details: GranteeDetails;
-  projects: Project[];
+export class Grantee extends Attestation {
+  details?: GranteeDetails;
+  projects: Project[] = [];
 }

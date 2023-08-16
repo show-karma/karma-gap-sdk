@@ -7,6 +7,7 @@ import {
   SchemaValue,
 } from "@ethereum-attestation-service/eas-sdk";
 import { getDate } from "../utils/get-date";
+import { GapSchema } from "./GapSchema";
 
 interface AttestationArgs<T = unknown, S extends Schema = Schema> {
   schema: S;
@@ -20,7 +21,7 @@ interface AttestationArgs<T = unknown, S extends Schema = Schema> {
   createdAt: Date | number;
 }
 
-export class Attestation<T = unknown, S extends Schema = Schema>
+export class Attestation<T = unknown, S extends Schema = GapSchema>
   implements AttestationArgs<T, S>
 {
   readonly schema: S;

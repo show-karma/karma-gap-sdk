@@ -1,7 +1,12 @@
 import { gqlQueries } from "../../utils/gql-queries";
 import {
   AttestationRes,
+  AttestationsRes,
+  Grantee,
+  GranteeDetails,
   Hex,
+  Project,
+  ProjectDetails,
   SchemaRes,
   SchemataRes,
   TSchemaName,
@@ -28,16 +33,10 @@ export class EASFetcher extends EASClient {
     );
   }
 
-  async fetchAttestation<T>(uid: Hex) {
+  async fetchAttestation<T = unknown>(uid: Hex) {
     const query = gqlQueries.attestation(uid);
     const { attestation } = await this.query<AttestationRes>(query);
     const schema: GapSchema = Schema.get(attestation.schemaId);
-
-    if (!schema)
-      throw new SchemaError(
-        "INVALID_SCHEMA",
-        `Schema with ID ${attestation.schemaId} not found`
-      );
 
     return new Attestation<T, GapSchema>({
       ...attestation,
@@ -49,8 +48,7 @@ export class EASFetcher extends EASClient {
   async fetchAttestations<T = unknown>(
     schemaName: TSchemaName
   ): Promise<Attestation<T>[]> {
-    const schema: GapSchema = Schema.get(schemaName);
-    if (!schema) throw new Error(`Schema ${schemaName} not found`);
+    const schema: GapSchema = GapSchema.find(schemaName);
 
     const query = gqlQueries.attestations(schema.uid);
     const {
@@ -67,23 +65,109 @@ export class EASFetcher extends EASClient {
     );
   }
 
+  async fetchAttestationsOf<T extends Attestation = Attestation>(
+    schemaName: TSchemaName,
+    recipient: Hex
+  ): Promise<T[]> {
+    const schema: GapSchema = GapSchema.find(schemaName);
+    const query = gqlQueries.attestationsOf(schema.uid, recipient);
+    const {
+      schema: { attestations },
+    } = await this.query<SchemaRes>(query);
+
+    return attestations.map(
+      (attestation) =>
+        new Attestation({
+          ...attestation,
+          data: attestation.decodedDataJson,
+          schema,
+        }) as T
+    );
+  }
+
+  async fetchDependentsOf(
+    parentSchema: TSchemaName,
+    parentUid: Hex
+  ): Promise<Attestation[]> {
+    const parent: GapSchema = GapSchema.find(parentSchema);
+    const children = parent.children.map((c) => c.uid);
+
+    if (!children.length)
+      throw new SchemaError(
+        "INVALID_REFERENCE",
+        `Schema ${parentSchema} has no children.`
+      );
+
+    const query = gqlQueries.dependentsOf(parentUid, children);
+    const { attestations } = await this.query<AttestationsRes>(query);
+
+    return attestations.map((attestation) => {
+      const schema: GapSchema = Schema.get(attestation.schemaId);
+      return new Attestation({
+        ...attestation,
+        schema,
+        data: attestation.decodedDataJson,
+      });
+    });
+  }
+
   async fetchProjects(names?: string[]): Promise<Attestation> {
-    const schema: GapSchema = Schema.get("Project");
-    if (!schema) throw new Error("Projects schema not found.");
+    const schema: GapSchema = GapSchema.find("Project");
 
     return new Attestation({ data: "", schema, uid: "0x123", createdAt: 0 });
   }
 
+  async fetchGrantee(address: Hex, withProjects = true): Promise<Grantee> {
+    const schema: GapSchema = GapSchema.find("Grantee");
+    const projectSchema: GapSchema = GapSchema.find("Project");
+
+    const query = gqlQueries.attestationsOf(schema.uid, address);
+    const {
+      schema: { attestations: grantees },
+    } = await this.query<SchemaRes>(query);
+    const [last] = grantees;
+
+    if (!last) throw new Error("Grantee not found.");
+
+    const refs = await this.fetchDependentsOf("Grantee", last.uid);
+
+    const grantee = new Grantee({
+      ...last,
+      data: last.decodedDataJson,
+      schema,
+    });
+
+    grantee.details = refs.find(
+      (r) => r.schema.name === "GranteeDetails"
+    ) as GranteeDetails;
+
+    grantee.projects = refs.filter(
+      (r) => r.schema.name === "Project"
+    ) as Project[];
+
+    if (grantee.projects.length && withProjects) {
+      const projects = await this.fetchAttestationsOf(
+        "ProjectDetails",
+        last.recipient
+      );
+
+      grantee.projects.forEach((p) => {
+        const details = projects.find((d) => d.references === p.uid);
+        if (details) p.details = details.data as ProjectDetails;
+      });
+    }
+
+    return grantee;
+  }
+
   async fetchGrantees(addresses?: Hex[]): Promise<Attestation> {
-    const schema: GapSchema = Schema.get("Grantee");
-    if (!schema) throw new Error("Grantees schema not found.");
+    const schema: GapSchema = GapSchema.find("Grantee");
 
     return new Attestation({ data: "", schema, uid: "0x123", createdAt: 0 });
   }
 
   async fetchGrantsOf(grantee: Hex): Promise<Attestation[]> {
-    const schema: GapSchema = Schema.get("Grant");
-    if (!schema) throw new Error("Grant schema not found.");
+    const schema: GapSchema = GapSchema.find("Grant");
 
     const query = gqlQueries.attestationsOf(schema.uid, grantee);
     const {
@@ -101,15 +185,14 @@ export class EASFetcher extends EASClient {
   }
 
   async fetchGrantsOfProject(project: string): Promise<Attestation> {
-    const schema: GapSchema = Schema.get("Grant");
-    if (!schema) throw new Error("Grants schema not found.");
+    const schema: GapSchema = GapSchema.find("Grant");
 
     return new Attestation({ data: "", schema, uid: "0x123", createdAt: 0 });
   }
 
   async fetchProjectByTags(names: string[]): Promise<Attestation> {
-    const tag: GapSchema = Schema.get("Tag");
-    const project: GapSchema = Schema.get("Project");
+    const tag: GapSchema = GapSchema.find("Tag");
+    const project: GapSchema = GapSchema.find("Project");
 
     if (!(tag && project)) throw new Error("Project or Tag schema not found.");
 
@@ -122,29 +205,19 @@ export class EASFetcher extends EASClient {
   }
 
   async fetchMilestoneOf(grant: string): Promise<Attestation> {
-    const schema: GapSchema = Schema.get("MilestoneOf");
-    if (!schema) throw new Error("MilestoneOf schema not found.");
+    const schema: GapSchema = GapSchema.find("Milestone");
 
     return new Attestation({ data: "", schema, uid: "0x123", createdAt: 0 });
   }
 
   async fetchMembersOf(project: string): Promise<Attestation> {
-    const schema: GapSchema = Schema.get("MembersOf");
-    if (!schema) throw new Error("MembersOf schema not found.");
-
-    return new Attestation({ data: "", schema, uid: "0x123", createdAt: 0 });
-  }
-
-  async fetchMilestoneDetails(uid: Hex): Promise<Attestation> {
-    const schema: GapSchema = Schema.get("MilestoneDetails");
-    if (!schema) throw new Error("MilestoneDetails schema not found.");
+    const schema: GapSchema = GapSchema.find("MemberOf");
 
     return new Attestation({ data: "", schema, uid: "0x123", createdAt: 0 });
   }
 
   async fetchMembersDetails(uids: Hex[]): Promise<Attestation> {
-    const schema: GapSchema = Schema.get("MembersDetails");
-    if (!schema) throw new Error("MembersDetails schema not found.");
+    const schema: GapSchema = GapSchema.find("MemberDetails");
 
     return new Attestation({ data: "", schema, uid: "0x123", createdAt: 0 });
   }
