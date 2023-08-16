@@ -11,8 +11,8 @@ export interface SchemaInterface<T extends string = string> {
   name: string;
   schema: SchemaItem[];
   references?: T;
-  uid: string;
-  revokable?: boolean;
+  uid: Hex;
+  revocable?: boolean;
 }
 
 export abstract class Schema<T extends string = string>
@@ -23,10 +23,10 @@ export abstract class Schema<T extends string = string>
   protected encoder: SchemaEncoder;
   private _schema: SchemaItem[] = [];
 
-  readonly uid: string;
+  readonly uid: Hex;
   readonly name: string;
 
-  readonly revokable?: boolean;
+  readonly revocable?: boolean;
   readonly references?: T;
 
   /**
@@ -42,7 +42,7 @@ export abstract class Schema<T extends string = string>
     this.uid = args.uid;
     this.name = args.name;
     this.references = args.references;
-    this.revokable = args.revokable;
+    this.revocable = args.revocable || true;
 
     this.encoder = new SchemaEncoder(this.abi);
     Schema.add(this);
@@ -163,7 +163,9 @@ export abstract class Schema<T extends string = string>
   }
 
   static get<N extends string, T extends Schema>(name: N): T {
-    const schema = this.schemas.find((schema) => schema.name === name);
+    const schema = this.schemas.find(
+      (schema) => schema.name === name || schema.uid === name
+    );
 
     if (!schema)
       throw new SchemaError(
@@ -222,6 +224,27 @@ export abstract class Schema<T extends string = string>
       );
 
     this.schemas[idx] = schema;
+  }
+
+  /**
+   * Transforms the given schema abi to SchemaItem[]
+   *
+   * @example
+   * ```
+   * const schema = Schema.abiToObject("uint256 id, string name");
+   * // schema = [{ type: "uint256", name: "id", value: null }, { type: "string", name: "name", value: null }]
+   *```
+   * @param abi
+   * @returns
+   */
+  static abiToObject(abi: string) {
+    const items = abi.split(",");
+    const schema: SchemaItem[] = items.map((item) => {
+      const [type, name] = item.split(" ");
+      return { type, name, value: null };
+    });
+
+    return schema;
   }
 
   get abi() {

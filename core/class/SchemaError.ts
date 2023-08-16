@@ -10,6 +10,7 @@ const SchemaErrorCodes = {
   INVALID_SCHEMA_FIELD: 50009,
   INVALID_DATA: 50010,
 };
+
 export class SchemaError extends Error {
   readonly code: number;
   private readonly _message: string;

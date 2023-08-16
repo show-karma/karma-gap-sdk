@@ -1,16 +1,23 @@
-import { Hex, JSONStr, TSchemaName } from "core/types";
+import { Hex, JSONStr } from "../types";
 import { Schema } from "./Schema";
 import { SchemaError } from "./SchemaError";
-import { SchemaItem, SchemaValue } from "@ethereum-attestation-service/eas-sdk";
+import {
+  SchemaDecodedItem,
+  SchemaItem,
+  SchemaValue,
+} from "@ethereum-attestation-service/eas-sdk";
+import { getDate } from "../utils/get-date";
 
 interface AttestationArgs<T = unknown, S extends Schema = Schema> {
   schema: S;
-  data: T;
-  uid: string;
+  data: T | string;
+  uid: Hex;
   references?: string;
   attester?: Hex;
   recipient?: Hex;
   revoked?: boolean;
+  revocationTime?: Date | number;
+  createdAt: Date | number;
 }
 
 export class Attestation<T = unknown, S extends Schema = Schema>
@@ -19,25 +26,28 @@ export class Attestation<T = unknown, S extends Schema = Schema>
   readonly schema: S;
   private _data: T;
 
-  readonly uid: string;
+  readonly uid: Hex;
   readonly references?: string;
   readonly attester?: `0x${string}`;
   readonly recipient?: `0x${string}`;
   readonly revoked?: boolean;
+  readonly revocationTime?: Date;
+  readonly createdAt: Date;
 
   private _reference?: Attestation;
 
-  constructor(args: AttestationArgs<T, S> & { data: string }) {
+  constructor(args: AttestationArgs<T, S>) {
     this.schema = args.schema;
 
-    this._data = this.parseJson(args.data);
-    this.setValues(this.data);
+    this._data = this.fromDecodedSchema(args.data);
 
     this.uid = args.uid;
     this.references = args.references;
     this.attester = args.attester;
     this.recipient = args.recipient;
     this.revoked = args.revoked;
+    this.revocationTime = getDate(args.revocationTime);
+    this.createdAt = getDate(args.createdAt);
   }
 
   /**
@@ -59,9 +69,9 @@ export class Attestation<T = unknown, S extends Schema = Schema>
    * Set attestation values to be uploaded.
    * @param values
    */
-  setValues(values: T) {
+  setValues(values: SchemaItem[]) {
     Object.entries(values).forEach(([key, value]) => {
-      this.setValue(key as keyof T, value as SchemaValue);
+      this.setValue(key as keyof T, value.value);
     });
   }
 
@@ -72,16 +82,18 @@ export class Attestation<T = unknown, S extends Schema = Schema>
     return this._reference as Attestation<Ref, RefSchema>;
   }
 
-  parseJson(data: T | JSONStr): T {
-    return typeof data === "string" ? Attestation.parseJson<T>(data) : data;
+  fromDecodedSchema(data: T | JSONStr): T {
+    return typeof data === "string"
+      ? Attestation.fromDecodedSchema<T>(data)
+      : data;
   }
 
-  static parseJson<T>(data: JSONStr): T {
+  static fromDecodedSchema<T>(data: JSONStr): T {
     try {
-      const parsed: SchemaItem[] = JSON.parse(data);
+      const parsed: SchemaDecodedItem[] = JSON.parse(data);
       if (parsed && Array.isArray(parsed)) {
         return parsed.reduce((acc, curr) => {
-          const value = curr.value;
+          const { value } = curr.value;
           if (
             curr.type.includes("uint") &&
             ["number", "string", "bigint"].includes(typeof value)

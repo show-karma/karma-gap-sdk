@@ -1,82 +1,151 @@
-import { Hex } from "../../types";
+import { gqlQueries } from "../../utils/gql-queries";
+import {
+  AttestationRes,
+  Hex,
+  SchemaRes,
+  SchemataRes,
+  TSchemaName,
+} from "../../types";
 import { Attestation } from "../Attestation";
 import { GapSchema } from "../GapSchema";
 import { Schema } from "../Schema";
 import { EASClient } from "./EASClient";
+import { SchemaError } from "../SchemaError";
 
 // TODO: Map all the methods and if needed, create sepparate entities.
 export class EASFetcher extends EASClient {
-  async fetchSchemas<T extends Schema = Schema>(owner: Hex): Promise<T[]> {
-    return [];
+  async fetchSchemas(owner: Hex): Promise<GapSchema[]> {
+    const query = gqlQueries.schemata(owner);
+    const { schemata } = await this.query<SchemataRes>(query);
+
+    return schemata.map(
+      (schema) =>
+        new GapSchema({
+          name: "",
+          schema: Schema.abiToObject(schema.schema),
+          uid: schema.uid,
+        })
+    );
   }
 
-  async fetchAttestations(schemaName: string): Promise<Attestation> {
-    const schema = Schema.get(schemaName);
+  async fetchAttestation<T>(uid: Hex) {
+    const query = gqlQueries.attestation(uid);
+    const { attestation } = await this.query<AttestationRes>(query);
+    const schema: GapSchema = Schema.get(attestation.schemaId);
+
+    if (!schema)
+      throw new SchemaError(
+        "INVALID_SCHEMA",
+        `Schema with ID ${attestation.schemaId} not found`
+      );
+
+    return new Attestation<T, GapSchema>({
+      ...attestation,
+      data: attestation.decodedDataJson,
+      schema,
+    });
+  }
+
+  async fetchAttestations<T = unknown>(
+    schemaName: TSchemaName
+  ): Promise<Attestation<T>[]> {
+    const schema: GapSchema = Schema.get(schemaName);
     if (!schema) throw new Error(`Schema ${schemaName} not found`);
 
-    return new Attestation({ data: "", schema, uid: "123" });
+    const query = gqlQueries.attestations(schema.uid);
+    const {
+      schema: { attestations },
+    } = await this.query<SchemaRes>(query);
+
+    return attestations.map(
+      (attestation) =>
+        new Attestation<T>({
+          ...attestation,
+          data: attestation.decodedDataJson,
+          schema,
+        })
+    );
   }
 
   async fetchProjects(names?: string[]): Promise<Attestation> {
-    const schema = Schema.get("Projects");
+    const schema: GapSchema = Schema.get("Project");
     if (!schema) throw new Error("Projects schema not found.");
 
-    return new Attestation({ data: "", schema, uid: "123" });
+    return new Attestation({ data: "", schema, uid: "0x123", createdAt: 0 });
   }
 
-  async fetchGrantees(addresses?: string[]): Promise<Attestation> {
-    const schema = Schema.get("Grantees");
+  async fetchGrantees(addresses?: Hex[]): Promise<Attestation> {
+    const schema: GapSchema = Schema.get("Grantee");
     if (!schema) throw new Error("Grantees schema not found.");
 
-    return new Attestation({ data: "", schema, uid: "123" });
+    return new Attestation({ data: "", schema, uid: "0x123", createdAt: 0 });
   }
 
-  async fetchGrantsOf(grantee: string): Promise<Attestation> {
-    const schema = Schema.get("GrantsOf");
-    if (!schema) throw new Error("GrantsOf schema not found.");
+  async fetchGrantsOf(grantee: Hex): Promise<Attestation[]> {
+    const schema: GapSchema = Schema.get("Grant");
+    if (!schema) throw new Error("Grant schema not found.");
 
-    return new Attestation({ data: "", schema, uid: "123" });
+    const query = gqlQueries.attestationsOf(schema.uid, grantee);
+    const {
+      schema: { attestations: grants },
+    } = await this.query<SchemaRes>(query);
+
+    return grants.map(
+      (grant) =>
+        new Attestation<{}, GapSchema>({
+          ...grant,
+          data: {},
+          schema,
+        })
+    );
   }
 
   async fetchGrantsOfProject(project: string): Promise<Attestation> {
-    const schema = Schema.get("GrantsOfProject");
-    if (!schema) throw new Error("GrantsOfProject schema not found.");
+    const schema: GapSchema = Schema.get("Grant");
+    if (!schema) throw new Error("Grants schema not found.");
 
-    return new Attestation({ data: "", schema, uid: "123" });
+    return new Attestation({ data: "", schema, uid: "0x123", createdAt: 0 });
   }
 
   async fetchProjectByTags(names: string[]): Promise<Attestation> {
-    const schema = Schema.get("ProjectByTags");
-    if (!schema) throw new Error("ProjectByTags schema not found.");
+    const tag: GapSchema = Schema.get("Tag");
+    const project: GapSchema = Schema.get("Project");
 
-    return new Attestation({ data: "", schema, uid: "123" });
+    if (!(tag && project)) throw new Error("Project or Tag schema not found.");
+
+    return new Attestation({
+      data: "",
+      schema: project,
+      uid: "0x123",
+      createdAt: 0,
+    });
   }
 
   async fetchMilestoneOf(grant: string): Promise<Attestation> {
-    const schema = Schema.get("MilestoneOf");
+    const schema: GapSchema = Schema.get("MilestoneOf");
     if (!schema) throw new Error("MilestoneOf schema not found.");
 
-    return new Attestation({ data: "", schema, uid: "123" });
+    return new Attestation({ data: "", schema, uid: "0x123", createdAt: 0 });
   }
 
   async fetchMembersOf(project: string): Promise<Attestation> {
-    const schema = Schema.get("MembersOf");
+    const schema: GapSchema = Schema.get("MembersOf");
     if (!schema) throw new Error("MembersOf schema not found.");
 
-    return new Attestation({ data: "", schema, uid: "123" });
+    return new Attestation({ data: "", schema, uid: "0x123", createdAt: 0 });
   }
 
-  async fetchMilestoneDetails(uid: string): Promise<Attestation> {
-    const schema = Schema.get("MilestoneDetails");
+  async fetchMilestoneDetails(uid: Hex): Promise<Attestation> {
+    const schema: GapSchema = Schema.get("MilestoneDetails");
     if (!schema) throw new Error("MilestoneDetails schema not found.");
 
-    return new Attestation({ data: "", schema, uid: "123" });
+    return new Attestation({ data: "", schema, uid: "0x123", createdAt: 0 });
   }
 
-  async fetchMembersDetails(uid: string[]): Promise<Attestation> {
-    const schema = Schema.get("MembersDetails");
+  async fetchMembersDetails(uids: Hex[]): Promise<Attestation> {
+    const schema: GapSchema = Schema.get("MembersDetails");
     if (!schema) throw new Error("MembersDetails schema not found.");
 
-    return new Attestation({ data: "", schema, uid: "123" });
+    return new Attestation({ data: "", schema, uid: "0x123", createdAt: 0 });
   }
 }

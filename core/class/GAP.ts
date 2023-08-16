@@ -3,6 +3,7 @@ import { EASClient } from "./GraphQL/EASClient";
 import { Hex, TNetwork } from "../types";
 import { Schema, SchemaInterface } from "./Schema";
 import { GapSchema } from "./GapSchema";
+import { EASFetcher } from "./GraphQL/EASFetcher";
 
 interface GAPArgs {
   network: TNetwork;
@@ -14,6 +15,7 @@ export class GAP implements GAPArgs {
   private static client: GAP;
 
   readonly eas: EASClient;
+  readonly fetcher: EASFetcher;
   readonly owner: Hex;
   readonly network: TNetwork;
 
@@ -21,7 +23,10 @@ export class GAP implements GAPArgs {
 
   private constructor(args: GAPArgs) {
     this.owner = args.owner;
+
     this.eas = new EASClient({ network: args.network, owner: args.owner });
+    this.fetcher = new EASFetcher({ network: args.network, owner: args.owner });
+
     this._schemas = args.schemas.map((schema) => new GapSchema(schema));
     Schema.validate();
   }

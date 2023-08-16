@@ -1,5 +1,5 @@
 import { EASNetworkConfig, TNetwork } from "core/types";
-import { MountEntities, Networks } from "../consts";
+import { MountEntities, Networks, nullResolver } from "../consts";
 
 import SchemaRegistry from "../abi/SchemaRegistry.json";
 
@@ -43,7 +43,7 @@ async function deploy(networkName?: TNetwork) {
     .map((entity) => {
       return contract.functions.register(
         new GapSchema(entity).abi,
-        "0x0000000000000000000000000000000000000000",
+        nullResolver,
         revocable,
         {
           gasLimit: 5000000n,

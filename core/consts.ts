@@ -1,6 +1,10 @@
 import { SchemaInterface } from "./class/Schema";
 import { EASNetworkConfig, TNetwork, TSchemaName } from "./types";
 
+export const nullRef =
+  "0x0000000000000000000000000000000000000000000000000000000000000000";
+export const nullResolver = "0x0000000000000000000000000000000000000000";
+
 /**
  * The networks that are supported by the EAS
  */
