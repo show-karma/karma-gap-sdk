@@ -8,6 +8,7 @@ const SchemaErrorCodes = {
   MISSING_FIELD: 50007,
   INVALID_REFERENCE: 50008,
   INVALID_SCHEMA_FIELD: 50009,
+  INVALID_DATA: 50010,
 };
 export class SchemaError extends Error {
   readonly code: number;

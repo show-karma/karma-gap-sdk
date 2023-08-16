@@ -1,3 +1,4 @@
+import { BytesLike } from "ethers";
 import { SchemaInterface } from "./class/Schema";
 export type Hex = `0x${string}`;
 
@@ -17,6 +18,8 @@ export type TSchemaName =
   | "Project"
   | "ProjectDetails"
   | "Tag";
+
+export type TExternalLink = "twitter" | "github" | "website" | "linkedin";
 
 export type TNetwork =
   // | "mainnet"
@@ -41,20 +44,102 @@ export interface EASNetworkConfig {
 
 export type IGapSchema = SchemaInterface<TSchemaName>;
 
-export interface EASClientRes {}
+export type JSONStr = string;
 
-export interface ExternalLink {}
-export interface Grantee {}
-export interface GranteeDetails {}
-export interface Grant {}
-export interface GrantDetails {}
-export interface GrantRound {}
-export interface GrantVerified {}
-export interface MemberOf {}
-export interface MemberDetails {}
-export interface Milestone {}
+export interface AttestationRes {
+  uid: Hex;
+  attester: Hex;
+  data: BytesLike;
+  decodedDataJson: JSONStr;
+  recipient: Hex;
+  revoked: boolean;
+  timeCreated: number;
+  refUID: Hex;
+  isOffchain: boolean;
+  revocable: boolean;
+  revocationTime: number;
+}
+
+export interface SchemaRes {
+  data: {
+    schema: {
+      attestations: AttestationRes[];
+    };
+  };
+}
+
+export interface ExternalLink {
+  url: string;
+  type: TExternalLink;
+}
+
+export interface GranteeDetails {
+  name: string;
+  description: string;
+  ownerAddress: Hex;
+  payoutAddress: Hex;
+}
+
+export interface GrantDetails {
+  title: string;
+  amount: string;
+  proposalURL: string;
+  asset: [string, bigint];
+  description: string;
+}
+
+export interface GrantRound {
+  name: string;
+}
+
+export interface GrantVerified {
+  verified: boolean;
+}
+
+export interface Grant {
+  details: GrantDetails;
+  verified: boolean;
+  round: GrantRound;
+}
+
+export interface MemberDetails {
+  name: string;
+  profilePictureURL: string;
+}
+
+export interface MemberOf {
+  details: MemberDetails;
+}
+
+export interface Milestone {
+  title: string;
+  startsAt: Date;
+  endsAt: Date;
+  description: string;
+  completed: boolean;
+  approved: boolean;
+}
+
 export interface MilestoneCompleted {}
 export interface MilestoneApproved {}
-export interface Project {}
-export interface ProjectDetails {}
-export interface Tag {}
+
+export interface Tag {
+  name: string;
+}
+
+export interface ProjectDetails {
+  title: string;
+  description: string;
+  imageURL: string;
+  tags: Tag[];
+}
+export interface Project {
+  details: ProjectDetails;
+  members: MemberOf[];
+  grants: Grant[];
+}
+
+export interface Grantee {
+  details: GranteeDetails;
+  projects: Project[];
+}

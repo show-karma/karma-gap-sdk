@@ -8,26 +8,26 @@ import { SchemaError } from "./SchemaError";
 import { ethers } from "ethers";
 
 export interface SchemaInterface<T extends string = string> {
-  uid: string;
-  name: T;
-  references?: T;
-  attester?: Hex;
-  recipient?: Hex;
-  revoked?: boolean;
+  name: string;
   schema: SchemaItem[];
+  references?: T;
+  uid: string;
+  revokable?: boolean;
 }
 
-export abstract class Schema implements SchemaInterface {
-  protected encoder: SchemaEncoder;
+export abstract class Schema<T extends string = string>
+  implements SchemaInterface<T>
+{
   private static schemas: Schema[] = [];
 
-  public readonly uid: string;
-  public readonly name: string;
-  public readonly attester?: Hex;
-  public readonly recipient?: Hex;
-  public readonly revoked?: boolean;
+  protected encoder: SchemaEncoder;
   private _schema: SchemaItem[] = [];
-  public references?: string;
+
+  readonly uid: string;
+  readonly name: string;
+
+  readonly revokable?: boolean;
+  readonly references?: T;
 
   /**
    * Creates a new schema instance
@@ -35,16 +35,14 @@ export abstract class Schema implements SchemaInterface {
    * @param strict If true, will throw an error if schema reference is not valid. With this option, user should add schemas
    * in a strict order.
    */
-  constructor(args: SchemaInterface, strict = false) {
+  constructor(args: SchemaInterface<T>, strict = false) {
     this.assert(args, strict);
 
     this._schema = args.schema;
     this.uid = args.uid;
     this.name = args.name;
     this.references = args.references;
-    this.attester = args.attester;
-    this.recipient = args.recipient;
-    this.revoked = args.revoked;
+    this.revokable = args.revokable;
 
     this.encoder = new SchemaEncoder(this.abi);
     Schema.add(this);
@@ -63,7 +61,7 @@ export abstract class Schema implements SchemaInterface {
    * @param key
    * @param value
    */
-  setField(key: string, value: SchemaValue) {
+  setValue(key: string, value: SchemaValue) {
     const idx = this._schema.findIndex((item) => item.name === key);
     if (!~idx)
       throw new SchemaError(
@@ -164,7 +162,7 @@ export abstract class Schema implements SchemaInterface {
     return this.schemas as T[];
   }
 
-  protected static get<N extends string, T extends Schema>(name: N): T {
+  static get<N extends string, T extends Schema>(name: N): T {
     const schema = this.schemas.find((schema) => schema.name === name);
 
     if (!schema)
@@ -239,7 +237,7 @@ export abstract class Schema implements SchemaInterface {
    */
   set schema(schema: SchemaItem[]) {
     schema.forEach((item) => {
-      this.setField(item.name, item.value);
+      this.setValue(item.name, item.value);
     });
   }
 }
