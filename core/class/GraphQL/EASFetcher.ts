@@ -47,6 +47,12 @@ export class EASFetcher extends EASClient {
     });
   }
 
+  /**
+   * Fetch attestations of a schema.
+   * @param schemaName
+   * @param search if set, will search decodedDataJson by the value.
+   * @returns
+   */
   async fetchAttestations<T = unknown>(
     schemaName: TSchemaName,
     search?: string
@@ -68,6 +74,12 @@ export class EASFetcher extends EASClient {
     );
   }
 
+  /**
+   * Fetch attestations of a schema for a specific recipient.
+   * @param schemaName
+   * @param recipient
+   * @returns
+   */
   async fetchAttestationsOf<T extends Attestation = Attestation>(
     schemaName: TSchemaName,
     recipient: Hex
@@ -79,15 +91,19 @@ export class EASFetcher extends EASClient {
     } = await this.query<SchemaRes>(query);
 
     return attestations.map(
-      (attestation) =>
-        new Attestation({
+      (attestation) => <T>new Attestation({
           ...attestation,
           data: attestation.decodedDataJson,
           schema,
-        }) as T
+        })
     );
   }
 
+  /**
+   * Fetch all dependent attestations of a parent schema.
+   * @param parentSchema the schema name to get dependents of.
+   * @param parentUid the parent uid to get dependents of.
+   */
   async fetchDependentsOf(
     parentSchema: TSchemaName,
     parentUid: Hex
@@ -107,11 +123,13 @@ export class EASFetcher extends EASClient {
     return this.transformAttestations(attestations);
   }
 
+  /**
+   * Fetch projects with details and members.
+   * @param name if set, will search by the name.
+   * @returns
+   */
   async fetchProjects(name?: string): Promise<Attestation[]> {
-    const projects = (await this.fetchAttestations(
-      "Project",
-      name
-    )) as Project[];
+    const projects = <Project[]>await this.fetchAttestations("Project", name);
 
     if (!projects.length) return [];
 
@@ -131,25 +149,32 @@ export class EASFetcher extends EASClient {
     return projects.map((project) => {
       const refs = deps.filter((ref) => ref.refUID === project.uid);
 
-      project.details = refs.find(
-        (ref) =>
-          ref.schema.name === "ProjectDetails" && ref.refUID === project.uid
-      ) as ProjectDetails;
+      project.details = <ProjectDetails>(
+        refs.find(
+          (ref) =>
+            ref.schema.name === "ProjectDetails" && ref.refUID === project.uid
+        )
+      );
 
       project.members = refs.filter((ref) => ref.refUID === memberOf.uid);
       project.members.forEach((member) => {
-        member.details = refs.find(
-          (ref) => ref.refUID === member.uid
-        ) as MemberDetails;
+        member.details = <MemberDetails>(
+          refs.find((ref) => ref.refUID === member.uid)
+        );
       });
 
       return project;
     });
   }
 
+  /**
+   * Fetch Grantee with details and projects.
+   * @param address
+   * @param withProjects if true, will get grantee project details.
+   * @returns
+   */
   async fetchGrantee(address: Hex, withProjects = true): Promise<Grantee> {
     const schema: GapSchema = GapSchema.find("Grantee");
-    const projectSchema: GapSchema = GapSchema.find("Project");
 
     const query = gqlQueries.attestationsOf(schema.uid, address);
     const {
@@ -167,13 +192,13 @@ export class EASFetcher extends EASClient {
       schema,
     });
 
-    grantee.details = refs.find(
-      (r) => r.schema.name === "GranteeDetails"
-    ) as GranteeDetails;
+    grantee.details = <GranteeDetails>(
+      refs.find((r) => r.schema.name === "GranteeDetails")
+    );
 
-    grantee.projects = refs.filter(
-      (r) => r.schema.name === "Project"
-    ) as Project[];
+    grantee.projects = <Project[]>(
+      refs.filter((r) => r.schema.name === "Project")
+    );
 
     if (grantee.projects.length && withProjects) {
       const projects = await this.fetchAttestationsOf(
@@ -183,7 +208,7 @@ export class EASFetcher extends EASClient {
 
       grantee.projects.forEach((p) => {
         const details = projects.find((d) => d.refUID === p.uid);
-        if (details) p.details = details.data as ProjectDetails;
+        if (details) p.details = <ProjectDetails>details.data;
       });
     }
 
@@ -252,6 +277,9 @@ export class EASFetcher extends EASClient {
     return new Attestation({ data: "", schema, uid: "0x123", createdAt: 0 });
   }
 
+  /**
+   * Transform attestation interface-based into class-based.
+   */
   private transformAttestations(attestations: IAttestation[]) {
     return attestations.map((attestation) => {
       const schema: GapSchema = Schema.get(attestation.schemaId);
