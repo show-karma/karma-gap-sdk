@@ -149,7 +149,6 @@ export class ProjectDetails extends Attestation {
   title: string;
   description: string;
   imageURL: string;
-  tags: Tag[] = [];
   links: ExternalLink[] = [];
 }
 export class Project extends Attestation {
@@ -157,6 +156,7 @@ export class Project extends Attestation {
   members: MemberOf[] = [];
   grants: Grant[];
   grantee: Grantee;
+  tags: Tag[] = [];
 }
 
 export class Grantee extends Attestation {

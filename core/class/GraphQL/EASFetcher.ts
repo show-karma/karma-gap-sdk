@@ -8,11 +8,13 @@ import {
   Hex,
   IAttestation,
   MemberDetails,
+  MemberOf,
   Project,
   ProjectDetails,
   SchemaRes,
   SchemataRes,
   TSchemaName,
+  Tag,
 } from "../../types";
 import { Attestation } from "../Attestation";
 import { GapSchema } from "../GapSchema";
@@ -133,7 +135,7 @@ export class EASFetcher extends EASClient {
 
     if (!projects.length) return [];
 
-    const [memberOf, memberDetails, projectDetails, extLink] =
+    const [memberOf, memberDetails, projectDetails, extLink, tag] =
       GapSchema.findMany([
         "ProjectDetails",
         "MemberOf",
@@ -151,6 +153,8 @@ export class EASFetcher extends EASClient {
     const results = await this.query<AttestationsRes>(query);
     const deps = this.transformAttestations(results.attestations || []);
 
+    const members = await this.fetchMembersOf(projects);
+
     return projects.map((project) => {
       const refs = deps.filter((ref) => ref.refUID === project.uid);
 
@@ -165,13 +169,15 @@ export class EASFetcher extends EASClient {
         refs.filter((ref) => ref.schema.name === "ExternalLink")
       );
 
-      project.members = refs.filter((ref) => ref.refUID === memberOf.uid);
-      // Need to fetch again the project members to get the details.
-      // project.members.forEach((member) => {
-      //   member.details = <MemberDetails>(
-      //     refs.find((ref) => ref.refUID === member.uid)
-      //   );
-      // });
+      project.tags = <Tag[]>(
+        refs.filter(
+          (ref) => ref.schema.uid === tag.uid && ref.refUID === project.uid
+        )
+      );
+
+      project.members = <MemberOf[]>(
+        members.filter((m) => m.refUID === project.uid)
+      );
 
       return project;
     });
@@ -254,7 +260,7 @@ export class EASFetcher extends EASClient {
     );
   }
 
-  async fetchGrantsOfProject(project: string): Promise<Attestation> {
+  async fetchGrantsOfProject(project: Attestation): Promise<Attestation> {
     const schema: GapSchema = GapSchema.find("Grant");
 
     return new Attestation({ data: "", schema, uid: "0x123", createdAt: 0 });
@@ -279,16 +285,46 @@ export class EASFetcher extends EASClient {
     return new Attestation({ data: "", schema, uid: "0x123", createdAt: 0 });
   }
 
-  async fetchMembersOf(project: string): Promise<Attestation> {
-    const schema = GapSchema.find("MemberOf");
+  async fetchMembersOf(projects: Attestation[]): Promise<Attestation[]> {
+    const [member, memberDetails] = GapSchema.findMany([
+      "MemberOf",
+      "MemberDetails",
+    ]);
 
-    return new Attestation({ data: "", schema, uid: "0x123", createdAt: 0 });
-  }
+    if (!projects.length) return [];
 
-  async fetchMembersDetails(uids: Hex[]): Promise<Attestation> {
-    const schema = GapSchema.find("MemberDetails");
+    const query = gqlQueries.dependentsOf(
+      projects.map((p) => p.uid),
+      [member.uid],
+      projects.map((p) => p.attester)
+    );
 
-    return new Attestation({ data: "", schema, uid: "0x123", createdAt: 0 });
+    const results = await this.query<AttestationsRes>(query);
+
+    const attestations = <MemberOf[]>(
+      this.transformAttestations(results.attestations || [])
+    );
+
+    if (attestations.length) {
+      const ref = gqlQueries.dependentsOf(
+        results.attestations.map((a) => a.uid),
+        [memberDetails.uid],
+        results.attestations.map((a) => a.attester)
+      );
+
+      const detailsResult = await this.query<AttestationsRes>(ref);
+      const detailsRef = this.transformAttestations(
+        detailsResult.attestations || []
+      );
+
+      attestations.forEach((member) => {
+        member.details = <MemberDetails>(
+          detailsRef.find((d) => d.refUID === member.uid)
+        );
+      });
+    }
+
+    return attestations;
   }
 
   /**
