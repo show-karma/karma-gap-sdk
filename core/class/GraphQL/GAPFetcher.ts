@@ -115,7 +115,7 @@ export class GAPFetcher extends EASClient {
    * @param name if set, will search by the name.
    * @returns
    */
-  async projects(name?: string): Promise<Attestation[]> {
+  async projects(name?: string): Promise<Project[]> {
     const projects = <Project[]>await this.attestations("Project", name);
 
     if (!projects.length) return [];
