@@ -7,7 +7,7 @@
   "license": "MIT",
   "private": false,
   "scripts": {
-    "prepublishOnly": "npx tsc && npm version patch",
+    "prepublishOnly": "npx tsc && npm version patch && git push --follow-tags",
     "deploy": "npx ts-node ./core/scripts/deploy.ts"
   },
   "dependencies": {
