@@ -4,19 +4,23 @@
     "module": "commonjs",
     "target": "es2020",
     "outDir": "./.dist",
-    "baseUrl": "./core",
+    "baseUrl": ".",
     "declaration": true,
     "esModuleInterop": true,
-    "types": [],
     "skipLibCheck": true,
     "resolveJsonModule": true
   },
   "exclude": [
+    "**/.dist",
+    "**/config",
+    "**/config/*",
+    "**/scripts",
+    "**/scripts/*",
     "node_modules",
     "./node_modules",
     "./node_modules/*",
     "./node_modules/@types/node/index.d.ts"
   ],
   "include": ["core/**/*.ts"],
-  "files": ["core/index.ts"]
+  "files": ["./index.ts"]
 }

@@ -50,7 +50,7 @@ async function deploy(networkName?: TNetwork) {
         }
       );
     });
-  const results = [];
+  const results: any[] = [];
   for (const tx of promises) {
     const txn = await tx;
     const result = await txn.wait();
