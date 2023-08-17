@@ -5,6 +5,8 @@ import {
   Grantee,
   GranteeDetails,
   Hex,
+  IAttestation,
+  MemberDetails,
   Project,
   ProjectDetails,
   SchemaRes,
@@ -46,11 +48,12 @@ export class EASFetcher extends EASClient {
   }
 
   async fetchAttestations<T = unknown>(
-    schemaName: TSchemaName
+    schemaName: TSchemaName,
+    search?: string
   ): Promise<Attestation<T>[]> {
     const schema: GapSchema = GapSchema.find(schemaName);
 
-    const query = gqlQueries.attestations(schema.uid);
+    const query = gqlQueries.attestationsOf(schema.uid, search);
     const {
       schema: { attestations },
     } = await this.query<SchemaRes>(query);
@@ -101,20 +104,47 @@ export class EASFetcher extends EASClient {
     const query = gqlQueries.dependentsOf(parentUid, children);
     const { attestations } = await this.query<AttestationsRes>(query);
 
-    return attestations.map((attestation) => {
-      const schema: GapSchema = Schema.get(attestation.schemaId);
-      return new Attestation({
-        ...attestation,
-        schema,
-        data: attestation.decodedDataJson,
-      });
-    });
+    return this.transformAttestations(attestations);
   }
 
-  async fetchProjects(names?: string[]): Promise<Attestation> {
-    const schema: GapSchema = GapSchema.find("Project");
+  async fetchProjects(name?: string): Promise<Attestation[]> {
+    const projects = (await this.fetchAttestations(
+      "Project",
+      name
+    )) as Project[];
 
-    return new Attestation({ data: "", schema, uid: "0x123", createdAt: 0 });
+    if (!projects.length) return [];
+
+    const memberOf = GapSchema.find("MemberOf");
+    const memberDetails = GapSchema.find("MemberDetails");
+    const projectDetails = GapSchema.find("ProjectDetails");
+
+    const query = gqlQueries.dependentsOf(
+      projects.map((p) => p.uid),
+      [memberOf.uid, memberDetails.uid, projectDetails.uid],
+      projects.map((p) => p.attester)
+    );
+
+    const results = await this.query<AttestationsRes>(query);
+    const deps = this.transformAttestations(results.attestations || []);
+
+    return projects.map((project) => {
+      const refs = deps.filter((ref) => ref.refUID === project.uid);
+
+      project.details = refs.find(
+        (ref) =>
+          ref.schema.name === "ProjectDetails" && ref.refUID === project.uid
+      ) as ProjectDetails;
+
+      project.members = refs.filter((ref) => ref.refUID === memberOf.uid);
+      project.members.forEach((member) => {
+        member.details = refs.find(
+          (ref) => ref.refUID === member.uid
+        ) as MemberDetails;
+      });
+
+      return project;
+    });
   }
 
   async fetchGrantee(address: Hex, withProjects = true): Promise<Grantee> {
@@ -152,7 +182,7 @@ export class EASFetcher extends EASClient {
       );
 
       grantee.projects.forEach((p) => {
-        const details = projects.find((d) => d.references === p.uid);
+        const details = projects.find((d) => d.refUID === p.uid);
         if (details) p.details = details.data as ProjectDetails;
       });
     }
@@ -220,5 +250,16 @@ export class EASFetcher extends EASClient {
     const schema: GapSchema = GapSchema.find("MemberDetails");
 
     return new Attestation({ data: "", schema, uid: "0x123", createdAt: 0 });
+  }
+
+  private transformAttestations(attestations: IAttestation[]) {
+    return attestations.map((attestation) => {
+      const schema: GapSchema = Schema.get(attestation.schemaId);
+      return new Attestation({
+        ...attestation,
+        schema,
+        data: attestation.decodedDataJson,
+      });
+    });
   }
 }

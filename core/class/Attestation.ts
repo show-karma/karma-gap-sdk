@@ -13,7 +13,7 @@ interface AttestationArgs<T = unknown, S extends Schema = Schema> {
   schema: S;
   data: T | string;
   uid: Hex;
-  references?: string;
+  refUID?: string;
   attester?: Hex;
   recipient?: Hex;
   revoked?: boolean;
@@ -28,7 +28,7 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
   private _data: T;
 
   readonly uid: Hex;
-  readonly references?: string;
+  readonly refUID?: string;
   readonly attester?: `0x${string}`;
   readonly recipient?: `0x${string}`;
   readonly revoked?: boolean;
@@ -42,8 +42,9 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
 
     this._data = this.fromDecodedSchema(args.data);
 
+    this.setValues(this._data);
     this.uid = args.uid;
-    this.references = args.references;
+    this.refUID = args.refUID;
     this.attester = args.attester;
     this.recipient = args.recipient;
     this.revoked = args.revoked;
@@ -70,9 +71,9 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
    * Set attestation values to be uploaded.
    * @param values
    */
-  setValues(values: SchemaItem[]) {
+  setValues(values: T) {
     Object.entries(values).forEach(([key, value]) => {
-      this.setValue(key as keyof T, value.value);
+      this.setValue(key as keyof T, value.value || value);
     });
   }
 
@@ -119,7 +120,7 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
 
   /**
    * Asserts if schema is valid.
-   * > Does not check references if `strict = false`. To check references use `Schema.validate()`
+   * > Does not check refUID if `strict = false`. To check refUID use `Schema.validate()`
    * @param args
    */
   protected assert(args: AttestationArgs, strict = false) {
@@ -129,9 +130,11 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
       throw new SchemaError("MISSING_FIELD", "Schema must be an array.");
     }
 
-    // if (!uid) {
-    //   throw new SchemaError("MISSING_FIELD", "Schema uid is required");
-    // }
+    if (!uid) {
+      throw new SchemaError("MISSING_FIELD", "Schema uid is required");
+    }
+
+    if (strict) Schema.validate();
   }
 
   get data(): T {

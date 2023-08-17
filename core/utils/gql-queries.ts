@@ -11,7 +11,7 @@ const attestationFields = `
     recipient
     revoked
     createdAt: timeCreated
-    references: refUID
+    refUID
     isOffchain
     revocable
     revocationTime
@@ -27,21 +27,29 @@ export const gqlQueries = {
       attestation(where: {
         id: "${uid}"
       }) {${attestationFields}}
-    }
-  `,
+    }`,
   attestationsFrom: (schemaId: Hex, attester: Hex) =>
     schemaQuery(
       schemaId,
       `attestations(orderBy:{timeCreated: desc},
         where:{attester:{equals:"${attester}"},revoked:{equals:false}}){${attestationFields}}`
     ),
-  attestationsOf: (schemaId: Hex, recipient: Hex) =>
+  attestationsTo: (schemaId: Hex, recipient: Hex) =>
     schemaQuery(
       schemaId,
       `attestations(orderBy:{timeCreated: desc},
         where:{recipient:{equals:"${recipient}"},revoked:{equals:false}}){${attestationFields}}`
     ),
-  attestations: (schemaId: Hex, search?: string) =>
+  attestationPairs: (schemaId: Hex, attester: Hex, recipient: Hex) =>
+    schemaQuery(
+      schemaId,
+      `attestations(where: {
+          attester: {equals: "${attester}"}
+          recipient: {equals: "${recipient}"}
+          revoked: {equals: false}
+        }) {${attestationFields}}`
+    ),
+  attestationsOf: (schemaId: Hex, search?: string) =>
     schemaQuery(
       schemaId,
       `attestations(orderBy:{timeCreated: desc},
@@ -52,13 +60,14 @@ export const gqlQueries = {
         {${attestationFields}}`
     ),
 
-  dependentsOf: (refs: Hex | Hex[], schemaIds: Hex[]) => `
+  dependentsOf: (refs: Hex | Hex[], schemaIds: Hex[], attesters?: Hex[]) => `
     {
       attestations(
         where: {
           refUID:{in: ${inStatement([refs].flat())}}
           revoked:{equals: false}
           schemaId:{in: ${inStatement(schemaIds)}}
+          ${attesters.length ? `attester:{in:${inStatement(attesters)}}` : ""}
       }){${attestationFields}}
     }
   `,

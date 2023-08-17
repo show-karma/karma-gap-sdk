@@ -6,6 +6,7 @@ import {
 import { Hex } from "core/types";
 import { SchemaError } from "./SchemaError";
 import { ethers } from "ethers";
+import { nullResolver } from "../consts";
 
 export interface SchemaInterface<T extends string = string> {
   name: string;
@@ -83,7 +84,11 @@ export abstract class Schema<T extends string = string>
       );
     }
 
-    if (type.includes("address") && !ethers.utils.isAddress(value)) {
+    if (
+      type.includes("address") &&
+      !ethers.utils.isAddress(value) &&
+      value !== nullResolver
+    ) {
       throw new SchemaError(
         "INVALID_SCHEMA_FIELD",
         `Field ${name} is of type ${type} but value is not a valid address.`
@@ -99,7 +104,8 @@ export abstract class Schema<T extends string = string>
 
     if (
       type.includes("bool") &&
-      (!["true", "false"].includes(value) || typeof value !== "boolean")
+      (!["true", "false", true, false].includes(value) ||
+        typeof value !== "boolean")
     ) {
       throw new SchemaError(
         "INVALID_SCHEMA_FIELD",
