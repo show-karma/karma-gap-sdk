@@ -286,7 +286,7 @@ export const MountEntities = (
     name: "Tag",
     schema: [{ type: "string", name: "name", value: null }],
     uid: network.schemas.Tag,
-    references: "ProjectDetails",
+    references: "Project",
   },
   ExternalLink: {
     name: "ExternalLink",

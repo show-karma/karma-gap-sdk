@@ -150,6 +150,7 @@ export class ProjectDetails extends Attestation {
   description: string;
   imageURL: string;
   tags: Tag[] = [];
+  links: ExternalLink[] = [];
 }
 export class Project extends Attestation {
   details?: ProjectDetails;

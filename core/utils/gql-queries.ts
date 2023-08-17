@@ -1,3 +1,4 @@
+import { nullRef } from "../../core/consts";
 import { Hex } from "core/types";
 
 const inStatement = (values: (string | number)[]) =>
@@ -26,19 +27,27 @@ export const gqlQueries = {
     {
       attestation(where: {
         id: "${uid}"
+        refUID: {notIn: ["${nullRef}"]}
       }) {${attestationFields}}
     }`,
   attestationsFrom: (schemaId: Hex, attester: Hex) =>
     schemaQuery(
       schemaId,
       `attestations(orderBy:{timeCreated: desc},
-        where:{attester:{equals:"${attester}"},revoked:{equals:false}}){${attestationFields}}`
+        where:{attester:{equals:"${attester}"}
+        revoked:{equals:false}
+          refUID: {notIn: ["${nullRef}"]}
+      }){${attestationFields}}`
     ),
   attestationsTo: (schemaId: Hex, recipient: Hex) =>
     schemaQuery(
       schemaId,
       `attestations(orderBy:{timeCreated: desc},
-        where:{recipient:{equals:"${recipient}"},revoked:{equals:false}}){${attestationFields}}`
+        where:{
+          recipient:{equals:"${recipient}"}
+          revoked:{equals:false}
+          refUID: {notIn: ["${nullRef}"]}
+        }){${attestationFields}}`
     ),
   attestationPairs: (schemaId: Hex, attester: Hex, recipient: Hex) =>
     schemaQuery(
@@ -47,6 +56,7 @@ export const gqlQueries = {
           attester: {equals: "${attester}"}
           recipient: {equals: "${recipient}"}
           revoked: {equals: false}
+          refUID: {notIn: ["${nullRef}"]}
         }) {${attestationFields}}`
     ),
   attestationsOf: (schemaId: Hex, search?: string) =>
@@ -55,6 +65,7 @@ export const gqlQueries = {
       `attestations(orderBy:{timeCreated: desc},
         where: {
           revoked:{equals:false}
+          refUID: {notIn: ["${nullRef}"]}
           ${search ? `decodedDataJson:{contains:"${search}"}` : ""}
         })
         {${attestationFields}}`
