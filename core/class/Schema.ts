@@ -189,6 +189,15 @@ export abstract class Schema<T extends string = string>
     return schema as T;
   }
 
+  /**
+   * Find many schemas by name and return them as an array in the same order.
+   * @param names
+   * @returns
+   */
+  static getMany<N extends string, T extends Schema>(names: N[]) {
+    return names.map((name) => <T>this.get(name));
+  }
+
   static getNames(): string[] {
     return Schema.schemas.map((schema) => schema.name);
   }

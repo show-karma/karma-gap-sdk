@@ -133,9 +133,11 @@ export class EASFetcher extends EASClient {
 
     if (!projects.length) return [];
 
-    const memberOf = GapSchema.find("MemberOf");
-    const memberDetails = GapSchema.find("MemberDetails");
-    const projectDetails = GapSchema.find("ProjectDetails");
+    const [memberOf, memberDetails, projectDetails] = GapSchema.findMany([
+      "ProjectDetails",
+      "MemberOf",
+      "MemberDetails",
+    ]);
 
     const query = gqlQueries.dependentsOf(
       projects.map((p) => p.uid),
@@ -246,8 +248,7 @@ export class EASFetcher extends EASClient {
   }
 
   async fetchProjectByTags(names: string[]): Promise<Attestation> {
-    const tag: GapSchema = GapSchema.find("Tag");
-    const project: GapSchema = GapSchema.find("Project");
+    const [tag, project] = GapSchema.findMany(["Tag", "Project"]);
 
     if (!(tag && project)) throw new Error("Project or Tag schema not found.");
 
