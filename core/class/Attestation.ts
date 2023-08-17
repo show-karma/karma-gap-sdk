@@ -73,6 +73,7 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
    */
   setValues(values: T) {
     Object.entries(values).forEach(([key, value]) => {
+      this[key] = value;
       this.setValue(key as keyof T, value.value || value);
     });
   }
