@@ -1,6 +1,8 @@
 import { BytesLike } from "ethers";
 import { SchemaInterface } from "./class/Schema";
 import { Attestation } from "./class/Attestation";
+import { EASClient } from "./class/GraphQL/EASClient";
+import { GAPFetcher } from "./class/GraphQL/GAPFetcher";
 export type Hex = `0x${string}`;
 
 export type TSchemaName =
@@ -29,6 +31,18 @@ export type TNetwork =
   // | "optimism-goerli"
   // | "arbitrum"
   "sepolia";
+
+/**
+ * Generic GAP Facade interface.
+ * This supplies the GAP class with the necessary properties.
+ */
+export abstract class Facade {
+  abstract readonly network: TNetwork;
+  abstract readonly owner: Hex;
+  abstract readonly schemas: SchemaInterface[];
+  abstract readonly eas: EASClient;
+  abstract readonly fetch: GAPFetcher;
+}
 
 export interface EASNetworkConfig {
   url: string;

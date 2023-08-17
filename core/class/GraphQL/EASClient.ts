@@ -1,4 +1,3 @@
-import axios, { Axios, AxiosInstance } from "axios";
 import { Networks } from "../../consts";
 import { EASNetworkConfig, Hex, TNetwork } from "../../types";
 import { AxiosGQL } from "./AxiosGQL";

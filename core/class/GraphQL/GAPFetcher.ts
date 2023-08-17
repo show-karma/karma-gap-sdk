@@ -6,11 +6,9 @@ import {
   Grant,
   GrantDetails,
   GrantRound,
-  GrantVerified,
   Grantee,
   GranteeDetails,
   Hex,
-  IAttestation,
   MemberDetails,
   MemberOf,
   Milestone,
@@ -27,8 +25,8 @@ import { Schema } from "../Schema";
 import { EASClient } from "./EASClient";
 import { SchemaError } from "../SchemaError";
 
-export class EASFetcher extends EASClient {
-  async fetchSchemas(owner: Hex): Promise<GapSchema[]> {
+export class GAPFetcher extends EASClient {
+  async schemas(owner: Hex): Promise<GapSchema[]> {
     const query = gqlQueries.schemata(owner);
     const { schemata } = await this.query<SchemataRes>(query);
 
@@ -42,7 +40,7 @@ export class EASFetcher extends EASClient {
     );
   }
 
-  async fetchAttestation<T = unknown>(uid: Hex) {
+  async attestation<T = unknown>(uid: Hex) {
     const query = gqlQueries.attestation(uid);
     const { attestation } = await this.query<AttestationRes>(query);
 
@@ -55,7 +53,7 @@ export class EASFetcher extends EASClient {
    * @param search if set, will search decodedDataJson by the value.
    * @returns
    */
-  async fetchAttestations<T = unknown>(
+  async attestations<T = unknown>(
     schemaName: TSchemaName,
     search?: string
   ): Promise<Attestation<T>[]> {
@@ -75,7 +73,7 @@ export class EASFetcher extends EASClient {
    * @param recipient
    * @returns
    */
-  async fetchAttestationsOf<T extends Attestation = Attestation>(
+  async attestationsOf<T extends Attestation = Attestation>(
     schemaName: TSchemaName,
     recipient: Hex
   ): Promise<T[]> {
@@ -93,7 +91,7 @@ export class EASFetcher extends EASClient {
    * @param parentSchema the schema name to get dependents of.
    * @param parentUid the parent uid to get dependents of.
    */
-  async fetchDependentsOf(
+  async dependentsOf(
     parentSchema: TSchemaName,
     parentUid: Hex
   ): Promise<Attestation[]> {
@@ -117,8 +115,8 @@ export class EASFetcher extends EASClient {
    * @param name if set, will search by the name.
    * @returns
    */
-  async fetchProjects(name?: string): Promise<Attestation[]> {
-    const projects = <Project[]>await this.fetchAttestations("Project", name);
+  async projects(name?: string): Promise<Attestation[]> {
+    const projects = <Project[]>await this.attestations("Project", name);
 
     if (!projects.length) return [];
 
@@ -140,9 +138,9 @@ export class EASFetcher extends EASClient {
     const results = await this.query<AttestationsRes>(query);
     const deps = Attestation.fromInterface(results.attestations || []);
 
-    const members = await this.fetchMembersOf(projects);
+    const members = await this.membersOf(projects);
     // TODO: Check if this is necessary or can be done async
-    // const grants = await this.fetchGrantsFor(projects);
+    // const grants = await this.grantsFor(projects);
 
     return projects.map((project) => {
       const refs = deps.filter((ref) => ref.refUID === project.uid);
@@ -178,7 +176,7 @@ export class EASFetcher extends EASClient {
    * @param withProjects if true, will get grantee project details.
    * @returns
    */
-  async fetchGrantee(address: Hex, withProjects = true): Promise<Grantee> {
+  async grantee(address: Hex, withProjects = true): Promise<Grantee> {
     const schema = GapSchema.find("Grantee");
 
     const query = gqlQueries.attestationsOf(schema.uid, address);
@@ -189,7 +187,7 @@ export class EASFetcher extends EASClient {
 
     if (!last) throw new Error("Grantee not found.");
 
-    const refs = await this.fetchDependentsOf("Grantee", last.uid);
+    const refs = await this.dependentsOf("Grantee", last.uid);
 
     const grantee = new Grantee({
       ...last,
@@ -207,8 +205,8 @@ export class EASFetcher extends EASClient {
 
     if (grantee.projects.length && withProjects) {
       const [projects, links] = await Promise.all([
-        this.fetchAttestationsOf("ProjectDetails", last.recipient),
-        this.fetchAttestationsOf("ExternalLink", last.recipient),
+        this.attestationsOf("ProjectDetails", last.recipient),
+        this.attestationsOf("ExternalLink", last.recipient),
       ]);
 
       grantee.projects.forEach((p) => {
@@ -229,7 +227,7 @@ export class EASFetcher extends EASClient {
    * Fetch all Grantees with details.
    * @returns
    */
-  async fetchGrantees(): Promise<Grantee[]> {
+  async grantees(): Promise<Grantee[]> {
     const schema = GapSchema.find("Grantee");
     const query = gqlQueries.attestationsOf(schema.uid);
 
@@ -237,7 +235,7 @@ export class EASFetcher extends EASClient {
       schema: { attestations: grantees },
     } = await this.query<SchemaRes>(query);
 
-    const refs = await this.fetchDependentsOf("Grantee", grantees[0].uid);
+    const refs = await this.dependentsOf("Grantee", grantees[0].uid);
 
     return grantees.map((grantee) => {
       const granteeDetails = <GranteeDetails>(
@@ -255,7 +253,7 @@ export class EASFetcher extends EASClient {
     });
   }
 
-  async fetchGrantsOf(grantee: Hex): Promise<Grant[]> {
+  async grantsOf(grantee: Hex): Promise<Grant[]> {
     const [grant, grantDetails, grantVerified, grantRound] = GapSchema.findMany(
       ["Grant", "GrantDetails", "GrantVerified", "GrantRound"]
     );
@@ -278,7 +276,7 @@ export class EASFetcher extends EASClient {
     const results = await this.query<AttestationsRes>(ref);
     const deps = Attestation.fromInterface(results.attestations || []);
 
-    const milestones = await this.fetchMilestonesOf(grants);
+    const milestones = await this.milestonesOf(grants);
 
     return grants.map((grant) => {
       const refs = deps.filter((ref) => ref.refUID === grant.uid);
@@ -312,7 +310,7 @@ export class EASFetcher extends EASClient {
    * @param projects
    * @returns
    */
-  async fetchGrantsFor(projects: Project[]): Promise<Grant[]> {
+  async grantsFor(projects: Project[]): Promise<Grant[]> {
     const schema: GapSchema = GapSchema.find("Grant");
 
     const query = gqlQueries.dependentsOf(
@@ -329,7 +327,7 @@ export class EASFetcher extends EASClient {
    * @param names
    * @returns
    */
-  async fetchProjectsByTags(names: string[]): Promise<Project[]> {
+  async projectsByTags(names: string[]): Promise<Project[]> {
     const [tag, project] = GapSchema.findMany(["Tag", "Project"]);
 
     const query = gqlQueries.attestationsOf(tag.uid);
@@ -359,7 +357,7 @@ export class EASFetcher extends EASClient {
    * @param grants
    * @returns
    */
-  async fetchMilestonesOf(grants: Grant[]): Promise<Milestone[]> {
+  async milestonesOf(grants: Grant[]): Promise<Milestone[]> {
     const [milestone, milestoneApproved, milestoneCompleted] =
       GapSchema.findMany([
         "Milestone",
@@ -410,7 +408,7 @@ export class EASFetcher extends EASClient {
    * @param projects
    * @returns
    */
-  async fetchMembersOf(projects: Project[]): Promise<MemberOf[]> {
+  async membersOf(projects: Project[]): Promise<MemberOf[]> {
     const [member, memberDetails] = GapSchema.findMany([
       "MemberOf",
       "MemberDetails",
