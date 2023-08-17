@@ -1,4 +1,4 @@
-import { EASNetworkConfig, TNetwork } from "core/types";
+import { EASNetworkConfig, TNetwork } from "../types";
 import { MountEntities, Networks, nullResolver } from "../consts";
 
 import SchemaRegistry from "../abi/SchemaRegistry.json";

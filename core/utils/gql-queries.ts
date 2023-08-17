@@ -1,5 +1,5 @@
-import { nullRef } from "../../core/consts";
-import { Hex } from "core/types";
+import { nullRef } from "../consts";
+import { Hex } from "../types";
 
 const inStatement = (values: (string | number)[]) =>
   `[${values.map((v) => `"${v}"`).join(",")}]`;

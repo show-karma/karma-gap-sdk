@@ -3,7 +3,7 @@ import {
   SchemaItem,
   SchemaValue,
 } from "@ethereum-attestation-service/eas-sdk";
-import { Hex } from "core/types";
+import { Hex } from "../types";
 import { SchemaError } from "./SchemaError";
 import { ethers } from "ethers";
 import { nullResolver } from "../consts";
