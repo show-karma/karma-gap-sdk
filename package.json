@@ -7,7 +7,7 @@
   "license": "MIT",
   "private": false,
   "scripts": {
-    "prepublishOnly": "npx tsc && git add ./.dist && git commit -m 'chore: update dist' && npm version patch && git push",
+    "prepublishOnly": "npx tsc && npm version patch",
     "deploy": "npx ts-node ./core/scripts/deploy.ts"
   },
   "dependencies": {
