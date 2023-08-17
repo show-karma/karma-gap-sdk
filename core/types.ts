@@ -118,6 +118,7 @@ export class Grant extends Attestation {
   details?: GrantDetails;
   verified?: boolean;
   round?: GrantRound;
+  milestones: Milestone[] = [];
 }
 
 export class MemberDetails extends Attestation {

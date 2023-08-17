@@ -1,4 +1,4 @@
-import { Hex, JSONStr } from "../types";
+import { Hex, IAttestation, JSONStr } from "../types";
 import { Schema } from "./Schema";
 import { SchemaError } from "./SchemaError";
 import {
@@ -139,5 +139,21 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
 
   get data(): T {
     return this._data;
+  }
+
+  /**
+   * Transform attestation interface-based into class-based.
+   */
+  static fromInterface<T extends Attestation = Attestation>(
+    attestations: IAttestation[]
+  ) {
+    return attestations.map((attestation) => {
+      const schema = Schema.get(attestation.schemaId);
+      return <T>new Attestation({
+        ...attestation,
+        schema,
+        data: attestation.decodedDataJson,
+      });
+    });
   }
 }
