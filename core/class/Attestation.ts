@@ -9,6 +9,18 @@ import {
 import { getDate } from "../utils/get-date";
 import { GapSchema } from "./GapSchema";
 
+interface AttestationArgs<T = unknown, S extends Schema = Schema> {
+  schema: S;
+  data: T | string;
+  uid: Hex;
+  refUID?: string;
+  attester?: Hex;
+  recipient?: Hex;
+  revoked?: boolean;
+  revocationTime?: Date | number;
+  createdAt: Date | number;
+}
+
 /**
  * Represents the EAS Attestation and provides methods to manage attestations.
  * @example
@@ -35,19 +47,10 @@ import { GapSchema } from "./GapSchema";
  *
  * // Revoke attestation
  * granteeDetails.revoke();
+ *
+ * // Get attestation data from a decoded JSON string.
+ * granteeDetails.fromDecodedSchema(granteeDetails.data);
  */
-interface AttestationArgs<T = unknown, S extends Schema = Schema> {
-  schema: S;
-  data: T | string;
-  uid: Hex;
-  refUID?: string;
-  attester?: Hex;
-  recipient?: Hex;
-  revoked?: boolean;
-  revocationTime?: Date | number;
-  createdAt: Date | number;
-}
-
 export class Attestation<T = unknown, S extends Schema = GapSchema>
   implements AttestationArgs<T, S>
 {
@@ -112,6 +115,11 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
     return this._reference as Attestation<Ref, RefSchema>;
   }
 
+  /**
+   * Returns the attestation data as a JSON string.
+   * @param data
+   * @returns
+   */
   fromDecodedSchema(data: T | JSONStr): T {
     return typeof data === "string"
       ? Attestation.fromDecodedSchema<T>(data)
@@ -124,6 +132,11 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
    */
   revoke() {}
 
+  /**
+   * Returns an Attestation instance from a JSON decoded schema.
+   * @param data
+   * @returns
+   */
   static fromDecodedSchema<T>(data: JSONStr): T {
     try {
       const parsed: SchemaDecodedItem[] = JSON.parse(data);
