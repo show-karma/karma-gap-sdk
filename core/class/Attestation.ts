@@ -25,7 +25,7 @@ interface AttestationArgs<T = unknown, S extends Schema = Schema> {
  * Represents the EAS Attestation and provides methods to manage attestations.
  * @example
  *
- * ```
+ * ```ts
  * const grantee = new Attestation({
  *  schema: Schema.get("Grantee"),
  *  data: { grantee: true },
@@ -50,6 +50,7 @@ interface AttestationArgs<T = unknown, S extends Schema = Schema> {
  *
  * // Get attestation data from a decoded JSON string.
  * granteeDetails.fromDecodedSchema(granteeDetails.data);
+ * ```
  */
 export class Attestation<T = unknown, S extends Schema = GapSchema>
   implements AttestationArgs<T, S>
