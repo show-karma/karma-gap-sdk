@@ -16,6 +16,71 @@ export interface SchemaInterface<T extends string = string> {
   revocable?: boolean;
 }
 
+/**
+ * Represents the EAS Schema and provides methods to encode and decode the schema,
+ * and validate the schema references.
+ *
+ * Also provides a set of static methods to manage the schema list.
+ *
+ * @example
+ * ```
+ * // You may or not attribute a schema to a variable.
+ * new Schema({
+ *  name: "Grantee",
+ *  schema: [{ type: "bool", name: "grantee", value: true }],
+ *  uid: "0x000000000
+ * });
+ *
+ * const granteeDetails = new Schema({
+ *  name: "GranteeDetails",
+ *  schema: [
+ *    { type: "bool", name: "name", value: null }
+ *    { type: "bool", name: "description", value: null }
+ *    { type: "bool", name: "imageURL", value: null }
+ *  ],
+ *  uid: "0x000000000,
+ *  references: "Grantee"
+ * });
+ *
+ * // Validate if references are correct and all of them exist.
+ * Schema.validate();
+ *
+ * // Gets the schema by name.
+ * const grantee = Schema.get("Grantee");
+ *
+ * // Sets a single schema value.
+ * grantee.setValue("grantee", true);
+ *
+ * // Sets multiple schema values.
+ * granteeDetails.setValues({ name: "John Doe", description: "A description", imageURL: "https://example.com/image.png" });
+ *
+ * // Gets the schema encoded data, used to create an attestation.
+ * const encodedGrantee = grantee.encode();
+ *
+ * // Verify if schema exists
+ * Schema.exists("Grantee"); // true
+ * Schema.exists("GranteeDetails"); // true
+ * Schema.exists("GranteeDetails2"); // false
+ *
+ * // Get all schemas.
+ * Schema.getAll(); // [grantee, granteeDetails]
+ *
+ * // Get all schema names.
+ * Schema.getNames(); // ["Grantee", "GranteeDetails"]
+ *
+ * // Get many schemas by name. Throws an error if schema does not exist.
+ * Schema.getMany(["Grantee", "GranteeDetails"]); // [grantee, granteeDetails]
+ *
+ * // Replace all schemas. Throws an error if schema does not exist.
+ * Schema.replaceAll([grantee, granteeDetails]);
+ *
+ * // Replace one schema. This will replace a schema using the inbound schema name.. Throws an error if schema does not exist.
+ * Schema.replaceOne(grantee);
+ *
+ * // Converts an ABI string (e.g. "uint256 id, string name") to a SchemaItem[].
+ * const schema = Schema.abiToObject("uint256 id, string name");
+ * ```
+ */
 export abstract class Schema<T extends string = string>
   implements SchemaInterface<T>
 {
@@ -260,7 +325,7 @@ export abstract class Schema<T extends string = string>
    * @returns
    */
   static abiToObject(abi: string) {
-    const items = abi.split(",");
+    const items = abi.trim().replace(/,\s+/gim, ",").split(",");
     const schema: SchemaItem[] = items.map((item) => {
       const [type, name] = item.split(" ");
       return { type, name, value: null };

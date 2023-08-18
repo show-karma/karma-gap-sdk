@@ -26,6 +26,10 @@ import { EASClient } from "./EASClient";
 import { SchemaError } from "../SchemaError";
 
 export class GAPFetcher extends EASClient {
+  /**
+   * Fetches all the schemas deployed by an owner
+   * @param owner 
+   */
   async schemas(owner: Hex): Promise<GapSchema[]> {
     const query = gqlQueries.schemata(owner);
     const { schemata } = await this.query<SchemataRes>(query);
@@ -40,6 +44,10 @@ export class GAPFetcher extends EASClient {
     );
   }
 
+  /**
+   * Fetch a single attestation by its UID.
+   * @param uid
+   */
   async attestation<T = unknown>(uid: Hex) {
     const query = gqlQueries.attestation(uid);
     const { attestation } = await this.query<AttestationRes>(query);
@@ -253,6 +261,11 @@ export class GAPFetcher extends EASClient {
     });
   }
 
+  /**
+   * Fetches the grantes related to a grantee address (recipient).
+   * @param grantee 
+   * @returns 
+   */
   async grantsOf(grantee: Hex): Promise<Grant[]> {
     const [grant, grantDetails, grantVerified, grantRound] = GapSchema.findMany(
       ["Grant", "GrantDetails", "GrantVerified", "GrantRound"]

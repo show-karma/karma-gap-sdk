@@ -1,6 +1,10 @@
 import { IGapSchema, TSchemaName } from "../types";
 import { Schema } from "./Schema";
 
+/**
+ * Represents the GapSchema
+ * @extends Schema
+ */
 export class GapSchema extends Schema implements IGapSchema {
   public readonly name: TSchemaName;
   public readonly references: TSchemaName;

@@ -9,6 +9,33 @@ import {
 import { getDate } from "../utils/get-date";
 import { GapSchema } from "./GapSchema";
 
+/**
+ * Represents the EAS Attestation and provides methods to manage attestations.
+ * @example
+ *
+ * ```
+ * const grantee = new Attestation({
+ *  schema: Schema.get("Grantee"),
+ *  data: { grantee: true },
+ *  uid: "0xabc123",
+ * });
+ *
+ * const granteeDetails = new Attestation({
+ *  schema: Schema.get("GranteeDetails"),
+ *  data: {
+ *    name: "John Doe",
+ *    description: "A description",
+ *    imageURL: "https://example.com/image.png",
+ *  },
+ *  uid: "0xab234"
+ * );
+ *
+ * // Return the refferenced attestation
+ * const ref = granteeDetails.reference<Grantee>();
+ *
+ * // Revoke attestation
+ * granteeDetails.revoke();
+ */
 interface AttestationArgs<T = unknown, S extends Schema = Schema> {
   schema: S;
   data: T | string;
@@ -91,6 +118,12 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
       : data;
   }
 
+  // TODO: Revoke method
+  /**
+   * Revokes attestation. Must be the attester to accomplish this action.
+   */
+  revoke() {}
+
   static fromDecodedSchema<T>(data: JSONStr): T {
     try {
       const parsed: SchemaDecodedItem[] = JSON.parse(data);
@@ -120,6 +153,22 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
   }
 
   /**
+   * Transform attestation interface-based into class-based.
+   */
+  static fromInterface<T extends Attestation = Attestation>(
+    attestations: IAttestation[]
+  ) {
+    return attestations.map((attestation) => {
+      const schema = Schema.get(attestation.schemaId);
+      return <T>new Attestation({
+        ...attestation,
+        schema,
+        data: attestation.decodedDataJson,
+      });
+    });
+  }
+
+  /**
    * Asserts if schema is valid.
    * > Does not check refUID if `strict = false`. To check refUID use `Schema.validate()`
    * @param args
@@ -140,21 +189,5 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
 
   get data(): T {
     return this._data;
-  }
-
-  /**
-   * Transform attestation interface-based into class-based.
-   */
-  static fromInterface<T extends Attestation = Attestation>(
-    attestations: IAttestation[]
-  ) {
-    return attestations.map((attestation) => {
-      const schema = Schema.get(attestation.schemaId);
-      return <T>new Attestation({
-        ...attestation,
-        schema,
-        data: attestation.decodedDataJson,
-      });
-    });
   }
 }
