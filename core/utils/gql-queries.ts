@@ -71,7 +71,11 @@ export const gqlQueries = {
         {${attestationFields}}`
     ),
 
-  dependentsOf: (refs: Hex | Hex[], schemaIds: Hex[], attesters?: Hex[]) => `
+  dependentsOf: (
+    refs: Hex | Hex[],
+    schemaIds: Hex[],
+    attesters: Hex[] = []
+  ) => `
     {
       attestations(
         where: {

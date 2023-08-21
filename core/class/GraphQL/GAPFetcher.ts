@@ -28,7 +28,7 @@ import { SchemaError } from "../SchemaError";
 export class GAPFetcher extends EASClient {
   /**
    * Fetches all the schemas deployed by an owner
-   * @param owner 
+   * @param owner
    */
   async schemas(owner: Hex): Promise<GapSchema[]> {
     const query = gqlQueries.schemata(owner);
@@ -118,6 +118,7 @@ export class GAPFetcher extends EASClient {
     return Attestation.fromInterface(attestations);
   }
 
+  async projectBy(uid: Hex) {}
   /**
    * Fetch projects with details and members.
    * @param name if set, will search by the name.
@@ -145,10 +146,10 @@ export class GAPFetcher extends EASClient {
 
     const results = await this.query<AttestationsRes>(query);
     const deps = Attestation.fromInterface(results.attestations || []);
-
-    const members = await this.membersOf(projects);
-    // TODO: Check if this is necessary or can be done async
-    // const grants = await this.grantsFor(projects);
+    const [members, grants] = await Promise.all([
+      this.membersOf(projects),
+      this.grantsFor(projects),
+    ]);
 
     return projects.map((project) => {
       const refs = deps.filter((ref) => ref.refUID === project.uid);
@@ -171,8 +172,8 @@ export class GAPFetcher extends EASClient {
       );
 
       project.members = members.filter((m) => m.refUID === project.uid);
-      // TODO: Check if this is necessary or can be done async
-      // project.grants = grants.filter((g) => g.refUID === project.uid);
+
+      project.grants = grants.filter((g) => g.refUID === project.uid);
 
       return project;
     });
@@ -263,8 +264,8 @@ export class GAPFetcher extends EASClient {
 
   /**
    * Fetches the grantes related to a grantee address (recipient).
-   * @param grantee 
-   * @returns 
+   * @param grantee
+   * @returns
    */
   async grantsOf(grantee: Hex): Promise<Grant[]> {
     const [grant, grantDetails, grantVerified, grantRound] = GapSchema.findMany(
@@ -324,15 +325,76 @@ export class GAPFetcher extends EASClient {
    * @returns
    */
   async grantsFor(projects: Project[]): Promise<Grant[]> {
-    const schema: GapSchema = GapSchema.find("Grant");
+    const [
+      grant,
+      grantDetails,
+      milestone,
+      milestoneApproved,
+      milestoneCompleted,
+    ] = GapSchema.findMany([
+      "Grant",
+      "GrantDetails",
+      "Milestone",
+      "MilestoneApproved",
+      "MilestoneCompleted",
+    ]);
 
     const query = gqlQueries.dependentsOf(
       projects.map((p) => p.uid),
-      [schema.uid]
+      [grant.uid]
     );
     const { attestations: grants } = await this.query<AttestationsRes>(query);
 
-    return Attestation.fromInterface<Grant>(grants);
+    const grantsWithDetails = Attestation.fromInterface<Grant>(grants);
+
+    const ref = gqlQueries.dependentsOf(
+      grants.map((g) => g.uid),
+      [
+        grantDetails.uid,
+        milestone.uid,
+        milestoneApproved.uid,
+        milestoneCompleted.uid,
+      ]
+    );
+
+    const { attestations } = await this.query<AttestationsRes>(ref);
+
+    const deps = Attestation.fromInterface(attestations);
+
+    grantsWithDetails.forEach((grant) => {
+      grant.details = <GrantDetails>(
+        deps.find(
+          (d) => d.refUID === grant.uid && d.schema.uid === grantDetails.uid
+        )
+      );
+
+      grant.milestones = <Milestone[]>deps
+        .filter((d) => d.refUID === grant.uid && d.schema.uid === milestone.uid)
+        .map((milestone: Milestone) => {
+          const refs = deps.filter((ref) => ref.refUID === milestone.uid);
+          const startsAt = milestone.startsAt as unknown as bigint;
+          const endsAt = milestone.endsAt as unknown as bigint;
+
+          milestone.startsAt = Number(startsAt);
+          milestone.endsAt = Number(endsAt);
+
+          milestone.approved = !!refs.find(
+            (ref) =>
+              ref.schema.uid === milestoneApproved.uid &&
+              ref.refUID === milestone.uid
+          );
+
+          milestone.completed = !!refs.find(
+            (ref) =>
+              ref.schema.uid === milestoneCompleted.uid &&
+              ref.refUID === milestone.uid
+          );
+
+          return milestone;
+        });
+    });
+
+    return grantsWithDetails;
   }
 
   /**

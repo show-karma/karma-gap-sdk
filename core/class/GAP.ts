@@ -1,8 +1,9 @@
-import { EASClient } from "./GraphQL/EASClient";
 import { Facade, Hex, TNetwork } from "../types";
 import { Schema, SchemaInterface } from "./Schema";
 import { GapSchema } from "./GapSchema";
 import { GAPFetcher } from "./GraphQL/GAPFetcher";
+import { EAS } from "@ethereum-attestation-service/eas-sdk";
+import { Networks } from "../consts";
 
 interface GAPArgs {
   network: TNetwork;
@@ -68,7 +69,7 @@ interface GAPArgs {
 export class GAP extends Facade {
   private static client: GAP;
 
-  readonly eas: EASClient;
+  readonly eas: EAS;
   readonly fetch: GAPFetcher;
   readonly owner: Hex;
   readonly network: TNetwork;
@@ -79,7 +80,8 @@ export class GAP extends Facade {
     super();
     this.owner = args.owner;
 
-    this.eas = new EASClient({ network: args.network, owner: args.owner });
+    this.eas = new EAS(Networks[args.network].contracts.eas);
+
     this.fetch = new GAPFetcher({ network: args.network, owner: args.owner });
 
     this._schemas = args.schemas.map((schema) => new GapSchema(schema));

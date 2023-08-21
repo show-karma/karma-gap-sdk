@@ -3,6 +3,8 @@ import { SchemaInterface } from "./class/Schema";
 import { Attestation } from "./class/Attestation";
 import { EASClient } from "./class/GraphQL/EASClient";
 import { GAPFetcher } from "./class/GraphQL/GAPFetcher";
+import { EAS } from "@ethereum-attestation-service/eas-sdk";
+import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
 export type Hex = `0x${string}`;
 
 export type TSchemaName =
@@ -22,7 +24,12 @@ export type TSchemaName =
   | "ProjectDetails"
   | "Tag";
 
-export type TExternalLink = "twitter" | "github" | "website" | "linkedin";
+export type TExternalLink =
+  | "twitter"
+  | "github"
+  | "website"
+  | "linkedin"
+  | "discord";
 
 export type TNetwork =
   // | "mainnet"
@@ -40,7 +47,7 @@ export abstract class Facade {
   abstract readonly network: TNetwork;
   abstract readonly owner: Hex;
   abstract readonly schemas: SchemaInterface[];
-  abstract readonly eas: EASClient;
+  abstract readonly eas: EAS;
   abstract readonly fetch: GAPFetcher;
 }
 
@@ -144,10 +151,10 @@ export class MemberOf extends Attestation {
   details?: MemberDetails;
 }
 
-export class Milestone extends Attestation {
+export class Milestone extends Attestation<Milestone> {
   title: string;
-  startsAt: Date;
-  endsAt: Date;
+  startsAt: number;
+  endsAt: number;
   description: string;
   completed: boolean;
   approved: boolean;

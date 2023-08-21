@@ -144,11 +144,10 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
       if (parsed && Array.isArray(parsed)) {
         return parsed.reduce((acc, curr) => {
           const { value } = curr.value;
-          if (
-            curr.type.includes("uint") &&
-            ["number", "string", "bigint"].includes(typeof value)
-          ) {
-            acc[curr.name] = BigInt(value as any);
+          if (curr.type.includes("uint")) {
+            acc[curr.name] = ["string", "bigint"].includes(typeof value)
+              ? BigInt(value as any)
+              : Number(value);
           } else acc[curr.name] = value;
           return acc;
         }, {}) as T;
