@@ -38,7 +38,7 @@ export class GAPFetcher extends EASClient {
       (schema) =>
         new GapSchema({
           name: "",
-          schema: Schema.abiToObject(schema.schema),
+          schema: Schema.rawToObject(schema.schema),
           uid: schema.uid,
         })
     );

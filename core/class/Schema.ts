@@ -77,8 +77,8 @@ export interface SchemaInterface<T extends string = string> {
  * // Replace one schema. This will replace a schema using the inbound schema name.. Throws an error if schema does not exist.
  * Schema.replaceOne(grantee);
  *
- * // Converts an ABI string (e.g. "uint256 id, string name") to a SchemaItem[].
- * const schema = Schema.abiToObject("uint256 id, string name");
+ * // Converts a raw schema string (e.g. "uint256 id, string name") to a SchemaItem[].
+ * const schema = Schema.rawToObject("uint256 id, string name");
  * ```
  */
 export abstract class Schema<T extends string = string>
@@ -110,7 +110,7 @@ export abstract class Schema<T extends string = string>
     this.references = args.references;
     this.revocable = args.revocable || true;
 
-    this.encoder = new SchemaEncoder(this.abi);
+    this.encoder = new SchemaEncoder(this.raw);
     Schema.add(this);
   }
 
@@ -314,17 +314,17 @@ export abstract class Schema<T extends string = string>
   }
 
   /**
-   * Transforms the given schema abi to SchemaItem[]
+   * Transforms the given raw schema to SchemaItem[]
    *
    * @example
    * ```
-   * const schema = Schema.abiToObject("uint256 id, string name");
+   * const schema = Schema.rawToObject("uint256 id, string name");
    * // schema = [{ type: "uint256", name: "id", value: null }, { type: "string", name: "name", value: null }]
    *```
    * @param abi
    * @returns
    */
-  static abiToObject(abi: string) {
+  static rawToObject(abi: string) {
     const items = abi.trim().replace(/,\s+/gim, ",").split(",");
     const schema: SchemaItem[] = items.map((item) => {
       const [type, name] = item.split(" ");
@@ -334,7 +334,15 @@ export abstract class Schema<T extends string = string>
     return schema;
   }
 
-  get abi() {
+  /**
+   * Returns the raw schema string.
+   * @example
+   * ```ts
+   * const schema = new Schema({ name: "Grantee", schema: [{ type: "bool", name: "grantee", value: true }], uid: "0x000000000" });
+   * schema.raw; // "bool grantee"
+   * ```
+   */
+  get raw() {
     return this.schema.map((item) => `${item.type} ${item.name}`).join(",");
   }
 

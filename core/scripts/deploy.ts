@@ -42,7 +42,7 @@ async function deploy(networkName?: TNetwork) {
     .slice(0, 1)
     .map((entity) => {
       return contract.functions.register(
-        new GapSchema(entity).abi,
+        new GapSchema(entity).raw,
         nullResolver,
         revocable,
         {

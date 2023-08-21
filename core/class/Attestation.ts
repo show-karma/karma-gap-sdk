@@ -27,7 +27,7 @@ interface AttestationArgs<T = unknown, S extends Schema = Schema> {
  *
  * ```ts
  * const grantee = new Attestation({
- *  schema: Schema.get("Grantee"),
+ *  schema: Schema.get("Grantee"), // Use GapSchema.find("SchemaName") if using default GAP schemas
  *  data: { grantee: true },
  *  uid: "0xabc123",
  * });
