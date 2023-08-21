@@ -1,19 +1,22 @@
-import { Hex, IAttestation, JSONStr } from "../types";
+import { Hex, IAttestation, JSONStr, TSchemaName } from "../types";
 import { Schema } from "./Schema";
 import { SchemaError } from "./SchemaError";
 import {
+  EAS,
   SchemaDecodedItem,
   SchemaItem,
   SchemaValue,
 } from "@ethereum-attestation-service/eas-sdk";
 import { getDate } from "../utils/get-date";
 import { GapSchema } from "./GapSchema";
+import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
+import { GAP } from "./GAP";
 
 interface AttestationArgs<T = unknown, S extends Schema = Schema> {
   schema: S;
   data: T | string;
   uid: Hex;
-  refUID?: string;
+  refUID?: Hex;
   attester?: Hex;
   recipient?: Hex;
   revoked?: boolean;
@@ -59,9 +62,9 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
   private _data: T;
 
   readonly uid: Hex;
-  readonly refUID?: string;
-  readonly attester?: `0x${string}`;
-  readonly recipient?: `0x${string}`;
+  readonly refUID?: Hex;
+  readonly attester?: Hex;
+  readonly recipient?: Hex;
   readonly revoked?: boolean;
   readonly revocationTime?: Date;
   readonly createdAt: Date;
@@ -87,8 +90,8 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
    * Encodes the schema.
    * @returns
    */
-  encodeSchema() {
-    return this.schema.encode();
+  encodeSchema(schema: SchemaItem[]) {
+    return this.schema.encode(schema);
   }
 
   /**
@@ -127,11 +130,38 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
       : data;
   }
 
-  // TODO: Revoke method
   /**
-   * Revokes attestation. Must be the attester to accomplish this action.
+   * Revokes this attestation.
+   * @param eas
+   * @param signer
+   * @returns
    */
-  revoke() {}
+  async revoke(eas: EAS, signer: SignerOrProvider) {
+    eas.connect(signer);
+    const tx = await eas.revoke({
+      data: { uid: this.uid },
+      schema: this.schema.raw,
+    });
+
+    return tx.wait();
+  }
+
+  /**
+   * Attests this attestation and revokes the previous one.
+   * @param signer
+   * @returns
+   */
+  async attest(signer: SignerOrProvider) {
+    await this.revoke(GAP.eas, signer);
+    return this.schema.attest({
+      data: this.data,
+      from: this.attester,
+      to: this.recipient,
+      schemaName: this.schema.name as TSchemaName,
+      signer,
+      refUID: this.refUID,
+    });
+  }
 
   /**
    * Returns an Attestation instance from a JSON decoded schema.
@@ -202,5 +232,24 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
 
   get data(): T {
     return this._data;
+  }
+
+  /**
+   * Create attestation to serve as Attestation data.
+   * @param data Data to attest
+   * @param schema selected schema
+   * @param from attester
+   * @param to recipient
+   * @returns
+   */
+  static factory<T = unknown>(data: T, schema: Schema, from: Hex, to: Hex) {
+    return new Attestation({
+      data: data,
+      recipient: to,
+      attester: from,
+      schema,
+      uid: "0x0",
+      createdAt: new Date(),
+    });
   }
 }

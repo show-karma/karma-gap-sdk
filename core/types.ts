@@ -1,11 +1,19 @@
 import { BytesLike } from "ethers";
 import { SchemaInterface } from "./class/Schema";
 import { Attestation } from "./class/Attestation";
-import { EASClient } from "./class/GraphQL/EASClient";
 import { GAPFetcher } from "./class/GraphQL/GAPFetcher";
 import { EAS } from "@ethereum-attestation-service/eas-sdk";
 import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
 export type Hex = `0x${string}`;
+
+export interface AttestArgs<T = unknown> {
+  from: Hex;
+  to: Hex;
+  data: T;
+  refUID?: Hex;
+  schemaName: TSchemaName;
+  signer: SignerOrProvider;
+}
 
 export type TSchemaName =
   | "ExternalLink"
@@ -47,8 +55,12 @@ export abstract class Facade {
   abstract readonly network: TNetwork;
   abstract readonly owner: Hex;
   abstract readonly schemas: SchemaInterface[];
-  abstract readonly eas: EAS;
   abstract readonly fetch: GAPFetcher;
+  protected static _eas: EAS;
+
+  static get eas() {
+    return this._eas;
+  }
 }
 
 export interface EASNetworkConfig {

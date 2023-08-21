@@ -1,9 +1,11 @@
-import { Facade, Hex, TNetwork } from "../types";
+import { AttestArgs, Facade, Hex, TNetwork, TSchemaName } from "../types";
 import { Schema, SchemaInterface } from "./Schema";
 import { GapSchema } from "./GapSchema";
 import { GAPFetcher } from "./GraphQL/GAPFetcher";
 import { EAS } from "@ethereum-attestation-service/eas-sdk";
 import { Networks } from "../consts";
+import { Attestation } from "./Attestation";
+import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
 
 interface GAPArgs {
   network: TNetwork;
@@ -69,7 +71,6 @@ interface GAPArgs {
 export class GAP extends Facade {
   private static client: GAP;
 
-  readonly eas: EAS;
   readonly fetch: GAPFetcher;
   readonly owner: Hex;
   readonly network: TNetwork;
@@ -80,7 +81,7 @@ export class GAP extends Facade {
     super();
     this.owner = args.owner;
 
-    this.eas = new EAS(Networks[args.network].contracts.eas);
+    GAP._eas = new EAS(Networks[args.network].contracts.eas);
 
     this.fetch = new GAPFetcher({ network: args.network, owner: args.owner });
 
@@ -95,13 +96,10 @@ export class GAP extends Facade {
    * @param data
    * @param schema
    */
-  attest<T>(
-    from: Hex,
-    to: Hex,
-    data: T,
-    schema: GapSchema,
-    captureReferences?: boolean
-  ) {}
+  async attest<T>(attestation: AttestArgs<T>) {
+    const schema = GapSchema.find(attestation.schemaName);
+    return schema.attest(attestation);
+  }
 
   /**
    * Replaces the schema list with a new list.

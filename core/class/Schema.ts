@@ -1,12 +1,17 @@
 import {
+  AttestationRequestData,
+  EAS,
   SchemaEncoder,
   SchemaItem,
   SchemaValue,
 } from "@ethereum-attestation-service/eas-sdk";
-import { Hex } from "../types";
+import { AttestArgs, Hex } from "../types";
 import { SchemaError } from "./SchemaError";
 import { ethers } from "ethers";
 import { nullResolver } from "../consts";
+import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
+import { Attestation } from "./Attestation";
+import { GAP } from "./GAP";
 
 export interface SchemaInterface<T extends string = string> {
   name: string;
@@ -118,8 +123,8 @@ export abstract class Schema<T extends string = string>
    * Encode the schema to be used as payload in the attestation
    * @returns
    */
-  encode() {
-    return this.encoder.encodeData(this._schema);
+  encode(data: SchemaItem[]) {
+    return this.encoder.encodeData(data);
   }
 
   /**
@@ -348,6 +353,48 @@ export abstract class Schema<T extends string = string>
 
   get schema() {
     return this._schema;
+  }
+
+  /**
+   * Attest for a schema.
+   * @param param0
+   * @returns
+   */
+  async attest(
+    { data, from, to, signer, refUID }: AttestArgs,
+    revokeUID?: Hex
+  ) {
+    const eas = GAP.eas.connect(signer);
+
+    if (revokeUID) {
+      const toRevoke = await eas.getAttestation(revokeUID);
+      if (toRevoke.schema === this.raw) {
+        await eas.revoke({
+          schema: this.raw,
+          data: { uid: revokeUID },
+        });
+      } else {
+        throw new Error(`Revoke UID schema does not match ${this.name}`);
+      }
+    }
+
+    const attestation = Attestation.factory(data, this, from, to);
+
+    const payload: AttestationRequestData = {
+      recipient: from,
+      expirationTime: 0n,
+      revocable: true,
+      data: this.encode(attestation.schema.schema),
+      refUID,
+    };
+
+    console.log({ attestation, payload, schema: attestation.schema.schema });
+    const tx = await eas.attest({
+      schema: this.uid,
+      data: payload,
+    });
+
+    return tx.wait();
   }
 
   /**
