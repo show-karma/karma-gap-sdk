@@ -1,6 +1,5 @@
-import { Hex } from "viem";
 import { Attestation } from "../Attestation";
-import { TExternalLink } from "core/types";
+import { Hex, TExternalLink } from "core/types";
 
 /** Attestation interfaces */
 
