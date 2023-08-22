@@ -1,6 +1,6 @@
 import { Hex, IAttestation, JSONStr, TSchemaName } from "../types";
 import { Schema } from "./Schema";
-import { SchemaError } from "./SchemaError";
+import { AttestationError, SchemaError } from "./SchemaError";
 import {
   EAS,
   SchemaDecodedItem,
@@ -61,7 +61,7 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
   readonly schema: S;
   private _data: T;
 
-  readonly uid: Hex;
+  private _uid: Hex;
   readonly refUID?: Hex;
   readonly attester?: Hex;
   readonly recipient?: Hex;
@@ -77,7 +77,7 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
     this._data = this.fromDecodedSchema(args.data);
 
     this.setValues(this._data);
-    this.uid = args.uid;
+    this._uid = args.uid;
     this.refUID = args.refUID;
     this.attester = args.attester;
     this.recipient = args.recipient;
@@ -161,17 +161,16 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
   async attest(signer: SignerOrProvider) {
     await this.revoke(signer);
     try {
-      return this.schema.attest({
+      const uid = await this.schema.attest<T>({
         data: this.data,
-        from: this.attester,
         to: this.recipient,
-        schemaName: this.schema.name as TSchemaName,
-        signer,
         refUID: this.refUID,
+        signer,
       });
+      this._uid = uid;
     } catch (error) {
       console.error(error);
-      throw new SchemaError("ATTEST_ERROR", "Error during attestation.");
+      throw new AttestationError("ATTEST_ERROR", "Error during attestation.");
     }
   }
 
@@ -244,6 +243,10 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
 
   get data(): T {
     return this._data;
+  }
+
+  get uid() {
+    return this.uid;
   }
 
   /**

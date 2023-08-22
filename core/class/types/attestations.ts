@@ -3,19 +3,46 @@ import { Attestation } from "../Attestation";
 import { TExternalLink } from "core/types";
 
 /** Attestation interfaces */
-export class ExternalLink extends Attestation {
+
+export interface IExternalLink {
+  url: string;
+  type: TExternalLink;
+}
+export class ExternalLink
+  extends Attestation<IExternalLink>
+  implements IExternalLink
+{
   url: string;
   type: TExternalLink;
 }
 
-export class GranteeDetails extends Attestation {
+export interface IGranteeDetails {
+  name: string;
+  description?: string;
+  ownerAddress: Hex;
+  payoutAddress: Hex;
+}
+export class GranteeDetails
+  extends Attestation<IGranteeDetails>
+  implements IGranteeDetails
+{
   name: string;
   description?: string;
   ownerAddress: Hex;
   payoutAddress: Hex;
 }
 
-export class GrantDetails extends Attestation {
+export interface IGrantDetails {
+  title: string;
+  amount: string;
+  proposalURL: string;
+  asset?: [Hex, bigint];
+  description?: string;
+}
+export class GrantDetails
+  extends Attestation<IGrantDetails>
+  implements IGrantDetails
+{
   title: string;
   amount: string = "0";
   proposalURL: string;
@@ -23,31 +50,62 @@ export class GrantDetails extends Attestation {
   description?: string;
 }
 
-export class GrantRound extends Attestation {
+export interface IGrantRound {
+  name: string;
+}
+export class GrantRound
+  extends Attestation<IGrantRound>
+  implements IGrantRound
+{
   name: string;
 }
 
-export class GrantVerified extends Attestation {
+export interface IGrantVerified {
+  verified: boolean;
+}
+export class GrantVerified
+  extends Attestation<IGrantVerified>
+  implements IGrantVerified
+{
   verified: boolean;
 }
 
-export class Grant extends Attestation {
+export interface IGrant {
+  grant: true;
+}
+export class Grant extends Attestation<IGrant> {
   details?: GrantDetails;
   verified?: boolean;
   round?: GrantRound;
   milestones: Milestone[] = [];
 }
 
-export class MemberDetails extends Attestation {
+export interface IMemberDetails {
+  name: string;
+  profilePictureURL: string;
+}
+export class MemberDetails
+  extends Attestation<IMemberDetails>
+  implements IMemberDetails
+{
   name: string;
   profilePictureURL: string;
 }
 
-export class MemberOf extends Attestation {
+export interface IMemberOf {
+  memberOf: true;
+}
+export class MemberOf extends Attestation<IMemberOf> {
   details?: MemberDetails;
 }
 
-export class Milestone extends Attestation<Milestone> {
+export interface IMilestone {
+  title: string;
+  startsAt: number;
+  endsAt: number;
+  description: string;
+}
+export class Milestone extends Attestation<IMilestone> implements IMilestone {
   title: string;
   startsAt: number;
   endsAt: number;
@@ -56,20 +114,43 @@ export class Milestone extends Attestation<Milestone> {
   approved: boolean;
 }
 
-export class MilestoneCompleted extends Attestation {}
-export class MilestoneApproved extends Attestation {}
+export interface IMilestoneCompleted {
+  completed: boolean;
+}
+export class MilestoneCompleted extends Attestation<IMilestoneCompleted> {}
 
-export class Tag extends Attestation {
+export interface IMilestoneApproved {
+  approved: boolean;
+}
+export class MilestoneApproved extends Attestation<IMilestoneApproved> {}
+
+export interface ITag {
+  name: string;
+}
+export class Tag extends Attestation<ITag> implements ITag {
   name: string;
 }
 
-export class ProjectDetails extends Attestation {
+export interface IProjectDetails {
+  title: string;
+  description: string;
+  imageURL: string;
+}
+export class ProjectDetails
+  extends Attestation<IProjectDetails>
+  implements IProjectDetails
+{
   title: string;
   description: string;
   imageURL: string;
   links: ExternalLink[] = [];
 }
-export class Project extends Attestation {
+
+export interface IProject {
+  project: true;
+}
+
+export class Project extends Attestation<IProject> {
   details?: ProjectDetails;
   members: MemberOf[] = [];
   grants: Grant[];
@@ -77,7 +158,10 @@ export class Project extends Attestation {
   tags: Tag[] = [];
 }
 
-export class Grantee extends Attestation {
+export interface IGrantee {
+  grantee: true;
+}
+export class Grantee extends Attestation<IGrantee> {
   details?: GranteeDetails;
   projects: Project[] = [];
 }

@@ -13,11 +13,9 @@ export interface SchemaInterface<T extends string = string> {
 }
 
 export interface AttestArgs<T = unknown> {
-  from: Hex;
   to: Hex;
   data: T;
   refUID?: Hex;
-  schemaName: TSchemaName;
   signer: SignerOrProvider;
 }
 

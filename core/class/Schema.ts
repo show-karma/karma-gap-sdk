@@ -5,10 +5,11 @@ import {
   SchemaValue,
 } from "@ethereum-attestation-service/eas-sdk";
 import { AttestArgs, Hex, SchemaInterface } from "../types";
-import { SchemaError } from "./SchemaError";
+import { AttestationError, SchemaError } from "./SchemaError";
 import { ethers } from "ethers";
 import { nullResolver } from "../consts";
 import { GAP } from "./GAP";
+import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
 
 /**
  * Represents the EAS Schema and provides methods to encode and decode the schema,
@@ -349,11 +350,17 @@ export abstract class Schema<T extends string = string>
    * @param param0
    * @returns
    */
-  async attest(
-    { data, from, to, signer, refUID }: AttestArgs,
+  async attest<T>(
+    { data, to, signer, refUID }: AttestArgs<T>,
     revokeUID?: Hex
-  ) {
+  ): Promise<Hex> {
     const eas = GAP.eas.connect(signer);
+
+    if (this.references && !refUID)
+      throw new AttestationError(
+        "INVALID_REFERENCE",
+        "Attestation schema references another schema but no reference UID was provided."
+      );
 
     if (revokeUID) {
       const toRevoke = await eas.getAttestation(revokeUID);
@@ -363,7 +370,10 @@ export abstract class Schema<T extends string = string>
           data: { uid: revokeUID },
         });
       } else {
-        throw new Error(`Revoke UID schema does not match ${this.name}`);
+        throw new AttestationError(
+          "INVALID_REF_UID",
+          `Revoke UID schema does not match any ${this.name} attestation.`
+        );
       }
     }
 
@@ -372,7 +382,7 @@ export abstract class Schema<T extends string = string>
     });
 
     const payload: AttestationRequestData = {
-      recipient: from,
+      recipient: to,
       expirationTime: 0n,
       revocable: true,
       data: this.encode(this.schema),
@@ -384,7 +394,7 @@ export abstract class Schema<T extends string = string>
       data: payload,
     });
 
-    return tx.wait();
+    return tx.wait() as Promise<Hex>;
   }
 
   /**

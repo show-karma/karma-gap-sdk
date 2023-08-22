@@ -101,7 +101,7 @@ export class GAP extends Facade {
    * @param data
    * @param schema
    */
-  async attest<T>(attestation: AttestArgs<T>) {
+  async attest<T>(attestation: AttestArgs<T> & { schemaName: TSchemaName  }) {
     const schema = GapSchema.find(attestation.schemaName);
     return schema.attest(attestation);
   }
