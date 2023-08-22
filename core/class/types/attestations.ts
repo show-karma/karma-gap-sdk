@@ -1,5 +1,6 @@
 import { Attestation } from "../Attestation";
 import { Hex, TExternalLink } from "core/types";
+import { Project } from "../entities/Project";
 
 /** Attestation interfaces */
 
@@ -143,18 +144,6 @@ export class ProjectDetails
   description: string;
   imageURL: string;
   links: ExternalLink[] = [];
-}
-
-export interface IProject {
-  project: true;
-}
-
-export class Project extends Attestation<IProject> {
-  details?: ProjectDetails;
-  members: MemberOf[] = [];
-  grants: Grant[];
-  grantee: Grantee;
-  tags: Tag[] = [];
 }
 
 export interface IGrantee {

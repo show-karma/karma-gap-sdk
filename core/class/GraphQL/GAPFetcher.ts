@@ -18,7 +18,6 @@ import {
   MemberDetails,
   MemberOf,
   Milestone,
-  Project,
   ProjectDetails,
   Tag,
 } from "../types/attestations";
@@ -26,6 +25,7 @@ import { GapSchema } from "../GapSchema";
 import { Schema } from "../Schema";
 import { EASClient } from "./EASClient";
 import { SchemaError } from "../SchemaError";
+import { Project } from "../entities/Project";
 
 export class GAPFetcher extends EASClient {
   /**

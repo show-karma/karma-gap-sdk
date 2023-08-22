@@ -10,6 +10,7 @@ import { ethers } from "ethers";
 import { nullResolver } from "../consts";
 import { GAP } from "./GAP";
 import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
+import { Attestation } from "./Attestation";
 
 /**
  * Represents the EAS Schema and provides methods to encode and decode the schema,
@@ -395,6 +396,47 @@ export abstract class Schema<T extends string = string>
     });
 
     return tx.wait() as Promise<Hex>;
+  }
+
+  async multiAttest(signer: SignerOrProvider, entities: Attestation[]) {
+    entities.forEach((entity) => {
+      if (this.references && !entity.refUID)
+        throw new SchemaError(
+          "INVALID_REF_UID",
+          `Entity ${entity.schema.name} references another schema but no reference UID was provided.`
+        );
+    });
+
+    const eas = GAP.eas.connect(signer);
+    const tx = await eas.multiAttest([
+      {
+        data: entities.map((e) => ({
+          data: this.encode(e.schema.schema),
+          refUID: e.refUID,
+          recipient: e.recipient,
+          expirationTime: 0n,
+        })),
+        schema: this.uid,
+      },
+    ]);
+    return tx.wait();
+  }
+
+  /**
+   * Multi revoke attestation UIDs.
+   * @param signer
+   * @param uids
+   * @returns
+   */
+  async multiRevoke(signer: SignerOrProvider, uids: Hex[]) {
+    const eas = GAP.eas.connect(signer);
+    const tx = await eas.multiRevoke([
+      {
+        schema: this.uid,
+        data: uids.map((uid) => ({ uid })),
+      },
+    ]);
+    return tx.wait();
   }
 
   /**

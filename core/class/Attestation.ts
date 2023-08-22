@@ -249,6 +249,10 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
     return this._uid;
   }
 
+  set uid(uid: Hex) {
+    this._uid = uid;
+  }
+
   /**
    * Create attestation to serve as Attestation data.
    * @param data Data to attest
