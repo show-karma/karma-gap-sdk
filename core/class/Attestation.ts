@@ -246,7 +246,7 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
   }
 
   get uid() {
-    return this.uid;
+    return this._uid;
   }
 
   /**
