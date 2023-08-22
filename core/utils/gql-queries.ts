@@ -27,7 +27,6 @@ export const gqlQueries = {
     {
       attestation(where: {
         id: "${uid}"
-        refUID: {notIn: ["${nullRef}"]}
       }) {${attestationFields}}
     }`,
   attestationsFrom: (schemaId: Hex, attester: Hex) =>

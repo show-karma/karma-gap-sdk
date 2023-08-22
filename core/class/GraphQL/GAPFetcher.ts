@@ -120,7 +120,61 @@ export class GAPFetcher extends EASClient {
     return Attestation.fromInterface(attestations);
   }
 
-  async projectBy(uid: Hex) {}
+  async projectById(uid: Hex) {
+    const [project, projectDetails, memberOf, tag, externalLink, grant] =
+      GapSchema.findMany([
+        "Project",
+        "ProjectDetails",
+        "MemberOf",
+        "Tag",
+        "ExternalLink",
+        "Grant",
+      ]);
+
+    const query = gqlQueries.attestation(uid);
+    const { attestation } = await this.query<AttestationRes>(query);
+
+    const refQuery = gqlQueries.dependentsOf(
+      [uid],
+      [projectDetails.uid, memberOf.uid, tag.uid, externalLink.uid, grant.uid]
+    );
+
+    const result = await this.query<AttestationsRes>(refQuery);
+    const deps = Attestation.fromInterface(result.attestations || []);
+
+    const projectAttestation = new Project({
+      ...attestation,
+      data: attestation.decodedDataJson,
+      schema: project,
+    });
+
+    projectAttestation.details = <ProjectDetails>(
+      deps.find(
+        (ref) => ref.schema.name === "ProjectDetails" && ref.refUID === uid
+      )
+    );
+
+    if (projectAttestation.details) {
+      projectAttestation.details.links = <ExternalLink[]>(
+        deps.filter((ref) => ref.schema.name === "ExternalLink")
+      );
+    }
+
+    projectAttestation.tags = <Tag[]>(
+      deps.filter((ref) => ref.schema.uid === tag.uid && ref.refUID === uid)
+    );
+
+    projectAttestation.members = <MemberOf[]>(
+      deps.filter((ref) => ref.schema.uid === memberOf.uid)
+    );
+
+    projectAttestation.grants = <Grant[]>(
+      deps.filter((ref) => ref.schema.uid === memberOf.uid)
+    );
+
+    return projectAttestation;
+  }
+
   /**
    * Fetch projects with details and members.
    * @param name if set, will search by the name.
@@ -131,18 +185,16 @@ export class GAPFetcher extends EASClient {
 
     if (!projects.length) return [];
 
-    const [memberOf, memberDetails, projectDetails, extLink, tag] =
-      GapSchema.findMany([
-        "ProjectDetails",
-        "MemberOf",
-        "MemberDetails",
-        "ExternalLink",
-        "Tag",
-      ]);
+    const [memberOf, projectDetails, extLink, tag] = GapSchema.findMany([
+      "MemberOf",
+      "ProjectDetails",
+      "ExternalLink",
+      "Tag",
+    ]);
 
     const query = gqlQueries.dependentsOf(
       projects.map((p) => p.uid),
-      [memberOf.uid, memberDetails.uid, projectDetails.uid, extLink.uid],
+      [memberOf.uid, projectDetails.uid, extLink.uid],
       projects.map((p) => p.attester)
     );
 
