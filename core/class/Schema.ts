@@ -1,25 +1,14 @@
 import {
   AttestationRequestData,
-  EAS,
   SchemaEncoder,
   SchemaItem,
   SchemaValue,
 } from "@ethereum-attestation-service/eas-sdk";
-import { AttestArgs, Hex } from "../types";
+import { AttestArgs, Hex, SchemaInterface } from "../types";
 import { SchemaError } from "./SchemaError";
 import { ethers } from "ethers";
 import { nullResolver } from "../consts";
-import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
-import { Attestation } from "./Attestation";
 import { GAP } from "./GAP";
-
-export interface SchemaInterface<T extends string = string> {
-  name: string;
-  schema: SchemaItem[];
-  references?: T;
-  uid: Hex;
-  revocable?: boolean;
-}
 
 /**
  * Represents the EAS Schema and provides methods to encode and decode the schema,
@@ -378,17 +367,18 @@ export abstract class Schema<T extends string = string>
       }
     }
 
-    const attestation = Attestation.factory(data, this, from, to);
+    Object.entries(data).forEach(([key, value]) => {
+      this.setValue(key, value);
+    });
 
     const payload: AttestationRequestData = {
       recipient: from,
       expirationTime: 0n,
       revocable: true,
-      data: this.encode(attestation.schema.schema),
+      data: this.encode(this.schema),
       refUID,
     };
 
-    console.log({ attestation, payload, schema: attestation.schema.schema });
     const tx = await eas.attest({
       schema: this.uid,
       data: payload,

@@ -8,9 +8,9 @@ import {
   SchemaValue,
 } from "@ethereum-attestation-service/eas-sdk";
 import { getDate } from "../utils/get-date";
-import { GapSchema } from "./GapSchema";
 import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
 import { GAP } from "./GAP";
+import { GapSchema } from "./GapSchema";
 
 interface AttestationArgs<T = unknown, S extends Schema = Schema> {
   schema: S;
@@ -136,31 +136,43 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
    * @param signer
    * @returns
    */
-  async revoke(eas: EAS, signer: SignerOrProvider) {
-    eas.connect(signer);
-    const tx = await eas.revoke({
-      data: { uid: this.uid },
-      schema: this.schema.raw,
-    });
+  async revoke(signer: SignerOrProvider) {
+    try {
+      const eas = GAP.eas.connect(signer);
+      const tx = await eas.revoke({
+        data: {
+          uid: this.uid,
+        },
+        schema: this.schema.uid,
+      });
 
-    return tx.wait();
+      return tx.wait();
+    } catch (error) {
+      console.error(error);
+      throw new SchemaError("REVOKE_ERROR", "Error revoking attestation.");
+    }
   }
 
   /**
    * Attests this attestation and revokes the previous one.
    * @param signer
-   * @returns
+   * @returns attestation UID
    */
   async attest(signer: SignerOrProvider) {
-    await this.revoke(GAP.eas, signer);
-    return this.schema.attest({
-      data: this.data,
-      from: this.attester,
-      to: this.recipient,
-      schemaName: this.schema.name as TSchemaName,
-      signer,
-      refUID: this.refUID,
-    });
+    await this.revoke(signer);
+    try {
+      return this.schema.attest({
+        data: this.data,
+        from: this.attester,
+        to: this.recipient,
+        schemaName: this.schema.name as TSchemaName,
+        signer,
+        refUID: this.refUID,
+      });
+    } catch (error) {
+      console.error(error);
+      throw new SchemaError("ATTEST_ERROR", "Error during attestation.");
+    }
   }
 
   /**

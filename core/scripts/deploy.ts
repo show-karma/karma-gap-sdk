@@ -9,6 +9,17 @@ import keys from "../../config/keys.json";
 import { GapSchema } from "../class/GapSchema";
 import { writeFileSync } from "fs";
 
+const web3 = new ethers.providers.JsonRpcProvider(
+  "https://eth-sepolia-public.unifra.io"
+);
+const wallet = new ethers.Wallet(keys.sepolia, web3);
+
+const contract = new ethers.Contract(
+  Networks.sepolia.contracts.schema,
+  SchemaRegistry.abi,
+  wallet
+);
+
 async function deploy(networkName?: TNetwork) {
   const [, , $3] = process.argv;
   const network = Networks[networkName || $3] as EASNetworkConfig;
@@ -23,18 +34,6 @@ async function deploy(networkName?: TNetwork) {
     );
   }
   if (!key) throw new Error("No keys found for this network");
-
-  const web3 = new ethers.providers.JsonRpcProvider(
-    "https://eth-sepolia-public.unifra.io"
-  );
-
-  const wallet = new ethers.Wallet(key, web3);
-
-  const contract = new ethers.Contract(
-    network.contracts.schema,
-    SchemaRegistry.abi,
-    wallet
-  );
 
   const revocable = true;
 

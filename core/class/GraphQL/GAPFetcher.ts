@@ -1,25 +1,27 @@
+import { Attestation } from "../Attestation";
 import { gqlQueries } from "../../utils/gql-queries";
 import {
   AttestationRes,
   AttestationsRes,
+  Hex,
+  SchemaRes,
+  SchemataRes,
+  TSchemaName,
+} from "../../types";
+import {
   ExternalLink,
   Grant,
   GrantDetails,
   GrantRound,
   Grantee,
   GranteeDetails,
-  Hex,
   MemberDetails,
   MemberOf,
   Milestone,
   Project,
   ProjectDetails,
-  SchemaRes,
-  SchemataRes,
-  TSchemaName,
   Tag,
-} from "../../types";
-import { Attestation } from "../Attestation";
+} from "../types/attestations";
 import { GapSchema } from "../GapSchema";
 import { Schema } from "../Schema";
 import { EASClient } from "./EASClient";

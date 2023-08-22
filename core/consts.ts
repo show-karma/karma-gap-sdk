@@ -1,5 +1,9 @@
-import { SchemaInterface } from "./class/Schema";
-import { EASNetworkConfig, TNetwork, TSchemaName } from "./types";
+import {
+  EASNetworkConfig,
+  SchemaInterface,
+  TNetwork,
+  TSchemaName,
+} from "./types";
 
 export const nullRef =
   "0x0000000000000000000000000000000000000000000000000000000000000000";

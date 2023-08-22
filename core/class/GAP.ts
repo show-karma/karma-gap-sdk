@@ -1,11 +1,9 @@
-import { AttestArgs, Facade, Hex, TNetwork, TSchemaName } from "../types";
-import { Schema, SchemaInterface } from "./Schema";
+import { AttestArgs, Facade, Hex, SchemaInterface, TNetwork } from "../types";
+import { Schema } from "./Schema";
 import { GapSchema } from "./GapSchema";
 import { GAPFetcher } from "./GraphQL/GAPFetcher";
 import { EAS } from "@ethereum-attestation-service/eas-sdk";
 import { Networks } from "../consts";
-import { Attestation } from "./Attestation";
-import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
 
 interface GAPArgs {
   network: TNetwork;

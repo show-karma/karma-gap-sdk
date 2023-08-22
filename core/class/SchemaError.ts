@@ -9,6 +9,8 @@ const SchemaErrorCodes = {
   INVALID_REFERENCE: 50008,
   INVALID_SCHEMA_FIELD: 50009,
   INVALID_DATA: 50010,
+  REVOKE_ERROR: 50011,
+  ATTEST_ERROR: 50012,
 };
 
 export class SchemaError extends Error {
