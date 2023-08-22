@@ -1,14 +1,20 @@
-import { AttestArgs, Facade, Hex, SchemaInterface, TNetwork } from "../types";
+import {
+  AttestArgs,
+  Facade,
+  Hex,
+  SchemaInterface,
+  TNetwork,
+  TSchemaName,
+} from "../types";
 import { Schema } from "./Schema";
 import { GapSchema } from "./GapSchema";
 import { GAPFetcher } from "./GraphQL/GAPFetcher";
 import { EAS } from "@ethereum-attestation-service/eas-sdk";
-import { Networks } from "../consts";
+import { MountEntities, Networks } from "../consts";
 
 interface GAPArgs {
   network: TNetwork;
-  owner: Hex;
-  schemas: SchemaInterface[];
+  schemas?: SchemaInterface<TSchemaName>[];
 }
 
 /**
@@ -70,20 +76,21 @@ export class GAP extends Facade {
   private static client: GAP;
 
   readonly fetch: GAPFetcher;
-  readonly owner: Hex;
   readonly network: TNetwork;
 
   private _schemas: GapSchema[];
 
-  private constructor(args: GAPArgs) {
+  constructor(args: GAPArgs) {
     super();
-    this.owner = args.owner;
+
+    const schemas =
+      args.schemas || Object.values(MountEntities(Networks[args.network]));
 
     GAP._eas = new EAS(Networks[args.network].contracts.eas);
 
-    this.fetch = new GAPFetcher({ network: args.network, owner: args.owner });
+    this.fetch = new GAPFetcher({ network: args.network });
 
-    this._schemas = args.schemas.map((schema) => new GapSchema(schema));
+    this._schemas = schemas.map((schema) => new GapSchema(schema));
     Schema.validate();
   }
 

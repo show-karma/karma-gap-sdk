@@ -59,7 +59,6 @@ export type TNetwork =
  */
 export abstract class Facade {
   abstract readonly network: TNetwork;
-  abstract readonly owner: Hex;
   abstract readonly schemas: SchemaInterface[];
   abstract readonly fetch: GAPFetcher;
   protected static _eas: EAS;
