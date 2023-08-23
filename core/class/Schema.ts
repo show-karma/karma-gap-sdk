@@ -4,7 +4,7 @@ import {
   SchemaItem,
   SchemaValue,
 } from "@ethereum-attestation-service/eas-sdk";
-import { AttestArgs, Hex, SchemaInterface } from "../types";
+import { AttestArgs, Hex, MultiRevokeArgs, SchemaInterface } from "../types";
 import { AttestationError, SchemaError } from "./SchemaError";
 import { ethers } from "ethers";
 import { nullResolver } from "../consts";
@@ -97,7 +97,7 @@ export abstract class Schema<T extends string = string>
    * @param strict If true, will throw an error if schema reference is not valid. With this option, user should add schemas
    * in a strict order.
    */
-  constructor(args: SchemaInterface<T>, strict = false) {
+  constructor(args: SchemaInterface<T>, strict = false, ignoreSchema = false) {
     this.assert(args, strict);
 
     this._schema = args.schema;
@@ -107,15 +107,14 @@ export abstract class Schema<T extends string = string>
     this.revocable = args.revocable || true;
 
     this.encoder = new SchemaEncoder(this.raw);
-    Schema.add(this);
   }
 
   /**
    * Encode the schema to be used as payload in the attestation
    * @returns
    */
-  encode(data: SchemaItem[]) {
-    return this.encoder.encodeData(data);
+  encode(schema?: SchemaItem[]) {
+    return this.encoder.encodeData(schema || this.schema);
   }
 
   /**
@@ -221,6 +220,13 @@ export abstract class Schema<T extends string = string>
     return this.schemas.find((schema) => schema.name === name);
   }
 
+  /**
+   * Adds the schema signature to a shares list. Use Schema.get("SchemaName") to get the schema.
+   *
+   * __Note that this will make the schema available to all instances 
+   * of the class AND its data can be overriden by any changes.__
+   * @param schemas
+   */
   static add<T extends Schema>(...schemas: T[]) {
     schemas.forEach((schema) => {
       if (!this.exists(schema.name)) this.schemas.push(schema);
@@ -398,7 +404,7 @@ export abstract class Schema<T extends string = string>
     return tx.wait() as Promise<Hex>;
   }
 
-  async multiAttest(signer: SignerOrProvider, entities: Attestation[]) {
+  async multiAttest(signer: SignerOrProvider, entities: Attestation[] = []) {
     entities.forEach((entity) => {
       if (this.references && !entity.refUID)
         throw new SchemaError(
@@ -408,34 +414,54 @@ export abstract class Schema<T extends string = string>
     });
 
     const eas = GAP.eas.connect(signer);
-    const tx = await eas.multiAttest([
-      {
-        data: entities.map((e) => ({
-          data: this.encode(e.schema.schema),
-          refUID: e.refUID,
-          recipient: e.recipient,
-          expirationTime: 0n,
-        })),
-        schema: this.uid,
+
+    const entityBySchema = entities.reduce(
+      (acc, entity) => {
+        const schema = entity.schema.uid;
+        if (!acc[schema]) acc[schema] = [];
+        acc[schema].push(entity);
+        return acc;
       },
-    ]);
+      {} as Record<string, Attestation[]>
+    );
+
+    const payload = Object.entries(entityBySchema).map(([schema, ents]) => ({
+      schema,
+      data: ents.map((e) => ({
+        data: e.schema.encode(),
+        refUID: e.refUID,
+        recipient: e.recipient,
+        expirationTime: 0n,
+      })),
+    }));
+
+    const tx = await eas.multiAttest(payload);
     return tx.wait();
   }
 
   /**
-   * Multi revoke attestation UIDs.
+   * Revokes a set of attestations by their UIDs.
    * @param signer
    * @param uids
    * @returns
    */
-  async multiRevoke(signer: SignerOrProvider, uids: Hex[]) {
-    const eas = GAP.eas.connect(signer);
-    const tx = await eas.multiRevoke([
-      {
-        schema: this.uid,
-        data: uids.map((uid) => ({ uid })),
+  async multiRevoke(signer: SignerOrProvider, toRevoke: MultiRevokeArgs[]) {
+    const groupBySchema = toRevoke.reduce(
+      (acc, { uid, schemaId }) => {
+        if (!acc[schemaId]) acc[schemaId] = [];
+        acc[schemaId].push(uid);
+        return acc;
       },
-    ]);
+      {} as Record<string, Hex[]>
+    );
+
+    const eas = GAP.eas.connect(signer);
+    const payload = Object.entries(groupBySchema).map(([schema, uids]) => ({
+      schema,
+      data: uids.map((uid) => ({ uid })),
+    }));
+
+    const tx = await eas.multiRevoke(payload);
     return tx.wait();
   }
 

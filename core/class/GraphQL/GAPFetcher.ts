@@ -25,7 +25,7 @@ import { GapSchema } from "../GapSchema";
 import { Schema } from "../Schema";
 import { EASClient } from "./EASClient";
 import { SchemaError } from "../SchemaError";
-import { Project } from "../entities/Project";
+import { IProject, Project } from "../entities/Project";
 
 export class GAPFetcher extends EASClient {
   /**
@@ -181,7 +181,14 @@ export class GAPFetcher extends EASClient {
    * @returns
    */
   async projects(name?: string): Promise<Project[]> {
-    const projects = <Project[]>await this.attestations("Project", name);
+    const projects = (await this.attestations("Project", name))?.map(
+      (item) =>
+        new Project({
+          ...item,
+          data: <IProject>item.data,
+          uid: item.uid,
+        })
+    );
 
     if (!projects.length) return [];
 
@@ -215,9 +222,10 @@ export class GAPFetcher extends EASClient {
         )
       );
 
-      project.details.links = <ExternalLink[]>(
-        refs.filter((ref) => ref.schema.name === "ExternalLink")
-      );
+      if (project.details)
+        project.details.links = <ExternalLink[]>(
+          refs.filter((ref) => ref.schema.name === "ExternalLink")
+        );
 
       project.tags = <Tag[]>(
         refs.filter(

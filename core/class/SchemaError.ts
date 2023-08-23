@@ -12,6 +12,7 @@ const SchemaErrorCodes = {
   REVOKE_ERROR: 50011,
   ATTEST_ERROR: 50012,
   INVALID_REF_UID: 50013,
+  REVOKATION_ERROR: 50014,
 };
 
 export class SchemaError extends Error {

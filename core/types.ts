@@ -12,6 +12,11 @@ export interface SchemaInterface<T extends string = string> {
   revocable?: boolean;
 }
 
+export interface MultiRevokeArgs {
+  uid: Hex;
+  schemaId: Hex;
+}
+
 export interface AttestArgs<T = unknown> {
   to: Hex;
   data: T;

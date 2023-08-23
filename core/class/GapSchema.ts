@@ -1,4 +1,4 @@
-import { IGapSchema, TSchemaName } from "../types";
+import { IGapSchema, SchemaInterface, TSchemaName } from "../types";
 import { Schema } from "./Schema";
 
 /**
@@ -9,16 +9,65 @@ export class GapSchema extends Schema implements IGapSchema {
   public readonly name: TSchemaName;
   public readonly references: TSchemaName;
 
-  static find(name: TSchemaName): GapSchema {
-    return Schema.get<TSchemaName, GapSchema>(name);
+  constructor(
+    args: SchemaInterface<TSchemaName>,
+    strict = false,
+    ignoreSchema = false
+  ) {
+    super(args, strict, ignoreSchema);
+
+    if (!ignoreSchema)
+      Schema.add(
+        new GapSchema(
+          {
+            name: args.name,
+            schema: args.schema.map((s) => ({ ...s })),
+            uid: args.uid,
+            references: args.references,
+            revocable: args.revocable,
+          },
+          strict,
+          true
+        )
+      );
   }
 
   /**
-   * Find many schemas by name and return them as an array in the same order.
+   * Clones a schema without references to the original.
+   * @param schema
+   * @returns
+   */
+  static clone(schema: GapSchema) {
+    return new GapSchema(
+      {
+        name: schema.name,
+        schema: schema.schema.map((s) => ({ ...s })),
+        uid: schema.uid,
+        references: schema.references,
+        revocable: schema.revocable,
+      },
+      false,
+      true
+    );
+  }
+
+  /**
+   * Returns a copy of the original schema with no pointers.
+   * @param name 
+   * @returns 
+   */
+  static find(name: TSchemaName): GapSchema {
+    const found = Schema.get<TSchemaName, GapSchema>(name);
+    return this.clone(found);
+  }
+
+  /**
+   * Find many schemas by name and return theis copies as an array in the same order.
    * @param names
    * @returns
    */
   static findMany(names: TSchemaName[]): GapSchema[] {
-    return Schema.getMany<TSchemaName, GapSchema>(names);
+    const schemas = Schema.getMany<TSchemaName, GapSchema>(names);
+    return schemas.map((s) => this.clone(s));
   }
 }
