@@ -223,7 +223,7 @@ export abstract class Schema<T extends string = string>
   /**
    * Adds the schema signature to a shares list. Use Schema.get("SchemaName") to get the schema.
    *
-   * __Note that this will make the schema available to all instances 
+   * __Note that this will make the schema available to all instances
    * of the class AND its data can be overriden by any changes.__
    * @param schemas
    */
@@ -435,7 +435,9 @@ export abstract class Schema<T extends string = string>
       })),
     }));
 
-    const tx = await eas.multiAttest(payload);
+    const tx = await eas.multiAttest(payload, {
+      gasLimit: 5000000n,
+    });
     return tx.wait();
   }
 
@@ -461,7 +463,9 @@ export abstract class Schema<T extends string = string>
       data: uids.map((uid) => ({ uid })),
     }));
 
-    const tx = await eas.multiRevoke(payload);
+    const tx = await eas.multiRevoke(payload, {
+      gasLimit: 5000000n,
+    });
     return tx.wait();
   }
 

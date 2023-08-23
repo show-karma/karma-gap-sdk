@@ -11,6 +11,7 @@ import { getDate } from "../utils/get-date";
 import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
 import { GAP } from "./GAP";
 import { GapSchema } from "./GapSchema";
+import { nullRef } from "../consts";
 
 interface AttestationArgs<T = unknown, S extends Schema = Schema> {
   schema: S;
@@ -159,7 +160,8 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
    * @returns attestation UID
    */
   async attest(signer: SignerOrProvider) {
-    await this.revoke(signer);
+    if (this.uid && this.uid !== nullRef) await this.revoke(signer);
+
     try {
       const uid = await this.schema.attest<T>({
         data: this.data,
