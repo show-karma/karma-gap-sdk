@@ -1,3 +1,4 @@
+import { mapFilter } from "core/utils";
 import { IGapSchema, SchemaInterface, TSchemaName } from "../types";
 import { Schema } from "./Schema";
 
@@ -53,8 +54,8 @@ export class GapSchema extends Schema implements IGapSchema {
 
   /**
    * Returns a copy of the original schema with no pointers.
-   * @param name 
-   * @returns 
+   * @param name
+   * @returns
    */
   static find(name: TSchemaName): GapSchema {
     const found = Schema.get<TSchemaName, GapSchema>(name);
@@ -62,12 +63,23 @@ export class GapSchema extends Schema implements IGapSchema {
   }
 
   /**
-   * Find many schemas by name and return theis copies as an array in the same order.
+   * Find many schemas by name and return their copies as an array in the same order.
    * @param names
    * @returns
    */
   static findMany(names: TSchemaName[]): GapSchema[] {
     const schemas = Schema.getMany<TSchemaName, GapSchema>(names);
     return schemas.map((s) => this.clone(s));
+  }
+
+  /**
+   * Get all schemas that references this schema.
+   */
+  get children() {
+    return mapFilter(
+      GapSchema.schemas,
+      (s) => s.references === this.name || s.references === this.uid,
+      (s: Schema<TSchemaName>) => new GapSchema(s)
+    );
   }
 }
