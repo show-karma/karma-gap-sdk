@@ -10,14 +10,12 @@ import {
 } from "../../types";
 import {
   ExternalLink,
-  Grant,
   GrantDetails,
   GrantRound,
   Grantee,
   GranteeDetails,
   MemberDetails,
   MemberOf,
-  Milestone,
   ProjectDetails,
   Tag,
 } from "../types/attestations";
@@ -25,7 +23,7 @@ import { GapSchema } from "../GapSchema";
 import { Schema } from "../Schema";
 import { EASClient } from "./EASClient";
 import { SchemaError } from "../SchemaError";
-import { IProject, Project } from "../entities/Project";
+import { Grant, Milestone, IProject, Project } from "../entities";
 
 export class GAPFetcher extends EASClient {
   /**
