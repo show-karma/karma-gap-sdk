@@ -25,6 +25,8 @@ export interface AttestArgs<T = unknown> {
 }
 
 export type TSchemaName =
+  | "Community"
+  | "CommunityDetails"
   | "ExternalLink"
   | "Grantee"
   | "GranteeDetails"

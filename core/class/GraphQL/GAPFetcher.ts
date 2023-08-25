@@ -9,6 +9,7 @@ import {
   TSchemaName,
 } from "../../types";
 import {
+  CommunityDetails,
   ExternalLink,
   GrantDetails,
   GrantRound,
@@ -24,6 +25,7 @@ import { Schema } from "../Schema";
 import { EASClient } from "./EASClient";
 import { SchemaError } from "../SchemaError";
 import { Grant, Milestone, IProject, Project } from "../entities";
+import { Community } from "../entities/Community";
 
 export class GAPFetcher extends EASClient {
   /**
@@ -118,6 +120,108 @@ export class GAPFetcher extends EASClient {
     return Attestation.fromInterface(attestations);
   }
 
+  /**
+   * Fetch all available communities with details and grantees uids.
+   *
+   * If search is defined, will try to find communities by the search string.
+   * @param search
+   * @returns
+   */
+  async communities(search?: string) {
+    const [community, communityDetails, grantee] = GapSchema.findMany([
+      "Community",
+      "CommunityDetails",
+      "Grantee",
+    ]);
+
+    const query = gqlQueries.attestationsOf(community.uid, search);
+    const {
+      schema: { attestations },
+    } = await this.query<SchemaRes>(query);
+
+    const communities = Attestation.fromInterface<Community>(attestations);
+
+    if (!communities.length) return [];
+
+    const ref = gqlQueries.dependentsOf(
+      communities.map((c) => c.uid),
+      [grantee.uid, communityDetails.uid]
+    );
+
+    const results = await this.query<AttestationsRes>(ref);
+    const deps = Attestation.fromInterface(results.attestations || []);
+
+    return communities.map((community) => {
+      const refs = deps.filter((ref) => ref.refUID === community.uid);
+
+      community.grantees = <Grantee[]>(
+        refs.filter(
+          (ref) =>
+            ref.schema.uid === grantee.uid && ref.refUID === community.uid
+        )
+      );
+
+      community.details = <CommunityDetails>(
+        refs.find(
+          (ref) =>
+            ref.schema.uid === communityDetails.uid &&
+            ref.refUID === community.uid
+        )
+      );
+
+      return community;
+    });
+  }
+
+  /**
+   * Fetch a community by its id. This method will also return the
+   * community details and grantees uids.
+   */
+  async communityById(uid: Hex) {
+    const [communityDetails, grantee] = GapSchema.findMany([
+      "CommunityDetails",
+      "Grantee",
+    ]);
+
+    const query = gqlQueries.attestation(uid);
+    const { attestation } = await this.query<AttestationRes>(query);
+
+    const communities = Attestation.fromInterface<Community>([attestation]);
+
+    if (!communities.length) return [];
+
+    const ref = gqlQueries.dependentsOf(
+      communities.map((c) => c.uid),
+      [grantee.uid, communityDetails.uid]
+    );
+
+    const results = await this.query<AttestationsRes>(ref);
+    const deps = Attestation.fromInterface(results.attestations || []);
+
+    const communityAttestation = communities[0];
+
+    communityAttestation.grantees = <Grantee[]>(
+      deps.filter(
+        (ref) =>
+          ref.schema.uid === grantee.uid &&
+          ref.refUID === communityAttestation.uid
+      )
+    );
+
+    communityAttestation.details = <CommunityDetails>(
+      deps.find(
+        (ref) =>
+          ref.schema.uid === communityDetails.uid &&
+          ref.refUID === communityAttestation.uid
+      )
+    );
+  }
+
+  /**
+   * Fetch a project by its id.
+   * @param uid
+   * @returns
+   */
   async projectById(uid: Hex) {
     const [project, projectDetails, memberOf, tag, externalLink, grant] =
       GapSchema.findMany([

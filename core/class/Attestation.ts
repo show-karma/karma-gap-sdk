@@ -62,7 +62,7 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
   readonly schema: S;
   private _data: T;
 
-  private _uid: Hex;
+  protected _uid: Hex;
   readonly refUID?: Hex;
   readonly attester?: Hex;
   readonly recipient?: Hex;
@@ -157,9 +157,11 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
   /**
    * Attests this attestation and revokes the previous one.
    * @param signer
+   * @param args overridable params
    * @returns attestation UID
    */
-  async attest(signer: SignerOrProvider) {
+  async attest(signer: SignerOrProvider, ...args: unknown[]) {
+    console.log(`Attesting ${this.schema.name}`);
     if (this.uid && this.uid !== nullRef) await this.revoke(signer);
 
     try {
@@ -170,6 +172,7 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
         signer,
       });
       this._uid = uid;
+      console.log(`Attested ${this.schema.name} with UID ${uid}`);
     } catch (error) {
       console.error(error);
       throw new AttestationError("ATTEST_ERROR", "Error during attestation.");

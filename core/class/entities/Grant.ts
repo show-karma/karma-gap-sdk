@@ -5,6 +5,7 @@ import { IMilestone, Milestone } from "./Milestone";
 import { GapSchema } from "../GapSchema";
 import { GAP } from "../GAP";
 import { AttestationError } from "../SchemaError";
+import { nullRef } from "../../consts";
 
 export interface IGrant {
   grant: true;
@@ -54,7 +55,7 @@ export class Grant extends Attestation<IGrant> {
         schema,
         createdAt: Date.now(),
         recipient: this.recipient,
-        uid: "0x0",
+        uid: nullRef,
       });
       return m;
     });

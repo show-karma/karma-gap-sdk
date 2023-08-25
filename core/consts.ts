@@ -146,6 +146,10 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       schema: "0x0a7E2Ff54e76B8E6659aedc9103FB21c038050D0",
     },
     schemas: {
+      Community:
+        "0x43c83c4d3a7f335f23e35c7fc43a77f3907ad0bb2cc7a684619e1cd0f17d37b9",
+      CommunityDetails:
+        "0x3a5cbd4491c353a2daf3d1dba11feaa09911aa44f230570f106f7f62e466b0b3",
       Grant:
         "0xfccfe22b5c861b35f2aa0c6bffacf9f13dfed27724aa66984b8adb39fbfef98c",
       GrantDetails:
@@ -187,17 +191,32 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
 export const MountEntities = (
   network: EASNetworkConfig
 ): Record<TSchemaName, SchemaInterface<TSchemaName>> => ({
+  Community: {
+    name: "Community",
+    schema: [{ type: "bool", name: "community", value: true }],
+    uid: network.schemas.Community,
+  },
+  CommunityDetails: {
+    name: "CommunityDetails",
+    schema: [
+      { type: "string", name: "name", value: null },
+      { type: "string", name: "description", value: null },
+      { type: "string", name: "imageURL", value: null },
+    ],
+    uid: network.schemas.Community,
+    references: "Community",
+  },
   Grantee: {
     name: "Grantee",
     schema: [{ type: "bool", name: "grantee", value: true }],
     uid: network.schemas.Grantee,
+    references: "Community",
   },
   GranteeDetails: {
     name: "GranteeDetails",
     schema: [
       { type: "string", name: "name", value: null },
       { type: "string", name: "description", value: null },
-      { type: "address", name: "ownerAddress", value: null },
       { type: "address", name: "payoutAddress", value: null },
     ],
     uid: network.schemas.GranteeDetails,
@@ -244,6 +263,7 @@ export const MountEntities = (
     name: "GrantDetails",
     schema: [
       { type: "string", name: "title", value: null },
+      { type: "string", name: "amount", value: null },
       { type: "string", name: "description", value: null },
       { type: "string", name: "proposalURL", value: null },
       { type: "string[]", name: "assetAndChainId", value: null },

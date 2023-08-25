@@ -16,11 +16,26 @@ export class ExternalLink
   type: TExternalLink;
 }
 
+export interface ICommunityDetails {
+  name: string;
+  description: string;
+  imageURL: string;
+}
+
+export class CommunityDetails
+  extends Attestation<ICommunityDetails>
+  implements ICommunityDetails
+{
+  name: string;
+  description: string;
+  imageURL: string;
+}
+
 export interface IGranteeDetails {
   name: string;
   description?: string;
-  ownerAddress: Hex;
   payoutAddress: Hex;
+  ownerAddress: Hex;
 }
 export class GranteeDetails
   extends Attestation<IGranteeDetails>
@@ -28,15 +43,15 @@ export class GranteeDetails
 {
   name: string;
   description?: string;
-  ownerAddress: Hex;
   payoutAddress: Hex;
+  ownerAddress: Hex;
 }
 
 export interface IGrantDetails {
   title: string;
   amount: string;
   proposalURL: string;
-  asset?: [Hex, bigint];
+  assetAndChainId?: [Hex, bigint];
   description?: string;
 }
 export class GrantDetails
@@ -46,7 +61,7 @@ export class GrantDetails
   title: string;
   amount: string = "0";
   proposalURL: string;
-  asset?: [Hex, bigint];
+  assetAndChainId?: [Hex, bigint];
   description?: string;
 }
 
