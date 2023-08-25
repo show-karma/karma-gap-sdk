@@ -1,7 +1,6 @@
 import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
 import { Attestation } from "../Attestation";
 import {
-  Grant,
   Grantee,
   MemberDetails,
   MemberOf,
@@ -12,6 +11,7 @@ import { Hex } from "core/types";
 import { GapSchema } from "../GapSchema";
 import { AttestationError } from "../SchemaError";
 import { mapFilter } from "../../utils";
+import { Grant } from "./Grant";
 
 export interface IProject {
   project: true;

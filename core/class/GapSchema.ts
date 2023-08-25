@@ -1,4 +1,4 @@
-import { mapFilter } from "core/utils";
+import { mapFilter } from "../utils";
 import { IGapSchema, SchemaInterface, TSchemaName } from "../types";
 import { Schema } from "./Schema";
 

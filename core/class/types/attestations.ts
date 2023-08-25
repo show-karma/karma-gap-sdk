@@ -70,16 +70,6 @@ export class GrantVerified
   verified: boolean;
 }
 
-export interface IGrant {
-  grant: true;
-}
-export class Grant extends Attestation<IGrant> {
-  details?: GrantDetails;
-  verified?: boolean;
-  round?: GrantRound;
-  milestones: Milestone[] = [];
-}
-
 export interface IMemberDetails {
   name: string;
   profilePictureURL: string;
@@ -97,21 +87,6 @@ export interface IMemberOf {
 }
 export class MemberOf extends Attestation<IMemberOf> {
   details?: MemberDetails;
-}
-
-export interface IMilestone {
-  title: string;
-  startsAt: number;
-  endsAt: number;
-  description: string;
-}
-export class Milestone extends Attestation<IMilestone> implements IMilestone {
-  title: string;
-  startsAt: number;
-  endsAt: number;
-  description: string;
-  completed: boolean;
-  approved: boolean;
 }
 
 export interface IMilestoneCompleted {
