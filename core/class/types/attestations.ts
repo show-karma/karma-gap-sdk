@@ -29,6 +29,7 @@ export class CommunityDetails
   name: string;
   description: string;
   imageURL: string;
+  links: ExternalLink[] = [];
 }
 
 export interface IGranteeDetails {
