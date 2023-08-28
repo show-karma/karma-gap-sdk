@@ -78,7 +78,7 @@ export class GAPFetcher extends EASClient {
   }
 
   /**
-   * Fetch attestations of a schema for a specific recipient.
+   * Fetch attestations of a schema.
    * @param schemaName
    * @param recipient
    * @returns
@@ -89,6 +89,25 @@ export class GAPFetcher extends EASClient {
   ): Promise<T[]> {
     const schema = GapSchema.find(schemaName);
     const query = gqlQueries.attestationsOf(schema.uid, recipient);
+    const {
+      schema: { attestations },
+    } = await this.query<SchemaRes>(query);
+
+    return Attestation.fromInterface<T>(attestations);
+  }
+
+  /**
+   * Fetch attestations of a schema for a specific recipient.
+   * @param schemaName
+   * @param recipient
+   * @returns
+   */
+  async attestationsTo<T extends Attestation = Attestation>(
+    schemaName: TSchemaName,
+    recipient: Hex
+  ): Promise<T[]> {
+    const schema = GapSchema.find(schemaName);
+    const query = gqlQueries.attestationsTo(schema.uid, recipient);
     const {
       schema: { attestations },
     } = await this.query<SchemaRes>(query);
@@ -349,7 +368,7 @@ export class GAPFetcher extends EASClient {
    * @returns
    */
   async projectsOf(grantee: Hex): Promise<Project[]> {
-    const projects = (await this.attestationsOf("Project", grantee))?.map(
+    const projects = (await this.attestationsTo("Project", grantee))?.map(
       (item) =>
         new Project({
           ...item,
