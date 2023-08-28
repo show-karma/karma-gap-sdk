@@ -313,17 +313,17 @@ export class GAPFetcher extends EASClient {
 
     if (!projects.length) return [];
 
-    const [memberOf, projectDetails, extLink, tag] = GapSchema.findMany([
+    const [memberOf, projectDetails, extLink, tag, grant] = GapSchema.findMany([
       "MemberOf",
       "ProjectDetails",
       "ExternalLink",
       "Tag",
+      "Grant",
     ]);
 
     const query = gqlQueries.dependentsOf(
       projects.map((p) => p.uid),
-      [memberOf.uid, projectDetails.uid, extLink.uid],
-      projects.map((p) => p.attester)
+      [memberOf.uid, projectDetails.uid, extLink.uid, grant.uid, tag.uid]
     );
 
     const results = await this.query<AttestationsRes>(query);
@@ -354,9 +354,13 @@ export class GAPFetcher extends EASClient {
         )
       );
 
-      project.members = members.filter((m) => m.refUID === project.uid);
+      project.members = members.filter(
+        (m) => m.refUID === project.uid && m.schema.uid === memberOf.uid
+      );
 
-      project.grants = grants.filter((g) => g.refUID === project.uid);
+      project.grants = grants.filter(
+        (g) => g.refUID === project.uid && g.schema.uid === grant.uid
+      );
 
       return project;
     });
@@ -379,17 +383,17 @@ export class GAPFetcher extends EASClient {
 
     if (!projects.length) return [];
 
-    const [memberOf, projectDetails, extLink, tag] = GapSchema.findMany([
+    const [memberOf, projectDetails, extLink, tag, grant] = GapSchema.findMany([
       "MemberOf",
       "ProjectDetails",
       "ExternalLink",
       "Tag",
+      "Grant",
     ]);
 
     const query = gqlQueries.dependentsOf(
       projects.map((p) => p.uid),
-      [memberOf.uid, projectDetails.uid, extLink.uid],
-      projects.map((p) => p.attester)
+      [memberOf.uid, projectDetails.uid, extLink.uid, grant.uid, tag.uid]
     );
 
     const results = await this.query<AttestationsRes>(query);
@@ -420,9 +424,13 @@ export class GAPFetcher extends EASClient {
         )
       );
 
-      project.members = members.filter((m) => m.refUID === project.uid);
+      project.members = members.filter(
+        (m) => m.refUID === project.uid && m.schema.uid === memberOf.uid
+      );
 
-      project.grants = grants.filter((g) => g.refUID === project.uid);
+      project.grants = grants.filter(
+        (g) => g.refUID === project.uid && g.schema.uid === grant.uid
+      );
 
       return project;
     });
