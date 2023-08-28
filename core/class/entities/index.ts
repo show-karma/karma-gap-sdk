@@ -1,3 +1,4 @@
-export * from './Grant';
-export * from './Milestone';
-export * from './Project';
+export * from "./Grant";
+export * from "./Milestone";
+export * from "./Project";
+export * from "./Community";

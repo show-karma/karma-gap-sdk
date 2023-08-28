@@ -61,19 +61,7 @@ export class Grant extends Attestation<IGrant> {
     });
 
     try {
-      const tx = await eas.multiAttest([
-        {
-          schema: schema.raw,
-          data: newMilestones.map((m) => ({
-            recipient: m.recipient,
-            data: m.schema.encode(),
-            refUID: m.refUID,
-            expirationTime: 0n,
-            revocable: m.schema.revocable,
-          })),
-        },
-      ]);
-      const attestations = await tx.wait();
+      const attestations = await this.schema.multiAttest(signer, newMilestones);
 
       newMilestones.forEach((m, idx) => {
         Object.assign(m, { uid: attestations[idx] });

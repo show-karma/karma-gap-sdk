@@ -20,7 +20,7 @@ export interface IProject {
 export class Project extends Attestation<IProject> {
   details?: ProjectDetails;
   members: MemberOf[] = [];
-  grants: Grant[];
+  grants: Grant[] = [];
   grantee: Grantee;
   tags: Tag[] = [];
 
