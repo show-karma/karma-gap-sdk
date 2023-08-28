@@ -257,17 +257,18 @@ export class GAPFetcher extends EASClient {
 
     const refQuery = gqlQueries.dependentsOf(
       [uid],
-      [projectDetails.uid, memberOf.uid, tag.uid, externalLink.uid, grant.uid]
+      [projectDetails.uid, tag.uid, externalLink.uid]
     );
+    const projectAttestation = Attestation.fromInterface<Project>([
+      attestation,
+    ])[0];
 
-    const result = await this.query<AttestationsRes>(refQuery);
+    const [result, members, grants] = await Promise.all([
+      this.query<AttestationsRes>(refQuery),
+      this.membersOf([projectAttestation]),
+      this.grantsFor([projectAttestation]),
+    ]);
     const deps = Attestation.fromInterface(result.attestations || []);
-
-    const projectAttestation = new Project({
-      ...attestation,
-      data: attestation.decodedDataJson,
-      schema: project,
-    });
 
     projectAttestation.details = <ProjectDetails>(
       deps.find(
@@ -285,13 +286,9 @@ export class GAPFetcher extends EASClient {
       deps.filter((ref) => ref.schema.uid === tag.uid && ref.refUID === uid)
     );
 
-    projectAttestation.members = <MemberOf[]>(
-      deps.filter((ref) => ref.schema.uid === memberOf.uid)
-    );
+    projectAttestation.members = members;
 
-    projectAttestation.grants = <Grant[]>(
-      deps.filter((ref) => ref.schema.uid === grant.uid)
-    );
+    projectAttestation.grants = grants;
 
     return projectAttestation;
   }
