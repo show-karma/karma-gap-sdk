@@ -290,7 +290,7 @@ export class GAPFetcher extends EASClient {
     );
 
     projectAttestation.grants = <Grant[]>(
-      deps.filter((ref) => ref.schema.uid === memberOf.uid)
+      deps.filter((ref) => ref.schema.uid === grant.uid)
     );
 
     return projectAttestation;
