@@ -218,6 +218,7 @@ export const MountEntities = (
       { type: "string", name: "name", value: null },
       { type: "string", name: "description", value: null },
       { type: "address", name: "payoutAddress", value: null },
+      { type: "address", name: "ownerAddress", value: null },
     ],
     uid: network.schemas.GranteeDetails,
     references: "Grantee",

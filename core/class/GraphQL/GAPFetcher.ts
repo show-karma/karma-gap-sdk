@@ -352,7 +352,7 @@ export class GAPFetcher extends EASClient {
   async grantee(address: Hex, withProjects = true): Promise<Grantee> {
     const schema = GapSchema.find("Grantee");
 
-    const query = gqlQueries.attestationsOf(schema.uid, address);
+    const query = gqlQueries.attestationsTo(schema.uid, address);
     const {
       schema: { attestations: grantees },
     } = await this.query<SchemaRes>(query);
