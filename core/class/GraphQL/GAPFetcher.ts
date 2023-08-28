@@ -344,6 +344,72 @@ export class GAPFetcher extends EASClient {
   }
 
   /**
+   * Fetch projects with details and members.
+   * @param name if set, will search by the name.
+   * @returns
+   */
+  async projectsOf(grantee: Hex): Promise<Project[]> {
+    const projects = (await this.attestationsOf("Project", grantee))?.map(
+      (item) =>
+        new Project({
+          ...item,
+          data: <IProject>item.data,
+          uid: item.uid,
+        })
+    );
+
+    if (!projects.length) return [];
+
+    const [memberOf, projectDetails, extLink, tag] = GapSchema.findMany([
+      "MemberOf",
+      "ProjectDetails",
+      "ExternalLink",
+      "Tag",
+    ]);
+
+    const query = gqlQueries.dependentsOf(
+      projects.map((p) => p.uid),
+      [memberOf.uid, projectDetails.uid, extLink.uid],
+      projects.map((p) => p.attester)
+    );
+
+    const results = await this.query<AttestationsRes>(query);
+    const deps = Attestation.fromInterface(results.attestations || []);
+    const [members, grants] = await Promise.all([
+      this.membersOf(projects),
+      this.grantsFor(projects),
+    ]);
+
+    return projects.map((project) => {
+      const refs = deps.filter((ref) => ref.refUID === project.uid);
+
+      project.details = <ProjectDetails>(
+        refs.find(
+          (ref) =>
+            ref.schema.name === "ProjectDetails" && ref.refUID === project.uid
+        )
+      );
+
+      if (project.details)
+        project.details.links = <ExternalLink[]>(
+          refs.filter((ref) => ref.schema.name === "ExternalLink")
+        );
+
+      project.tags = <Tag[]>(
+        refs.filter(
+          (ref) => ref.schema.uid === tag.uid && ref.refUID === project.uid
+        )
+      );
+
+      project.members = members.filter((m) => m.refUID === project.uid);
+
+      project.grants = grants.filter((g) => g.refUID === project.uid);
+
+      return project;
+    });
+  }
+
+  /**
    * Fetch Grantee with details and projects.
    * @param address
    * @param withProjects if true, will get grantee project details.
