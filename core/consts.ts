@@ -149,11 +149,11 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       Community:
         "0x43c83c4d3a7f335f23e35c7fc43a77f3907ad0bb2cc7a684619e1cd0f17d37b9",
       CommunityDetails:
-        "0x3a5cbd4491c353a2daf3d1dba11feaa09911aa44f230570f106f7f62e466b0b3",
+        "0xcf050d87a2a5a9ad69eab38ebdcc10aa3aee9d57ceeb9783f148f91a6532b7a0",
       Grant:
         "0xfccfe22b5c861b35f2aa0c6bffacf9f13dfed27724aa66984b8adb39fbfef98c",
       GrantDetails:
-        "0xd0d1118c21c6c7310c875fe8ed154760109246a10c2052e6fdb0066cb5fd1aa5",
+        "0xcf050d87a2a5a9ad69eab38ebdcc10aa3aee9d57ceeb9783f148f91a6532b7a0",
       GrantRound:
         "0x234dee4d3e6a625b4121e2042d6267058755e53a2ecc55555da51a1e6f06cc58",
       GrantVerified:
@@ -165,7 +165,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       MemberOf:
         "0xaaa3eb892d49ca6be51e3d1dd4a75825cba020bec837db0bba0b1d76dc3dda2c",
       Milestone:
-        "0xfdea9469a2318d97848ab6b90ab8a1e496a1d05a02d6339d088723dbfd4669de",
+        "0xcf050d87a2a5a9ad69eab38ebdcc10aa3aee9d57ceeb9783f148f91a6532b7a0",
       MilestoneApproved:
         "0x1e3b7d70d89f30ebe9f0ae987e34242b14e7fb07e25205458cf2813449fb4136",
       MilestoneCompleted:
@@ -173,7 +173,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       Project:
         "0xec77990a252b54b17673955c774b9712766de5eecb22ca5aa2c440e0e93257fb",
       ProjectDetails:
-        "0xdddf1698baf08a6edd49a949b7a482be55a15c912ba3ebd83d7cfa6fa191d2cf",
+        "0xcf050d87a2a5a9ad69eab38ebdcc10aa3aee9d57ceeb9783f148f91a6532b7a0",
       Tag: "0x234dee4d3e6a625b4121e2042d6267058755e53a2ecc55555da51a1e6f06cc58",
     },
   },
@@ -194,11 +194,7 @@ export const MountEntities = (
   },
   CommunityDetails: {
     name: "CommunityDetails",
-    schema: [
-      { type: "string", name: "name", value: null },
-      { type: "string", name: "description", value: null },
-      { type: "string", name: "imageURL", value: null },
-    ],
+    schema: [{ type: "string", name: "json", value: null }],
     uid: network.schemas.Community,
     references: "Community",
   },
@@ -210,11 +206,7 @@ export const MountEntities = (
   },
   ProjectDetails: {
     name: "ProjectDetails",
-    schema: [
-      { type: "string", name: "title", value: null },
-      { type: "string", name: "description", value: null },
-      { type: "string", name: "imageURL", value: null },
-    ],
+    schema: [{ type: "string", name: "json", value: null }],
     uid: network.schemas.ProjectDetails,
     references: "Project",
   },
@@ -226,10 +218,7 @@ export const MountEntities = (
   },
   MemberDetails: {
     name: "MemberDetails",
-    schema: [
-      { type: "string", name: "name", value: null },
-      { type: "string", name: "profilePictureURL", value: null },
-    ],
+    schema: [{ type: "string", name: "json", value: null }],
     uid: network.schemas.MemberDetails,
     references: "MemberOf",
   },
@@ -241,14 +230,7 @@ export const MountEntities = (
   },
   GrantDetails: {
     name: "GrantDetails",
-    schema: [
-      { type: "string", name: "title", value: null },
-      { type: "string", name: "amount", value: null },
-      { type: "string", name: "description", value: null },
-      { type: "string", name: "proposalURL", value: null },
-      { type: "address", name: "payoutAddress", value: null },
-      { type: "string[]", name: "assetAndChainId", value: null },
-    ],
+    schema: [{ type: "string", name: "json", value: null }],
     uid: network.schemas.GrantDetails,
     references: "Grant",
   },
@@ -266,12 +248,7 @@ export const MountEntities = (
   },
   Milestone: {
     name: "Milestone",
-    schema: [
-      { type: "string", name: "title", value: null },
-      { type: "uint48", name: "startsAt", value: null },
-      { type: "uint48", name: "endsAt", value: null },
-      { type: "string", name: "description", value: null },
-    ],
+    schema: [{ type: "string", name: "json", value: null }],
     references: "Grant",
     uid: network.schemas.Milestone,
   },

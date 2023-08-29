@@ -135,6 +135,10 @@ export abstract class Schema<T extends string = string>
     this._schema[idx].value = value;
   }
 
+  isJsonSchema() {
+    return !!this.schema.find((s) => s.name === "json" && s.type === "string");
+  }
+
   private assertField(item: SchemaItem, value: any) {
     const { type, name } = item;
 
@@ -180,6 +184,17 @@ export abstract class Schema<T extends string = string>
         `Field ${name} is of type ${type} but value is not a valid array.`
       );
     }
+
+    if (type === "string" && name === "json") {
+      try {
+        JSON.parse(value);
+      } catch (error) {
+        throw new SchemaError(
+          "INVALID_SCHEMA_FIELD",
+          `Field ${name} is of type ${type} but value is not a valid JSON string.`
+        );
+      }
+    }
   }
 
   /**
@@ -212,7 +227,7 @@ export abstract class Schema<T extends string = string>
 
   /**
    * Attest off chain data
-   * @returns 
+   * @returns
    */
   async attestOffchain({ data, signer, to, refUID }: AttestArgs) {
     const eas = await GAP.eas.getOffchain();
@@ -230,10 +245,10 @@ export abstract class Schema<T extends string = string>
   }
 
   /**
-   * Revokes one off chain attestation by its UID. 
-   * @param uid 
-   * @param signer 
-   * @returns 
+   * Revokes one off chain attestation by its UID.
+   * @param uid
+   * @param signer
+   * @returns
    */
   async revokeOffchain(uid: Hex, signer: SignerOrProvider) {
     const eas = GAP.eas.connect(signer);
@@ -242,9 +257,9 @@ export abstract class Schema<T extends string = string>
 
   /**
    * Revokes multiple off chain attestations by their UIDs.
-   * @param uids 
-   * @param signer 
-   * @returns 
+   * @param uids
+   * @param signer
+   * @returns
    */
   async multiRevokeOffchain(uids: Hex[], signer: SignerOrProvider) {
     const eas = GAP.eas.connect(signer);
@@ -283,9 +298,13 @@ export abstract class Schema<T extends string = string>
       }
     }
 
-    Object.entries(data).forEach(([key, value]) => {
-      this.setValue(key, value);
-    });
+    if (this.isJsonSchema()) {
+      this.setValue("json", JSON.stringify(data));
+    } else {
+      Object.entries(data).forEach(([key, value]) => {
+        this.setValue(key, value);
+      });
+    }
 
     const payload: AttestationRequestData = {
       recipient: to,

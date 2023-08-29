@@ -24,6 +24,7 @@ export interface AttestArgs<T = unknown> {
   signer: SignerOrProvider;
 }
 
+
 export type TSchemaName =
   | "Community"
   | "CommunityDetails"

@@ -2,7 +2,6 @@ import { Hex, IAttestation, JSONStr, TSchemaName } from "../types";
 import { Schema } from "./Schema";
 import { AttestationError, SchemaError } from "./SchemaError";
 import {
-  EAS,
   SchemaDecodedItem,
   SchemaItem,
   SchemaValue,
@@ -14,15 +13,15 @@ import { GapSchema } from "./GapSchema";
 import { nullRef } from "../consts";
 
 interface AttestationArgs<T = unknown, S extends Schema = Schema> {
-  schema: S;
   data: T | string;
-  uid: Hex;
+  schema: S;
+  uid?: Hex;
   refUID?: Hex;
   attester?: Hex;
   recipient?: Hex;
   revoked?: boolean;
   revocationTime?: Date | number;
-  createdAt: Date | number;
+  createdAt?: Date | number;
 }
 
 /**
@@ -65,7 +64,7 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
   protected _uid: Hex;
   readonly refUID?: Hex;
   readonly attester?: Hex;
-  readonly recipient?: Hex;
+  readonly recipient: Hex;
   readonly revoked?: boolean;
   readonly revocationTime?: Date;
   readonly createdAt: Date;
@@ -78,13 +77,13 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
     this._data = this.fromDecodedSchema(args.data);
 
     this.setValues(this._data);
-    this._uid = args.uid;
-    this.refUID = args.refUID;
+    this._uid = args.uid || nullRef;
+    this.refUID = args.refUID || nullRef;
     this.attester = args.attester;
     this.recipient = args.recipient;
     this.revoked = args.revoked;
     this.revocationTime = getDate(args.revocationTime);
-    this.createdAt = getDate(args.createdAt);
+    this.createdAt = getDate(args.createdAt || Date.now());
   }
 
   /**
@@ -107,9 +106,12 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
    * @param values
    */
   setValues(values: T) {
+    const isJsonSchema = this.schema.isJsonSchema();
+    if (isJsonSchema) this.schema.setValue("json", JSON.stringify(values));
+
     Object.entries(values).forEach(([key, value]) => {
       this[key] = value;
-      this.setValue(key as keyof T, value.value || value);
+      if (!isJsonSchema) this.setValue(key as keyof T, value.value || value);
     });
   }
 
@@ -187,6 +189,16 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
   static fromDecodedSchema<T>(data: JSONStr): T {
     try {
       const parsed: SchemaDecodedItem[] = JSON.parse(data);
+
+      if (parsed.length === 1 && parsed[0].name === "json") {
+        const { value } = parsed[0];
+        return (
+          typeof value.value === "string"
+            ? JSON.parse(value.value)
+            : value.value
+        ) as T;
+      }
+
       if (parsed && Array.isArray(parsed)) {
         return parsed.reduce((acc, curr) => {
           const { value } = curr.value;
@@ -198,6 +210,7 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
           return acc;
         }, {}) as T;
       }
+
       throw new SchemaError(
         "INVALID_DATA",
         "Data must be a valid JSON array string."
