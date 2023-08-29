@@ -2,7 +2,7 @@ import type { AxiosInstance } from "axios";
 import axios from "axios";
 
 export abstract class AxiosGQL {
-  client: AxiosInstance;
+  protected client: AxiosInstance;
 
   constructor(url: string) {
     this.client = axios.create({

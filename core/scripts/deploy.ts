@@ -1,5 +1,5 @@
-import { EASNetworkConfig, TNetwork } from "core/types";
-import { MountEntities, Networks } from "../consts";
+import { EASNetworkConfig, TNetwork } from "../types";
+import { MountEntities, Networks, nullResolver } from "../consts";
 
 import SchemaRegistry from "../abi/SchemaRegistry.json";
 
@@ -8,6 +8,17 @@ import { ethers } from "ethers";
 import keys from "../../config/keys.json";
 import { GapSchema } from "../class/GapSchema";
 import { writeFileSync } from "fs";
+
+const web3 = new ethers.providers.JsonRpcProvider(
+  "https://eth-sepolia-public.unifra.io"
+);
+const wallet = new ethers.Wallet(keys.sepolia, web3);
+
+const contract = new ethers.Contract(
+  Networks.sepolia.contracts.schema,
+  SchemaRegistry.abi,
+  wallet
+);
 
 async function deploy(networkName?: TNetwork) {
   const [, , $3] = process.argv;
@@ -24,33 +35,21 @@ async function deploy(networkName?: TNetwork) {
   }
   if (!key) throw new Error("No keys found for this network");
 
-  const web3 = new ethers.providers.JsonRpcProvider(
-    "https://eth-sepolia-public.unifra.io"
-  );
-
-  const wallet = new ethers.Wallet(key, web3);
-
-  const contract = new ethers.Contract(
-    network.contracts.schema,
-    SchemaRegistry.abi,
-    wallet
-  );
-
   const revocable = true;
 
   const promises = Object.values(MountEntities(Networks.sepolia))
     .slice(0, 1)
     .map((entity) => {
       return contract.functions.register(
-        new GapSchema(entity).abi,
-        "0x0000000000000000000000000000000000000000",
+        new GapSchema(entity).raw,
+        nullResolver,
         revocable,
         {
           gasLimit: 5000000n,
         }
       );
     });
-  const results = [];
+  const results: any[] = [];
   for (const tx of promises) {
     const txn = await tx;
     const result = await txn.wait();
