@@ -28,8 +28,6 @@ export type TSchemaName =
   | "Community"
   | "CommunityDetails"
   | "ExternalLink"
-  | "Grantee"
-  | "GranteeDetails"
   | "Grant"
   | "GrantDetails"
   | "GrantRound"

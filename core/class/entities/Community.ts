@@ -8,13 +8,14 @@ import {
 import { nullRef } from "../../consts";
 import { AttestationError } from "../SchemaError";
 import { GapSchema } from "../GapSchema";
+import { Project } from "./Project";
 
 export interface ICommunity {
   community: true;
 }
 
 export class Community extends Attestation<ICommunity> {
-  grantees: Grantee[] = [];
+  projects: Project[] = [];
   details?: CommunityDetails;
 
   /**

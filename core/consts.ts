@@ -158,10 +158,6 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
         "0x234dee4d3e6a625b4121e2042d6267058755e53a2ecc55555da51a1e6f06cc58",
       GrantVerified:
         "0x1e3b7d70d89f30ebe9f0ae987e34242b14e7fb07e25205458cf2813449fb4136",
-      Grantee:
-        "0x223856f6ed212325d5585fe903e952d76212047b52dc9d48b5e7d45682732a7a",
-      GranteeDetails:
-        "0xbfe0866beec569e809f79d1f19a87551c92a55940af431273da7680d02eb4010",
       ExternalLink:
         "0xd354de1d01ebc5df5230bc483620c80ba2af96e65e2263f6f283410697004efd",
       MemberDetails:
@@ -206,28 +202,11 @@ export const MountEntities = (
     uid: network.schemas.Community,
     references: "Community",
   },
-  Grantee: {
-    name: "Grantee",
-    schema: [{ type: "bool", name: "grantee", value: true }],
-    uid: network.schemas.Grantee,
-    references: "Community",
-  },
-  GranteeDetails: {
-    name: "GranteeDetails",
-    schema: [
-      { type: "string", name: "name", value: null },
-      { type: "string", name: "description", value: null },
-      { type: "address", name: "payoutAddress", value: null },
-      { type: "address", name: "ownerAddress", value: null },
-    ],
-    uid: network.schemas.GranteeDetails,
-    references: "Grantee",
-  },
   Project: {
     name: "Project",
     schema: [{ type: "bool", name: "project", value: true }],
     uid: network.schemas.Project,
-    references: "Grantee",
+    references: "Community",
   },
   ProjectDetails: {
     name: "ProjectDetails",
@@ -267,6 +246,7 @@ export const MountEntities = (
       { type: "string", name: "amount", value: null },
       { type: "string", name: "description", value: null },
       { type: "string", name: "proposalURL", value: null },
+      { type: "address", name: "payoutAddress", value: null },
       { type: "string[]", name: "assetAndChainId", value: null },
     ],
     uid: network.schemas.GrantDetails,

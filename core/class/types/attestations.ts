@@ -32,22 +32,6 @@ export class CommunityDetails
   links: ExternalLink[] = [];
 }
 
-export interface IGranteeDetails {
-  name: string;
-  description?: string;
-  payoutAddress: Hex;
-  ownerAddress: Hex;
-}
-export class GranteeDetails
-  extends Attestation<IGranteeDetails>
-  implements IGranteeDetails
-{
-  name: string;
-  description?: string;
-  payoutAddress: Hex;
-  ownerAddress: Hex;
-}
-
 export interface IGrantDetails {
   title: string;
   amount: string;
@@ -137,10 +121,12 @@ export class ProjectDetails
   links: ExternalLink[] = [];
 }
 
-export interface IGrantee {
-  grantee: true;
-}
-export class Grantee extends Attestation<IGrantee> {
-  details?: GranteeDetails;
+export class Grantee {
+  address: string;
   projects: Project[] = [];
+
+  constructor(address: Hex, projects: Project[] = []) {
+    this.address = address;
+    this.projects = projects;
+  }
 }
