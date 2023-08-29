@@ -1,20 +1,17 @@
 import {
+  AttestationRequestData,
+  OffchainAttestationParams,
   SchemaEncoder,
   SchemaItem,
   SchemaValue,
 } from "@ethereum-attestation-service/eas-sdk";
-import { Hex } from "../types";
-import { SchemaError } from "./SchemaError";
+import { AttestArgs, Hex, MultiRevokeArgs, SchemaInterface } from "../types";
+import { AttestationError, SchemaError } from "./SchemaError";
 import { ethers } from "ethers";
 import { nullResolver } from "../consts";
-
-export interface SchemaInterface<T extends string = string> {
-  name: string;
-  schema: SchemaItem[];
-  references?: T;
-  uid: Hex;
-  revocable?: boolean;
-}
+import { GAP } from "./GAP";
+import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
+import { Attestation } from "./Attestation";
 
 /**
  * Represents the EAS Schema and provides methods to encode and decode the schema,
@@ -84,7 +81,7 @@ export interface SchemaInterface<T extends string = string> {
 export abstract class Schema<T extends string = string>
   implements SchemaInterface<T>
 {
-  private static schemas: Schema[] = [];
+  protected static schemas: Schema[] = [];
 
   protected encoder: SchemaEncoder;
   private _schema: SchemaItem[] = [];
@@ -101,7 +98,7 @@ export abstract class Schema<T extends string = string>
    * @param strict If true, will throw an error if schema reference is not valid. With this option, user should add schemas
    * in a strict order.
    */
-  constructor(args: SchemaInterface<T>, strict = false) {
+  constructor(args: SchemaInterface<T>, strict = false, ignoreSchema = false) {
     this.assert(args, strict);
 
     this._schema = args.schema;
@@ -111,15 +108,14 @@ export abstract class Schema<T extends string = string>
     this.revocable = args.revocable || true;
 
     this.encoder = new SchemaEncoder(this.raw);
-    Schema.add(this);
   }
 
   /**
    * Encode the schema to be used as payload in the attestation
    * @returns
    */
-  encode() {
-    return this.encoder.encodeData(this._schema);
+  encode(schema?: SchemaItem[]) {
+    return this.encoder.encodeData(schema || this.schema);
   }
 
   /**
@@ -214,17 +210,181 @@ export abstract class Schema<T extends string = string>
     }
   }
 
-  get children() {
-    return Schema.schemas.filter(
-      (schema) =>
-        schema.references === this.name || schema.references === this.uid
+  /**
+   * Attest off chain data
+   * @returns 
+   */
+  async attestOffchain({ data, signer, to, refUID }: AttestArgs) {
+    const eas = await GAP.eas.getOffchain();
+    const payload = <OffchainAttestationParams>{
+      data,
+      version: eas.version,
+      revocable: this.revocable,
+      expirationTime: 0n,
+      recipient: to,
+      refUID,
+      schema: this.raw,
+      time: BigInt((Date.now() / 1000).toFixed(0)),
+    };
+    return eas.signOffchainAttestation(payload, signer as any);
+  }
+
+  /**
+   * Revokes one off chain attestation by its UID. 
+   * @param uid 
+   * @param signer 
+   * @returns 
+   */
+  async revokeOffchain(uid: Hex, signer: SignerOrProvider) {
+    const eas = GAP.eas.connect(signer);
+    return eas.revokeOffchain(uid);
+  }
+
+  /**
+   * Revokes multiple off chain attestations by their UIDs.
+   * @param uids 
+   * @param signer 
+   * @returns 
+   */
+  async multiRevokeOffchain(uids: Hex[], signer: SignerOrProvider) {
+    const eas = GAP.eas.connect(signer);
+    return eas.multiRevokeOffchain(uids);
+  }
+
+  /**
+   * Attest for a schema.
+   * @param param0
+   * @returns
+   */
+  async attest<T>(
+    { data, to, signer, refUID }: AttestArgs<T>,
+    revokeUID?: Hex
+  ): Promise<Hex> {
+    const eas = GAP.eas.connect(signer);
+
+    if (this.references && !refUID)
+      throw new AttestationError(
+        "INVALID_REFERENCE",
+        "Attestation schema references another schema but no reference UID was provided."
+      );
+
+    if (revokeUID) {
+      const toRevoke = await eas.getAttestation(revokeUID);
+      if (toRevoke.schema === this.raw) {
+        await eas.revoke({
+          schema: this.raw,
+          data: { uid: revokeUID },
+        });
+      } else {
+        throw new AttestationError(
+          "INVALID_REF_UID",
+          `Revoke UID schema does not match any ${this.name} attestation.`
+        );
+      }
+    }
+
+    Object.entries(data).forEach(([key, value]) => {
+      this.setValue(key, value);
+    });
+
+    const payload: AttestationRequestData = {
+      recipient: to,
+      expirationTime: 0n,
+      revocable: true,
+      data: this.encode(this.schema),
+      refUID,
+    };
+
+    const tx = await eas.attest({
+      schema: this.uid,
+      data: payload,
+    });
+
+    return tx.wait() as Promise<Hex>;
+  }
+
+  /**
+   * Bulk attest a set of attestations.
+   * @param signer
+   * @param entities
+   * @returns
+   */
+  async multiAttest(signer: SignerOrProvider, entities: Attestation[] = []) {
+    entities.forEach((entity) => {
+      if (this.references && !entity.refUID)
+        throw new SchemaError(
+          "INVALID_REF_UID",
+          `Entity ${entity.schema.name} references another schema but no reference UID was provided.`
+        );
+    });
+
+    const eas = GAP.eas.connect(signer);
+
+    const entityBySchema = entities.reduce(
+      (acc, entity) => {
+        const schema = entity.schema.uid;
+        if (!acc[schema]) acc[schema] = [];
+        acc[schema].push(entity);
+        return acc;
+      },
+      {} as Record<string, Attestation[]>
     );
+
+    const payload = Object.entries(entityBySchema).map(([schema, ents]) => ({
+      schema,
+      data: ents.map((e) => ({
+        data: e.schema.encode(),
+        refUID: e.refUID,
+        recipient: e.recipient,
+        expirationTime: 0n,
+      })),
+    }));
+
+    const tx = await eas.multiAttest(payload, {
+      gasLimit: 5000000n,
+    });
+    return tx.wait();
+  }
+
+  /**
+   * Revokes a set of attestations by their UIDs.
+   * @param signer
+   * @param uids
+   * @returns
+   */
+  async multiRevoke(signer: SignerOrProvider, toRevoke: MultiRevokeArgs[]) {
+    const groupBySchema = toRevoke.reduce(
+      (acc, { uid, schemaId }) => {
+        if (!acc[schemaId]) acc[schemaId] = [];
+        acc[schemaId].push(uid);
+        return acc;
+      },
+      {} as Record<string, Hex[]>
+    );
+
+    const eas = GAP.eas.connect(signer);
+    const payload = Object.entries(groupBySchema).map(([schema, uids]) => ({
+      schema,
+      data: uids.map((uid) => ({ uid })),
+    }));
+
+    const tx = await eas.multiRevoke(payload, {
+      gasLimit: 5000000n,
+    });
+    return tx.wait();
   }
 
   static exists(name: string) {
     return this.schemas.find((schema) => schema.name === name);
   }
 
+  /**
+   * Adds the schema signature to a shares list. Use Schema.get("SchemaName") to get the schema.
+   *
+   * __Note that this will make the schema available to all instances
+   * of the class AND its data can be overriden by any changes.__
+   * @param schemas
+   */
   static add<T extends Schema>(...schemas: T[]) {
     schemas.forEach((schema) => {
       if (!this.exists(schema.name)) this.schemas.push(schema);
@@ -299,7 +459,7 @@ export abstract class Schema<T extends string = string>
   }
 
   /**
-   *  Replaces a schema from the schema list.
+   * Replaces a schema from the schema list.
    * @throws {SchemaError} if desired schema name does not exist.
    */
   static replaceOne(schema: Schema) {
@@ -320,7 +480,7 @@ export abstract class Schema<T extends string = string>
    * ```
    * const schema = Schema.rawToObject("uint256 id, string name");
    * // schema = [{ type: "uint256", name: "id", value: null }, { type: "string", name: "name", value: null }]
-   *```
+   * ```
    * @param abi
    * @returns
    */
@@ -348,6 +508,18 @@ export abstract class Schema<T extends string = string>
 
   get schema() {
     return this._schema;
+  }
+
+  /**
+   * Get all schemas that references this schema. Note that this
+   * will return a reference to the original schema and all
+   * the changes made to it will reflect the original instance.
+   */
+  get children() {
+    return Schema.schemas.filter(
+      (schema) =>
+        schema.references === this.name || schema.references === this.uid
+    );
   }
 
   /**
