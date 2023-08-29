@@ -161,7 +161,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       ExternalLink:
         "0xd354de1d01ebc5df5230bc483620c80ba2af96e65e2263f6f283410697004efd",
       MemberDetails:
-        "0x8a10b1f25006f6e4a675f268e64e1c729ee0713adbdce3984f5bdad6302aef19",
+        "0xcf050d87a2a5a9ad69eab38ebdcc10aa3aee9d57ceeb9783f148f91a6532b7a0",
       MemberOf:
         "0xaaa3eb892d49ca6be51e3d1dd4a75825cba020bec837db0bba0b1d76dc3dda2c",
       Milestone:

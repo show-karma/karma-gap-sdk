@@ -26,6 +26,7 @@ import { EASClient } from "./EASClient";
 import { AttestationError, SchemaError } from "../SchemaError";
 import { Grant, Milestone, IProject, Project } from "../entities";
 import { Community } from "../entities/Community";
+import { mapFilter } from "../../utils";
 
 export class GAPFetcher extends EASClient {
   /**
@@ -288,7 +289,11 @@ export class GAPFetcher extends EASClient {
 
       project.members = members.filter((m) => m.refUID === project.uid);
 
-      project.grants = grants.filter((g) => g.refUID === project.uid);
+      project.grants = mapFilter(
+        grants,
+        (g) => g.refUID === project.uid,
+        (g) => new Grant(g)
+      );
 
       return project;
     });

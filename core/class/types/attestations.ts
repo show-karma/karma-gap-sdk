@@ -36,7 +36,7 @@ export interface IGrantDetails {
   title: string;
   amount: string;
   proposalURL: string;
-  assetAndChainId?: [Hex, bigint];
+  assetAndChainId?: [Hex, number];
   payoutAddress: Hex;
   description?: string;
 }
@@ -47,7 +47,7 @@ export class GrantDetails
   title: string;
   amount: string = "0";
   proposalURL: string;
-  assetAndChainId?: [Hex, bigint];
+  assetAndChainId?: [Hex, number];
   description?: string;
   payoutAddress: Hex;
 }
