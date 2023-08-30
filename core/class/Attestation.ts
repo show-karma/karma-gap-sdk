@@ -190,6 +190,7 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
     try {
       const parsed: SchemaDecodedItem[] = JSON.parse(data);
 
+      if (data.length < 2 && !/\{.*\}/gim.test(data)) return {} as T;
       if (parsed.length === 1 && parsed[0].name === "json") {
         const { value } = parsed[0];
         return (

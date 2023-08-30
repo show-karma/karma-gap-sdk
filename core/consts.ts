@@ -195,7 +195,7 @@ export const MountEntities = (
   CommunityDetails: {
     name: "CommunityDetails",
     schema: [{ type: "string", name: "json", value: null }],
-    uid: network.schemas.Community,
+    uid: network.schemas.CommunityDetails,
     references: "Community",
   },
   Project: {
