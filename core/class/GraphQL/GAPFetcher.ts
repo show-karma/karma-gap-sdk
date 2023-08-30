@@ -214,7 +214,6 @@ export class GAPFetcher extends EASClient {
       communities.map((c) => c.uid),
       [project.uid, communityDetails.uid]
     );
-
     const results = await this.query<AttestationsRes>(ref);
     const deps = Attestation.fromInterface(results.attestations || []);
 
@@ -226,6 +225,10 @@ export class GAPFetcher extends EASClient {
           ref.schema.uid === project.uid &&
           ref.refUID === communityAttestation.uid
       )
+    );
+
+    communityAttestation.projects = await this.projectsDetails(
+      communityAttestation.projects
     );
 
     communityAttestation.details = <CommunityDetails>(
@@ -358,16 +361,18 @@ export class GAPFetcher extends EASClient {
    * @returns
    */
   async grantees(): Promise<Grantee[]> {
-    const result = await this.attestations("Project");
-    const projects = Attestation.fromInterface<Project>(result);
+    const projects = await this.projects();
 
-    return projects.reduce((acc, item: Project) => {
-      const hasGrantee = acc.find((g) => g.address === item.recipient);
+    return projects.reduce(
+      (acc, item) => {
+        const hasGrantee = acc.find((g) => g.address === item.recipient);
 
-      if (hasGrantee) hasGrantee.projects.push(item);
-      else acc.push(new Grantee(item.recipient, [item]));
-      return acc;
-    }, [] as Grantee[]);
+        if (hasGrantee) hasGrantee.projects.push(item);
+        else acc.push(new Grantee(item.recipient, [item]));
+        return acc;
+      },
+      <Grantee[]>[]
+    );
   }
 
   /**

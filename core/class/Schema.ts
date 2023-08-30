@@ -135,6 +135,11 @@ export abstract class Schema<T extends string = string>
     this._schema[idx].value = value;
   }
 
+  /**
+   * Tests if the current schema is a JSON Schema.
+   * 
+   * @returns boolean
+   */
   isJsonSchema() {
     return !!this.schema.find((s) => s.name === "json" && s.type === "string");
   }
