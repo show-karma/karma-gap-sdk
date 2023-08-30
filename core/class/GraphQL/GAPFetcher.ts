@@ -292,11 +292,7 @@ export class GAPFetcher extends EASClient {
 
       project.members = members.filter((m) => m.refUID === project.uid);
 
-      project.grants = mapFilter(
-        grants,
-        (g) => g.refUID === project.uid,
-        (g) => new Grant(g)
-      );
+      project.grants = grants.filter((g) => g.refUID === project.uid);
 
       return project;
     });
