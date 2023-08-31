@@ -84,13 +84,6 @@ export class MemberDetails
   profilePictureURL: string;
 }
 
-export interface IMemberOf {
-  memberOf: true;
-}
-export class MemberOf extends Attestation<IMemberOf> {
-  details?: MemberDetails;
-}
-
 export interface IMilestoneCompleted {
   completed: boolean;
 }

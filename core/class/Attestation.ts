@@ -1,4 +1,11 @@
-import { Hex, IAttestation, JSONStr, TSchemaName } from "../types";
+import {
+  Hex,
+  IAttestation,
+  JSONStr,
+  MultiAttestData,
+  MultiAttestPayload,
+  TSchemaName,
+} from "../types";
 import { Schema } from "./Schema";
 import { AttestationError, SchemaError } from "./SchemaError";
 import {
@@ -18,7 +25,7 @@ interface AttestationArgs<T = unknown, S extends Schema = Schema> {
   uid?: Hex;
   refUID?: Hex;
   attester?: Hex;
-  recipient?: Hex;
+  recipient: Hex;
   revoked?: boolean;
   revocationTime?: Date | number;
   createdAt?: Date | number;
@@ -160,7 +167,6 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
    * Attests this attestation and revokes the previous one.
    * @param signer
    * @param args overridable params
-   * @returns attestation UID
    */
   async attest(signer: SignerOrProvider, ...args: unknown[]) {
     console.log(`Attesting ${this.schema.name}`);
@@ -179,6 +185,56 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
       console.error(error);
       throw new AttestationError("ATTEST_ERROR", "Error during attestation.");
     }
+  }
+
+  /**
+   * Get the multi attestation payload for the referred index.
+   *
+   * The index should be the array position this payload wants
+   * to reference.
+   *
+   * E.g:
+   *
+   * 1. Project is index 0;
+   * 2. Project details is index 1;
+   * 3. Grant is index 2;
+   * 4. Grant details is index 3;
+   * 5. Milestone is index 4;
+   * 
+   * `[Project, projectDetails, grant, grantDetails, milestone]`
+   * 
+   * -> Project.payloadFor(0); // refs itself (no effect)
+   * 
+   * -> project.details.payloadFor(0); // ref project
+   * 
+   * -> grant.payloadFor(0); // ref project
+   * 
+   * -> grant.details.payloadFor(2); // ref grant
+   * 
+   * -> milestone.payloadFor(2); // ref grant
+   * 
+   *
+   * @param refIdx
+   * @returns
+   */
+  payloadFor(refIdx: number): MultiAttestData {
+    return {
+      uid: nullRef,
+      refIdx,
+      multiRequest: {
+        schema: this.schema.uid,
+        data: [
+          {
+            refUID: nullRef,
+            expirationTime: 0n,
+            revocable: true,
+            value: 0n,
+            data: this.schema.encode(),
+            recipient: this.recipient,
+          },
+        ],
+      },
+    };
   }
 
   /**

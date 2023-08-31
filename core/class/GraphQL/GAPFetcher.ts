@@ -16,17 +16,15 @@ import {
   GrantRound,
   Grantee,
   MemberDetails,
-  MemberOf,
   ProjectDetails,
   Tag,
 } from "../types/attestations";
 import { GapSchema } from "../GapSchema";
 import { Schema } from "../Schema";
 import { EASClient } from "./EASClient";
-import { AttestationError, SchemaError } from "../SchemaError";
-import { Grant, Milestone, IProject, Project } from "../entities";
+import { SchemaError } from "../SchemaError";
+import { Grant, Milestone, IProject, Project, MemberOf } from "../entities";
 import { Community } from "../entities/Community";
-import { mapFilter } from "../../utils";
 
 export class GAPFetcher extends EASClient {
   /**
