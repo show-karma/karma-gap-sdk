@@ -473,31 +473,37 @@ export class GAPFetcher extends EASClient {
     grantsWithDetails.forEach((grant) => {
       grant.details = <GrantDetails>(
         deps.find(
-          (d) => d.refUID === grant.uid && d.schema.uid === grantDetails.uid
+          (d) =>
+            d.refUID === grant.uid &&
+            d.schema.uid === grantDetails.uid &&
+            Array.isArray((d as GrantDetails).assetAndChainId)
         )
       );
 
       grant.milestones = <Milestone[]>deps
-        .filter((d) => d.refUID === grant.uid && d.schema.uid === milestone.uid)
+        .filter(
+          (d) =>
+            d.refUID === grant.uid &&
+            d.schema.uid === milestone.uid &&
+            d.uid !== grant.details?.uid
+        )
         .map((milestone: Milestone) => {
           const refs = deps.filter((ref) => ref.refUID === milestone.uid);
-          const startsAt = milestone.startsAt as unknown as bigint;
-          const endsAt = milestone.endsAt as unknown as bigint;
+
+          const startsAt = milestone.startsAt;
+          const endsAt = milestone.endsAt;
 
           milestone.startsAt = Number(startsAt);
           milestone.endsAt = Number(endsAt);
 
-          milestone.approved = !!refs.find(
+          const approvals = refs.filter(
             (ref) =>
               ref.schema.uid === milestoneApproved.uid &&
               ref.refUID === milestone.uid
           );
 
-          milestone.completed = !!refs.find(
-            (ref) =>
-              ref.schema.uid === milestoneCompleted.uid &&
-              ref.refUID === milestone.uid
-          );
+          milestone.completed = approvals.length === 1;
+          milestone.approved = approvals.length === 2;
 
           return milestone;
         });
