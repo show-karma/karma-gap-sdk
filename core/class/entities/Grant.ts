@@ -103,5 +103,7 @@ export class Grant extends Attestation<IGrant> {
     uids.forEach((uid, index) => {
       payload[index][0].uid = uid;
     });
+
+    console.log(uids);
   }
 }

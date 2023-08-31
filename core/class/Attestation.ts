@@ -200,19 +200,19 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
    * 3. Grant is index 2;
    * 4. Grant details is index 3;
    * 5. Milestone is index 4;
-   * 
+   *
    * `[Project, projectDetails, grant, grantDetails, milestone]`
-   * 
+   *
    * -> Project.payloadFor(0); // refs itself (no effect)
-   * 
+   *
    * -> project.details.payloadFor(0); // ref project
-   * 
+   *
    * -> grant.payloadFor(0); // ref project
-   * 
+   *
    * -> grant.details.payloadFor(2); // ref grant
-   * 
+   *
    * -> milestone.payloadFor(2); // ref grant
-   * 
+   *
    *
    * @param refIdx
    * @returns
@@ -225,9 +225,9 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
         schema: this.schema.uid,
         data: [
           {
-            refUID: nullRef,
+            refUID: this.refUID,
             expirationTime: 0n,
-            revocable: true,
+            revocable: this.schema.revocable || true,
             value: 0n,
             data: this.schema.encode(),
             recipient: this.recipient,
