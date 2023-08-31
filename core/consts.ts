@@ -144,6 +144,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
     contracts: {
       eas: "0xC2679fBD37d54388Ce493F1DB75320D236e1815e",
       schema: "0x0a7E2Ff54e76B8E6659aedc9103FB21c038050D0",
+      multicall: "0x04D6BB799f5A8c76882C4372d1FC39Cd0DDA0A4c"
     },
     schemas: {
       Community:

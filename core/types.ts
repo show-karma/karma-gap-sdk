@@ -24,7 +24,6 @@ export interface AttestArgs<T = unknown> {
   signer: SignerOrProvider;
 }
 
-
 export type TSchemaName =
   | "Community"
   | "CommunityDetails"
@@ -78,6 +77,7 @@ export interface EASNetworkConfig {
   contracts: {
     eas: Hex;
     schema: Hex;
+    multicall: Hex;
   };
   /**
    * A tuple containing the schema name and it's UID for that network

@@ -274,7 +274,7 @@ export class GAPFetcher extends EASClient {
       project.details = <ProjectDetails>(
         deps.find(
           (ref) =>
-            ref.schema.name === "ProjectDetails" && ref.refUID === project.uid
+            ref.schema.uid === projectDetails.uid && ref.refUID === project.uid
         )
       );
 
