@@ -1,9 +1,9 @@
 import { Attestation } from "../Attestation";
 import { Hex, IAttestation, TSchemaName } from "../../types";
-import { Grantee, MemberOf } from "../types/attestations";
+import { Grantee } from "../types/attestations";
 import { GapSchema } from "../GapSchema";
 import { EASClient } from "./EASClient";
-import { Grant, Milestone, Project } from "../entities";
+import { Grant, Milestone, Project, MemberOf } from "../entities";
 import { Community } from "../entities/Community";
 export declare class GAPFetcher extends EASClient {
     /**

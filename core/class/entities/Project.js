@@ -2,16 +2,60 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Project = void 0;
 const Attestation_1 = require("../Attestation");
-const attestations_1 = require("../types/attestations");
 const GapSchema_1 = require("../GapSchema");
 const SchemaError_1 = require("../SchemaError");
 const utils_1 = require("../../utils");
+const consts_1 = require("../../consts");
+const MemberOf_1 = require("./MemberOf");
+const MultiAttest_1 = require("../contract/MultiAttest");
 class Project extends Attestation_1.Attestation {
     constructor() {
         super(...arguments);
         this.members = [];
         this.grants = [];
         this.tags = [];
+    }
+    /**
+     * Creates the payload for a multi-attestation.
+     *
+     * > if Current payload is set, it'll be used as the base payload
+     * and the project should refer to an index of the current payload,
+     * usually the community position.
+     *
+     * @param payload
+     * @param communityIdx
+     */
+    multiAttestPayload(currentPayload = [], communityIdx = 0) {
+        const payload = [...currentPayload];
+        const projectIdx = payload.push([this, this.payloadFor(communityIdx)]) - 1;
+        if (this.details) {
+            payload.push([this.details, this.details.payloadFor(projectIdx)]);
+            if (this.details.links?.length) {
+                this.details.links.forEach((link) => {
+                    payload.push([link, link.payloadFor(projectIdx)]);
+                });
+            }
+        }
+        if (this.members?.length) {
+            this.members.forEach((m) => {
+                payload.push(...m.multiAttestPayload(payload, projectIdx));
+            });
+        }
+        if (this.grants?.length) {
+            this.grants.forEach((g) => {
+                payload.push(...g.multiAttestPayload(payload, projectIdx));
+            });
+        }
+        return payload.slice(currentPayload.length, payload.length);
+    }
+    async attest(signer) {
+        if (!this.refUID)
+            throw new SchemaError_1.AttestationError("INVALID_REF_UID", "Project must have a reference UID to a community.");
+        const payload = this.multiAttestPayload();
+        const uids = await MultiAttest_1.MultiAttest.send(signer, payload.map((p) => p[1]));
+        uids.forEach((uid, index) => {
+            payload[index][0].uid = uid;
+        });
     }
     /**
      * Add new members to the project.
@@ -26,13 +70,13 @@ class Project extends Attestation_1.Attestation {
         const newMembers = (0, utils_1.mapFilter)(members, (member) => !this.members.find((m) => m.recipient === member.recipient), 
         // (member) => !!member,
         (details) => {
-            const member = new attestations_1.MemberOf({
+            const member = new MemberOf_1.MemberOf({
                 data: { memberOf: true },
                 refUID: this.uid,
                 schema: GapSchema_1.GapSchema.find("MemberOf"),
                 createdAt: Date.now(),
                 recipient: details.recipient,
-                uid: "0x0",
+                uid: consts_1.nullRef,
             });
             return { member, details };
         });

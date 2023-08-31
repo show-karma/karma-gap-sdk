@@ -7,6 +7,7 @@ const GapSchema_1 = require("../GapSchema");
 const GAP_1 = require("../GAP");
 const SchemaError_1 = require("../SchemaError");
 const consts_1 = require("../../consts");
+const MultiAttest_1 = require("../contract/MultiAttest");
 class Grant extends Attestation_1.Attestation {
     constructor() {
         super(...arguments);
@@ -39,7 +40,7 @@ class Grant extends Attestation_1.Attestation {
      * @param signer
      * @param milestones
      */
-    async addMilestones(signer, milestones) {
+    addMilestones(signer, milestones) {
         const eas = GAP_1.GAP.eas.connect(signer);
         const schema = GapSchema_1.GapSchema.find("Milestone");
         const newMilestones = milestones.map((milestone) => {
@@ -53,18 +54,41 @@ class Grant extends Attestation_1.Attestation {
             });
             return m;
         });
-        try {
-            const attestations = await this.schema.multiAttest(signer, newMilestones);
-            newMilestones.forEach((m, idx) => {
-                Object.assign(m, { uid: attestations[idx] });
+        this.milestones.push(...newMilestones);
+    }
+    /**
+     * Creates the payload for a multi-attestation.
+     *
+     * > if Current payload is set, it'll be used as the base payload
+     * and the project should refer to an index of the current payload,
+     * usually the community position.
+     *
+     * @param payload
+     * @param projectIdx
+     */
+    multiAttestPayload(currentPayload = [], projectIdx = 0) {
+        const payload = [...currentPayload];
+        const grantIdx = payload.push([this, this.payloadFor(projectIdx)]) - 1;
+        if (this.details) {
+            payload.push([this.details, this.details.payloadFor(grantIdx)]);
+        }
+        if (this.milestones.length) {
+            this.milestones.forEach((m) => {
+                payload.push([m, m.payloadFor(grantIdx)]);
             });
-            this.milestones.push(...newMilestones);
-            console.log("milestones", this.milestones);
         }
-        catch (error) {
-            console.error(error);
-            throw new SchemaError_1.AttestationError("ATTEST_ERROR", error.message);
-        }
+        return payload.slice(currentPayload.length, payload.length);
+    }
+    /**
+     * @inheritdoc
+     */
+    async attest(signer) {
+        const payload = this.multiAttestPayload();
+        const uids = await MultiAttest_1.MultiAttest.send(signer, payload.map((p) => p[1]));
+        uids.forEach((uid, index) => {
+            payload[index][0].uid = uid;
+        });
+        console.log(uids);
     }
 }
 exports.Grant = Grant;

@@ -1,4 +1,7 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GAP = void 0;
 const types_1 = require("../types");
@@ -7,6 +10,8 @@ const GapSchema_1 = require("./GapSchema");
 const GAPFetcher_1 = require("./GraphQL/GAPFetcher");
 const eas_sdk_1 = require("@ethereum-attestation-service/eas-sdk");
 const consts_1 = require("../consts");
+const ethers_1 = require("ethers");
+const MultiAttester_json_1 = __importDefault(require("../abi/MultiAttester.json"));
 /**
  * GAP SDK Facade.
  *
@@ -66,6 +71,7 @@ class GAP extends types_1.Facade {
     constructor(args) {
         super();
         const schemas = args.schemas || Object.values((0, consts_1.MountEntities)(consts_1.Networks[args.network]));
+        this.network = args.network;
         GAP._eas = new eas_sdk_1.EAS(consts_1.Networks[args.network].contracts.eas);
         this.fetch = new GAPFetcher_1.GAPFetcher({ network: args.network });
         this._schemas = schemas.map((schema) => new GapSchema_1.GapSchema(schema));
@@ -108,6 +114,14 @@ class GAP extends types_1.Facade {
         if (!this.client)
             this.client = new this(args);
         return this.client;
+    }
+    /**
+     * Get the multicall contract
+     * @param signer
+     */
+    static getMulticall(signer) {
+        const address = consts_1.Networks[this.client.network].contracts.multicall;
+        return new ethers_1.ethers.Contract(address, MultiAttester_json_1.default.abi, signer);
     }
     get schemas() {
         return this._schemas;

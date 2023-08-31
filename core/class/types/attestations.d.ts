@@ -57,12 +57,6 @@ export declare class MemberDetails extends Attestation<IMemberDetails> implement
     name: string;
     profilePictureURL: string;
 }
-export interface IMemberOf {
-    memberOf: true;
-}
-export declare class MemberOf extends Attestation<IMemberOf> {
-    details?: MemberDetails;
-}
 export interface IMilestoneCompleted {
     completed: boolean;
 }

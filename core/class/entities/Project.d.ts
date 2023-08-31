@@ -1,8 +1,9 @@
 import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
 import { Attestation } from "../Attestation";
-import { Grantee, MemberDetails, MemberOf, ProjectDetails, Tag } from "../types/attestations";
-import { Hex } from "core/types";
+import { Grantee, MemberDetails, ProjectDetails, Tag } from "../types/attestations";
+import { Hex, MultiAttestPayload } from "core/types";
 import { Grant } from "./Grant";
+import { MemberOf } from "./MemberOf";
 export interface IProject {
     project: true;
 }
@@ -12,6 +13,18 @@ export declare class Project extends Attestation<IProject> {
     grants: Grant[];
     grantee: Grantee;
     tags: Tag[];
+    /**
+     * Creates the payload for a multi-attestation.
+     *
+     * > if Current payload is set, it'll be used as the base payload
+     * and the project should refer to an index of the current payload,
+     * usually the community position.
+     *
+     * @param payload
+     * @param communityIdx
+     */
+    multiAttestPayload(currentPayload?: MultiAttestPayload, communityIdx?: number): MultiAttestPayload;
+    attest(signer: SignerOrProvider): Promise<void>;
     /**
      * Add new members to the project.
      * If any member in the array already exists in the project

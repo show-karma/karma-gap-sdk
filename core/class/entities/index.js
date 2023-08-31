@@ -18,3 +18,4 @@ __exportStar(require("./Grant"), exports);
 __exportStar(require("./Milestone"), exports);
 __exportStar(require("./Project"), exports);
 __exportStar(require("./Community"), exports);
+__exportStar(require("./MemberOf"), exports);

@@ -2,6 +2,8 @@ import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/tra
 import { Attestation } from "../Attestation";
 import { GrantDetails, GrantRound } from "../types/attestations";
 import { IMilestone, Milestone } from "./Milestone";
+import { GapSchema } from "../GapSchema";
+import { MultiAttestPayload } from "core/types";
 export interface IGrant {
     grant: true;
 }
@@ -16,5 +18,20 @@ export declare class Grant extends Attestation<IGrant> {
      * @param signer
      * @param milestones
      */
-    addMilestones(signer: SignerOrProvider, milestones: IMilestone[]): Promise<void>;
+    addMilestones(signer: SignerOrProvider, milestones: IMilestone[]): void;
+    /**
+     * Creates the payload for a multi-attestation.
+     *
+     * > if Current payload is set, it'll be used as the base payload
+     * and the project should refer to an index of the current payload,
+     * usually the community position.
+     *
+     * @param payload
+     * @param projectIdx
+     */
+    multiAttestPayload(currentPayload?: MultiAttestPayload, projectIdx?: number): [Attestation<unknown, GapSchema>, import("core/types").MultiAttestData][];
+    /**
+     * @inheritdoc
+     */
+    attest(signer: SignerOrProvider): Promise<void>;
 }

@@ -1,6 +1,8 @@
 import { AttestArgs, Facade, SchemaInterface, TNetwork, TSchemaName } from "../types";
 import { GapSchema } from "./GapSchema";
 import { GAPFetcher } from "./GraphQL/GAPFetcher";
+import { ethers } from "ethers";
+import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
 interface GAPArgs {
     network: TNetwork;
     schemas?: SchemaInterface<TSchemaName>[];
@@ -95,6 +97,11 @@ export declare class GAP extends Facade {
      * @returns
      */
     static createClient(args: GAPArgs): GAP;
+    /**
+     * Get the multicall contract
+     * @param signer
+     */
+    static getMulticall(signer: SignerOrProvider): ethers.Contract;
     get schemas(): GapSchema[];
 }
 export {};
