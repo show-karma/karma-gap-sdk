@@ -487,7 +487,8 @@ export class GAPFetcher extends EASClient {
             d.schema.uid === milestone.uid &&
             d.uid !== grant.details?.uid
         )
-        .map((milestone: Milestone) => {
+        .map((_milestone: Milestone) => {
+          const milestone = new Milestone(_milestone);
           const refs = deps.filter((ref) => ref.refUID === milestone.uid);
 
           const startsAt = milestone.startsAt;

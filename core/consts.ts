@@ -255,13 +255,13 @@ export const MountEntities = (
   },
   MilestoneApproved: {
     name: "MilestoneApproved",
-    schema: [{ type: "bool", name: "milestoneApproved", value: false }],
+    schema: [{ type: "bool", name: "approved", value: false }],
     uid: network.schemas.MilestoneApproved,
     references: "Milestone",
   },
   MilestoneCompleted: {
     name: "MilestoneCompleted",
-    schema: [{ type: "bool", name: "milestoneCompleted", value: false }],
+    schema: [{ type: "bool", name: "completed", value: false }],
     uid: network.schemas.MilestoneCompleted,
     references: "Milestone",
   },
