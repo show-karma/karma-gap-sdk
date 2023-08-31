@@ -280,19 +280,23 @@ class GAPFetcher extends EASClient_1.EASClient {
         const { attestations } = await this.query(ref);
         const deps = Attestation_1.Attestation.fromInterface(attestations);
         grantsWithDetails.forEach((grant) => {
-            grant.details = (deps.find((d) => d.refUID === grant.uid && d.schema.uid === grantDetails.uid));
+            grant.details = (deps.find((d) => d.refUID === grant.uid &&
+                d.schema.uid === grantDetails.uid &&
+                Array.isArray(d.assetAndChainId)));
             grant.milestones = deps
-                .filter((d) => d.refUID === grant.uid && d.schema.uid === milestone.uid)
+                .filter((d) => d.refUID === grant.uid &&
+                d.schema.uid === milestone.uid &&
+                d.uid !== grant.details?.uid)
                 .map((milestone) => {
                 const refs = deps.filter((ref) => ref.refUID === milestone.uid);
                 const startsAt = milestone.startsAt;
                 const endsAt = milestone.endsAt;
                 milestone.startsAt = Number(startsAt);
                 milestone.endsAt = Number(endsAt);
-                milestone.approved = !!refs.find((ref) => ref.schema.uid === milestoneApproved.uid &&
+                const approvals = refs.filter((ref) => ref.schema.uid === milestoneApproved.uid &&
                     ref.refUID === milestone.uid);
-                milestone.completed = !!refs.find((ref) => ref.schema.uid === milestoneCompleted.uid &&
-                    ref.refUID === milestone.uid);
+                milestone.completed = approvals.length === 1;
+                milestone.approved = approvals.length === 2;
                 return milestone;
             });
         });
