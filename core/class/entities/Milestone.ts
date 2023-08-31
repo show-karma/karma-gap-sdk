@@ -23,6 +23,12 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
     const schema = GapSchema.find("MilestoneApproved");
     schema.setValue("approved", true);
 
+    if (!this.completed)
+      throw new AttestationError(
+        "INVALID_DATA",
+        "Milestone must be completed before approving"
+      );
+
     try {
       await eas.attest({
         schema: schema.raw,
