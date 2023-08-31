@@ -68,6 +68,7 @@ export class Grant extends Attestation<IGrant> {
       });
 
       this.milestones.push(...newMilestones);
+      console.log("milestones", this.milestones);
     } catch (error) {
       console.error(error);
       throw new AttestationError("ATTEST_ERROR", error.message);

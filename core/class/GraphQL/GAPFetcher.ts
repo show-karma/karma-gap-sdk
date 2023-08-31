@@ -280,7 +280,7 @@ export class GAPFetcher extends EASClient {
 
       if (project.details) {
         project.details.links = <ExternalLink[]>(
-          deps.filter((ref) => ref.schema.name === "ExternalLink")
+          deps.filter((ref) => ref.schema.uid === externalLink.uid)
         );
       }
 
@@ -454,7 +454,9 @@ export class GAPFetcher extends EASClient {
     );
     const { attestations: grants } = await this.query<AttestationsRes>(query);
 
-    const grantsWithDetails = Attestation.fromInterface<Grant>(grants);
+    const grantsWithDetails = Attestation.fromInterface<Grant>(grants).map(
+      (g) => new Grant(g)
+    );
 
     const ref = gqlQueries.dependentsOf(
       grants.map((g) => g.uid),
