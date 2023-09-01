@@ -40,8 +40,7 @@ class Grant extends Attestation_1.Attestation {
      * @param signer
      * @param milestones
      */
-    addMilestones(signer, milestones) {
-        const eas = GAP_1.GAP.eas.connect(signer);
+    addMilestones(milestones) {
         const schema = GapSchema_1.GapSchema.find("Milestone");
         const newMilestones = milestones.map((milestone) => {
             const m = new Milestone_1.Milestone({

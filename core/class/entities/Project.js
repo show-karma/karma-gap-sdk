@@ -61,12 +61,27 @@ class Project extends Attestation_1.Attestation {
      * Add new members to the project.
      * If any member in the array already exists in the project
      * it'll be ignored.
+     * @param members
+     */
+    pushMembers(...members) {
+        this.members.push(...(0, utils_1.mapFilter)(members, (member) => !!this.members.find((m) => m.recipient === member), (member) => new MemberOf_1.MemberOf({
+            data: { memberOf: true },
+            refUID: this.uid,
+            schema: GapSchema_1.GapSchema.find("MemberOf"),
+            recipient: member,
+            uid: consts_1.nullRef,
+        })));
+    }
+    /**
+     * Add new members to the project.
+     * If any member in the array already exists in the project
+     * it'll be ignored.
      *
      * __To modify member details, use `addMemberDetails(signer, MemberDetails[])` instead.__
      * @param signer
      * @param members
      */
-    async addMembers(signer, members) {
+    async attestMembers(signer, members) {
         const newMembers = (0, utils_1.mapFilter)(members, (member) => !this.members.find((m) => m.recipient === member.recipient), 
         // (member) => !!member,
         (details) => {

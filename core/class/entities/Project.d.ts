@@ -29,12 +29,19 @@ export declare class Project extends Attestation<IProject> {
      * Add new members to the project.
      * If any member in the array already exists in the project
      * it'll be ignored.
+     * @param members
+     */
+    pushMembers(...members: Hex[]): void;
+    /**
+     * Add new members to the project.
+     * If any member in the array already exists in the project
+     * it'll be ignored.
      *
      * __To modify member details, use `addMemberDetails(signer, MemberDetails[])` instead.__
      * @param signer
      * @param members
      */
-    addMembers(signer: SignerOrProvider, members: MemberDetails[]): Promise<void>;
+    attestMembers(signer: SignerOrProvider, members: MemberDetails[]): Promise<void>;
     /**
      * Add new details to the members of a project. Note that it will overwrite
      * any existing details.

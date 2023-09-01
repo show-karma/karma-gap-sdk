@@ -9,12 +9,12 @@ class Milestone extends Attestation_1.Attestation {
     async approve(signer) {
         const eas = GAP_1.GAP.eas.connect(signer);
         const schema = GapSchema_1.GapSchema.find("MilestoneApproved");
-        schema.setValue("approved", true);
+        schema.setValue("isVerified", true);
         if (!this.completed)
             throw new SchemaError_1.AttestationError("INVALID_DATA", "Milestone must be completed before approving");
         try {
             await eas.attest({
-                schema: schema.raw,
+                schema: schema.uid,
                 data: {
                     recipient: this.recipient,
                     data: schema.encode(),
@@ -33,10 +33,10 @@ class Milestone extends Attestation_1.Attestation {
     async complete(signer) {
         const eas = GAP_1.GAP.eas.connect(signer);
         const schema = GapSchema_1.GapSchema.find("MilestoneCompleted");
-        schema.setValue("completed", true);
+        schema.setValue("isVerified", true);
         try {
-            await eas.attest({
-                schema: schema.raw,
+            const tx = await eas.attest({
+                schema: schema.uid,
                 data: {
                     recipient: this.recipient,
                     data: schema.encode(),
@@ -45,6 +45,8 @@ class Milestone extends Attestation_1.Attestation {
                     revocable: schema.revocable,
                 },
             });
+            const uid = await tx.wait();
+            console.log(uid);
             this.completed = true;
         }
         catch (error) {

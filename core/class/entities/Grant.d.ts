@@ -18,7 +18,7 @@ export declare class Grant extends Attestation<IGrant> {
      * @param signer
      * @param milestones
      */
-    addMilestones(signer: SignerOrProvider, milestones: IMilestone[]): void;
+    addMilestones(milestones: IMilestone[]): void;
     /**
      * Creates the payload for a multi-attestation.
      *

@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.GAPFetcher = void 0;
 const Attestation_1 = require("../Attestation");
 const gql_queries_1 = require("../../utils/gql-queries");
+const to_unix_1 = require("../../utils/to-unix");
 const attestations_1 = require("../types/attestations");
 const GapSchema_1 = require("../GapSchema");
 const Schema_1 = require("../Schema");
@@ -271,37 +272,19 @@ class GAPFetcher extends EASClient_1.EASClient {
         const query = gql_queries_1.gqlQueries.dependentsOf(projects.map((p) => p.uid), [grant.uid]);
         const { attestations: grants } = await this.query(query);
         const grantsWithDetails = Attestation_1.Attestation.fromInterface(grants).map((g) => new entities_1.Grant(g));
-        const ref = gql_queries_1.gqlQueries.dependentsOf(grants.map((g) => g.uid), [
-            grantDetails.uid,
-            milestone.uid,
-            milestoneApproved.uid,
-            milestoneCompleted.uid,
-        ]);
+        const ref = gql_queries_1.gqlQueries.dependentsOf(grants.map((g) => g.uid), [grantDetails.uid]);
         const { attestations } = await this.query(ref);
+        const milestones = await this.milestonesOf(grantsWithDetails);
         const deps = Attestation_1.Attestation.fromInterface(attestations);
         grantsWithDetails.forEach((grant) => {
             grant.details = (deps.find((d) => d.refUID === grant.uid &&
                 d.schema.uid === grantDetails.uid &&
                 Array.isArray(d.assetAndChainId)));
-            grant.milestones = deps
-                .filter((d) => d.refUID === grant.uid &&
-                d.schema.uid === milestone.uid &&
-                d.uid !== grant.details?.uid)
-                .map((_milestone) => {
-                const milestone = new entities_1.Milestone(_milestone);
-                const refs = deps.filter((ref) => ref.refUID === milestone.uid);
-                const startsAt = milestone.startsAt;
-                const endsAt = milestone.endsAt;
-                milestone.startsAt = Number(startsAt);
-                milestone.endsAt = Number(endsAt);
-                const approvals = refs.filter((ref) => ref.schema.uid === milestoneApproved.uid &&
-                    ref.refUID === milestone.uid);
-                milestone.completed = approvals.length >= 1;
-                milestone.approved = approvals.length >= 2;
-                return milestone;
-            });
+            grant.milestones = milestones
+                .filter((m) => m.refUID === grant.uid)
+                .reverse();
         });
-        return grantsWithDetails;
+        return grantsWithDetails.reverse();
     }
     /**
      * Fetch projects by related tag names.
@@ -333,7 +316,9 @@ class GAPFetcher extends EASClient_1.EASClient {
         ]);
         const query = gql_queries_1.gqlQueries.dependentsOf(grants.map((g) => g.uid), [milestone.uid]);
         const { attestations } = await this.query(query);
-        const milestones = Attestation_1.Attestation.fromInterface(attestations);
+        const milestones = Attestation_1.Attestation.fromInterface(attestations)
+            .map((milestone) => new entities_1.Milestone(milestone))
+            .filter((m) => typeof m.startsAt !== "undefined");
         if (!milestones.length)
             return [];
         const ref = gql_queries_1.gqlQueries.dependentsOf(milestones.map((m) => m.uid), [milestoneApproved.uid, milestoneCompleted.uid]);
@@ -341,10 +326,12 @@ class GAPFetcher extends EASClient_1.EASClient {
         const deps = Attestation_1.Attestation.fromInterface(results.attestations || []);
         return milestones.map((milestone) => {
             const refs = deps.filter((ref) => ref.refUID === milestone.uid);
-            milestone.approved = !!refs.find((ref) => ref.schema.uid === milestoneApproved.uid &&
+            const approvals = refs.filter((ref) => ref.schema.uid === milestoneApproved.uid &&
                 ref.refUID === milestone.uid);
-            milestone.completed = !!refs.find((ref) => ref.schema.uid === milestoneCompleted.uid &&
-                ref.refUID === milestone.uid);
+            milestone.startsAt = (0, to_unix_1.toUnix)(milestone.startsAt);
+            milestone.endsAt = (0, to_unix_1.toUnix)(milestone.endsAt);
+            milestone.completed = approvals.length >= 1;
+            milestone.approved = approvals.length >= 2;
             return milestone;
         });
     }
