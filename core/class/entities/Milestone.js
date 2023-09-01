@@ -19,19 +19,22 @@ class Milestone extends Attestation_1.Attestation {
      * @param signer
      * @param reason
      */
-    async approve(signer, reason) {
+    async approve(signer, reason = "") {
         if (!this.completed)
             throw new SchemaError_1.AttestationError("ATTEST_ERROR", "Milestone is not completed");
         if (this.approved)
             throw new SchemaError_1.AttestationError("ATTEST_ERROR", "Milestone is already approved");
-        await this.attestStatus(signer, GapSchema_1.GapSchema.find("MilestoneApproved"), reason);
+        const schema = GapSchema_1.GapSchema.find("MilestoneCompleted");
+        schema.setValue("type", "approved");
+        schema.setValue("reason", reason);
+        await this.attestStatus(signer, schema);
         this.approved = new attestations_1.MilestoneCompleted({
             data: {
                 type: "approved",
                 reason,
             },
             refUID: this.uid,
-            schema: GapSchema_1.GapSchema.find("MilestoneApproved"),
+            schema: schema,
             recipient: this.recipient,
         });
     }
@@ -51,19 +54,22 @@ class Milestone extends Attestation_1.Attestation {
      * @param signer
      * @param reason
      */
-    async reject(signer, reason) {
+    async reject(signer, reason = "") {
         if (!this.completed)
             throw new SchemaError_1.AttestationError("ATTEST_ERROR", "Milestone is not completed");
         if (this.rejected)
             throw new SchemaError_1.AttestationError("ATTEST_ERROR", "Milestone is already rejected");
-        await this.attestStatus(signer, GapSchema_1.GapSchema.find("MilestoneApproved"), reason);
+        const schema = GapSchema_1.GapSchema.find("MilestoneCompleted");
+        schema.setValue("type", "rejected");
+        schema.setValue("reason", reason);
+        await this.attestStatus(signer, schema);
         this.rejected = new attestations_1.MilestoneCompleted({
             data: {
                 type: "rejected",
                 reason,
             },
             refUID: this.uid,
-            schema: GapSchema_1.GapSchema.find("MilestoneApproved"),
+            schema: schema,
             recipient: this.recipient,
         });
     }
@@ -83,12 +89,13 @@ class Milestone extends Attestation_1.Attestation {
      * @param signer
      * @param reason
      */
-    async complete(signer, reason) {
+    async complete(signer, reason = "") {
         if (this.completed)
             throw new SchemaError_1.AttestationError("ATTEST_ERROR", "Milestone is already completed");
         const schema = GapSchema_1.GapSchema.find("MilestoneCompleted");
-        schema.setValue("isVerified", true);
-        await this.attestStatus(signer, schema, reason);
+        schema.setValue("type", "completed");
+        schema.setValue("reason", reason);
+        await this.attestStatus(signer, schema);
         this.completed = new attestations_1.MilestoneCompleted({
             data: {
                 type: "completed",
@@ -112,7 +119,7 @@ class Milestone extends Attestation_1.Attestation {
     /**
      * Attest the status of the milestone as approved, rejected or completed.
      */
-    async attestStatus(signer, schema, reason) {
+    async attestStatus(signer, schema) {
         const eas = GAP_1.GAP.eas.connect(signer);
         try {
             const tx = await eas.attest({
