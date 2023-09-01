@@ -1,5 +1,6 @@
 import { Attestation } from "../Attestation";
 import { gqlQueries } from "../../utils/gql-queries";
+import { toUnix } from "../../utils/to-unix";
 import {
   AttestationRes,
   AttestationsRes,
@@ -458,15 +459,12 @@ export class GAPFetcher extends EASClient {
 
     const ref = gqlQueries.dependentsOf(
       grants.map((g) => g.uid),
-      [
-        grantDetails.uid,
-        milestone.uid,
-        milestoneApproved.uid,
-        milestoneCompleted.uid,
-      ]
+      [grantDetails.uid]
     );
 
     const { attestations } = await this.query<AttestationsRes>(ref);
+
+    const milestones = await this.milestonesOf(grantsWithDetails);
 
     const deps = Attestation.fromInterface(attestations);
 
@@ -479,38 +477,12 @@ export class GAPFetcher extends EASClient {
             Array.isArray((d as GrantDetails).assetAndChainId)
         )
       );
-
-      grant.milestones = <Milestone[]>deps
-        .filter(
-          (d) =>
-            d.refUID === grant.uid &&
-            d.schema.uid === milestone.uid &&
-            d.uid !== grant.details?.uid
-        )
-        .map((_milestone: Milestone) => {
-          const milestone = new Milestone(_milestone);
-          const refs = deps.filter((ref) => ref.refUID === milestone.uid);
-
-          const startsAt = milestone.startsAt;
-          const endsAt = milestone.endsAt;
-
-          milestone.startsAt = Number(startsAt);
-          milestone.endsAt = Number(endsAt);
-
-          const approvals = refs.filter(
-            (ref) =>
-              ref.schema.uid === milestoneApproved.uid &&
-              ref.refUID === milestone.uid
-          );
-
-          milestone.completed = approvals.length >= 1;
-          milestone.approved = approvals.length >= 2;
-
-          return milestone;
-        });
+      grant.milestones = milestones
+        .filter((m) => m.refUID === grant.uid)
+        .reverse();
     });
 
-    return grantsWithDetails;
+    return grantsWithDetails.reverse();
   }
 
   /**
@@ -563,7 +535,9 @@ export class GAPFetcher extends EASClient {
 
     const { attestations } = await this.query<AttestationsRes>(query);
 
-    const milestones = Attestation.fromInterface<Milestone>(attestations);
+    const milestones = Attestation.fromInterface<Milestone>(attestations)
+      .map((milestone) => new Milestone(milestone))
+      .filter((m) => typeof m.startsAt !== "undefined");
 
     if (!milestones.length) return [];
 
@@ -578,17 +552,17 @@ export class GAPFetcher extends EASClient {
     return milestones.map((milestone) => {
       const refs = deps.filter((ref) => ref.refUID === milestone.uid);
 
-      milestone.approved = !!refs.find(
+      const approvals = refs.filter(
         (ref) =>
           ref.schema.uid === milestoneApproved.uid &&
           ref.refUID === milestone.uid
       );
 
-      milestone.completed = !!refs.find(
-        (ref) =>
-          ref.schema.uid === milestoneCompleted.uid &&
-          ref.refUID === milestone.uid
-      );
+      milestone.startsAt = toUnix(milestone.startsAt);
+      milestone.endsAt = toUnix(milestone.endsAt);
+
+      milestone.completed = approvals.length >= 1;
+      milestone.approved = approvals.length >= 2;
 
       return milestone;
     });

@@ -21,7 +21,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
   async approve(signer: SignerOrProvider) {
     const eas = GAP.eas.connect(signer);
     const schema = GapSchema.find("MilestoneApproved");
-    schema.setValue("approved", true);
+    schema.setValue("isVerified", true);
 
     if (!this.completed)
       throw new AttestationError(
@@ -31,7 +31,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
 
     try {
       await eas.attest({
-        schema: schema.raw,
+        schema: schema.uid,
         data: {
           recipient: this.recipient,
           data: schema.encode(),
@@ -50,11 +50,11 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
   async complete(signer: SignerOrProvider) {
     const eas = GAP.eas.connect(signer);
     const schema = GapSchema.find("MilestoneCompleted");
-    schema.setValue("completed", true);
+    schema.setValue("isVerified", true);
 
     try {
-      await eas.attest({
-        schema: schema.raw,
+      const tx = await eas.attest({
+        schema: schema.uid,
         data: {
           recipient: this.recipient,
           data: schema.encode(),
@@ -63,6 +63,8 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
           revocable: schema.revocable,
         },
       });
+      const uid = await tx.wait();
+      console.log(uid);
       this.completed = true;
     } catch (error: any) {
       console.error(error);

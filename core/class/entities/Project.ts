@@ -2,6 +2,7 @@ import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/tra
 import { Attestation } from "../Attestation";
 import {
   Grantee,
+  IMemberDetails,
   MemberDetails,
   ProjectDetails,
   Tag,
@@ -90,12 +91,35 @@ export class Project extends Attestation<IProject> {
    * Add new members to the project.
    * If any member in the array already exists in the project
    * it'll be ignored.
+   * @param members
+   */
+  pushMembers(...members: Hex[]) {
+    this.members.push(
+      ...mapFilter(
+        members,
+        (member) => !!this.members.find((m) => m.recipient === member),
+        (member) =>
+          new MemberOf({
+            data: { memberOf: true },
+            refUID: this.uid,
+            schema: GapSchema.find("MemberOf"),
+            recipient: member,
+            uid: nullRef,
+          })
+      )
+    );
+  }
+
+  /**
+   * Add new members to the project.
+   * If any member in the array already exists in the project
+   * it'll be ignored.
    *
    * __To modify member details, use `addMemberDetails(signer, MemberDetails[])` instead.__
    * @param signer
    * @param members
    */
-  async addMembers(signer: SignerOrProvider, members: MemberDetails[]) {
+  async attestMembers(signer: SignerOrProvider, members: MemberDetails[]) {
     const newMembers = mapFilter(
       members,
       (member) => !this.members.find((m) => m.recipient === member.recipient),

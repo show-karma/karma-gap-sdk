@@ -158,7 +158,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       GrantRound:
         "0x234dee4d3e6a625b4121e2042d6267058755e53a2ecc55555da51a1e6f06cc58",
       GrantVerified:
-        "0x1e3b7d70d89f30ebe9f0ae987e34242b14e7fb07e25205458cf2813449fb4136",
+        "0x0be8952e2dd74ffd63a02f4d55b20b603fe7a60130cb9d70de31feb9c52fdd37",
       ExternalLink:
         "0xd354de1d01ebc5df5230bc483620c80ba2af96e65e2263f6f283410697004efd",
       MemberDetails:
@@ -168,9 +168,9 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       Milestone:
         "0xcf050d87a2a5a9ad69eab38ebdcc10aa3aee9d57ceeb9783f148f91a6532b7a0",
       MilestoneApproved:
-        "0x1e3b7d70d89f30ebe9f0ae987e34242b14e7fb07e25205458cf2813449fb4136",
+        "0x0be8952e2dd74ffd63a02f4d55b20b603fe7a60130cb9d70de31feb9c52fdd37",
       MilestoneCompleted:
-        "0x1e3b7d70d89f30ebe9f0ae987e34242b14e7fb07e25205458cf2813449fb4136",
+        "0x0be8952e2dd74ffd63a02f4d55b20b603fe7a60130cb9d70de31feb9c52fdd37",
       Project:
         "0xec77990a252b54b17673955c774b9712766de5eecb22ca5aa2c440e0e93257fb",
       ProjectDetails:
@@ -236,7 +236,7 @@ export const MountEntities = (
   },
   GrantVerified: {
     name: "GrantVerified",
-    schema: [{ type: "bool", name: "grantVerified", value: true }],
+    schema: [{ type: "bool", name: "isVerified", value: true }],
     uid: network.schemas.GrantVerified,
     references: "Grant",
   },
@@ -254,13 +254,13 @@ export const MountEntities = (
   },
   MilestoneApproved: {
     name: "MilestoneApproved",
-    schema: [{ type: "bool", name: "approved", value: false }],
+    schema: [{ type: "bool", name: "isVerified", value: false }],
     uid: network.schemas.MilestoneApproved,
     references: "Milestone",
   },
   MilestoneCompleted: {
     name: "MilestoneCompleted",
-    schema: [{ type: "bool", name: "completed", value: false }],
+    schema: [{ type: "bool", name: "isVerified", value: false }],
     uid: network.schemas.MilestoneCompleted,
     references: "Milestone",
   },
