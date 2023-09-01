@@ -24,6 +24,12 @@ exports.gqlQueries = {
         id: "${uid}"
       }) {${attestationFields}}
     }`,
+    attestationsIn: (uids) => `
+    {
+      attestations(where: {
+        id:{in: ${inStatement(uids)}}
+      }) {${attestationFields}}
+    }`,
     attestationsFrom: (schemaId, attester) => schemaQuery(schemaId, `attestations(orderBy:{timeCreated: desc},
         where:{attester:{equals:"${attester}"}
         revoked:{equals:false}

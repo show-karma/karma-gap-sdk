@@ -140,6 +140,17 @@ class Attestation {
         }
     }
     /**
+     * Validates the payload.
+     *
+     * If an attestation should have anything
+     * specifically explicit, it should be implemented in
+     * order to avoid errors.
+     * @returns
+     */
+    assertPayload() {
+        return true;
+    }
+    /**
      * Get the multi attestation payload for the referred index.
      *
      * The index should be the array position this payload wants
@@ -170,6 +181,7 @@ class Attestation {
      * @returns
      */
     payloadFor(refIdx) {
+        this.assertPayload();
         return {
             uid: consts_1.nullRef,
             refIdx,

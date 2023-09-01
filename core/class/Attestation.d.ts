@@ -95,6 +95,15 @@ export declare class Attestation<T = unknown, S extends Schema = GapSchema> impl
      */
     attest(signer: SignerOrProvider, ...args: unknown[]): Promise<void>;
     /**
+     * Validates the payload.
+     *
+     * If an attestation should have anything
+     * specifically explicit, it should be implemented in
+     * order to avoid errors.
+     * @returns
+     */
+    protected assertPayload(): boolean;
+    /**
      * Get the multi attestation payload for the referred index.
      *
      * The index should be the array position this payload wants

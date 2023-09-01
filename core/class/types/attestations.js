@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Grantee = exports.ProjectDetails = exports.Tag = exports.MilestoneApproved = exports.MilestoneCompleted = exports.MemberDetails = exports.GrantVerified = exports.GrantRound = exports.GrantDetails = exports.CommunityDetails = exports.ExternalLink = void 0;
+exports.Grantee = exports.ProjectDetails = exports.Tag = exports.MilestoneCompleted = exports.MemberDetails = exports.GrantVerified = exports.GrantRound = exports.GrantDetails = exports.CommunityDetails = exports.ExternalLink = void 0;
 const Attestation_1 = require("../Attestation");
 class ExternalLink extends Attestation_1.Attestation {
 }
@@ -31,9 +31,6 @@ exports.MemberDetails = MemberDetails;
 class MilestoneCompleted extends Attestation_1.Attestation {
 }
 exports.MilestoneCompleted = MilestoneCompleted;
-class MilestoneApproved extends Attestation_1.Attestation {
-}
-exports.MilestoneApproved = MilestoneApproved;
 class Tag extends Attestation_1.Attestation {
 }
 exports.Tag = Tag;

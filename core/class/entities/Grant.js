@@ -11,6 +11,7 @@ const MultiAttest_1 = require("../contract/MultiAttest");
 class Grant extends Attestation_1.Attestation {
     constructor() {
         super(...arguments);
+        this.verified = false;
         this.milestones = [];
     }
     async verify(signer) {
@@ -66,6 +67,7 @@ class Grant extends Attestation_1.Attestation {
      * @param projectIdx
      */
     multiAttestPayload(currentPayload = [], projectIdx = 0) {
+        this.assertPayload();
         const payload = [...currentPayload];
         const grantIdx = payload.push([this, this.payloadFor(projectIdx)]) - 1;
         if (this.details) {
@@ -82,12 +84,22 @@ class Grant extends Attestation_1.Attestation {
      * @inheritdoc
      */
     async attest(signer) {
+        this.assertPayload();
         const payload = this.multiAttestPayload();
         const uids = await MultiAttest_1.MultiAttest.send(signer, payload.map((p) => p[1]));
         uids.forEach((uid, index) => {
             payload[index][0].uid = uid;
         });
         console.log(uids);
+    }
+    /**
+     * Validate if the grant has a valid reference to a community.
+     */
+    assertPayload() {
+        if (!this.details || !this.details?.communityUID) {
+            throw new SchemaError_1.AttestationError("INVALID_REFERENCE", "Grant should include a valid reference to a community on its details.");
+        }
+        return true;
     }
 }
 exports.Grant = Grant;

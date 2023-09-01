@@ -1,6 +1,7 @@
 import { Hex } from "../types";
 export declare const gqlQueries: {
     attestation: (uid: Hex) => string;
+    attestationsIn: (uids: Hex[]) => string;
     attestationsFrom: (schemaId: Hex, attester: Hex) => string;
     attestationsTo: (schemaId: Hex, recipient: Hex) => string;
     attestationPairs: (schemaId: Hex, attester: Hex, recipient: Hex) => string;
