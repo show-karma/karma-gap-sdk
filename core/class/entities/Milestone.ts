@@ -18,33 +18,9 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
   completed: boolean;
   approved: boolean;
 
+  
   async approve(signer: SignerOrProvider) {
-    const eas = GAP.eas.connect(signer);
-    const schema = GapSchema.find("MilestoneApproved");
-    schema.setValue("isVerified", true);
-
-    if (!this.completed)
-      throw new AttestationError(
-        "INVALID_DATA",
-        "Milestone must be completed before approving"
-      );
-
-    try {
-      await eas.attest({
-        schema: schema.uid,
-        data: {
-          recipient: this.recipient,
-          data: schema.encode(),
-          refUID: this.uid,
-          expirationTime: 0n,
-          revocable: schema.revocable,
-        },
-      });
-      this.approved = true;
-    } catch (error: any) {
-      console.error(error);
-      throw new AttestationError("ATTEST_ERROR", error.message);
-    }
+    return this.complete(signer);
   }
 
   async complete(signer: SignerOrProvider) {
