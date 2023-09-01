@@ -54,6 +54,12 @@ export class Project extends Attestation<IProject> {
       }
     }
 
+    if (this.tags.length) {
+      this.tags.forEach((tag) => {
+        payload.push([tag, tag.payloadFor(projectIdx)]);
+      });
+    }
+
     if (this.members?.length) {
       this.members.forEach((m) => {
         payload.push(...m.multiAttestPayload(payload, projectIdx));

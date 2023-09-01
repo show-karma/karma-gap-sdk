@@ -188,6 +188,18 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
   }
 
   /**
+   * Validates the payload.
+   *
+   * If an attestation should have anything
+   * specifically explicit, it should be implemented in
+   * order to avoid errors.
+   * @returns
+   */
+  protected assertPayload() {
+    return true;
+  }
+
+  /**
    * Get the multi attestation payload for the referred index.
    *
    * The index should be the array position this payload wants
@@ -218,6 +230,7 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
    * @returns
    */
   payloadFor(refIdx: number): MultiAttestData {
+    this.assertPayload();
     return {
       uid: nullRef,
       refIdx,

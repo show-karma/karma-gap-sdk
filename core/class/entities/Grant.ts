@@ -8,15 +8,17 @@ import { AttestationError } from "../SchemaError";
 import { nullRef } from "../../consts";
 import { MultiAttestPayload } from "core/types";
 import { MultiAttest } from "../contract/MultiAttest";
+import { Community } from "./Community";
 
 export interface IGrant {
   grant: true;
 }
 export class Grant extends Attestation<IGrant> {
   details?: GrantDetails;
-  verified?: boolean;
+  verified?: boolean = false;
   round?: GrantRound;
   milestones: Milestone[] = [];
+  community: Community;
 
   async verify(signer: SignerOrProvider) {
     const eas = GAP.eas.connect(signer);
@@ -74,6 +76,7 @@ export class Grant extends Attestation<IGrant> {
    * @param projectIdx
    */
   multiAttestPayload(currentPayload: MultiAttestPayload = [], projectIdx = 0) {
+    this.assertPayload();
     const payload = [...currentPayload];
     const grantIdx = payload.push([this, this.payloadFor(projectIdx)]) - 1;
     if (this.details) {
@@ -92,6 +95,7 @@ export class Grant extends Attestation<IGrant> {
    * @inheritdoc
    */
   async attest(signer: SignerOrProvider): Promise<void> {
+    this.assertPayload();
     const payload = this.multiAttestPayload();
 
     const uids = await MultiAttest.send(
@@ -104,5 +108,18 @@ export class Grant extends Attestation<IGrant> {
     });
 
     console.log(uids);
+  }
+
+  /**
+   * Validate if the grant has a valid reference to a community.
+   */
+  protected assertPayload() {
+    if (!this.details || !this.details?.communityUID) {
+      throw new AttestationError(
+        "INVALID_REFERENCE",
+        "Grant should include a valid reference to a community on its details."
+      );
+    }
+    return true;
   }
 }

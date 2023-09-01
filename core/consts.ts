@@ -144,7 +144,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
     contracts: {
       eas: "0xC2679fBD37d54388Ce493F1DB75320D236e1815e",
       schema: "0x0a7E2Ff54e76B8E6659aedc9103FB21c038050D0",
-      multicall: "0x04D6BB799f5A8c76882C4372d1FC39Cd0DDA0A4c"
+      multicall: "0x04D6BB799f5A8c76882C4372d1FC39Cd0DDA0A4c",
     },
     schemas: {
       Community:
@@ -168,9 +168,9 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       Milestone:
         "0xcf050d87a2a5a9ad69eab38ebdcc10aa3aee9d57ceeb9783f148f91a6532b7a0",
       MilestoneApproved:
-        "0x0be8952e2dd74ffd63a02f4d55b20b603fe7a60130cb9d70de31feb9c52fdd37",
+        "0x650449549083b276a0c5f9ead240a75fce11c1d4f3d7accee3bb9a122e92a53f",
       MilestoneCompleted:
-        "0x0be8952e2dd74ffd63a02f4d55b20b603fe7a60130cb9d70de31feb9c52fdd37",
+        "0x650449549083b276a0c5f9ead240a75fce11c1d4f3d7accee3bb9a122e92a53f",
       Project:
         "0xec77990a252b54b17673955c774b9712766de5eecb22ca5aa2c440e0e93257fb",
       ProjectDetails:
@@ -242,7 +242,7 @@ export const MountEntities = (
   },
   GrantRound: {
     name: "GrantRound",
-    schema: [{ type: "bool", name: "name", value: true }],
+    schema: [{ type: "string", name: "name", value: true }],
     uid: network.schemas.GrantRound,
     references: "Grant",
   },
@@ -254,13 +254,19 @@ export const MountEntities = (
   },
   MilestoneApproved: {
     name: "MilestoneApproved",
-    schema: [{ type: "bool", name: "isVerified", value: false }],
+    schema: [
+      { type: "string", name: "type", value: null },
+      { type: "string", name: "reason", value: "" },
+    ],
     uid: network.schemas.MilestoneApproved,
     references: "Milestone",
   },
   MilestoneCompleted: {
     name: "MilestoneCompleted",
-    schema: [{ type: "bool", name: "isVerified", value: false }],
+    schema: [
+      { type: "string", name: "type", value: null },
+      { type: "string", name: "reason", value: "" },
+    ],
     uid: network.schemas.MilestoneCompleted,
     references: "Milestone",
   },

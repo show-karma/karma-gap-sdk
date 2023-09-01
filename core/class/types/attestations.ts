@@ -34,22 +34,24 @@ export class CommunityDetails
 
 export interface IGrantDetails {
   title: string;
-  amount: string;
+  amount?: string;
   proposalURL: string;
   assetAndChainId?: [Hex, number];
-  payoutAddress: Hex;
+  payoutAddress?: Hex;
   description?: string;
+  communityUID: Hex;
 }
 export class GrantDetails
   extends Attestation<IGrantDetails>
   implements IGrantDetails
 {
   title: string;
-  amount: string = "0";
   proposalURL: string;
+  communityUID: Hex;
+  payoutAddress?: Hex;
+  amount?: string = "0";
   assetAndChainId?: [Hex, number];
   description?: string;
-  payoutAddress: Hex;
 }
 
 export interface IGrantRound {
@@ -85,14 +87,16 @@ export class MemberDetails
 }
 
 export interface IMilestoneCompleted {
-  completed: boolean;
+  type: "approved" | "rejected" | "completed";
+  reason?: string;
 }
-export class MilestoneCompleted extends Attestation<IMilestoneCompleted> {}
-
-export interface IMilestoneApproved {
-  approved: boolean;
+export class MilestoneCompleted
+  extends Attestation<IMilestoneCompleted>
+  implements IMilestoneCompleted
+{
+  type: "approved" | "rejected" | "completed";
+  reason?: string;
 }
-export class MilestoneApproved extends Attestation<IMilestoneApproved> {}
 
 export interface ITag {
   name: string;

@@ -3,6 +3,8 @@ import { Attestation } from "../Attestation";
 import { GAP } from "../GAP";
 import { GapSchema } from "../GapSchema";
 import { AttestationError } from "../SchemaError";
+import { toUnix } from "../../utils/to-unix";
+import { IMilestoneCompleted, MilestoneCompleted } from "../types/attestations";
 
 export interface IMilestone {
   title: string;
@@ -12,22 +14,150 @@ export interface IMilestone {
 }
 export class Milestone extends Attestation<IMilestone> implements IMilestone {
   title: string;
-  startsAt: number;
-  endsAt: number;
+  startsAt: number = toUnix(Date.now());
+  endsAt: number = toUnix(Date.now());
   description: string;
-  completed: boolean;
-  approved: boolean;
+  completed: MilestoneCompleted;
+  approved: MilestoneCompleted;
+  rejected: MilestoneCompleted;
 
-  
-  async approve(signer: SignerOrProvider) {
-    return this.complete(signer);
+  /**
+   * Approves this milestone. If the milestone is not completed or already approved,
+   * it will throw an error.
+   * @param signer
+   * @param reason
+   */
+  async approve(signer: SignerOrProvider, reason?: string) {
+    if (!this.completed)
+      throw new AttestationError("ATTEST_ERROR", "Milestone is not completed");
+    if (this.approved)
+      throw new AttestationError(
+        "ATTEST_ERROR",
+        "Milestone is already approved"
+      );
+
+    await this.attestStatus(
+      signer,
+      GapSchema.find("MilestoneApproved"),
+      reason
+    );
+
+    this.approved = new MilestoneCompleted({
+      data: {
+        type: "approved",
+        reason,
+      },
+      refUID: this.uid,
+      schema: GapSchema.find("MilestoneApproved"),
+      recipient: this.recipient,
+    });
   }
 
-  async complete(signer: SignerOrProvider) {
-    const eas = GAP.eas.connect(signer);
+  /**
+   * Revokes the approved status of the milestone. If the milestone is not approved,
+   * it will throw an error.
+   * @param signer
+   */
+  async revokeApproval(signer: SignerOrProvider) {
+    if (!this.approved)
+      throw new AttestationError("ATTEST_ERROR", "Milestone is not approved");
+
+    await this.approved.revoke(signer);
+  }
+
+  /**
+   * Reject a completed milestone. If the milestone is not completed or already rejected,
+   * it will throw an error.
+   * @param signer
+   * @param reason
+   */
+  async reject(signer: SignerOrProvider, reason?: string) {
+    if (!this.completed)
+      throw new AttestationError("ATTEST_ERROR", "Milestone is not completed");
+    if (this.rejected)
+      throw new AttestationError(
+        "ATTEST_ERROR",
+        "Milestone is already rejected"
+      );
+
+    await this.attestStatus(
+      signer,
+      GapSchema.find("MilestoneApproved"),
+      reason
+    );
+
+    this.rejected = new MilestoneCompleted({
+      data: {
+        type: "rejected",
+        reason,
+      },
+      refUID: this.uid,
+      schema: GapSchema.find("MilestoneApproved"),
+      recipient: this.recipient,
+    });
+  }
+
+  /**
+   * Revokes the rejected status of the milestone. If the milestone is not rejected,
+   * it will throw an error.
+   * @param signer
+   */
+  async revokeRejection(signer: SignerOrProvider) {
+    if (!this.rejected)
+      throw new AttestationError("ATTEST_ERROR", "Milestone is not rejected");
+
+    await this.rejected.revoke(signer);
+  }
+
+  /**
+   * Marks a milestone as completed. If the milestone is already completed,
+   * it will throw an error.
+   * @param signer
+   * @param reason
+   */
+  async complete(signer: SignerOrProvider, reason?: string) {
+    if (this.completed)
+      throw new AttestationError(
+        "ATTEST_ERROR",
+        "Milestone is already completed"
+      );
+
     const schema = GapSchema.find("MilestoneCompleted");
     schema.setValue("isVerified", true);
 
+    await this.attestStatus(signer, schema, reason);
+    this.completed = new MilestoneCompleted({
+      data: {
+        type: "completed",
+        reason,
+      },
+      refUID: this.uid,
+      schema,
+      recipient: this.recipient,
+    });
+  }
+
+  /**
+   * Revokes the completed status of the milestone. If the milestone is not completed,
+   * it will throw an error.
+   * @param signer
+   */
+  async revokeCompletion(signer: SignerOrProvider) {
+    if (!this.completed)
+      throw new AttestationError("ATTEST_ERROR", "Milestone is not completed");
+
+    await this.completed.revoke(signer);
+  }
+
+  /**
+   * Attest the status of the milestone as approved, rejected or completed.
+   */
+  private async attestStatus(
+    signer: SignerOrProvider,
+    schema: GapSchema,
+    reason?: string
+  ) {
+    const eas = GAP.eas.connect(signer);
     try {
       const tx = await eas.attest({
         schema: schema.uid,
@@ -39,9 +169,9 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
           revocable: schema.revocable,
         },
       });
+
       const uid = await tx.wait();
       console.log(uid);
-      this.completed = true;
     } catch (error: any) {
       console.error(error);
       throw new AttestationError("ATTEST_ERROR", error.message);

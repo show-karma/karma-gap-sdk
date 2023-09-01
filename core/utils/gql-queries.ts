@@ -29,6 +29,12 @@ export const gqlQueries = {
         id: "${uid}"
       }) {${attestationFields}}
     }`,
+  attestationsIn: (uids: Hex[]) => `
+    {
+      attestations(where: {
+        id:{in: ${inStatement(uids)}}
+      }) {${attestationFields}}
+    }`,
   attestationsFrom: (schemaId: Hex, attester: Hex) =>
     schemaQuery(
       schemaId,
