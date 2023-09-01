@@ -287,7 +287,8 @@ class GAPFetcher extends EASClient_1.EASClient {
                 .filter((d) => d.refUID === grant.uid &&
                 d.schema.uid === milestone.uid &&
                 d.uid !== grant.details?.uid)
-                .map((milestone) => {
+                .map((_milestone) => {
+                const milestone = new entities_1.Milestone(_milestone);
                 const refs = deps.filter((ref) => ref.refUID === milestone.uid);
                 const startsAt = milestone.startsAt;
                 const endsAt = milestone.endsAt;
@@ -295,8 +296,8 @@ class GAPFetcher extends EASClient_1.EASClient {
                 milestone.endsAt = Number(endsAt);
                 const approvals = refs.filter((ref) => ref.schema.uid === milestoneApproved.uid &&
                     ref.refUID === milestone.uid);
-                milestone.completed = approvals.length === 1;
-                milestone.approved = approvals.length === 2;
+                milestone.completed = approvals.length >= 1;
+                milestone.approved = approvals.length >= 2;
                 return milestone;
             });
         });

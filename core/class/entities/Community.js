@@ -57,6 +57,7 @@ class Community extends Attestation_1.Attestation {
             uids.forEach((uid, index) => {
                 payload[index][0].uid = uid;
             });
+            console.log(this.uid);
         }
         catch (error) {
             console.error(error);

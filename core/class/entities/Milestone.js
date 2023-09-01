@@ -10,6 +10,8 @@ class Milestone extends Attestation_1.Attestation {
         const eas = GAP_1.GAP.eas.connect(signer);
         const schema = GapSchema_1.GapSchema.find("MilestoneApproved");
         schema.setValue("approved", true);
+        if (!this.completed)
+            throw new SchemaError_1.AttestationError("INVALID_DATA", "Milestone must be completed before approving");
         try {
             await eas.attest({
                 schema: schema.raw,
