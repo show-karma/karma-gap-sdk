@@ -79,6 +79,7 @@ export class Community extends Attestation<ICommunity> {
       uids.forEach((uid, index) => {
         payload[index][0].uid = uid;
       });
+      console.log(this.uid);
     } catch (error) {
       console.error(error);
       throw new AttestationError("ATTEST_ERROR", "Error during attestation.");

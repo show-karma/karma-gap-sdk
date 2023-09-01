@@ -203,7 +203,6 @@ export const MountEntities = (
     name: "Project",
     schema: [{ type: "bool", name: "project", value: true }],
     uid: network.schemas.Project,
-    references: "Community",
   },
   ProjectDetails: {
     name: "ProjectDetails",

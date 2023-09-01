@@ -503,8 +503,8 @@ export class GAPFetcher extends EASClient {
               ref.refUID === milestone.uid
           );
 
-          milestone.completed = approvals.length === 1;
-          milestone.approved = approvals.length === 2;
+          milestone.completed = approvals.length >= 1;
+          milestone.approved = approvals.length >= 2;
 
           return milestone;
         });
