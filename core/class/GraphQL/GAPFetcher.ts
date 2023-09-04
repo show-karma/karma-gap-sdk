@@ -205,6 +205,11 @@ export class GAPFetcher extends EASClient {
     }
   }
 
+  /**
+   * Get details for a set of communities and returns the updated array.
+   * @param communities
+   * @returns
+   */
   async communitiesDetails(communities: Community[]) {
     const [project, communityDetails] = GapSchema.findMany([
       "Project",
@@ -239,6 +244,13 @@ export class GAPFetcher extends EASClient {
     });
   }
 
+  /**
+   * Fetch a community by its name with details, grants and milestones.
+   *
+   * It is possible that the resulted community is not the one you are looking for.
+   * @param name
+   * @returns
+   */
   async communityByName(name: string) {
     const communitySchema = GapSchema.find("CommunityDetails");
 
