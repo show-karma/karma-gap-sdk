@@ -5,14 +5,8 @@ const Attestation_1 = require("../Attestation");
 const GAP_1 = require("../GAP");
 const GapSchema_1 = require("../GapSchema");
 const SchemaError_1 = require("../SchemaError");
-const to_unix_1 = require("../../utils/to-unix");
 const attestations_1 = require("../types/attestations");
 class Milestone extends Attestation_1.Attestation {
-    constructor() {
-        super(...arguments);
-        this.startsAt = (0, to_unix_1.toUnix)(Date.now());
-        this.endsAt = (0, to_unix_1.toUnix)(Date.now());
-    }
     /**
      * Approves this milestone. If the milestone is not completed or already approved,
      * it will throw an error.

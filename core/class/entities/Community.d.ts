@@ -3,11 +3,13 @@ import { Attestation } from "../Attestation";
 import { CommunityDetails, ICommunityDetails } from "../types/attestations";
 import { Project } from "./Project";
 import { MultiAttestPayload } from "core/types";
+import { Grant } from "./Grant";
 export interface ICommunity {
     community: true;
 }
 export declare class Community extends Attestation<ICommunity> {
     projects: Project[];
+    grants: Grant[];
     details?: CommunityDetails;
     /**
      * Creates the payload for a multi-attestation.

@@ -24,10 +24,16 @@ exports.gqlQueries = {
         id: "${uid}"
       }) {${attestationFields}}
     }`,
-    attestationsIn: (uids) => `
+    attestations: (schemaId, uid) => schemaQuery(schemaId, `attestations(where: {
+        revoked: {equals: false}
+        decodedDataJson: {contains: "${uid}"}
+      }) {${attestationFields}}`),
+    attestationsIn: (uids, search) => `
     {
       attestations(where: {
         id:{in: ${inStatement(uids)}}
+        revoked:{equals:false}
+        ${search ? `decodedDataJson:{contains:"${search}"}` : ""}
       }) {${attestationFields}}
     }`,
     attestationsFrom: (schemaId, attester) => schemaQuery(schemaId, `attestations(orderBy:{timeCreated: desc},

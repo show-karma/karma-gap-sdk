@@ -3,13 +3,11 @@ import { Attestation } from "../Attestation";
 import { MilestoneCompleted } from "../types/attestations";
 export interface IMilestone {
     title: string;
-    startsAt: number;
     endsAt: number;
     description: string;
 }
 export declare class Milestone extends Attestation<IMilestone> implements IMilestone {
     title: string;
-    startsAt: number;
     endsAt: number;
     description: string;
     completed: MilestoneCompleted;

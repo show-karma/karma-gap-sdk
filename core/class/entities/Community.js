@@ -11,6 +11,7 @@ class Community extends Attestation_1.Attestation {
     constructor() {
         super(...arguments);
         this.projects = [];
+        this.grants = [];
     }
     /**
      * Creates the payload for a multi-attestation.

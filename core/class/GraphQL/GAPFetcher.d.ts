@@ -57,6 +57,8 @@ export declare class GAPFetcher extends EASClient {
      * @returns
      */
     communitiesByIds(uids: Hex[]): Promise<Community[]>;
+    communitiesDetails(communities: Community[]): Promise<Community[]>;
+    communityByName(name: string): Promise<Community>;
     /**
      * Fetch a community by its id. This method will also return the
      * community details and projects.
@@ -105,6 +107,7 @@ export declare class GAPFetcher extends EASClient {
      * @returns
      */
     grantsOf(grantee: Hex, withCommunity?: boolean): Promise<Grant[]>;
+    grantsByCommunity(uid: Hex): Promise<Grant[]>;
     /**
      * Fetch grants for an array of projects with milestones.
      * @param projects
@@ -129,4 +132,10 @@ export declare class GAPFetcher extends EASClient {
      * @returns
      */
     membersOf(projects: Project[]): Promise<MemberOf[]>;
+    /**
+     * Returns a string to be used to search by a value in `decodedDataJson`.
+     * @param field
+     * @param value
+     */
+    private getSearchFieldString;
 }
