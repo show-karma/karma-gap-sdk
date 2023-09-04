@@ -132,6 +132,11 @@ class GAPFetcher extends EASClient_1.EASClient {
             throw error;
         }
     }
+    /**
+     * Get details for a set of communities and returns the updated array.
+     * @param communities
+     * @returns
+     */
     async communitiesDetails(communities) {
         const [project, communityDetails] = GapSchema_1.GapSchema.findMany([
             "Project",
@@ -147,6 +152,13 @@ class GAPFetcher extends EASClient_1.EASClient {
             return community;
         });
     }
+    /**
+     * Fetch a community by its name with details, grants and milestones.
+     *
+     * It is possible that the resulted community is not the one you are looking for.
+     * @param name
+     * @returns
+     */
     async communityByName(name) {
         const communitySchema = GapSchema_1.GapSchema.find("CommunityDetails");
         const query = gql_queries_1.gqlQueries.attestationsOf(communitySchema.uid, this.getSearchFieldString("name", name));

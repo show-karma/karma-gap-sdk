@@ -57,7 +57,19 @@ export declare class GAPFetcher extends EASClient {
      * @returns
      */
     communitiesByIds(uids: Hex[]): Promise<Community[]>;
+    /**
+     * Get details for a set of communities and returns the updated array.
+     * @param communities
+     * @returns
+     */
     communitiesDetails(communities: Community[]): Promise<Community[]>;
+    /**
+     * Fetch a community by its name with details, grants and milestones.
+     *
+     * It is possible that the resulted community is not the one you are looking for.
+     * @param name
+     * @returns
+     */
     communityByName(name: string): Promise<Community>;
     /**
      * Fetch a community by its id. This method will also return the
