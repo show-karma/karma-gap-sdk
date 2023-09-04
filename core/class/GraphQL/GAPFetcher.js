@@ -336,15 +336,12 @@ class GAPFetcher extends EASClient_1.EASClient {
         const [grant, grantDetails] = GapSchema_1.GapSchema.findMany(["Grant", "GrantDetails"]);
         const query = gql_queries_1.gqlQueries.attestations(grantDetails.uid, uid);
         const { schema: { attestations }, } = await this.query(query);
-        const grants = Attestation_1.Attestation.fromInterface(attestations).map((g) => new entities_1.Grant({
-            uid: g.refUID,
-            refUID: uid,
-            recipient: g.recipient,
-            schema: grant,
-            data: { grant: true },
-        }));
-        if (!grants.length)
+        const grantsDetails = Attestation_1.Attestation.fromInterface(attestations).map((g) => new attestations_1.GrantDetails(g));
+        if (!grantsDetails.length)
             return [];
+        const grantsQuery = gql_queries_1.gqlQueries.attestationsIn(grantsDetails.map((g) => g.refUID));
+        const { attestations: grantAttestations } = await this.query(grantsQuery);
+        const grants = Attestation_1.Attestation.fromInterface(grantAttestations || []).map((g) => new entities_1.Grant(g));
         const refs = gql_queries_1.gqlQueries.dependentsOf(grants.map((g) => g.uid), [grantDetails.uid]);
         const results = await this.query(refs);
         const deps = Attestation_1.Attestation.fromInterface(results.attestations || []);
