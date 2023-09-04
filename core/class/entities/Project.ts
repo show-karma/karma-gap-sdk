@@ -2,16 +2,20 @@ import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/tra
 import { Attestation } from "../Attestation";
 import {
   Grantee,
+  IMemberDetails,
   MemberDetails,
-  MemberOf,
   ProjectDetails,
   Tag,
 } from "../types/attestations";
-import { Hex } from "core/types";
+import { Hex, MultiAttestPayload } from "core/types";
 import { GapSchema } from "../GapSchema";
 import { AttestationError } from "../SchemaError";
 import { mapFilter } from "../../utils";
 import { Grant } from "./Grant";
+import { nullRef } from "../../consts";
+import { GAP } from "../GAP";
+import { MemberOf } from "./MemberOf";
+import { MultiAttest } from "../contract/MultiAttest";
 
 export interface IProject {
   project: true;
@@ -25,6 +29,94 @@ export class Project extends Attestation<IProject> {
   tags: Tag[] = [];
 
   /**
+   * Creates the payload for a multi-attestation.
+   *
+   * > if Current payload is set, it'll be used as the base payload
+   * and the project should refer to an index of the current payload,
+   * usually the community position.
+   *
+   * @param payload
+   * @param communityIdx
+   */
+  multiAttestPayload(
+    currentPayload: MultiAttestPayload = [],
+    communityIdx = 0
+  ): MultiAttestPayload {
+    const payload = [...currentPayload];
+    const projectIdx = payload.push([this, this.payloadFor(communityIdx)]) - 1;
+
+    if (this.details) {
+      payload.push([this.details, this.details.payloadFor(projectIdx)]);
+      if (this.details.links?.length) {
+        this.details.links.forEach((link) => {
+          payload.push([link, link.payloadFor(projectIdx)]);
+        });
+      }
+    }
+
+    if (this.tags.length) {
+      this.tags.forEach((tag) => {
+        payload.push([tag, tag.payloadFor(projectIdx)]);
+      });
+    }
+
+    if (this.members?.length) {
+      this.members.forEach((m) => {
+        payload.push(...m.multiAttestPayload(payload, projectIdx));
+      });
+    }
+
+    if (this.grants?.length) {
+      this.grants.forEach((g) => {
+        payload.push(...g.multiAttestPayload(payload, projectIdx));
+      });
+    }
+
+    return payload.slice(currentPayload.length, payload.length);
+  }
+
+  async attest(signer: SignerOrProvider): Promise<void> {
+    if (!this.refUID)
+      throw new AttestationError(
+        "INVALID_REF_UID",
+        "Project must have a reference UID to a community."
+      );
+
+    const payload = this.multiAttestPayload();
+    const uids = await MultiAttest.send(
+      signer,
+      payload.map((p) => p[1])
+    );
+
+    uids.forEach((uid, index) => {
+      payload[index][0].uid = uid;
+    });
+  }
+
+  /**
+   * Add new members to the project.
+   * If any member in the array already exists in the project
+   * it'll be ignored.
+   * @param members
+   */
+  pushMembers(...members: Hex[]) {
+    this.members.push(
+      ...mapFilter(
+        members,
+        (member) => !!this.members.find((m) => m.recipient === member),
+        (member) =>
+          new MemberOf({
+            data: { memberOf: true },
+            refUID: this.uid,
+            schema: GapSchema.find("MemberOf"),
+            recipient: member,
+            uid: nullRef,
+          })
+      )
+    );
+  }
+
+  /**
    * Add new members to the project.
    * If any member in the array already exists in the project
    * it'll be ignored.
@@ -33,7 +125,7 @@ export class Project extends Attestation<IProject> {
    * @param signer
    * @param members
    */
-  async addMembers(signer: SignerOrProvider, members: MemberDetails[]) {
+  async attestMembers(signer: SignerOrProvider, members: MemberDetails[]) {
     const newMembers = mapFilter(
       members,
       (member) => !this.members.find((m) => m.recipient === member.recipient),
@@ -45,7 +137,7 @@ export class Project extends Attestation<IProject> {
           schema: GapSchema.find("MemberOf"),
           createdAt: Date.now(),
           recipient: details.recipient,
-          uid: "0x0",
+          uid: nullRef,
         });
         return { member, details };
       }

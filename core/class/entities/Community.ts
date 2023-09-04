@@ -8,14 +8,45 @@ import {
 import { nullRef } from "../../consts";
 import { AttestationError } from "../SchemaError";
 import { GapSchema } from "../GapSchema";
+import { Project } from "./Project";
+import { MultiAttestPayload } from "core/types";
+import { MultiAttest } from "../contract/MultiAttest";
+import { Grant } from "./Grant";
 
 export interface ICommunity {
   community: true;
 }
 
 export class Community extends Attestation<ICommunity> {
-  grantees: Grantee[] = [];
+  projects: Project[] = [];
+  grants: Grant[] = [];
   details?: CommunityDetails;
+
+  /**
+   * Creates the payload for a multi-attestation.
+   *
+   * > if Current payload is set, it'll be used as the base payload
+   * and the project should refer to an index of the current payload,
+   * usually the community position.
+   *
+   * @param payload
+   * @param refIdx
+   */
+  multiAttestPayload() {
+    const payload: MultiAttestPayload = [[this, this.payloadFor(0)]];
+
+    if (this.details) {
+      payload.push([this.details, this.details.payloadFor(0)]);
+    }
+
+    if (this.projects?.length) {
+      this.projects.forEach((p) => {
+        payload.push(...p.multiAttestPayload(payload, 0));
+      });
+    }
+
+    return payload;
+  }
 
   /**
    * Attest a community with its details.
@@ -26,42 +57,30 @@ export class Community extends Attestation<ICommunity> {
    */
   async attest(
     signer: SignerOrProvider,
-    details: ICommunityDetails
+    details?: ICommunityDetails
   ): Promise<void> {
     console.log("Attesting community");
     try {
-      if (!this.uid || ["0x0", nullRef].includes(this.uid)) {
-        const uid = await this.schema.attest({
-          data: this.data,
-          to: this.recipient,
-          refUID: this.refUID,
-          signer,
+      if (details) {
+        this.details = new CommunityDetails({
+          data: details,
+          schema: GapSchema.find("CommunityDetails"),
+          uid: nullRef,
+          recipient: this.recipient,
         });
-        this._uid = uid;
-        console.log("Attested community with UID", this.uid);
-      } else {
-        console.log("Community already attested", this.uid);
       }
 
-      if (this.details && ![nullRef, "0x0"].includes(this.details.uid)) {
-        this.details.setValues(details);
-        const detailsId = await this.details.attest(signer);
-        Object.assign(this.details, { uid: detailsId });
-        return;
-      }
+      const payload = this.multiAttestPayload();
 
-      const detailsAttestation = new CommunityDetails({
-        data: details,
-        createdAt: Date.now(),
-        recipient: this.recipient,
-        refUID: this.uid,
-        schema: GapSchema.find("CommunityDetails"),
-        uid: nullRef,
+      const uids = await MultiAttest.send(
+        signer,
+        payload.map((p) => p[1])
+      );
+
+      uids.forEach((uid, index) => {
+        payload[index][0].uid = uid;
       });
-
-      const detailsId = await detailsAttestation.attest(signer);
-      Object.assign(detailsAttestation, { uid: detailsId });
-      this.details = detailsAttestation;
+      console.log(this.uid);
     } catch (error) {
       console.error(error);
       throw new AttestationError("ATTEST_ERROR", "Error during attestation.");

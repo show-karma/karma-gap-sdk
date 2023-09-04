@@ -1,7 +1,6 @@
 import {
   AttestArgs,
   Facade,
-  Hex,
   SchemaInterface,
   TNetwork,
   TSchemaName,
@@ -11,6 +10,9 @@ import { GapSchema } from "./GapSchema";
 import { GAPFetcher } from "./GraphQL/GAPFetcher";
 import { EAS } from "@ethereum-attestation-service/eas-sdk";
 import { MountEntities, Networks } from "../consts";
+import { Wallet, ethers } from "ethers";
+import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
+import Multicall from "../abi/MultiAttester.json";
 
 interface GAPArgs {
   network: TNetwork;
@@ -86,6 +88,8 @@ export class GAP extends Facade {
     const schemas =
       args.schemas || Object.values(MountEntities(Networks[args.network]));
 
+    this.network = args.network;
+
     GAP._eas = new EAS(Networks[args.network].contracts.eas);
 
     this.fetch = new GAPFetcher({ network: args.network });
@@ -101,7 +105,7 @@ export class GAP extends Facade {
    * @param data
    * @param schema
    */
-  async attest<T>(attestation: AttestArgs<T> & { schemaName: TSchemaName  }) {
+  async attest<T>(attestation: AttestArgs<T> & { schemaName: TSchemaName }) {
     const schema = GapSchema.find(attestation.schemaName);
     return schema.attest(attestation);
   }
@@ -133,6 +137,15 @@ export class GAP extends Facade {
   static createClient(args: GAPArgs) {
     if (!this.client) this.client = new this(args);
     return this.client;
+  }
+
+  /**
+   * Get the multicall contract
+   * @param signer
+   */
+  static getMulticall(signer: SignerOrProvider) {
+    const address = Networks[this.client.network].contracts.multicall;
+    return new ethers.Contract(address, Multicall.abi, signer as any);
   }
 
   get schemas() {

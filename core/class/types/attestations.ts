@@ -32,37 +32,25 @@ export class CommunityDetails
   links: ExternalLink[] = [];
 }
 
-export interface IGranteeDetails {
-  name: string;
-  description?: string;
-  payoutAddress: Hex;
-  ownerAddress: Hex;
-}
-export class GranteeDetails
-  extends Attestation<IGranteeDetails>
-  implements IGranteeDetails
-{
-  name: string;
-  description?: string;
-  payoutAddress: Hex;
-  ownerAddress: Hex;
-}
-
 export interface IGrantDetails {
   title: string;
-  amount: string;
+  amount?: string;
   proposalURL: string;
-  assetAndChainId?: [Hex, bigint];
+  assetAndChainId?: [Hex, number];
+  payoutAddress?: Hex;
   description?: string;
+  communityUID: Hex;
 }
 export class GrantDetails
   extends Attestation<IGrantDetails>
   implements IGrantDetails
 {
   title: string;
-  amount: string = "0";
   proposalURL: string;
-  assetAndChainId?: [Hex, bigint];
+  communityUID: Hex;
+  payoutAddress?: Hex;
+  amount?: string = "0";
+  assetAndChainId?: [Hex, number];
   description?: string;
 }
 
@@ -98,22 +86,17 @@ export class MemberDetails
   profilePictureURL: string;
 }
 
-export interface IMemberOf {
-  memberOf: true;
-}
-export class MemberOf extends Attestation<IMemberOf> {
-  details?: MemberDetails;
-}
-
 export interface IMilestoneCompleted {
-  completed: boolean;
+  type: "approved" | "rejected" | "completed";
+  reason?: string;
 }
-export class MilestoneCompleted extends Attestation<IMilestoneCompleted> {}
-
-export interface IMilestoneApproved {
-  approved: boolean;
+export class MilestoneCompleted
+  extends Attestation<IMilestoneCompleted>
+  implements IMilestoneCompleted
+{
+  type: "approved" | "rejected" | "completed";
+  reason?: string;
 }
-export class MilestoneApproved extends Attestation<IMilestoneApproved> {}
 
 export interface ITag {
   name: string;
@@ -137,10 +120,12 @@ export class ProjectDetails
   links: ExternalLink[] = [];
 }
 
-export interface IGrantee {
-  grantee: true;
-}
-export class Grantee extends Attestation<IGrantee> {
-  details?: GranteeDetails;
+export class Grantee {
+  address: string;
   projects: Project[] = [];
+
+  constructor(address: Hex, projects: Project[] = []) {
+    this.address = address;
+    this.projects = projects;
+  }
 }

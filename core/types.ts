@@ -1,7 +1,12 @@
 import { BytesLike } from "ethers";
 import { GAPFetcher } from "./class/GraphQL/GAPFetcher";
-import { EAS, SchemaItem } from "@ethereum-attestation-service/eas-sdk";
+import {
+  EAS,
+  MultiAttestationRequest,
+  SchemaItem,
+} from "@ethereum-attestation-service/eas-sdk";
 import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
+import { Attestation } from "./class";
 export type Hex = `0x${string}`;
 
 export interface SchemaInterface<T extends string = string> {
@@ -28,8 +33,6 @@ export type TSchemaName =
   | "Community"
   | "CommunityDetails"
   | "ExternalLink"
-  | "Grantee"
-  | "GranteeDetails"
   | "Grant"
   | "GrantDetails"
   | "GrantRound"
@@ -73,12 +76,21 @@ export abstract class Facade {
   }
 }
 
+export interface MultiAttestData {
+  uid?: Hex;
+  multiRequest: MultiAttestationRequest;
+  refIdx: number;
+}
+
+export type MultiAttestPayload = [Attestation, MultiAttestData][];
+
 export interface EASNetworkConfig {
   url: string;
   chainId: number;
   contracts: {
     eas: Hex;
     schema: Hex;
+    multicall: Hex;
   };
   /**
    * A tuple containing the schema name and it's UID for that network

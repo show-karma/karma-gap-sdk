@@ -144,40 +144,37 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
     contracts: {
       eas: "0xC2679fBD37d54388Ce493F1DB75320D236e1815e",
       schema: "0x0a7E2Ff54e76B8E6659aedc9103FB21c038050D0",
+      multicall: "0x04D6BB799f5A8c76882C4372d1FC39Cd0DDA0A4c",
     },
     schemas: {
       Community:
         "0x43c83c4d3a7f335f23e35c7fc43a77f3907ad0bb2cc7a684619e1cd0f17d37b9",
       CommunityDetails:
-        "0x3a5cbd4491c353a2daf3d1dba11feaa09911aa44f230570f106f7f62e466b0b3",
+        "0xcf050d87a2a5a9ad69eab38ebdcc10aa3aee9d57ceeb9783f148f91a6532b7a0",
       Grant:
         "0xfccfe22b5c861b35f2aa0c6bffacf9f13dfed27724aa66984b8adb39fbfef98c",
       GrantDetails:
-        "0xd0d1118c21c6c7310c875fe8ed154760109246a10c2052e6fdb0066cb5fd1aa5",
+        "0xcf050d87a2a5a9ad69eab38ebdcc10aa3aee9d57ceeb9783f148f91a6532b7a0",
       GrantRound:
         "0x234dee4d3e6a625b4121e2042d6267058755e53a2ecc55555da51a1e6f06cc58",
       GrantVerified:
-        "0x1e3b7d70d89f30ebe9f0ae987e34242b14e7fb07e25205458cf2813449fb4136",
-      Grantee:
-        "0x223856f6ed212325d5585fe903e952d76212047b52dc9d48b5e7d45682732a7a",
-      GranteeDetails:
-        "0xbfe0866beec569e809f79d1f19a87551c92a55940af431273da7680d02eb4010",
+        "0x0be8952e2dd74ffd63a02f4d55b20b603fe7a60130cb9d70de31feb9c52fdd37",
       ExternalLink:
         "0xd354de1d01ebc5df5230bc483620c80ba2af96e65e2263f6f283410697004efd",
       MemberDetails:
-        "0x8a10b1f25006f6e4a675f268e64e1c729ee0713adbdce3984f5bdad6302aef19",
+        "0xcf050d87a2a5a9ad69eab38ebdcc10aa3aee9d57ceeb9783f148f91a6532b7a0",
       MemberOf:
         "0xaaa3eb892d49ca6be51e3d1dd4a75825cba020bec837db0bba0b1d76dc3dda2c",
       Milestone:
-        "0xfdea9469a2318d97848ab6b90ab8a1e496a1d05a02d6339d088723dbfd4669de",
+        "0xcf050d87a2a5a9ad69eab38ebdcc10aa3aee9d57ceeb9783f148f91a6532b7a0",
       MilestoneApproved:
-        "0x1e3b7d70d89f30ebe9f0ae987e34242b14e7fb07e25205458cf2813449fb4136",
+        "0x650449549083b276a0c5f9ead240a75fce11c1d4f3d7accee3bb9a122e92a53f",
       MilestoneCompleted:
-        "0x1e3b7d70d89f30ebe9f0ae987e34242b14e7fb07e25205458cf2813449fb4136",
+        "0x650449549083b276a0c5f9ead240a75fce11c1d4f3d7accee3bb9a122e92a53f",
       Project:
         "0xec77990a252b54b17673955c774b9712766de5eecb22ca5aa2c440e0e93257fb",
       ProjectDetails:
-        "0xdddf1698baf08a6edd49a949b7a482be55a15c912ba3ebd83d7cfa6fa191d2cf",
+        "0xcf050d87a2a5a9ad69eab38ebdcc10aa3aee9d57ceeb9783f148f91a6532b7a0",
       Tag: "0x234dee4d3e6a625b4121e2042d6267058755e53a2ecc55555da51a1e6f06cc58",
     },
   },
@@ -198,44 +195,18 @@ export const MountEntities = (
   },
   CommunityDetails: {
     name: "CommunityDetails",
-    schema: [
-      { type: "string", name: "name", value: null },
-      { type: "string", name: "description", value: null },
-      { type: "string", name: "imageURL", value: null },
-    ],
-    uid: network.schemas.Community,
+    schema: [{ type: "string", name: "json", value: null }],
+    uid: network.schemas.CommunityDetails,
     references: "Community",
-  },
-  Grantee: {
-    name: "Grantee",
-    schema: [{ type: "bool", name: "grantee", value: true }],
-    uid: network.schemas.Grantee,
-    references: "Community",
-  },
-  GranteeDetails: {
-    name: "GranteeDetails",
-    schema: [
-      { type: "string", name: "name", value: null },
-      { type: "string", name: "description", value: null },
-      { type: "address", name: "payoutAddress", value: null },
-      { type: "address", name: "ownerAddress", value: null },
-    ],
-    uid: network.schemas.GranteeDetails,
-    references: "Grantee",
   },
   Project: {
     name: "Project",
     schema: [{ type: "bool", name: "project", value: true }],
     uid: network.schemas.Project,
-    references: "Grantee",
   },
   ProjectDetails: {
     name: "ProjectDetails",
-    schema: [
-      { type: "string", name: "title", value: null },
-      { type: "string", name: "description", value: null },
-      { type: "string", name: "imageURL", value: null },
-    ],
+    schema: [{ type: "string", name: "json", value: null }],
     uid: network.schemas.ProjectDetails,
     references: "Project",
   },
@@ -247,10 +218,7 @@ export const MountEntities = (
   },
   MemberDetails: {
     name: "MemberDetails",
-    schema: [
-      { type: "string", name: "name", value: null },
-      { type: "string", name: "profilePictureURL", value: null },
-    ],
+    schema: [{ type: "string", name: "json", value: null }],
     uid: network.schemas.MemberDetails,
     references: "MemberOf",
   },
@@ -262,48 +230,43 @@ export const MountEntities = (
   },
   GrantDetails: {
     name: "GrantDetails",
-    schema: [
-      { type: "string", name: "title", value: null },
-      { type: "string", name: "amount", value: null },
-      { type: "string", name: "description", value: null },
-      { type: "string", name: "proposalURL", value: null },
-      { type: "string[]", name: "assetAndChainId", value: null },
-    ],
+    schema: [{ type: "string", name: "json", value: null }],
     uid: network.schemas.GrantDetails,
     references: "Grant",
   },
   GrantVerified: {
     name: "GrantVerified",
-    schema: [{ type: "bool", name: "grantVerified", value: true }],
+    schema: [{ type: "bool", name: "isVerified", value: true }],
     uid: network.schemas.GrantVerified,
     references: "Grant",
   },
   GrantRound: {
     name: "GrantRound",
-    schema: [{ type: "bool", name: "name", value: true }],
+    schema: [{ type: "string", name: "name", value: true }],
     uid: network.schemas.GrantRound,
     references: "Grant",
   },
   Milestone: {
     name: "Milestone",
-    schema: [
-      { type: "string", name: "title", value: null },
-      { type: "uint48", name: "startsAt", value: null },
-      { type: "uint48", name: "endsAt", value: null },
-      { type: "string", name: "description", value: null },
-    ],
+    schema: [{ type: "string", name: "json", value: null }],
     references: "Grant",
     uid: network.schemas.Milestone,
   },
   MilestoneApproved: {
     name: "MilestoneApproved",
-    schema: [{ type: "bool", name: "milestoneApproved", value: false }],
+    schema: [
+      { type: "string", name: "type", value: null },
+      { type: "string", name: "reason", value: "" },
+    ],
     uid: network.schemas.MilestoneApproved,
     references: "Milestone",
   },
   MilestoneCompleted: {
     name: "MilestoneCompleted",
-    schema: [{ type: "bool", name: "milestoneCompleted", value: false }],
+    schema: [
+      { type: "string", name: "type", value: null },
+      { type: "string", name: "reason", value: "" },
+    ],
     uid: network.schemas.MilestoneCompleted,
     references: "Milestone",
   },
