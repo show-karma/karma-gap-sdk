@@ -8,14 +8,12 @@ import { IMilestoneCompleted, MilestoneCompleted } from "../types/attestations";
 
 export interface IMilestone {
   title: string;
-  startsAt: number;
   endsAt: number;
   description: string;
 }
 export class Milestone extends Attestation<IMilestone> implements IMilestone {
   title: string;
-  startsAt: number = toUnix(Date.now());
-  endsAt: number = toUnix(Date.now());
+  endsAt: number;
   description: string;
   completed: MilestoneCompleted;
   approved: MilestoneCompleted;
