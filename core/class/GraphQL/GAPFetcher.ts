@@ -30,6 +30,7 @@ import { Grant, Milestone, IProject, Project, MemberOf } from "../entities";
 import { Community } from "../entities/Community";
 import { mapFilter } from "../../utils";
 
+// TODO: Split this class into small ones
 export class GAPFetcher extends EASClient {
   /**
    * Fetches all the schemas deployed by an owner
@@ -238,7 +239,46 @@ export class GAPFetcher extends EASClient {
     });
   }
 
-  async communityByName(name: string) {}
+  async communityByName(name: string) {
+    const communitySchema = GapSchema.find("CommunityDetails");
+
+    const query = gqlQueries.attestationsOf(
+      communitySchema.uid,
+      this.getSearchFieldString("name", name)
+    );
+    try {
+      const {
+        schema: { attestations },
+      } = await this.query<SchemaRes>(query);
+
+      const communities = Attestation.fromInterface<CommunityDetails>(
+        attestations
+      ).map((details) => {
+        const community = new Community({
+          data: { community: true },
+          uid: details.refUID,
+          schema: communitySchema,
+          recipient: details.recipient,
+        });
+
+        community.details = details;
+        return community;
+      });
+
+      if (!communities.length) throw new Error("Community not found.");
+
+      const [withDetails] = await this.communitiesDetails(communities);
+
+      if (!withDetails) throw new Error("Community not found.");
+
+      const grants = await this.grantsByCommunity(withDetails.uid);
+      withDetails.grants = grants;
+
+      return withDetails;
+    } catch (error) {
+      throw error;
+    }
+  }
 
   /**
    * Fetch a community by its id. This method will also return the
@@ -724,5 +764,14 @@ export class GAPFetcher extends EASClient {
     }
 
     return members;
+  }
+
+  /**
+   * Returns a string to be used to search by a value in `decodedDataJson`.
+   * @param field
+   * @param value
+   */
+  private getSearchFieldString(field: string, value: string) {
+    return String.raw`\\\\\"${field}\\\\\":\\\\\"${value}\\\\\"`;
   }
 }

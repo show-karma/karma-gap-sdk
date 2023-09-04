@@ -9,14 +9,12 @@ import { nullRef } from "../../consts";
 import { AttestationError } from "../SchemaError";
 import { GapSchema } from "../GapSchema";
 import { Project } from "./Project";
-import { Hex, MultiAttestPayload } from "core/types";
-import { GAP } from "../GAP";
+import { MultiAttestPayload } from "core/types";
 import { MultiAttest } from "../contract/MultiAttest";
 import { Grant } from "./Grant";
 
 export interface ICommunity {
   community: true;
-  grants: Grant[];
 }
 
 export class Community extends Attestation<ICommunity> {
