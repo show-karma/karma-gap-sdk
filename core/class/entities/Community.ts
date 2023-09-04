@@ -12,13 +12,16 @@ import { Project } from "./Project";
 import { Hex, MultiAttestPayload } from "core/types";
 import { GAP } from "../GAP";
 import { MultiAttest } from "../contract/MultiAttest";
+import { Grant } from "./Grant";
 
 export interface ICommunity {
   community: true;
+  grants: Grant[];
 }
 
 export class Community extends Attestation<ICommunity> {
   projects: Project[] = [];
+  grants: Grant[] = [];
   details?: CommunityDetails;
 
   /**
