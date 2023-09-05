@@ -141,7 +141,7 @@ exports.Networks = {
             multicall: "0x04D6BB799f5A8c76882C4372d1FC39Cd0DDA0A4c",
         },
         schemas: {
-            Community: "0x43c83c4d3a7f335f23e35c7fc43a77f3907ad0bb2cc7a684619e1cd0f17d37b9",
+            Community: "0x1954572e3fe21bf4334afdaf1358ed7098af1ed136e76dc93c2fdc25e83934c1",
             CommunityDetails: "0xcf050d87a2a5a9ad69eab38ebdcc10aa3aee9d57ceeb9783f148f91a6532b7a0",
             Grant: "0xfccfe22b5c861b35f2aa0c6bffacf9f13dfed27724aa66984b8adb39fbfef98c",
             GrantDetails: "0xcf050d87a2a5a9ad69eab38ebdcc10aa3aee9d57ceeb9783f148f91a6532b7a0",
