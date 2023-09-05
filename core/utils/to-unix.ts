@@ -1,6 +1,7 @@
 export function toUnix(value: number | Date | string) {
   switch (typeof value) {
     case "number":
+      value = Math.round(value);
       if (value.toString().length > 13)
         throw new Error("Invalid timestamp length");
       if (value.toString().length === 10) return value;
