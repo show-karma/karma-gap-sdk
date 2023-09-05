@@ -347,7 +347,9 @@ class GAPFetcher extends EASClient_1.EASClient {
         const deps = Attestation_1.Attestation.fromInterface(results.attestations || []);
         const milestones = await this.milestonesOf(grants);
         return grants.map((grant) => {
-            grant.details = (deps.find((d) => d.refUID === grant.uid && d.schema.uid === grantDetails.uid));
+            grant.details = (deps.find((d) => d.refUID === grant.uid &&
+                d.schema.uid === grantDetails.uid &&
+                typeof d.endsAt === "undefined"));
             grant.milestones = milestones.filter((m) => m.refUID === grant.uid && typeof m.endsAt !== "undefined");
             return grant;
         });
