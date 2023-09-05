@@ -559,7 +559,10 @@ export class GAPFetcher extends EASClient {
     return grants.map((grant) => {
       grant.details = <GrantDetails>(
         deps.find(
-          (d) => d.refUID === grant.uid && d.schema.uid === grantDetails.uid
+          (d) =>
+            d.refUID === grant.uid &&
+            d.schema.uid === grantDetails.uid &&
+            typeof (d as Milestone).endsAt === "undefined"
         )
       );
 
