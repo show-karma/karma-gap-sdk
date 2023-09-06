@@ -8,7 +8,7 @@ import {
 export const nullRef =
   "0x0000000000000000000000000000000000000000000000000000000000000000";
 export const nullResolver = "0x0000000000000000000000000000000000000000";
-
+// resolver for dependents = 0xed081ABE885bc3575f810c904052A1f685A85903
 /**
  * The networks that are supported by the EAS
  */
@@ -152,12 +152,13 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
         "0x43c83c4d3a7f335f23e35c7fc43a77f3907ad0bb2cc7a684619e1cd0f17d37b9", // test
       // "0x1954572e3fe21bf4334afdaf1358ed7098af1ed136e76dc93c2fdc25e83934c1", // original
       CommunityDetails:
-        "0x9dceb2d349e7c89997857e7cc09d49e0acf20285159afd64d9b9b05ae3a6a4c7", // with resolver
+        "0xef3f9178d875914f5ccdfe3a39c26a5f9fdf98e5cdd72d4c9ab94d29a9ff2be2", // with resolver
       // "0xcf050d87a2a5a9ad69eab38ebdcc10aa3aee9d57ceeb9783f148f91a6532b7a0", // without resolver
       Grant:
-        "0xfccfe22b5c861b35f2aa0c6bffacf9f13dfed27724aa66984b8adb39fbfef98c",
+        "0x22cd9fbc082e65ac85c8e4a5682e6ffbe8dc1a4f3a0a1cb4c2fc94878b058f0d", // with communityUID
+        // "0xfccfe22b5c861b35f2aa0c6bffacf9f13dfed27724aa66984b8adb39fbfef98c", // with no data
       GrantDetails:
-        "0x9dceb2d349e7c89997857e7cc09d49e0acf20285159afd64d9b9b05ae3a6a4c7",
+        "0xef3f9178d875914f5ccdfe3a39c26a5f9fdf98e5cdd72d4c9ab94d29a9ff2be2",
       // "0xcf050d87a2a5a9ad69eab38ebdcc10aa3aee9d57ceeb9783f148f91a6532b7a0",
       GrantRound:
         "0x234dee4d3e6a625b4121e2042d6267058755e53a2ecc55555da51a1e6f06cc58",
@@ -166,12 +167,12 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       ExternalLink:
         "0xd354de1d01ebc5df5230bc483620c80ba2af96e65e2263f6f283410697004efd",
       MemberDetails:
-        "0x9dceb2d349e7c89997857e7cc09d49e0acf20285159afd64d9b9b05ae3a6a4c7",
+        "0xef3f9178d875914f5ccdfe3a39c26a5f9fdf98e5cdd72d4c9ab94d29a9ff2be2",
       // "0xcf050d87a2a5a9ad69eab38ebdcc10aa3aee9d57ceeb9783f148f91a6532b7a0",
       MemberOf:
         "0xaaa3eb892d49ca6be51e3d1dd4a75825cba020bec837db0bba0b1d76dc3dda2c",
       Milestone:
-        "0x9dceb2d349e7c89997857e7cc09d49e0acf20285159afd64d9b9b05ae3a6a4c7",
+        "0xef3f9178d875914f5ccdfe3a39c26a5f9fdf98e5cdd72d4c9ab94d29a9ff2be2",
       // "0xcf050d87a2a5a9ad69eab38ebdcc10aa3aee9d57ceeb9783f148f91a6532b7a0",
       MilestoneApproved:
         "0x650449549083b276a0c5f9ead240a75fce11c1d4f3d7accee3bb9a122e92a53f",
@@ -180,7 +181,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       Project:
         "0xec77990a252b54b17673955c774b9712766de5eecb22ca5aa2c440e0e93257fb",
       ProjectDetails:
-        "0x9dceb2d349e7c89997857e7cc09d49e0acf20285159afd64d9b9b05ae3a6a4c7",
+        "0xef3f9178d875914f5ccdfe3a39c26a5f9fdf98e5cdd72d4c9ab94d29a9ff2be2",
       // "0xcf050d87a2a5a9ad69eab38ebdcc10aa3aee9d57ceeb9783f148f91a6532b7a0",
       Tag: "0x234dee4d3e6a625b4121e2042d6267058755e53a2ecc55555da51a1e6f06cc58",
     },
@@ -231,7 +232,8 @@ export const MountEntities = (
   },
   Grant: {
     name: "Grant",
-    schema: [{ type: "bool", name: "grant", value: true }],
+    schema: [{ type: "bytes32", name: "communityUID", value: true }],
+    // schema: [{ type: "bool", name: "grant", value: true }],
     uid: network.schemas.Grant,
     references: "Project",
   },

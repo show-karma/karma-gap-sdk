@@ -6,15 +6,17 @@ import { GapSchema } from "../GapSchema";
 import { GAP } from "../GAP";
 import { AttestationError } from "../SchemaError";
 import { nullRef } from "../../consts";
-import { MultiAttestPayload } from "core/types";
+import { Hex, MultiAttestPayload } from "core/types";
 import { MultiAttest } from "../contract/MultiAttest";
 import { Community } from "./Community";
 
 export interface IGrant {
-  grant: true;
+  communityUID: Hex;
 }
+
 export class Grant extends Attestation<IGrant> {
   details?: GrantDetails;
+  communityUID: Hex;
   verified?: boolean = false;
   round?: GrantRound;
   milestones: Milestone[] = [];
@@ -114,7 +116,7 @@ export class Grant extends Attestation<IGrant> {
    * Validate if the grant has a valid reference to a community.
    */
   protected assertPayload() {
-    if (!this.details || !this.details?.communityUID) {
+    if (!this.details || !this.communityUID) {
       throw new AttestationError(
         "INVALID_REFERENCE",
         "Grant should include a valid reference to a community on its details."

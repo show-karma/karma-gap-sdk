@@ -311,6 +311,7 @@ export abstract class Schema<T extends string = string>
         this.setValue(key, value);
       });
     }
+    const attestation = await eas.getAttestation(refUID);
 
     const payload: AttestationRequestData = {
       recipient: to,

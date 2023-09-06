@@ -479,8 +479,8 @@ export class GAPFetcher extends EASClient {
       ? await this.communitiesByIds(
           mapFilter(
             grants,
-            (g) => !!g.details?.communityUID,
-            (g) => g.details.communityUID
+            (g) => !!g.communityUID,
+            (g) => g.communityUID
           )
         )
       : [];
@@ -513,7 +513,7 @@ export class GAPFetcher extends EASClient {
       );
 
       grant.community = communities.find(
-        (c) => c.uid === grant.details?.communityUID
+        (c) => c.uid === grant.communityUID
       );
 
       return grant;
@@ -633,15 +633,15 @@ export class GAPFetcher extends EASClient {
       ? await this.communitiesByIds(
           mapFilter(
             grantsWithDetails,
-            (g) => !!g.details?.communityUID,
-            (g) => g.details.communityUID
+            (g) => !!g.communityUID,
+            (g) => g.communityUID
           )
         )
       : [];
 
     grantsWithDetails.forEach((grant) => {
       grant.community = communities.find(
-        (c) => c.uid === grant.details?.communityUID
+        (c) => c.uid === grant.communityUID
       );
     });
 
