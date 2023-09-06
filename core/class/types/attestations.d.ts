@@ -29,6 +29,8 @@ export interface IGrantDetails {
     payoutAddress?: Hex;
     description?: string;
     communityUID: Hex;
+    season?: string;
+    cycle?: string;
 }
 export declare class GrantDetails extends Attestation<IGrantDetails> implements IGrantDetails {
     title: string;
@@ -38,6 +40,8 @@ export declare class GrantDetails extends Attestation<IGrantDetails> implements 
     amount?: string;
     assetAndChainId?: [Hex, number];
     description?: string;
+    season?: string;
+    cycle?: string;
 }
 export interface IGrantRound {
     name: string;
