@@ -40,6 +40,8 @@ export interface IGrantDetails {
   payoutAddress?: Hex;
   description?: string;
   communityUID: Hex;
+  season?: string;
+  cycle?: string;
 }
 export class GrantDetails
   extends Attestation<IGrantDetails>
@@ -52,6 +54,8 @@ export class GrantDetails
   amount?: string = "0";
   assetAndChainId?: [Hex, number];
   description?: string;
+  season?: string;
+  cycle?: string;
 }
 
 export interface IGrantRound {
