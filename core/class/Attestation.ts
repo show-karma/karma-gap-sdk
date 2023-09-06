@@ -300,14 +300,20 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
   static fromInterface<T extends Attestation = Attestation>(
     attestations: IAttestation[]
   ) {
-    return attestations.map((attestation) => {
-      const schema = Schema.get(attestation.schemaId);
-      return <T>new Attestation({
-        ...attestation,
-        schema,
-        data: attestation.decodedDataJson,
-      });
+    const result: T[] = [];
+    attestations.forEach((attestation) => {
+      try {
+        const schema = Schema.get(attestation.schemaId);
+        result.push(
+          <T>new Attestation({
+            ...attestation,
+            schema,
+            data: attestation.decodedDataJson,
+          })
+        );
+      } catch {}
     });
+    return result;
   }
 
   /**
