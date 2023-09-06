@@ -6,6 +6,7 @@ import {
   TSchemaName,
 } from "core/types";
 import { GAP } from "../GAP";
+import { AttestationRequest } from "@ethereum-attestation-service/eas-sdk";
 
 export class MultiAttest {
   /**
@@ -24,5 +25,21 @@ export class MultiAttest {
     const attestations = result.logs?.map((m) => m.data);
 
     return attestations as Hex[];
+  }
+
+  /**
+   * Send a single attestation
+   * @param signer 
+   * @param payload 
+   * @returns 
+   */
+  static async attest(signer: SignerOrProvider, payload: AttestationRequest) {
+    const contract = GAP.getMulticall(signer);
+
+    const tx = await contract.functions.attest(payload);
+    const result = await tx.wait?.();
+    const attestations = result.logs?.map((m) => m.data);
+
+    return attestations[0] as Hex;    
   }
 }

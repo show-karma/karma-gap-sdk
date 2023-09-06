@@ -12,6 +12,7 @@ import { nullResolver } from "../consts";
 import { GAP } from "./GAP";
 import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
 import { Attestation } from "./Attestation";
+import { MultiAttest } from "./contract/MultiAttest";
 
 /**
  * Represents the EAS Schema and provides methods to encode and decode the schema,
@@ -137,7 +138,7 @@ export abstract class Schema<T extends string = string>
 
   /**
    * Tests if the current schema is a JSON Schema.
-   * 
+   *
    * @returns boolean
    */
   isJsonSchema() {
@@ -319,12 +320,12 @@ export abstract class Schema<T extends string = string>
       refUID,
     };
 
-    const tx = await eas.attest({
+    const uid = await MultiAttest.attest(signer, {
       schema: this.uid,
       data: payload,
     });
 
-    return tx.wait() as Promise<Hex>;
+    return uid;
   }
 
   /**

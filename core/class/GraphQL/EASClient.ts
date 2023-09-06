@@ -1,7 +1,6 @@
 import { Networks } from "../../consts";
 import { EASNetworkConfig, Hex, TNetwork } from "../../types";
 import { AxiosGQL } from "./AxiosGQL";
-import { ethers } from "ethers";
 
 interface EASClientProps {
   network: TNetwork;

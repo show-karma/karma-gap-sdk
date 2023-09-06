@@ -144,17 +144,21 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
     contracts: {
       eas: "0xC2679fBD37d54388Ce493F1DB75320D236e1815e",
       schema: "0x0a7E2Ff54e76B8E6659aedc9103FB21c038050D0",
-      multicall: "0x04D6BB799f5A8c76882C4372d1FC39Cd0DDA0A4c",
+      multicall: "0x961c388408a3f36bE0deE18860D3B263e18B7502", // enhanced
+      // multicall: "0x04D6BB799f5A8c76882C4372d1FC39Cd0DDA0A4c",// original
     },
     schemas: {
       Community:
-        "0x1954572e3fe21bf4334afdaf1358ed7098af1ed136e76dc93c2fdc25e83934c1",
+        "0x43c83c4d3a7f335f23e35c7fc43a77f3907ad0bb2cc7a684619e1cd0f17d37b9", // test
+      // "0x1954572e3fe21bf4334afdaf1358ed7098af1ed136e76dc93c2fdc25e83934c1", // original
       CommunityDetails:
-        "0xcf050d87a2a5a9ad69eab38ebdcc10aa3aee9d57ceeb9783f148f91a6532b7a0",
+        "0x9dceb2d349e7c89997857e7cc09d49e0acf20285159afd64d9b9b05ae3a6a4c7", // with resolver
+      // "0xcf050d87a2a5a9ad69eab38ebdcc10aa3aee9d57ceeb9783f148f91a6532b7a0", // without resolver
       Grant:
         "0xfccfe22b5c861b35f2aa0c6bffacf9f13dfed27724aa66984b8adb39fbfef98c",
       GrantDetails:
-        "0xcf050d87a2a5a9ad69eab38ebdcc10aa3aee9d57ceeb9783f148f91a6532b7a0",
+        "0x9dceb2d349e7c89997857e7cc09d49e0acf20285159afd64d9b9b05ae3a6a4c7",
+      // "0xcf050d87a2a5a9ad69eab38ebdcc10aa3aee9d57ceeb9783f148f91a6532b7a0",
       GrantRound:
         "0x234dee4d3e6a625b4121e2042d6267058755e53a2ecc55555da51a1e6f06cc58",
       GrantVerified:
@@ -162,11 +166,13 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       ExternalLink:
         "0xd354de1d01ebc5df5230bc483620c80ba2af96e65e2263f6f283410697004efd",
       MemberDetails:
-        "0xcf050d87a2a5a9ad69eab38ebdcc10aa3aee9d57ceeb9783f148f91a6532b7a0",
+        "0x9dceb2d349e7c89997857e7cc09d49e0acf20285159afd64d9b9b05ae3a6a4c7",
+      // "0xcf050d87a2a5a9ad69eab38ebdcc10aa3aee9d57ceeb9783f148f91a6532b7a0",
       MemberOf:
         "0xaaa3eb892d49ca6be51e3d1dd4a75825cba020bec837db0bba0b1d76dc3dda2c",
       Milestone:
-        "0xcf050d87a2a5a9ad69eab38ebdcc10aa3aee9d57ceeb9783f148f91a6532b7a0",
+        "0x9dceb2d349e7c89997857e7cc09d49e0acf20285159afd64d9b9b05ae3a6a4c7",
+      // "0xcf050d87a2a5a9ad69eab38ebdcc10aa3aee9d57ceeb9783f148f91a6532b7a0",
       MilestoneApproved:
         "0x650449549083b276a0c5f9ead240a75fce11c1d4f3d7accee3bb9a122e92a53f",
       MilestoneCompleted:
@@ -174,7 +180,8 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       Project:
         "0xec77990a252b54b17673955c774b9712766de5eecb22ca5aa2c440e0e93257fb",
       ProjectDetails:
-        "0xcf050d87a2a5a9ad69eab38ebdcc10aa3aee9d57ceeb9783f148f91a6532b7a0",
+        "0x9dceb2d349e7c89997857e7cc09d49e0acf20285159afd64d9b9b05ae3a6a4c7",
+      // "0xcf050d87a2a5a9ad69eab38ebdcc10aa3aee9d57ceeb9783f148f91a6532b7a0",
       Tag: "0x234dee4d3e6a625b4121e2042d6267058755e53a2ecc55555da51a1e6f06cc58",
     },
   },
