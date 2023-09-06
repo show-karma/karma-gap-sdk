@@ -240,14 +240,19 @@ class Attestation {
      * Transform attestation interface-based into class-based.
      */
     static fromInterface(attestations) {
-        return attestations.map((attestation) => {
-            const schema = Schema_1.Schema.get(attestation.schemaId);
-            return new Attestation({
-                ...attestation,
-                schema,
-                data: attestation.decodedDataJson,
-            });
+        const result = [];
+        attestations.forEach((attestation) => {
+            try {
+                const schema = Schema_1.Schema.get(attestation.schemaId);
+                result.push(new Attestation({
+                    ...attestation,
+                    schema,
+                    data: attestation.decodedDataJson,
+                }));
+            }
+            catch { }
         });
+        return result;
     }
     /**
      * Asserts if schema is valid.
