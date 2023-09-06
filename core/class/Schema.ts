@@ -318,6 +318,7 @@ export abstract class Schema<T extends string = string>
       revocable: true,
       data: this.encode(this.schema),
       refUID,
+      value: 0n,
     };
 
     const uid = await MultiAttest.attest(signer, {
