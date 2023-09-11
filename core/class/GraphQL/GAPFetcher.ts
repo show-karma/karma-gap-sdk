@@ -16,8 +16,8 @@ import {
   GrantDetails,
   GrantRound,
   Grantee,
+  IMemberDetails,
   ITag,
-  MemberDetails,
   MilestoneCompleted,
   ProjectDetails,
   Tag,
@@ -512,9 +512,7 @@ export class GAPFetcher extends EASClient {
         (m) => m.refUID === grant.uid && typeof m.endsAt !== "undefined"
       );
 
-      grant.community = communities.find(
-        (c) => c.uid === grant.communityUID
-      );
+      grant.community = communities.find((c) => c.uid === grant.communityUID);
 
       return grant;
     });
@@ -640,9 +638,7 @@ export class GAPFetcher extends EASClient {
       : [];
 
     grantsWithDetails.forEach((grant) => {
-      grant.community = communities.find(
-        (c) => c.uid === grant.communityUID
-      );
+      grant.community = communities.find((c) => c.uid === grant.communityUID);
     });
 
     return grantsWithDetails.sort(
@@ -773,7 +769,7 @@ export class GAPFetcher extends EASClient {
       );
 
       const detailsResult = await this.query<AttestationsRes>(ref);
-      const detailsRef = Attestation.fromInterface<MemberDetails>(
+      const detailsRef = Attestation.fromInterface<Attestation<IMemberDetails>>(
         detailsResult.attestations || []
       );
 

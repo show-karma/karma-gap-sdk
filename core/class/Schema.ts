@@ -5,10 +5,16 @@ import {
   SchemaItem,
   SchemaValue,
 } from "@ethereum-attestation-service/eas-sdk";
-import { AttestArgs, Hex, MultiRevokeArgs, SchemaInterface } from "../types";
+import {
+  AttestArgs,
+  Hex,
+  MultiRevokeArgs,
+  SchemaInterface,
+  TSchemaName,
+} from "../types";
 import { AttestationError, SchemaError } from "./SchemaError";
 import { ethers } from "ethers";
-import { nullResolver } from "../consts";
+import { useDefaultAttestation, nullResolver } from "../consts";
 import { GAP } from "./GAP";
 import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
 import { Attestation } from "./Attestation";
@@ -311,7 +317,6 @@ export abstract class Schema<T extends string = string>
         this.setValue(key, value);
       });
     }
-    const attestation = await eas.getAttestation(refUID);
 
     const payload: AttestationRequestData = {
       recipient: to,
@@ -321,6 +326,15 @@ export abstract class Schema<T extends string = string>
       refUID,
       value: 0n,
     };
+
+    if (useDefaultAttestation.includes(this.name as TSchemaName)) {
+      const tx = await eas.attest({
+        schema: this.uid,
+        data: payload,
+      });
+
+      return tx.wait() as Promise<Hex>;
+    }
 
     const uid = await MultiAttest.attest(signer, {
       schema: this.uid,

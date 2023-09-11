@@ -78,13 +78,6 @@ export interface IMemberDetails {
   name: string;
   profilePictureURL: string;
 }
-export class MemberDetails
-  extends Attestation<IMemberDetails>
-  implements IMemberDetails
-{
-  name: string;
-  profilePictureURL: string;
-}
 
 export interface IMilestoneCompleted {
   type: "approved" | "rejected" | "completed";

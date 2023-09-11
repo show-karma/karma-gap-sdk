@@ -1,6 +1,6 @@
 import { MultiAttestPayload } from "core/types";
 import { Attestation } from "../Attestation";
-import { MemberDetails } from "../types/attestations";
+import { IMemberDetails } from "../types/attestations";
 import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
 import { AttestationError } from "../SchemaError";
 import { MultiAttest } from "../contract/MultiAttest";
@@ -10,7 +10,7 @@ export interface IMemberOf {
 }
 
 export class MemberOf extends Attestation<IMemberOf> {
-  details?: MemberDetails;
+  details?: Attestation<IMemberDetails>;
 
   multiAttestPayload(currentPayload: MultiAttestPayload = [], projectIdx = 0) {
     const payload = [...currentPayload];

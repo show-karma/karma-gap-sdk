@@ -44,6 +44,20 @@ export type TSchemaName =
   | "MilestoneApproved"
   | "Project"
   | "ProjectDetails"
+  | "Details"
+  | "Tag";
+
+export type TResolvedSchemaNames =
+  | "Community"
+  | "ExternalLink"
+  | "Grant"
+  | "GrantRound"
+  | "GrantVerified"
+  | "MemberOf"
+  | "MilestoneCompleted"
+  | "MilestoneApproved"
+  | "Project"
+  | "Details"
   | "Tag";
 
 export type TExternalLink =
@@ -95,7 +109,7 @@ export interface EASNetworkConfig {
   /**
    * A tuple containing the schema name and it's UID for that network
    */
-  schemas: Record<TSchemaName, Hex>;
+  schemas: Record<TResolvedSchemaNames, Hex>;
 }
 
 export type IGapSchema = SchemaInterface<TSchemaName>;

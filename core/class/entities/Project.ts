@@ -3,7 +3,6 @@ import { Attestation } from "../Attestation";
 import {
   Grantee,
   IMemberDetails,
-  MemberDetails,
   ProjectDetails,
   Tag,
 } from "../types/attestations";
@@ -125,7 +124,10 @@ export class Project extends Attestation<IProject> {
    * @param signer
    * @param members
    */
-  async attestMembers(signer: SignerOrProvider, members: MemberDetails[]) {
+  async attestMembers(
+    signer: SignerOrProvider,
+    members: Attestation<IMemberDetails>[]
+  ) {
     const newMembers = mapFilter(
       members,
       (member) => !this.members.find((m) => m.recipient === member.recipient),
@@ -180,7 +182,7 @@ export class Project extends Attestation<IProject> {
    */
   private async addMemberDetails(
     signer: SignerOrProvider,
-    entities: MemberDetails[]
+    entities: Attestation<IMemberDetails>[]
   ) {
     // Check if any of members should be revoked (details modified)
     const toRevoke = mapFilter(
