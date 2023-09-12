@@ -14,7 +14,7 @@ export const useDefaultAttestation: TSchemaName[] = [
   "MilestoneCompleted",
   "GrantVerified",
   "Community",
-  "CommunityDetails"
+  "CommunityDetails",
 ];
 
 export const nullRef =
@@ -141,28 +141,25 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
     schemas: {
       Community:
         "0xf3d790c7fdab6c1b1f25ffcc9289e5be2792eb596d2851a4d059c8aae1bc8b2e", //test with resolver
-      // "0x43c83c4d3a7f335f23e35c7fc43a77f3907ad0bb2cc7a684619e1cd0f17d37b9", // test
-      // "0x1954572e3fe21bf4334afdaf1358ed7098af1ed136e76dc93c2fdc25e83934c1", // original
+      // "0x1954572e3fe21bf4334afdaf1358ed7098af1ed136e76dc93c2fdc25e83934c1", // original without resolver
       Details:
-        "0x2c270e35bfcdc4d611f0e9d3d2ab6924ec6c673505abc22a1dd07e19b67211af", // with resolver
-      // "0xcf050d87a2a5a9ad69eab38ebdcc10aa3aee9d57ceeb9783f148f91a6532b7a0", // without resolver
+        "0x2c270e35bfcdc4d611f0e9d3d2ab6924ec6c673505abc22a1dd07e19b67211af",
       Grant:
         "0x09697aeeb3ae71de1cc19e388fd74264f11af5fba3016094764553ac341fdc72", // with communityUID/resolver
-      // "0xfccfe22b5c861b35f2aa0c6bffacf9f13dfed27724aa66984b8adb39fbfef98c", // with no data
       GrantRound:
-        "0xc12cb615e06369925ea707296b8ecd416c5bc9f80b6a36310fa2fc82ade82e66", // with resolver
+        "0xc12cb615e06369925ea707296b8ecd416c5bc9f80b6a36310fa2fc82ade82e66",
       GrantVerified:
-        "0x0be8952e2dd74ffd63a02f4d55b20b603fe7a60130cb9d70de31feb9c52fdd37", // ??
+        "0x0be8952e2dd74ffd63a02f4d55b20b603fe7a60130cb9d70de31feb9c52fdd37",
       ExternalLink:
-        "0x981a9ee9346ddbd392f30d219e0e4ed5bdece14278aaf1f1ed3a68265c03208a", // with resolver
+        "0x981a9ee9346ddbd392f30d219e0e4ed5bdece14278aaf1f1ed3a68265c03208a",
       MemberOf:
-        "0xdd87b3500457931252424f4439365534ba72a367503a8805ff3482353fb90301", // with resolver
+        "0xdd87b3500457931252424f4439365534ba72a367503a8805ff3482353fb90301",
       MilestoneApproved:
-        "0xcdef0e492d2e7ad25d0b0fdb868f6dcd1f5e5c30e42fd5fa0debdc12f7618322", // with resolver
+        "0xcdef0e492d2e7ad25d0b0fdb868f6dcd1f5e5c30e42fd5fa0debdc12f7618322",
       MilestoneCompleted:
-        "0xcdef0e492d2e7ad25d0b0fdb868f6dcd1f5e5c30e42fd5fa0debdc12f7618322", // with resolver
+        "0xcdef0e492d2e7ad25d0b0fdb868f6dcd1f5e5c30e42fd5fa0debdc12f7618322",
       Project:
-        "0xec77990a252b54b17673955c774b9712766de5eecb22ca5aa2c440e0e93257fb", // with resolver
+        "0xec77990a252b54b17673955c774b9712766de5eecb22ca5aa2c440e0e93257fb",
       Tag: "0xc12cb615e06369925ea707296b8ecd416c5bc9f80b6a36310fa2fc82ade82e66",
     },
   },
