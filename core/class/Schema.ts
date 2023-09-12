@@ -14,7 +14,7 @@ import {
 } from "../types";
 import { AttestationError, SchemaError } from "./SchemaError";
 import { ethers } from "ethers";
-import { useDefaultAttestation, nullResolver } from "../consts";
+import { useDefaultAttestation, zeroAddress } from "../consts";
 import { GAP } from "./GAP";
 import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
 import { Attestation } from "./Attestation";
@@ -164,7 +164,7 @@ export abstract class Schema<T extends string = string>
     if (
       type.includes("address") &&
       !ethers.utils.isAddress(value) &&
-      value !== nullResolver
+      value !== zeroAddress
     ) {
       throw new SchemaError(
         "INVALID_SCHEMA_FIELD",

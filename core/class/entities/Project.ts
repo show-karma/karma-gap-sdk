@@ -2,7 +2,7 @@ import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/tra
 import { Attestation } from "../Attestation";
 import {
   Grantee,
-  IMemberDetails,
+  MemberDetails,
   ProjectDetails,
   Tag,
 } from "../types/attestations";
@@ -12,7 +12,6 @@ import { AttestationError } from "../SchemaError";
 import { mapFilter } from "../../utils";
 import { Grant } from "./Grant";
 import { nullRef } from "../../consts";
-import { GAP } from "../GAP";
 import { MemberOf } from "./MemberOf";
 import { MultiAttest } from "../contract/MultiAttest";
 
@@ -124,10 +123,7 @@ export class Project extends Attestation<IProject> {
    * @param signer
    * @param members
    */
-  async attestMembers(
-    signer: SignerOrProvider,
-    members: Attestation<IMemberDetails>[]
-  ) {
+  async attestMembers(signer: SignerOrProvider, members: MemberDetails[]) {
     const newMembers = mapFilter(
       members,
       (member) => !this.members.find((m) => m.recipient === member.recipient),
@@ -182,7 +178,7 @@ export class Project extends Attestation<IProject> {
    */
   private async addMemberDetails(
     signer: SignerOrProvider,
-    entities: Attestation<IMemberDetails>[]
+    entities: MemberDetails[]
   ) {
     // Check if any of members should be revoked (details modified)
     const toRevoke = mapFilter(

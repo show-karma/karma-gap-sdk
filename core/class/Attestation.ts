@@ -19,7 +19,7 @@ import { GAP } from "./GAP";
 import { GapSchema } from "./GapSchema";
 import { nullRef } from "../consts";
 
-interface AttestationArgs<T = unknown, S extends Schema = Schema> {
+export interface AttestationArgs<T = unknown, S extends Schema = Schema> {
   data: T | string;
   schema: S;
   uid?: Hex;

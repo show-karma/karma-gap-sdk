@@ -18,6 +18,7 @@ import {
   Grantee,
   IMemberDetails,
   ITag,
+  MemberDetails,
   MilestoneCompleted,
   ProjectDetails,
   Tag,
@@ -769,7 +770,7 @@ export class GAPFetcher extends EASClient {
       );
 
       const detailsResult = await this.query<AttestationsRes>(ref);
-      const detailsRef = Attestation.fromInterface<Attestation<IMemberDetails>>(
+      const detailsRef = Attestation.fromInterface<MemberDetails>(
         detailsResult.attestations || []
       );
 

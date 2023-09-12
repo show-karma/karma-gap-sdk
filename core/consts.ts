@@ -5,15 +5,25 @@ import {
   TSchemaName,
 } from "./types";
 
+/**
+ * Schemas that should use default EAS attestation
+ * instead of the custom contract.
+ */
 export const useDefaultAttestation: TSchemaName[] = [
   "MilestoneApproved",
   "MilestoneCompleted",
   "GrantVerified",
+  "Community",
+  "CommunityDetails"
 ];
 
 export const nullRef =
   "0x0000000000000000000000000000000000000000000000000000000000000000";
+
+// TODO: Remove null resolver and change usage to zero address
 export const nullResolver = "0x0000000000000000000000000000000000000000";
+
+export const zeroAddress = nullResolver;
 // resolver for dependents = 0xed081ABE885bc3575f810c904052A1f685A85903
 /**
  * The networks that are supported by the EAS
@@ -125,42 +135,40 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
     contracts: {
       eas: "0xC2679fBD37d54388Ce493F1DB75320D236e1815e",
       schema: "0x0a7E2Ff54e76B8E6659aedc9103FB21c038050D0",
-      multicall: "0x961c388408a3f36bE0deE18860D3B263e18B7502", // enhanced
+      multicall: "0x00Ee8a5082567c3da8f3D34D33ac8D788C4Cd754", // enhanced
       // multicall: "0x04D6BB799f5A8c76882C4372d1FC39Cd0DDA0A4c",// original
     },
     schemas: {
       Community:
-        "0x43c83c4d3a7f335f23e35c7fc43a77f3907ad0bb2cc7a684619e1cd0f17d37b9", // test
+        "0xf3d790c7fdab6c1b1f25ffcc9289e5be2792eb596d2851a4d059c8aae1bc8b2e", //test with resolver
+      // "0x43c83c4d3a7f335f23e35c7fc43a77f3907ad0bb2cc7a684619e1cd0f17d37b9", // test
       // "0x1954572e3fe21bf4334afdaf1358ed7098af1ed136e76dc93c2fdc25e83934c1", // original
       Details:
-        "0xef3f9178d875914f5ccdfe3a39c26a5f9fdf98e5cdd72d4c9ab94d29a9ff2be2", // with resolver
+        "0x2c270e35bfcdc4d611f0e9d3d2ab6924ec6c673505abc22a1dd07e19b67211af", // with resolver
       // "0xcf050d87a2a5a9ad69eab38ebdcc10aa3aee9d57ceeb9783f148f91a6532b7a0", // without resolver
       Grant:
-        "0x22cd9fbc082e65ac85c8e4a5682e6ffbe8dc1a4f3a0a1cb4c2fc94878b058f0d", // with communityUID
+        "0x09697aeeb3ae71de1cc19e388fd74264f11af5fba3016094764553ac341fdc72", // with communityUID/resolver
       // "0xfccfe22b5c861b35f2aa0c6bffacf9f13dfed27724aa66984b8adb39fbfef98c", // with no data
       GrantRound:
-        "0x234dee4d3e6a625b4121e2042d6267058755e53a2ecc55555da51a1e6f06cc58",
+        "0xc12cb615e06369925ea707296b8ecd416c5bc9f80b6a36310fa2fc82ade82e66", // with resolver
       GrantVerified:
-        "0x0be8952e2dd74ffd63a02f4d55b20b603fe7a60130cb9d70de31feb9c52fdd37",
+        "0x0be8952e2dd74ffd63a02f4d55b20b603fe7a60130cb9d70de31feb9c52fdd37", // ??
       ExternalLink:
-        "0xd354de1d01ebc5df5230bc483620c80ba2af96e65e2263f6f283410697004efd",
+        "0x981a9ee9346ddbd392f30d219e0e4ed5bdece14278aaf1f1ed3a68265c03208a", // with resolver
       MemberOf:
-        "0xaaa3eb892d49ca6be51e3d1dd4a75825cba020bec837db0bba0b1d76dc3dda2c",
+        "0xdd87b3500457931252424f4439365534ba72a367503a8805ff3482353fb90301", // with resolver
       MilestoneApproved:
-        "0x650449549083b276a0c5f9ead240a75fce11c1d4f3d7accee3bb9a122e92a53f",
+        "0xcdef0e492d2e7ad25d0b0fdb868f6dcd1f5e5c30e42fd5fa0debdc12f7618322", // with resolver
       MilestoneCompleted:
-        "0x650449549083b276a0c5f9ead240a75fce11c1d4f3d7accee3bb9a122e92a53f",
+        "0xcdef0e492d2e7ad25d0b0fdb868f6dcd1f5e5c30e42fd5fa0debdc12f7618322", // with resolver
       Project:
-        "0xec77990a252b54b17673955c774b9712766de5eecb22ca5aa2c440e0e93257fb",
-      Tag: "0x234dee4d3e6a625b4121e2042d6267058755e53a2ecc55555da51a1e6f06cc58",
+        "0xec77990a252b54b17673955c774b9712766de5eecb22ca5aa2c440e0e93257fb", // with resolver
+      Tag: "0xc12cb615e06369925ea707296b8ecd416c5bc9f80b6a36310fa2fc82ade82e66",
     },
   },
 } as const;
 
-const DetailsSchema = {
-  name: "Details",
-  schema: [{ type: "string", name: "json", value: null }],
-};
+const DetailsSchema = [{ type: "string", name: "json", value: null }];
 
 /**
  * Mounts the schemas for the given network and return all the settings
@@ -176,7 +184,8 @@ export const MountEntities = (
     uid: network.schemas.Community,
   },
   CommunityDetails: {
-    ...DetailsSchema,
+    name: "CommunityDetails",
+    schema: DetailsSchema,
     uid: network.schemas.Details,
     references: "Community",
   },
@@ -186,7 +195,8 @@ export const MountEntities = (
     uid: network.schemas.Project,
   },
   ProjectDetails: {
-    ...DetailsSchema,
+    name: "ProjectDetails",
+    schema: DetailsSchema,
     uid: network.schemas.Details,
     references: "Project",
   },
@@ -197,7 +207,8 @@ export const MountEntities = (
     references: "Project",
   },
   MemberDetails: {
-    ...DetailsSchema,
+    name: "MemberDetails",
+    schema: DetailsSchema,
     uid: network.schemas.Details,
     references: "MemberOf",
   },
@@ -209,7 +220,8 @@ export const MountEntities = (
     references: "Project",
   },
   GrantDetails: {
-    ...DetailsSchema,
+    name: "GrantDetails",
+    schema: DetailsSchema,
     uid: network.schemas.Details,
     references: "Grant",
   },
@@ -226,7 +238,8 @@ export const MountEntities = (
     references: "Grant",
   },
   Milestone: {
-    ...DetailsSchema,
+    name: "Milestone",
+    schema: DetailsSchema,
     uid: network.schemas.Details,
     references: "Grant",
   },
@@ -264,7 +277,8 @@ export const MountEntities = (
     references: "Project",
   },
   Details: {
-    ...DetailsSchema,
+    schema: DetailsSchema,
+    name: "    schema",
     uid: network.schemas.Details,
   },
 });

@@ -42,7 +42,7 @@ export const gqlQueries = {
       attestations(where: {
         id:{in: ${inStatement(uids)}}
         revoked:{equals:false}
-        ${search ? `decodedDataJson:{contains:"${search}"}` : ""}
+        ${search ? `decodedDataJson:{contains:"${search}",mode:insensitive}` : ""}
       }) {${attestationFields}}
     }`,
   attestationsFrom: (schemaId: Hex, attester: Hex) =>
@@ -77,7 +77,7 @@ export const gqlQueries = {
       `attestations(orderBy:{timeCreated: desc},
         where: {
           revoked:{equals:false}
-          ${search ? `decodedDataJson:{contains:"${search}"}` : ""}
+          ${search ? `decodedDataJson:{contains:"${search}",mode:insensitive}` : ""}
         })
         {${attestationFields}}`
     ),

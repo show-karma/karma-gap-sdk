@@ -29,9 +29,9 @@ export class MultiAttest {
 
   /**
    * Send a single attestation
-   * @param signer 
-   * @param payload 
-   * @returns 
+   * @param signer
+   * @param payload
+   * @returns
    */
   static async attest(signer: SignerOrProvider, payload: AttestationRequest) {
     const contract = GAP.getMulticall(signer);
@@ -40,6 +40,6 @@ export class MultiAttest {
     const result = await tx.wait?.();
     const attestations = result.logs?.map((m) => m.data);
 
-    return attestations[0] as Hex;    
+    return attestations[0] as Hex;
   }
 }
