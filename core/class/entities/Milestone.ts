@@ -1,10 +1,9 @@
-import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
+import { SignerOrProvider } from "../../types";
 import { Attestation } from "../Attestation";
 import { GAP } from "../GAP";
 import { GapSchema } from "../GapSchema";
 import { AttestationError } from "../SchemaError";
-import { toUnix } from "../../utils/to-unix";
-import { IMilestoneCompleted, MilestoneCompleted } from "../types/attestations";
+import { MilestoneCompleted } from "../types/attestations";
 
 export interface IMilestone {
   title: string;

@@ -4,6 +4,7 @@ import {
   JSONStr,
   MultiAttestData,
   MultiAttestPayload,
+  SignerOrProvider,
   TSchemaName,
 } from "../types";
 import { Schema } from "./Schema";
@@ -14,7 +15,6 @@ import {
   SchemaValue,
 } from "@ethereum-attestation-service/eas-sdk";
 import { getDate } from "../utils/get-date";
-import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
 import { GAP } from "./GAP";
 import { GapSchema } from "./GapSchema";
 import { nullRef } from "../consts";

@@ -11,14 +11,14 @@ import {
   MultiRevokeArgs,
   SchemaInterface,
   TSchemaName,
+  SignerOrProvider
 } from "../types";
 import { AttestationError, SchemaError } from "./SchemaError";
 import { ethers } from "ethers";
 import { useDefaultAttestation, zeroAddress } from "../consts";
 import { GAP } from "./GAP";
-import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
 import { Attestation } from "./Attestation";
-import { MultiAttest } from "./contract/MultiAttest";
+import { GapContract } from "./contract/GapContract";
 
 /**
  * Represents the EAS Schema and provides methods to encode and decode the schema,
@@ -336,7 +336,7 @@ export abstract class Schema<T extends string = string>
       return tx.wait() as Promise<Hex>;
     }
 
-    const uid = await MultiAttest.attest(signer, {
+    const uid = await GapContract.attestBySig(signer, {
       schema: this.uid,
       data: payload,
     });

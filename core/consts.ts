@@ -89,26 +89,38 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
   //     Tag: "",
   //   },
   // },
-  // "optimism-goerli": {
-  //   chainId: 420,
-  //   url: "https://optimism-goerli-bedrock.easscan.org/graphql",
-  //   contracts: {
-  //     eas: "0x4200000000000000000000000000000000000021",
-  //     schema: "0x4200000000000000000000000000000000000020",
-  //     multicall:''
-  //   },
-  //   schemas: {
-  //     Grant: "",
-  //     GrantRound: "",
-  //     GrantVerified: "",
-  //     ExternalLink: "",
-  //     MemberOf: "",
-  //     MilestoneApproved: "",
-  //     MilestoneCompleted: "",
-  //     Project: "",
-  //     Tag: "",
-  //   },
-  // },
+  "optimism-goerli": {
+    chainId: 420,
+    url: "https://optimism-goerli-bedrock.easscan.org/graphql",
+    contracts: {
+      eas: "0x4200000000000000000000000000000000000021",
+      schema: "0x4200000000000000000000000000000000000020",
+      multicall: "0xa4baBbD8e35665945F1dFC488B647Df4264c1828",
+    },
+    schemas: {
+      Community:
+        "0x14b016a56b56db47ee2cdda6963a3481374a75e1471dafd85a17e6e5c23d2a11",
+      Details:
+        "0x336e5d881fd758cab20e2f3f7ea7c5f5be501e2e6d9c9cf1102584654d65a035",
+      Grant:
+        "0xda3e8e9a640f7dba210100f42ede411f3ca5d66386af3cac3ff69f1838c3322d",
+      GrantRound:
+        "0x7182a0d7e3935b321a61b1205616d7e97e2e87d09ffa1d3d64a1f98db06c6c0d",
+      GrantVerified:
+        "0x971078eb5ae59880c736ae06639daffc3d1186a51e7520ee694a2cb483cad850",
+      ExternalLink:
+        "0x8c7aa031d189d43a5a2b0dba0fdcecbd70bae545c7ec8e8e1ae127c9d5a1dc38",
+      MemberOf:
+        "0x83290964c6b4bffb8f2f8d8b896afa91847285c9044b025a94421167902bba44",
+      MilestoneApproved:
+        "0x971078eb5ae59880c736ae06639daffc3d1186a51e7520ee694a2cb483cad850",
+      MilestoneCompleted:
+        "0x971078eb5ae59880c736ae06639daffc3d1186a51e7520ee694a2cb483cad850",
+      Project:
+        "0xec77990a252b54b17673955c774b9712766de5eecb22ca5aa2c440e0e93257fb",
+      Tag: "0x7182a0d7e3935b321a61b1205616d7e97e2e87d09ffa1d3d64a1f98db06c6c0d",
+    },
+  },
   // arbitrum: {
   //   chainId: 42161,
   //   url: "https://arbitrum.easscan.org/graphql",

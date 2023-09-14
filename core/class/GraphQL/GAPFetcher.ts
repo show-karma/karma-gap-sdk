@@ -264,6 +264,8 @@ export class GAPFetcher extends EASClient {
         schema: { attestations },
       } = await this.query<SchemaRes>(query);
 
+      if (!attestations.length) throw new Error("Community not found.");
+
       const communities = Attestation.fromInterface<CommunityDetails>(
         attestations
       ).map((details) => {
@@ -277,8 +279,6 @@ export class GAPFetcher extends EASClient {
         community.details = details;
         return community;
       });
-
-      if (!communities.length) throw new Error("Community not found.");
 
       const [withDetails] = await this.communitiesDetails(communities);
 
@@ -301,11 +301,11 @@ export class GAPFetcher extends EASClient {
     const query = gqlQueries.attestation(uid);
     const { attestation } = await this.query<AttestationRes>(query);
 
+    if (!attestation) throw new Error("Community not found.");
+
     const communities = Attestation.fromInterface<Community>([attestation]).map(
       (c) => new Community(c)
     );
-
-    if (!communities.length) throw new Error("Community not found.");
 
     const [withDetails] = await this.communitiesDetails(communities);
     if (!withDetails) throw new Error("Community not found.");
@@ -382,6 +382,9 @@ export class GAPFetcher extends EASClient {
   async projectById(uid: Hex) {
     const query = gqlQueries.attestation(uid);
     const { attestation } = await this.query<AttestationRes>(query);
+
+    if (!attestation) throw new Error("Project not found.");
+
     const projectAttestation = Attestation.fromInterface<Project>([
       attestation,
     ])[0];

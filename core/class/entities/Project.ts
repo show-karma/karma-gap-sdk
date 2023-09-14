@@ -1,4 +1,3 @@
-import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
 import { Attestation } from "../Attestation";
 import {
   Grantee,
@@ -6,14 +5,14 @@ import {
   ProjectDetails,
   Tag,
 } from "../types/attestations";
-import { Hex, MultiAttestPayload } from "core/types";
+import { Hex, MultiAttestPayload, SignerOrProvider } from "core/types";
 import { GapSchema } from "../GapSchema";
 import { AttestationError } from "../SchemaError";
 import { mapFilter } from "../../utils";
 import { Grant } from "./Grant";
 import { nullRef } from "../../consts";
 import { MemberOf } from "./MemberOf";
-import { MultiAttest } from "../contract/MultiAttest";
+import { GapContract } from "../contract/GapContract";
 
 export interface IProject {
   project: true;
@@ -74,14 +73,10 @@ export class Project extends Attestation<IProject> {
   }
 
   async attest(signer: SignerOrProvider): Promise<void> {
-    if (!this.refUID)
-      throw new AttestationError(
-        "INVALID_REF_UID",
-        "Project must have a reference UID to a community."
-      );
-
+    await super.attest(signer);
+    return;
     const payload = this.multiAttestPayload();
-    const uids = await MultiAttest.send(
+    const uids = await GapContract.multiAttest(
       signer,
       payload.map((p) => p[1])
     );

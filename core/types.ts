@@ -5,9 +5,13 @@ import {
   MultiAttestationRequest,
   SchemaItem,
 } from "@ethereum-attestation-service/eas-sdk";
-import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
+import { SignerOrProvider as EASSigner } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
 import { Attestation } from "./class";
 export type Hex = `0x${string}`;
+
+export type SignerOrProvider = EASSigner & {
+  address: Hex;
+};
 
 export interface SchemaInterface<T extends string = string> {
   name: string;
@@ -71,9 +75,9 @@ export type TNetwork =
   // | "mainnet"
   // | "base-goerli"
   // | "optimism"
-  // | "optimism-goerli"
+  | "optimism-goerli"
   // | "arbitrum"
-  "sepolia";
+  | "sepolia";
 
 /**
  * Generic GAP Facade interface.
