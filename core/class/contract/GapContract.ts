@@ -1,26 +1,12 @@
 import {
   Hex,
-  MultiAttestData,
   RawAttestationPayload,
   RawMultiAttestPayload,
   SignerOrProvider,
 } from "core/types";
 import { GAP } from "../GAP";
-import { AttestationRequest } from "@ethereum-attestation-service/eas-sdk";
-import { GelatoRelay } from "@gelatonetwork/relay-sdk";
 import { serializeWithBigint } from "../../utils/serialize-bigint";
-import sha256 from "sha256";
-
-enum TaskState {
-  CheckPending = "CheckPending",
-  ExecPending = "ExecPending",
-  ExecSuccess = "ExecSuccess",
-  ExecReverted = "ExecReverted",
-  WaitingForConfirmation = "WaitingForConfirmation",
-  Blacklisted = "Blacklisted",
-  Cancelled = "Cancelled",
-  NotFound = "NotFound",
-}
+import { Gelato, sendGelatoTxn } from "../../utils/gelato/send-gelato-txn";
 
 type TSignature = {
   r: string;
@@ -38,7 +24,7 @@ const AttestationDataTypes = {
   ],
 };
 
-export class GapContract extends GelatoRelay {
+export class GapContract {
   /**
    * Signs a message for the delegated attestation.
    * @param signer
@@ -111,7 +97,7 @@ export class GapContract extends GelatoRelay {
   ) {
     const contract = GAP.getMulticall(signer);
 
-    if (GAP.isGasless) {
+    if (GAP.gelatoOpts.useGasless) {
       return this.attestBySig(signer, payload);
     }
 
@@ -144,7 +130,7 @@ export class GapContract extends GelatoRelay {
       expiry
     );
 
-    const { data: gelatoPayload } =
+    const { data: populatedTxn } =
       await contract.populateTransaction.attestBySig(
         {
           data: payload.data.payload,
@@ -159,22 +145,11 @@ export class GapContract extends GelatoRelay {
         s
       );
 
-    if (!gelatoPayload) throw new Error("Transaction data is empty");
+    if (!populatedTxn) throw new Error("Transaction data is empty");
 
-    const gelatoParams: Parameters<GelatoRelay["sponsoredCall"]> = [
-      {
-        data: gelatoPayload,
-        chainId: BigInt(chainId),
-        target: contract.address,
-      },
-      "lKg_9d1Vf0DewKRJb1XuaLg5t3TroYdA8l1Q9YFC_qI_", // filled in the api
-      {
-        retries: 3,
-      },
-    ];
-
-    const result = await this.sendGelato(...gelatoParams);
-    const txn = await result.wait();
+    const txn = await sendGelatoTxn(
+      ...Gelato.buildArgs(populatedTxn, chainId, contract.address as Hex)
+    );
 
     const attestations = await this.getTransactionLogs(signer, txn);
     return attestations[0];
@@ -191,7 +166,7 @@ export class GapContract extends GelatoRelay {
   ): Promise<Hex[]> {
     const contract = GAP.getMulticall(signer);
 
-    if (GAP.isGasless) {
+    if (GAP.gelatoOpts.useGasless) {
       return this.multiAttestBySig(signer, payload);
     }
 
@@ -225,7 +200,7 @@ export class GapContract extends GelatoRelay {
       expiry
     );
 
-    const { data: gelatoPayload } =
+    const { data: populatedTxn } =
       await contract.populateTransaction.multiAttestBySig(
         payload.map((p) => p.payload),
         payloadHash,
@@ -237,40 +212,14 @@ export class GapContract extends GelatoRelay {
         s
       );
 
-    if (!gelatoPayload) throw new Error("Transaction data is empty");
+    if (!populatedTxn) throw new Error("Transaction data is empty");
 
-    const gelatoParams: Parameters<GelatoRelay["sponsoredCall"]> = [
-      {
-        data: gelatoPayload,
-        chainId: BigInt(chainId),
-        target: contract.address,
-      },
-      "lKg_9d1Vf0DewKRJb1XuaLg5t3TroYdA8l1Q9YFC_qI_", // filled in the api
-      {
-        retries: 3,
-      },
-    ];
-
-    const result = await this.sendGelato(...gelatoParams);
-    const txn = await result.wait();
+    const txn = await sendGelatoTxn(
+      ...Gelato.buildArgs(populatedTxn, chainId, contract.address as Hex)
+    );
 
     const attestations = await this.getTransactionLogs(signer, txn);
     return attestations;
-  }
-
-  /**
-   * Sends a sponsored call to the DelegateRegistry contract using GelatoRelay
-   * @param payload
-   * @returns
-   */
-  static async sendGelato(...params: Parameters<GelatoRelay["sponsoredCall"]>) {
-    const client = new this();
-    const relayResponse = await client.sponsoredCall(...params);
-
-    return {
-      taskId: relayResponse.taskId,
-      wait: () => client.wait(relayResponse.taskId),
-    };
   }
 
   private static async getTransactionLogs(
@@ -283,50 +232,5 @@ export class GapContract extends GelatoRelay {
     // Returns the txn logs with the attestation results. Tha last two logs are the
     // the ones from the GelatoRelay contract.
     return txn.logs.slice(0, txn.logs.length - 2).map((l) => l.data) as Hex[];
-  }
-
-  /**
-   * Waits for a transaction to be mined at Gelato Network
-   * @param taskId
-   * @returns
-   */
-  private wait(taskId: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const loop = async () => {
-        const oneSecond = 1;
-        while (oneSecond) {
-          const status = await this.getTaskStatus(taskId);
-          // print status :D so we can debug this for now
-          // eslint-disable-next-line no-console
-          console.log(status);
-          if (!status) {
-            reject(new Error("Transaction goes wrong."));
-            break;
-          }
-          if (status && status.taskState === TaskState.ExecSuccess) {
-            resolve(status.transactionHash || "");
-            break;
-          } else if (
-            [
-              TaskState.Cancelled,
-              TaskState.ExecReverted,
-              TaskState.Blacklisted,
-            ].includes(status?.taskState)
-          ) {
-            reject(
-              new Error(
-                status.lastCheckMessage
-                  ?.split(/(RegisterDelegate)|(Execution error): /)
-                  .at(-1) || ""
-              )
-            );
-            break;
-          }
-
-          await new Promise((r) => setTimeout(r, 500));
-        }
-      };
-      loop();
-    });
   }
 }
