@@ -168,6 +168,11 @@
 				"type": "tuple"
 			},
 			{
+				"internalType": "string",
+				"name": "payloadHash",
+				"type": "string"
+			},
+			{
 				"internalType": "address",
 				"name": "attester",
 				"type": "address"
@@ -291,6 +296,11 @@
 				"type": "tuple[]"
 			},
 			{
+				"internalType": "string",
+				"name": "payloadHash",
+				"type": "string"
+			},
+			{
 				"internalType": "address",
 				"name": "attester",
 				"type": "address"
@@ -393,6 +403,11 @@
 				"internalType": "struct MultiRevocationRequest[]",
 				"name": "multiRequests",
 				"type": "tuple[]"
+			},
+			{
+				"internalType": "string",
+				"name": "payloadHash",
+				"type": "string"
 			},
 			{
 				"internalType": "address",
@@ -530,6 +545,50 @@
 		"type": "constructor"
 	},
 	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "payloadHash",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "nonce",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "expiry",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint8",
+				"name": "v",
+				"type": "uint8"
+			},
+			{
+				"internalType": "bytes32",
+				"name": "r",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "bytes32",
+				"name": "s",
+				"type": "bytes32"
+			}
+		],
+		"name": "_verifySignature",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "signer",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
 		"inputs": [],
 		"name": "ATTEST_TYPEHASH",
 		"outputs": [
@@ -593,32 +652,6 @@
 				"internalType": "uint256[]",
 				"name": "extensions",
 				"type": "uint256[]"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "MULTIATTEST_TYPEHASH",
-		"outputs": [
-			{
-				"internalType": "bytes32",
-				"name": "",
-				"type": "bytes32"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "MULTIREVOKE_TYPEHASH",
-		"outputs": [
-			{
-				"internalType": "bytes32",
-				"name": "",
-				"type": "bytes32"
 			}
 		],
 		"stateMutability": "view",

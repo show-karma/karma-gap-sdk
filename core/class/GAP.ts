@@ -4,7 +4,7 @@ import {
   SchemaInterface,
   TNetwork,
   TSchemaName,
-  SignerOrProvider
+  SignerOrProvider,
 } from "../types";
 import { Schema } from "./Schema";
 import { GapSchema } from "./GapSchema";
@@ -17,6 +17,13 @@ import MulticallABI from "../abi/MultiAttester.json";
 interface GAPArgs {
   network: TNetwork;
   schemas?: SchemaInterface<TSchemaName>[];
+  /**
+   * Defined if the transactions will be gasless or not.
+   *
+   * In case of true, the transactions will be sent through [Gelato](https://gelato.network)
+   * and an API key is needed.
+   */
+  isGasless?: boolean;
 }
 
 /**
@@ -82,7 +89,7 @@ export class GAP extends Facade {
 
   private _schemas: GapSchema[];
 
-  static _isGasless = null;
+  private static _isGasless = null;
 
   constructor(args: GAPArgs) {
     super();
@@ -95,6 +102,8 @@ export class GAP extends Facade {
     GAP._eas = new EAS(Networks[args.network].contracts.eas);
 
     this.fetch = new GAPFetcher({ network: args.network });
+
+    GAP._isGasless = args.isGasless;
 
     this._schemas = schemas.map((schema) => new GapSchema(schema));
     Schema.validate();
@@ -152,5 +161,29 @@ export class GAP extends Facade {
 
   get schemas() {
     return this._schemas;
+  }
+
+  /**
+   * Defined if the transactions will be gasless or not.
+   *
+   * In case of true, the transactions will be sent through [Gelato](https://gelato.network)
+   * and an API key is needed.
+   */
+  private static set isGasless(isGasless: boolean) {
+    if (typeof this._isGasless === "undefined") {
+      this._isGasless = isGasless;
+    } else {
+      throw new Error("Cannot change a readonly value isGasless.");
+    }
+  }
+
+  /**
+   * Defined if the transactions will be gasless or not.
+   *
+   * In case of true, the transactions will be sent through [Gelato](https://gelato.network)
+   * and an API key is needed.
+   */
+  static get isGasless() {
+    return !!this._isGasless;
   }
 }

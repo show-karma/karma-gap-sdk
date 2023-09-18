@@ -1,8 +1,15 @@
-import { Hex, MultiAttestData, SignerOrProvider } from "core/types";
+import {
+  Hex,
+  MultiAttestData,
+  RawAttestationPayload,
+  RawMultiAttestPayload,
+  SignerOrProvider,
+} from "core/types";
 import { GAP } from "../GAP";
 import { AttestationRequest } from "@ethereum-attestation-service/eas-sdk";
 import { GelatoRelay } from "@gelatonetwork/relay-sdk";
-import { ethers } from "ethers";
+import { serializeWithBigint } from "../../utils/serialize-bigint";
+import sha256 from "sha256";
 
 enum TaskState {
   CheckPending = "CheckPending",
@@ -20,47 +27,18 @@ type TSignature = {
   s: string;
   v: string;
   nonce: number;
+  chainId: bigint;
 };
 
 const AttestationDataTypes = {
   Attest: [
-    { name: "request", type: "AttestationRequest" },
+    { name: "payloadHash", type: "string" },
     { name: "nonce", type: "uint256" },
     { name: "expiry", type: "uint256" },
-  ],
-  AttestationRequest: [
-    { name: "schema", type: "bytes32" },
-    { name: "data", type: "AttestationRequestData" },
-  ],
-  AttestationRequestData: [
-    { name: "recipient", type: "address" },
-    { name: "expirationTime", type: "uint64" },
-    { name: "revocable", type: "bool" },
-    { name: "refUID", type: "bytes32" },
-    { name: "data", type: "bytes" },
-    { name: "value", type: "uint256" },
   ],
 };
 
 export class GapContract extends GelatoRelay {
-  /**
-   * Performs a referenced multi attestation.
-   *
-   * @returns an array with the attestation UIDs.
-   */
-  static async multiAttest(
-    signer: SignerOrProvider,
-    payload: MultiAttestData[]
-  ): Promise<Hex[]> {
-    const contract = GAP.getMulticall(signer);
-
-    const tx = await contract.functions.multiSequentialAttest(payload);
-    const result = await tx.wait?.();
-    const attestations = result.logs?.map((m) => m.data);
-
-    return attestations as Hex[];
-  }
-
   /**
    * Signs a message for the delegated attestation.
    * @param signer
@@ -69,24 +47,29 @@ export class GapContract extends GelatoRelay {
    */
   private static async signAttestation(
     signer: SignerOrProvider & { address: Hex },
-    payload: AttestationRequest,
+    payload: string,
     expiry: bigint
   ): Promise<TSignature> {
     const { nonce } = await this.getNonce(signer);
     const { chainId } = await signer.provider.getNetwork();
+    const domain = {
+      chainId,
+      name: "gap-attestation",
+      version: "1",
+      verifyingContract: GAP.getMulticall(null).address,
+    };
+    const data = { payloadHash: payload, nonce, expiry };
+
+    console.log({ domain, AttestationDataTypes, data });
+
     const signature = await (signer as any)._signTypedData(
-      {
-        chainId,
-        name: "gap-attestation",
-        version: "1.0",
-        verifyingContract: GAP.getMulticall(null).address,
-      },
+      domain,
       AttestationDataTypes,
-      { request: payload, nonce, expiry }
+      data
     );
 
     const { r, s, v } = this.getRSV(signature);
-    return { r, s, v, nonce };
+    return { r, s, v, nonce, chainId };
   }
 
   /**
@@ -122,10 +105,21 @@ export class GapContract extends GelatoRelay {
    * @param payload
    * @returns
    */
-  static async attest(signer: SignerOrProvider, payload: AttestationRequest) {
+  static async attest(
+    signer: SignerOrProvider,
+    payload: RawAttestationPayload
+  ) {
     const contract = GAP.getMulticall(signer);
 
-    const tx = await contract.functions.attest(payload);
+    if (GAP.isGasless) {
+      return this.attestBySig(signer, payload);
+    }
+
+    const tx = await contract.functions.attest({
+      schema: payload.schema,
+      data: payload.data.payload,
+    });
+
     const result = await tx.wait?.();
     const attestations = result.logs?.map((m) => m.data);
 
@@ -134,44 +128,134 @@ export class GapContract extends GelatoRelay {
 
   static async attestBySig(
     signer: SignerOrProvider,
-    payload: AttestationRequest
+    payload: RawAttestationPayload
   ) {
     const contract = GAP.getMulticall(signer);
     const expiry = BigInt(Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30);
 
-    const { r, s, v, nonce } = await this.signAttestation(
+    const payloadHash = serializeWithBigint({
+      schema: payload.schema,
+      data: payload.data.raw,
+    });
+
+    const { r, s, v, nonce, chainId } = await this.signAttestation(
       signer,
-      payload,
+      payloadHash,
       expiry
     );
 
-    const tx = await contract.functions.attestBySig(
-      payload,
-      signer.address,
-      nonce,
-      expiry,
-      v,
-      r,
-      s
+    const { data: gelatoPayload } =
+      await contract.populateTransaction.attestBySig(
+        {
+          data: payload.data.payload,
+          schema: payload.schema,
+        },
+        payloadHash,
+        signer.address,
+        nonce,
+        expiry,
+        v,
+        r,
+        s
+      );
+
+    if (!gelatoPayload) throw new Error("Transaction data is empty");
+
+    const gelatoParams: Parameters<GelatoRelay["sponsoredCall"]> = [
+      {
+        data: gelatoPayload,
+        chainId: BigInt(chainId),
+        target: contract.address,
+      },
+      "lKg_9d1Vf0DewKRJb1XuaLg5t3TroYdA8l1Q9YFC_qI_", // filled in the api
+      {
+        retries: 3,
+      },
+    ];
+
+    const result = await this.sendGelato(...gelatoParams);
+    const txn = await result.wait();
+
+    const attestations = await this.getTransactionLogs(signer, txn);
+    return attestations[0];
+  }
+
+  /**
+   * Performs a referenced multi attestation.
+   *
+   * @returns an array with the attestation UIDs.
+   */
+  static async multiAttest(
+    signer: SignerOrProvider,
+    payload: RawMultiAttestPayload[]
+  ): Promise<Hex[]> {
+    const contract = GAP.getMulticall(signer);
+
+    if (GAP.isGasless) {
+      return this.multiAttestBySig(signer, payload);
+    }
+
+    const tx = await contract.functions.multiSequentialAttest(
+      payload.map((p) => p.payload)
     );
 
     const result = await tx.wait?.();
     const attestations = result.logs?.map((m) => m.data);
 
-    return attestations[0] as Hex;
-    // if (!tx.data) throw new Error("Transaction data is empty");
+    return attestations as Hex[];
+  }
 
-    // return [
-    //   {
-    //     data: payload,
-    //     chainId,
-    //     target: contract.address,
-    //   },
-    //   "{apiKey}", // filled in the api
-    //   {
-    //     retries: 3,
-    //   },
-    // ];
+  /**
+   * Performs a referenced multi attestation.
+   *
+   * @returns an array with the attestation UIDs.
+   */
+  static async multiAttestBySig(
+    signer: SignerOrProvider,
+    payload: RawMultiAttestPayload[]
+  ): Promise<Hex[]> {
+    const contract = GAP.getMulticall(signer);
+    const expiry = BigInt(Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30);
+
+    const payloadHash = serializeWithBigint(payload.map((p) => p.raw));
+
+    const { r, s, v, nonce, chainId } = await this.signAttestation(
+      signer,
+      payloadHash,
+      expiry
+    );
+
+    const { data: gelatoPayload } =
+      await contract.populateTransaction.multiAttestBySig(
+        payload.map((p) => p.payload),
+        payloadHash,
+        signer.address,
+        nonce,
+        expiry,
+        v,
+        r,
+        s
+      );
+
+    if (!gelatoPayload) throw new Error("Transaction data is empty");
+
+    const gelatoParams: Parameters<GelatoRelay["sponsoredCall"]> = [
+      {
+        data: gelatoPayload,
+        chainId: BigInt(chainId),
+        target: contract.address,
+      },
+      "lKg_9d1Vf0DewKRJb1XuaLg5t3TroYdA8l1Q9YFC_qI_", // filled in the api
+      {
+        retries: 3,
+      },
+    ];
+
+    const result = await this.sendGelato(...gelatoParams);
+    const txn = await result.wait();
+
+    const attestations = await this.getTransactionLogs(signer, txn);
+    return attestations;
   }
 
   /**
@@ -187,6 +271,18 @@ export class GapContract extends GelatoRelay {
       taskId: relayResponse.taskId,
       wait: () => client.wait(relayResponse.taskId),
     };
+  }
+
+  private static async getTransactionLogs(
+    signer: SignerOrProvider,
+    txnHash: string
+  ) {
+    const txn = await signer.provider.getTransactionReceipt(txnHash);
+    if (!txn || !txn.logs.length) throw new Error("Transaction not found");
+
+    // Returns the txn logs with the attestation results. Tha last two logs are the
+    // the ones from the GelatoRelay contract.
+    return txn.logs.slice(0, txn.logs.length - 2).map((l) => l.data) as Hex[];
   }
 
   /**

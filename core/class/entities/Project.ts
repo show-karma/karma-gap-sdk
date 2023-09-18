@@ -73,8 +73,6 @@ export class Project extends Attestation<IProject> {
   }
 
   async attest(signer: SignerOrProvider): Promise<void> {
-    await super.attest(signer);
-    return;
     const payload = this.multiAttestPayload();
     const uids = await GapContract.multiAttest(
       signer,

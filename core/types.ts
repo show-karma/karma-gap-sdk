@@ -1,6 +1,7 @@
 import { BytesLike } from "ethers";
 import { GAPFetcher } from "./class/GraphQL/GAPFetcher";
 import {
+  AttestationRequestData,
   EAS,
   MultiAttestationRequest,
   SchemaItem,
@@ -94,13 +95,26 @@ export abstract class Facade {
   }
 }
 
+export interface RawAttestationPayload {
+  schema: Hex;
+  data: {
+    payload: AttestationRequestData;
+    raw: AttestationRequestData;
+  };
+}
+
+export interface RawMultiAttestPayload {
+  payload: MultiAttestData;
+  raw: MultiAttestData;
+}
+
 export interface MultiAttestData {
   uid?: Hex;
   multiRequest: MultiAttestationRequest;
   refIdx: number;
 }
 
-export type MultiAttestPayload = [Attestation, MultiAttestData][];
+export type MultiAttestPayload = [Attestation, RawMultiAttestPayload][];
 
 export interface EASNetworkConfig {
   url: string;
