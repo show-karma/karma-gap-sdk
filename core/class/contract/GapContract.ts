@@ -78,7 +78,11 @@ export class GapContract {
   private static async getNonce(signer: SignerOrProvider) {
     const contract = GAP.getMulticall(signer);
     const address = signer.address || (await signer.getAddress());
-    const nonce = <bigint>await contract.functions.nonces(signer.address);
+    if (!address)
+      throw new Error(
+        "Signer does not provider either address or getAddress()."
+      );
+    const nonce = <bigint>await contract.functions.nonces(address);
     console.log("here", nonce);
     return {
       nonce: Number(nonce),
