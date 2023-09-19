@@ -275,4 +275,18 @@ export class GAP extends Facade {
   static get gelatoOpts(): GAPArgs["gelatoOpts"] {
     return this._gelatoOpts;
   }
+
+  static set useGasLess(useGasLess: boolean) {
+    if (
+      useGasLess &&
+      !this._gelatoOpts?.apiKey &&
+      !this._gelatoOpts?.sponsorUrl &&
+      !this._gelatoOpts?.env_gelatoApiKey
+    ) {
+      throw new Error(
+        "You must provide a `sponsorUrl` or an `apiKey` before using gasless transactions."
+      );
+    }
+    this._gelatoOpts.useGasless = useGasLess;
+  }
 }

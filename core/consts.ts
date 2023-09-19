@@ -101,7 +101,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       Community:
         "0x14b016a56b56db47ee2cdda6963a3481374a75e1471dafd85a17e6e5c23d2a11",
       Details:
-        "0x336e5d881fd758cab20e2f3f7ea7c5f5be501e2e6d9c9cf1102584654d65a035",
+        "0xb42fc49d83421e9ab99460d4d6fd2a303fe2f645bc2b4d9946c8a867fd910da7",
       Grant:
         "0xda3e8e9a640f7dba210100f42ede411f3ca5d66386af3cac3ff69f1838c3322d",
       GrantRound:
