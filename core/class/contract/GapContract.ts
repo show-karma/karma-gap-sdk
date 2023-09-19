@@ -123,7 +123,7 @@ export class GapContract {
   ) {
     const contract = GAP.getMulticall(signer);
     const expiry = BigInt(Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30);
-
+    const address = signer.address || (await signer.getAddress());
     const payloadHash = serializeWithBigint({
       schema: payload.schema,
       data: payload.data.raw,
@@ -142,7 +142,7 @@ export class GapContract {
           schema: payload.schema,
         },
         payloadHash,
-        signer.address,
+        address,
         nonce,
         expiry,
         v,
@@ -196,6 +196,7 @@ export class GapContract {
   ): Promise<Hex[]> {
     const contract = GAP.getMulticall(signer);
     const expiry = BigInt(Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30);
+    const address = signer.address || (await signer.getAddress());
 
     const payloadHash = serializeWithBigint(payload.map((p) => p.raw));
 
@@ -209,7 +210,7 @@ export class GapContract {
       await contract.populateTransaction.multiAttestBySig(
         payload.map((p) => p.payload),
         payloadHash,
-        signer.address,
+        address,
         nonce,
         expiry,
         v,
