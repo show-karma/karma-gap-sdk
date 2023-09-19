@@ -32,7 +32,7 @@ export class GapContract {
    * @returns r,s,v signature
    */
   private static async signAttestation(
-    signer: SignerOrProvider & { address: Hex },
+    signer: SignerOrProvider,
     payload: string,
     expiry: bigint
   ): Promise<TSignature> {
@@ -77,6 +77,7 @@ export class GapContract {
    */
   private static async getNonce(signer: SignerOrProvider) {
     const contract = GAP.getMulticall(signer);
+    const address = signer.address || (await signer.getAddress());
     const nonce = <bigint>await contract.functions.nonces(signer.address);
     console.log("here", nonce);
     return {

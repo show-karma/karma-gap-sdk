@@ -11,7 +11,8 @@ import { Attestation } from "./class";
 export type Hex = `0x${string}`;
 
 export type SignerOrProvider = EASSigner & {
-  address: Hex;
+  address?: Hex;
+  getAddress?: () => Promise<Hex>;
 };
 
 export interface SchemaInterface<T extends string = string> {
