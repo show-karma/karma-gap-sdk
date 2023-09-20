@@ -7,6 +7,7 @@ import {
 import { GAP } from "../GAP";
 import { serializeWithBigint } from "../../utils/serialize-bigint";
 import { Gelato, sendGelatoTxn } from "../../utils/gelato/send-gelato-txn";
+import { mapFilter } from "../../utils";
 
 type TSignature = {
   r: string;
@@ -70,6 +71,16 @@ export class GapContract {
     return { r, s, v };
   }
 
+  private static async getSignerAddress(signer: SignerOrProvider) {
+    const address =
+      signer.address || signer._address || (await signer.getAddress());
+    if (!address)
+      throw new Error(
+        "Signer does not provider either address or getAddress()."
+      );
+    return address;
+  }
+
   /**
    * Get nonce for the transaction
    * @param address
@@ -77,11 +88,8 @@ export class GapContract {
    */
   private static async getNonce(signer: SignerOrProvider) {
     const contract = GAP.getMulticall(signer);
-    const address = signer.address || (await signer.getAddress());
-    if (!address)
-      throw new Error(
-        "Signer does not provider either address or getAddress()."
-      );
+    const address = this.getSignerAddress(signer);
+
     const nonce = <bigint>await contract.functions.nonces(address);
     console.log("here", nonce);
     return {
@@ -123,7 +131,7 @@ export class GapContract {
   ) {
     const contract = GAP.getMulticall(signer);
     const expiry = BigInt(Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30);
-    const address = signer.address || (await signer.getAddress());
+    const address = this.getSignerAddress(signer);
     const payloadHash = serializeWithBigint({
       schema: payload.schema,
       data: payload.data.raw,
@@ -196,7 +204,7 @@ export class GapContract {
   ): Promise<Hex[]> {
     const contract = GAP.getMulticall(signer);
     const expiry = BigInt(Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30);
-    const address = signer.address || (await signer.getAddress());
+    const address = this.getSignerAddress(signer);
 
     const payloadHash = serializeWithBigint(payload.map((p) => p.raw));
 
@@ -235,8 +243,15 @@ export class GapContract {
     const txn = await signer.provider.getTransactionReceipt(txnHash);
     if (!txn || !txn.logs.length) throw new Error("Transaction not found");
 
+    const gapContract = GAP.getMulticall(signer).address;
+    const easContract = GAP.eas.contract.address;
+
     // Returns the txn logs with the attestation results. Tha last two logs are the
     // the ones from the GelatoRelay contract.
-    return txn.logs.slice(0, txn.logs.length - 2).map((l) => l.data) as Hex[];
+    return mapFilter(
+      [...txn.logs],
+      (log) => [easContract, gapContract].includes(log.address),
+      (log) => log.data as Hex
+    );
   }
 }

@@ -20,12 +20,12 @@ async function sendByUrl(...params: Parameters<GelatoRelay["sponsoredCall"]>) {
 async function sendByApiKey(
   ...params: Parameters<GelatoRelay["sponsoredCall"]>
 ) {
-  const { apiKey } = GAP.gelatoOpts;
+  const { apiKey } = GAP?.gelatoOpts || {};
 
   if (!apiKey && params[1] === "{apiKey}")
     throw new Error("No api key provided.");
 
-  params[1] = apiKey;
+  if (apiKey && params[1] === "{apiKey}") params[1] = apiKey;
 
   const client = new GelatoRelay();
   const relayResponse = await client.sponsoredCall(...params);

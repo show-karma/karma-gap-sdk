@@ -12,6 +12,7 @@ export type Hex = `0x${string}`;
 
 export type SignerOrProvider = EASSigner & {
   address?: Hex;
+  _address?: Hex;
   getAddress?: () => Promise<Hex>;
 };
 

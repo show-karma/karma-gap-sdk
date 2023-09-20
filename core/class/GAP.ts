@@ -41,9 +41,9 @@ interface GAPArgs {
      *
      * ```ts
      * // pages/api/gelato.ts
-     * import { sponsorHandler } from "core/utils/gelato/sponsor-handler";
+     * import { handler as sponsorHandler } from "core/utils/gelato/sponsor-handler";
      *
-     * export default sponsorHandler;
+     * export default const handler(req, res) => sponsorHandler(req, res, "GELATO_API_KEY_ENV_VARIABLE");
      *
      * ```
      */

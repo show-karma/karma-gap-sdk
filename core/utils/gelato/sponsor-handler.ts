@@ -45,7 +45,11 @@ function assert(body: any): body is Parameters<GelatoRelay["sponsoredCall"]> {
   return true;
 }
 
-export async function handler(req: ApiRequest, res: ApiResponse) {
+export async function handler(
+  req: ApiRequest,
+  res: ApiResponse,
+  env_gelatoApiKey: string
+) {
   if (req.method !== "POST") {
     res.statusCode = 405;
     res.send("Method not allowed");
@@ -56,15 +60,13 @@ export async function handler(req: ApiRequest, res: ApiResponse) {
 
     if (!assert(body)) return;
 
-    const { env_gelatoApiKey } = GAP.gelatoOpts;
-
     const { [env_gelatoApiKey]: apiKey } = process.env;
     if (!apiKey) throw new Error("Api key not provided.");
     body[1] = apiKey;
 
     const result = await Gelato.sendByApiKey(...body);
     const txId = await result.wait();
-    res.send({ txId });
+    res.send(txId);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     // eslint-disable-next-line no-console
