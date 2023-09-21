@@ -99,26 +99,27 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
     },
     schemas: {
       Community:
-        "0x14b016a56b56db47ee2cdda6963a3481374a75e1471dafd85a17e6e5c23d2a11",
+        "0xc1aade58410b3fd807c19845181996721248459c5f042284f27d21cec12a38d1", // new resolver
+      // "0x14b016a56b56db47ee2cdda6963a3481374a75e1471dafd85a17e6e5c23d2a11",
       Details:
-        "0xb42fc49d83421e9ab99460d4d6fd2a303fe2f645bc2b4d9946c8a867fd910da7",
+        "0xfe590d9582957e10affbabcdc34a201785a1d4f77982d6616b736cce1a91ae43",
       Grant:
-        "0xda3e8e9a640f7dba210100f42ede411f3ca5d66386af3cac3ff69f1838c3322d",
+        "0xd6ce374765c355687101ba70b3f8824d555c12716d2bdad71a08ccad1ded3218",
       GrantRound:
-        "0x7182a0d7e3935b321a61b1205616d7e97e2e87d09ffa1d3d64a1f98db06c6c0d",
+        "0xb2646b9da49004dfb2c9226788842e21ff4e63a918f7b7e509ef92c88d69d6ae",
       GrantVerified:
-        "0x971078eb5ae59880c736ae06639daffc3d1186a51e7520ee694a2cb483cad850",
+        "0xf544fbd9721ac50863d32dc0eed5992051e7fb270b38ab2ce062327cc0ae26ea",
       ExternalLink:
-        "0x8c7aa031d189d43a5a2b0dba0fdcecbd70bae545c7ec8e8e1ae127c9d5a1dc38",
+        "0xfda3f34a55a1e5056152c8fa452605d3422448a6b23be1f388e25cc663c7446b",
       MemberOf:
-        "0x83290964c6b4bffb8f2f8d8b896afa91847285c9044b025a94421167902bba44",
+        "0x73b2af21436f84a77adaaeb5a0236655452527974a8fba2f97420e7199b4e59d",
       MilestoneApproved:
-        "0x971078eb5ae59880c736ae06639daffc3d1186a51e7520ee694a2cb483cad850",
+        "0xf544fbd9721ac50863d32dc0eed5992051e7fb270b38ab2ce062327cc0ae26ea",
       MilestoneCompleted:
-        "0x971078eb5ae59880c736ae06639daffc3d1186a51e7520ee694a2cb483cad850",
+        "0xf544fbd9721ac50863d32dc0eed5992051e7fb270b38ab2ce062327cc0ae26ea",
       Project:
         "0xec77990a252b54b17673955c774b9712766de5eecb22ca5aa2c440e0e93257fb",
-      Tag: "0x7182a0d7e3935b321a61b1205616d7e97e2e87d09ffa1d3d64a1f98db06c6c0d",
+      Tag: "0xb2646b9da49004dfb2c9226788842e21ff4e63a918f7b7e509ef92c88d69d6ae",
     },
   },
   // arbitrum: {

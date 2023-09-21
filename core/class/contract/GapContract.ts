@@ -179,7 +179,7 @@ export class GapContract {
   ): Promise<Hex[]> {
     const contract = GAP.getMulticall(signer);
 
-    if (GAP.gelatoOpts.useGasless) {
+    if (GAP.gelatoOpts?.useGasless) {
       return this.multiAttestBySig(signer, payload);
     }
 

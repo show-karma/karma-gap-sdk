@@ -60,24 +60,11 @@ export class Community extends Attestation<ICommunity> {
   ): Promise<void> {
     console.log("Attesting community");
     try {
-      if (details) {
-        this.details = new CommunityDetails({
-          data: details,
-          schema: GapSchema.find("CommunityDetails"),
-          uid: nullRef,
-          recipient: this.recipient,
-        });
-      }
-
-      const payload = this.multiAttestPayload();
-
-      const uids = await GapContract.multiAttest(
+      this._uid = await this.schema.attest({
         signer,
-        payload.map((p) => p[1])
-      );
-
-      uids.forEach((uid, index) => {
-        payload[index][0].uid = uid;
+        to: this.recipient,
+        refUID: nullRef,
+        data: this.data,
       });
       console.log(this.uid);
     } catch (error) {
