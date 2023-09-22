@@ -557,9 +557,11 @@ export class GAPFetcher extends EASClient {
         )
       );
 
-      grant.milestones = milestones.filter(
-        (m) => m.refUID === grant.uid && typeof m.endsAt !== "undefined"
-      );
+      grant.milestones = milestones
+        .filter(
+          (m) => m.refUID === grant.uid && typeof m.endsAt !== "undefined"
+        )
+        .sort((a, b) => a.endsAt - b.endsAt);
 
       return grant;
     });
