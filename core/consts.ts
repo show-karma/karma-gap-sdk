@@ -237,7 +237,10 @@ export const MountEntities = (
   },
   GrantVerified: {
     name: "GrantVerified",
-    schema: [{ type: "bool", name: "isVerified", value: true }],
+    schema: [
+      { type: "string", name: "type", value: null },
+      { type: "string", name: "reason", value: "" },
+    ],
     uid: network.schemas.GrantVerified,
     references: "Grant",
   },

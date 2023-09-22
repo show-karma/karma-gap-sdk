@@ -318,7 +318,9 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
             data: attestation.decodedDataJson,
           })
         );
-      } catch {}
+      } catch(e) {
+        console.log(e)
+      }
     });
     return result;
   }

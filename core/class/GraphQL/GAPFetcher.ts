@@ -717,22 +717,22 @@ export class GAPFetcher extends EASClient {
 
     const deps = Attestation.fromInterface<MilestoneCompleted>(
       results.attestations || []
-    ).map((m) => new MilestoneCompleted(m));
+    );
 
     return milestones.map((milestone) => {
       const refs = deps.filter((ref) => ref.refUID === milestone.uid);
 
       milestone.endsAt = toUnix(milestone.endsAt);
 
-      milestone.completed = deps.find(
+      milestone.completed = refs.find(
         (dep) => dep.type === "completed" && dep.refUID === milestone.uid
       );
 
-      milestone.approved = deps.find(
+      milestone.approved = refs.find(
         (dep) => dep.type === "approved" && dep.refUID === milestone.uid
       );
 
-      milestone.rejected = deps.find(
+      milestone.rejected = refs.find(
         (dep) => dep.type === "rejected" && dep.refUID === milestone.uid
       );
 
