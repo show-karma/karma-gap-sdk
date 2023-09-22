@@ -11,6 +11,12 @@ const web3 = new ethers.providers.JsonRpcProvider(
 const wallet = new ethers.Wallet(key, web3);
 const gap = GAP.createClient({
   network: "optimism-goerli",
+  gelatoOpts: {
+    // env_gelatoApiKey: "GELATO_API_KEY",
+    // sponsorUrl: "http://localhost:3000/api/sponsored-txn",
+    apiKey: "{{apikey}}",
+    useGasless: true,
+  },
 });
 
 console.time("fetchSchemas");

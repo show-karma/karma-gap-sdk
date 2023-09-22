@@ -1,21 +1,5 @@
 [
 	{
-		"inputs": [],
-		"name": "InvalidShortString",
-		"type": "error"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "string",
-				"name": "str",
-				"type": "string"
-			}
-		],
-		"name": "StringTooLong",
-		"type": "error"
-	},
-	{
 		"anonymous": false,
 		"inputs": [],
 		"name": "EIP712DomainChanged",
@@ -516,7 +500,7 @@
 		],
 		"name": "multiSequentialAttest",
 		"outputs": [],
-		"stateMutability": "nonpayable",
+		"stateMutability": "payable",
 		"type": "function"
 	},
 	{
@@ -577,7 +561,7 @@
 				"type": "bytes32"
 			}
 		],
-		"name": "_verifySignature",
+		"name": "_recoverSignerAddress",
 		"outputs": [
 			{
 				"internalType": "address",

@@ -42,7 +42,7 @@ export class GapContract {
     const domain = {
       chainId,
       name: "gap-attestation",
-      version: "1",
+      version: "1.0",
       verifyingContract: GAP.getMulticall(null).address,
     };
     const data = { payloadHash: payload, nonce, expiry };
@@ -88,10 +88,11 @@ export class GapContract {
    */
   private static async getNonce(signer: SignerOrProvider) {
     const contract = GAP.getMulticall(signer);
-    const address = this.getSignerAddress(signer);
+    const address = await this.getSignerAddress(signer);
+
+    console.log({ address });
 
     const nonce = <bigint>await contract.functions.nonces(address);
-    console.log("here", nonce);
     return {
       nonce: Number(nonce),
       next: Number(nonce + 1n),
@@ -131,7 +132,7 @@ export class GapContract {
   ) {
     const contract = GAP.getMulticall(signer);
     const expiry = BigInt(Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30);
-    const address = this.getSignerAddress(signer);
+    const address = await this.getSignerAddress(signer);
     const payloadHash = serializeWithBigint({
       schema: payload.schema,
       data: payload.data.raw,
@@ -204,7 +205,7 @@ export class GapContract {
   ): Promise<Hex[]> {
     const contract = GAP.getMulticall(signer);
     const expiry = BigInt(Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30);
-    const address = this.getSignerAddress(signer);
+    const address = await this.getSignerAddress(signer);
 
     const payloadHash = serializeWithBigint(payload.map((p) => p.raw));
 
@@ -213,6 +214,18 @@ export class GapContract {
       payloadHash,
       expiry
     );
+    console.log({ r, s, v, nonce, chainId, payloadHash, address });
+
+    const recoveredSigner = await contract.functions._recoverSignerAddress(
+      payloadHash,
+      nonce,
+      expiry,
+      v,
+      r,
+      s
+    );
+
+    console.log({ recoveredSigner });
 
     const { data: populatedTxn } =
       await contract.populateTransaction.multiAttestBySig(
