@@ -42,7 +42,7 @@ export class GapContract {
     const domain = {
       chainId,
       name: "gap-attestation",
-      version: "1.0",
+      version: "1",
       verifyingContract: GAP.getMulticall(null).address,
     };
     const data = { payloadHash: payload, nonce, expiry };
@@ -214,18 +214,8 @@ export class GapContract {
       payloadHash,
       expiry
     );
-    console.log({ r, s, v, nonce, chainId, payloadHash, address });
 
-    const recoveredSigner = await contract.functions._recoverSignerAddress(
-      payloadHash,
-      nonce,
-      expiry,
-      v,
-      r,
-      s
-    );
-
-    console.log({ recoveredSigner });
+    console.info({ r, s, v, nonce, chainId, payloadHash, address });
 
     const { data: populatedTxn } =
       await contract.populateTransaction.multiAttestBySig(
