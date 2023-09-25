@@ -4,17 +4,7 @@ import { Project } from "../entities/Project";
 
 /** Attestation interfaces */
 
-export interface IExternalLink {
-  url: string;
-  type: TExternalLink;
-}
-export class ExternalLink
-  extends Attestation<IExternalLink>
-  implements IExternalLink
-{
-  url: string;
-  type: TExternalLink;
-}
+export type ExternalLink = { type: string; url: string }[];
 
 export interface ICommunityDetails {
   name: string;
@@ -29,7 +19,7 @@ export class CommunityDetails
   name: string;
   description: string;
   imageURL: string;
-  links: ExternalLink[] = [];
+  links: ExternalLink = [];
 }
 
 export interface IGrantDetails {
@@ -114,6 +104,8 @@ export interface IProjectDetails {
   title: string;
   description: string;
   imageURL: string;
+  links?: ExternalLink;
+  tags?: ITag[];
 }
 export class ProjectDetails
   extends Attestation<IProjectDetails>
@@ -122,7 +114,8 @@ export class ProjectDetails
   title: string;
   description: string;
   imageURL: string;
-  links: ExternalLink[] = [];
+  links: ExternalLink = [];
+  tags?: ITag[] = [];
 }
 
 export class Grantee {

@@ -45,7 +45,7 @@ const projectDetails = (projects: Project[] = []) =>
     uid: p.uid,
     title: p.details?.title,
     description: p.details?.description,
-    tags: p.tags.map((t) => t.name),
+    tags: p.details?.tags?.map((t) => t.name) || [],
     imageURL: p.details?.imageURL,
     members: p.members.map((m) => ({
       uid: m.uid,

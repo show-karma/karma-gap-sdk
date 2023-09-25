@@ -13,6 +13,7 @@ import { EAS } from "@ethereum-attestation-service/eas-sdk";
 import { MountEntities, Networks } from "../consts";
 import { ethers } from "ethers";
 import MulticallABI from "../abi/MultiAttester.json";
+import { version } from "../../package.json";
 
 interface GAPArgs {
   network: TNetwork;
@@ -170,6 +171,8 @@ export class GAP extends Facade {
 
     this._schemas = schemas.map((schema) => new GapSchema(schema));
     Schema.validate();
+
+    console.info(`Loaded GAP SDK v${version}`);
   }
 
   private assert(args: GAPArgs) {

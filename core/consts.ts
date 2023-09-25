@@ -39,14 +39,11 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
   //   },
   //   schemas: {
   //     Grant: "",
-  //     GrantRound: "",
   //     GrantVerified: "",
-  //     ExternalLink: "",
   //     MemberOf: "",
   //     MilestoneApproved: "",
   //     MilestoneCompleted: "",
   //     Project: "",
-  //     Tag: "",
   //   },
   // },
   // "base-goerli": {
@@ -59,14 +56,11 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
   //   },
   //   schemas: {
   //     Grant: "",
-  //     GrantRound: "",
   //     GrantVerified: "",
-  //     ExternalLink: "",
   //     MemberOf: "",
   //     MilestoneApproved: "",
   //     MilestoneCompleted: "",
   //     Project: "",
-  //     Tag: "",
   //   },
   // },
   // optimism: {
@@ -79,14 +73,11 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
   //   },
   //   schemas: {
   //     Grant: "",
-  //     GrantRound: "",
   //     GrantVerified: "",
-  //     ExternalLink: "",
   //     MemberOf: "",
   //     MilestoneApproved: "",
   //     MilestoneCompleted: "",
   //     Project: "",
-  //     Tag: "",
   //   },
   // },
   "optimism-goerli": {
@@ -105,21 +96,16 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
         "0xfe590d9582957e10affbabcdc34a201785a1d4f77982d6616b736cce1a91ae43",
       Grant:
         "0xd6ce374765c355687101ba70b3f8824d555c12716d2bdad71a08ccad1ded3218",
-      GrantRound:
-        "0xb2646b9da49004dfb2c9226788842e21ff4e63a918f7b7e509ef92c88d69d6ae",
       GrantVerified:
         "0xf544fbd9721ac50863d32dc0eed5992051e7fb270b38ab2ce062327cc0ae26ea",
-      ExternalLink:
-        "0xfda3f34a55a1e5056152c8fa452605d3422448a6b23be1f388e25cc663c7446b",
       MemberOf:
-        "0x73b2af21436f84a77adaaeb5a0236655452527974a8fba2f97420e7199b4e59d",
+        "0x78c811e506849d414a91a56dab91f07f7ed108f0bf27f550796f13e7bb2e2f2d",
       MilestoneApproved:
         "0xf544fbd9721ac50863d32dc0eed5992051e7fb270b38ab2ce062327cc0ae26ea",
       MilestoneCompleted:
         "0xf544fbd9721ac50863d32dc0eed5992051e7fb270b38ab2ce062327cc0ae26ea",
       Project:
         "0xec77990a252b54b17673955c774b9712766de5eecb22ca5aa2c440e0e93257fb",
-      Tag: "0xb2646b9da49004dfb2c9226788842e21ff4e63a918f7b7e509ef92c88d69d6ae",
     },
   },
   // arbitrum: {
@@ -132,14 +118,11 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
   //   },
   //   schemas: {
   //     Grant: "",
-  //     GrantRound: "",
   //     GrantVerified: "",
-  //     ExternalLink: "",
   //     MemberOf: "",
   //     MilestoneApproved: "",
   //     MilestoneCompleted: "",
   //     Project: "",
-  //     Tag: "",
   //   },
   // },
   sepolia: {
@@ -159,12 +142,8 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
         "0x2c270e35bfcdc4d611f0e9d3d2ab6924ec6c673505abc22a1dd07e19b67211af",
       Grant:
         "0x09697aeeb3ae71de1cc19e388fd74264f11af5fba3016094764553ac341fdc72", // with communityUID/resolver
-      GrantRound:
-        "0xc12cb615e06369925ea707296b8ecd416c5bc9f80b6a36310fa2fc82ade82e66",
       GrantVerified:
         "0x0be8952e2dd74ffd63a02f4d55b20b603fe7a60130cb9d70de31feb9c52fdd37",
-      ExternalLink:
-        "0x981a9ee9346ddbd392f30d219e0e4ed5bdece14278aaf1f1ed3a68265c03208a",
       MemberOf:
         "0xdd87b3500457931252424f4439365534ba72a367503a8805ff3482353fb90301",
       MilestoneApproved:
@@ -173,7 +152,6 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
         "0xcdef0e492d2e7ad25d0b0fdb868f6dcd1f5e5c30e42fd5fa0debdc12f7618322",
       Project:
         "0xec77990a252b54b17673955c774b9712766de5eecb22ca5aa2c440e0e93257fb",
-      Tag: "0xc12cb615e06369925ea707296b8ecd416c5bc9f80b6a36310fa2fc82ade82e66",
     },
   },
 } as const;
@@ -244,12 +222,6 @@ export const MountEntities = (
     uid: network.schemas.GrantVerified,
     references: "Grant",
   },
-  GrantRound: {
-    name: "GrantRound",
-    schema: [{ type: "string", name: "name", value: true }],
-    uid: network.schemas.GrantRound,
-    references: "Grant",
-  },
   Milestone: {
     name: "Milestone",
     schema: DetailsSchema,
@@ -273,21 +245,6 @@ export const MountEntities = (
     ],
     uid: network.schemas.MilestoneCompleted,
     references: "Milestone",
-  },
-  Tag: {
-    name: "Tag",
-    schema: [{ type: "string", name: "name", value: null }],
-    uid: network.schemas.Tag,
-    references: "Project",
-  },
-  ExternalLink: {
-    name: "ExternalLink",
-    schema: [
-      { type: "string", name: "type", value: null },
-      { type: "string", name: "url", value: null },
-    ],
-    uid: network.schemas.ExternalLink,
-    references: "Project",
   },
   Details: {
     schema: DetailsSchema,

@@ -39,10 +39,8 @@ export interface AttestArgs<T = unknown> {
 export type TSchemaName =
   | "Community"
   | "CommunityDetails"
-  | "ExternalLink"
   | "Grant"
   | "GrantDetails"
-  | "GrantRound"
   | "GrantVerified"
   | "MemberOf"
   | "MemberDetails"
@@ -51,21 +49,17 @@ export type TSchemaName =
   | "MilestoneApproved"
   | "Project"
   | "ProjectDetails"
-  | "Details"
-  | "Tag";
+  | "Details";
 
 export type TResolvedSchemaNames =
   | "Community"
-  | "ExternalLink"
   | "Grant"
-  | "GrantRound"
   | "GrantVerified"
   | "MemberOf"
   | "MilestoneCompleted"
   | "MilestoneApproved"
   | "Project"
-  | "Details"
-  | "Tag";
+  | "Details";
 
 export type TExternalLink =
   | "twitter"
