@@ -8,6 +8,10 @@ import { GAP } from "../GAP";
 import { serializeWithBigint } from "../../utils/serialize-bigint";
 import { Gelato, sendGelatoTxn } from "../../utils/gelato/send-gelato-txn";
 import { mapFilter } from "../../utils";
+import {
+  getUIDFromAttestTx,
+  getUIDsFromAttestReceipt,
+} from "@ethereum-attestation-service/eas-sdk";
 
 type TSignature = {
   r: string;
@@ -121,9 +125,9 @@ export class GapContract {
     });
 
     const result = await tx.wait?.();
-    const attestations = result.logs?.map((m) => m.data);
+    const attestations = getUIDsFromAttestReceipt(result)[0];
 
-    return attestations[0] as Hex;
+    return attestations as Hex;
   }
 
   static async attestBySig(
@@ -189,7 +193,7 @@ export class GapContract {
     );
 
     const result = await tx.wait?.();
-    const attestations = result.logs?.map((m) => m.data);
+    const attestations = getUIDsFromAttestReceipt(result);
 
     return attestations as Hex[];
   }
@@ -246,15 +250,8 @@ export class GapContract {
     const txn = await signer.provider.getTransactionReceipt(txnHash);
     if (!txn || !txn.logs.length) throw new Error("Transaction not found");
 
-    const gapContract = GAP.getMulticall(signer).address;
-    const easContract = GAP.eas.contract.address;
-
     // Returns the txn logs with the attestation results. Tha last two logs are the
     // the ones from the GelatoRelay contract.
-    return mapFilter(
-      [...txn.logs],
-      (log) => [easContract, gapContract].includes(log.address),
-      (log) => log.data as Hex
-    );
+    return getUIDsFromAttestReceipt(txn) as Hex[];
   }
 }
