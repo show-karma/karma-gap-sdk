@@ -218,7 +218,7 @@ export class GapContract {
     console.info({ r, s, v, nonce, chainId, payloadHash, address });
 
     const { data: populatedTxn } =
-      await contract.populateTransaction.multiAttestBySig(
+      await contract.populateTransaction.multiSequentialAttestBySig(
         payload.map((p) => p.payload),
         payloadHash,
         address,

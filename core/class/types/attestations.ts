@@ -10,6 +10,8 @@ export interface ICommunityDetails {
   name: string;
   description: string;
   imageURL: string;
+  slug?: string;
+  links?: ExternalLink;
 }
 
 export class CommunityDetails
@@ -20,6 +22,7 @@ export class CommunityDetails
   description: string;
   imageURL: string;
   links: ExternalLink = [];
+  slug?: string;
 }
 
 export interface IGrantDetails {
@@ -106,6 +109,7 @@ export interface IProjectDetails {
   imageURL: string;
   links?: ExternalLink;
   tags?: ITag[];
+  slug?: string;
 }
 export class ProjectDetails
   extends Attestation<IProjectDetails>
@@ -116,6 +120,7 @@ export class ProjectDetails
   imageURL: string;
   links: ExternalLink = [];
   tags?: ITag[] = [];
+  slug: string;
 }
 
 export class Grantee {

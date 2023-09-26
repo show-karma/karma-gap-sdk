@@ -247,13 +247,14 @@ export class GAPFetcher extends EASClient {
    * @param name
    * @returns
    */
-  async communityByName(name: string) {
+  async communityBySlug(slug: string) {
     const communitySchema = GapSchema.find("CommunityDetails");
 
     const query = gqlQueries.attestationsOf(
       communitySchema.uid,
-      this.getSearchFieldString("name", name)
+      this.getSearchFieldString("slug", slug)
     );
+
     try {
       const {
         schema: { attestations },
@@ -261,19 +262,21 @@ export class GAPFetcher extends EASClient {
 
       if (!attestations.length) throw new Error("Community not found.");
 
-      const communities = Attestation.fromInterface<CommunityDetails>(
-        attestations
-      ).map((details) => {
-        const community = new Community({
-          data: { community: true },
-          uid: details.refUID,
-          schema: communitySchema,
-          recipient: details.recipient,
-        });
+      const communities = mapFilter(
+        Attestation.fromInterface<CommunityDetails>(attestations),
+        (details) => !!details.name,
+        (details) => {
+          const community = new Community({
+            data: { community: true },
+            uid: details.refUID,
+            schema: communitySchema,
+            recipient: details.recipient,
+          });
 
-        community.details = details;
-        return community;
-      });
+          community.details = details;
+          return community;
+        }
+      );
 
       const [withDetails] = await this.communitiesDetails(communities);
 
@@ -366,6 +369,56 @@ export class GAPFetcher extends EASClient {
 
     const [result] = await this.projectsDetails([projectAttestation]);
     return result;
+  }
+
+  /**
+   * Fetch a project by its id.
+   * @param uid
+   * @returns
+   */
+  async projectBySlug(slug: string) {
+    const projectDetails = GapSchema.find("ProjectDetails");
+
+    const query = gqlQueries.attestationsOf(
+      projectDetails.uid,
+      this.getSearchFieldString("slug", slug)
+    );
+
+    const {
+      schema: { attestations },
+    } = await this.query<SchemaRes>(query);
+
+    const projectAttestations = Attestation.fromInterface<ProjectDetails>(
+      attestations
+    ).filter((p) => p.title);
+
+    if (!projectAttestations.length) throw new Error("Project not found.");
+
+    const project = new Project({
+      data: { project: true },
+      uid: projectAttestations[0].refUID,
+      schema: GapSchema.find("Project"),
+      recipient: projectAttestations[0].recipient,
+    });
+    project.details = projectAttestations[0];
+
+    return project;
+  }
+
+  /**
+   * Check if a name is already in use.
+   * @param slug
+   * @returns
+   */
+  async slugExists(slug: string) {
+    const details = GapSchema.find("ProjectDetails");
+
+    const query = gqlQueries.attestationsOf(details.uid, "slug");
+    const {
+      schema: { attestations },
+    } = await this.query<SchemaRes>(query);
+
+    return attestations.some((a) => a.decodedDataJson.includes(slug));
   }
 
   /**
