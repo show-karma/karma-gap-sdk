@@ -230,6 +230,33 @@ export class GAP extends Facade {
   }
 
   /**
+   * Generates a slug from a text.
+   * @param text
+   * @returns
+   */
+  generateSlug = async (text: string): Promise<string> => {
+    let slug = text
+      .toLowerCase()
+      .replace(/ /g, "-")
+      .replace(/[^\w-]+/g, "");
+    const slugExists = await this.fetch.slugExists(slug);
+
+    if (slugExists) {
+      const parts = slug.split("-");
+      const counter = parts.pop();
+      slug = /\d+/g.test(counter) ? parts.join("-") : slug;
+      // eslint-disable-next-line no-param-reassign
+      const nextSlug = `${slug}-${
+        counter && /\d+/g.test(counter) ? +counter + 1 : 1
+      }`;
+      console.log({ nextSlug, counter, slug });
+      return this.generateSlug(nextSlug);
+    }
+
+    return slug.toLowerCase();
+  };
+
+  /**
    * Creates or returns an existing GAP client.
    *
    * _Use the constructor only if multiple clients are needed._
