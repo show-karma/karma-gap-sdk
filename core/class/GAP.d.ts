@@ -160,6 +160,12 @@ export declare class GAP extends Facade {
      */
     replaceSingleSchema(schema: GapSchema): void;
     /**
+     * Generates a slug from a text.
+     * @param text
+     * @returns
+     */
+    generateSlug: (text: string) => Promise<string>;
+    /**
      * Creates or returns an existing GAP client.
      *
      * _Use the constructor only if multiple clients are needed._

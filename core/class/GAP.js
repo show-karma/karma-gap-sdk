@@ -71,6 +71,28 @@ const package_json_1 = require("../../package.json");
 class GAP extends types_1.Facade {
     constructor(args) {
         super();
+        /**
+         * Generates a slug from a text.
+         * @param text
+         * @returns
+         */
+        this.generateSlug = async (text) => {
+            let slug = text
+                .toLowerCase()
+                .replace(/ /g, "-")
+                .replace(/[^\w-]+/g, "");
+            const slugExists = await this.fetch.slugExists(slug);
+            if (slugExists) {
+                const parts = slug.split("-");
+                const counter = parts.pop();
+                slug = /\d+/g.test(counter) ? parts.join("-") : slug;
+                // eslint-disable-next-line no-param-reassign
+                const nextSlug = `${slug}-${counter && /\d+/g.test(counter) ? +counter + 1 : 1}`;
+                console.log({ nextSlug, counter, slug });
+                return this.generateSlug(nextSlug);
+            }
+            return slug.toLowerCase();
+        };
         const schemas = args.schemas || Object.values((0, consts_1.MountEntities)(consts_1.Networks[args.network]));
         this.network = args.network;
         GAP._eas = new eas_sdk_1.EAS(consts_1.Networks[args.network].contracts.eas);
