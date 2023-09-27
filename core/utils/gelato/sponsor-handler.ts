@@ -1,3 +1,7 @@
+import { GelatoRelay } from "@gelatonetwork/relay-sdk";
+import { GAP } from "../../class/GAP";
+import { Gelato, sendGelatoTxn } from "./send-gelato-txn";
+
 export interface ApiRequest {
   method: string;
   body: unknown;
@@ -20,7 +24,7 @@ const assertionObj = [
   },
 ];
 
-function assert(body: any) {
+function assert(body: any): body is Parameters<GelatoRelay["sponsoredCall"]> {
   if (!Array.isArray(body) || body.length !== assertionObj.length)
     throw new Error("Invalid request body");
 
@@ -37,27 +41,37 @@ function assert(body: any) {
     else if (!body[index]?.toString().match(item))
       throw new Error("Invalid request body");
   });
+
+  return true;
 }
 
-export function handler(req: ApiRequest, res: ApiResponse) {
-  //     if(req.method !== "POST") {
-  //         res.statusCode = 405;
-  //         res.send("Method not allowed");
-  //         return;
-  //     }
-  //     const body = req.body as unknown;
-  //     assert(body);
-  //     const { GELATO_API_KEY: apiKey } = process.env;
-  //     if (!apiKey) throw new Error("Sorry, we can't do it right now.");
-  //     body[1] = apiKey;
-  //     const result = await DelegateRegistryContract.sendGelato(...body);
-  //     const txId = await result.wait();
-  //     res.send({ txId });
-  //     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  //   } catch (error: any) {
-  //     // eslint-disable-next-line no-console
-  //     console.log(error);
-  //     res.statusCode = 400;
-  //     res.send(error.message);
-  //   }
+export async function handler(
+  req: ApiRequest,
+  res: ApiResponse,
+  env_gelatoApiKey: string
+) {
+  if (req.method !== "POST") {
+    res.statusCode = 405;
+    res.send("Method not allowed");
+    return;
+  }
+  try {
+    const body = req.body as unknown;
+
+    if (!assert(body)) return;
+
+    const { [env_gelatoApiKey]: apiKey } = process.env;
+    if (!apiKey) throw new Error("Api key not provided.");
+    body[1] = apiKey;
+
+    const result = await Gelato.sendByApiKey(...body);
+    const txId = await result.wait();
+    res.send(txId);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    // eslint-disable-next-line no-console
+    console.log(error);
+    res.statusCode = 400;
+    res.send(error.message);
+  }
 }

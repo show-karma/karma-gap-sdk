@@ -1,21 +1,5 @@
 [
 	{
-		"inputs": [],
-		"name": "InvalidShortString",
-		"type": "error"
-	},
-	{
-		"inputs": [
-			{
-				"internalType": "string",
-				"name": "str",
-				"type": "string"
-			}
-		],
-		"name": "StringTooLong",
-		"type": "error"
-	},
-	{
 		"anonymous": false,
 		"inputs": [],
 		"name": "EIP712DomainChanged",
@@ -168,6 +152,11 @@
 				"type": "tuple"
 			},
 			{
+				"internalType": "string",
+				"name": "payloadHash",
+				"type": "string"
+			},
+			{
 				"internalType": "address",
 				"name": "attester",
 				"type": "address"
@@ -291,6 +280,11 @@
 				"type": "tuple[]"
 			},
 			{
+				"internalType": "string",
+				"name": "payloadHash",
+				"type": "string"
+			},
+			{
 				"internalType": "address",
 				"name": "attester",
 				"type": "address"
@@ -321,7 +315,7 @@
 				"type": "bytes32"
 			}
 		],
-		"name": "multiAttestBySig",
+		"name": "multiSequentialAttestBySig",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -393,6 +387,11 @@
 				"internalType": "struct MultiRevocationRequest[]",
 				"name": "multiRequests",
 				"type": "tuple[]"
+			},
+			{
+				"internalType": "string",
+				"name": "payloadHash",
+				"type": "string"
 			},
 			{
 				"internalType": "address",
@@ -501,7 +500,7 @@
 		],
 		"name": "multiSequentialAttest",
 		"outputs": [],
-		"stateMutability": "nonpayable",
+		"stateMutability": "payable",
 		"type": "function"
 	},
 	{
@@ -528,6 +527,50 @@
 		"inputs": [],
 		"stateMutability": "nonpayable",
 		"type": "constructor"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "payloadHash",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "nonce",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "expiry",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint8",
+				"name": "v",
+				"type": "uint8"
+			},
+			{
+				"internalType": "bytes32",
+				"name": "r",
+				"type": "bytes32"
+			},
+			{
+				"internalType": "bytes32",
+				"name": "s",
+				"type": "bytes32"
+			}
+		],
+		"name": "_recoverSignerAddress",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "signer",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
 	},
 	{
 		"inputs": [],
@@ -593,32 +636,6 @@
 				"internalType": "uint256[]",
 				"name": "extensions",
 				"type": "uint256[]"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "MULTIATTEST_TYPEHASH",
-		"outputs": [
-			{
-				"internalType": "bytes32",
-				"name": "",
-				"type": "bytes32"
-			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "MULTIREVOKE_TYPEHASH",
-		"outputs": [
-			{
-				"internalType": "bytes32",
-				"name": "",
-				"type": "bytes32"
 			}
 		],
 		"stateMutability": "view",

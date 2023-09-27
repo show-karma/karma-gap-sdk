@@ -23,7 +23,6 @@ export class Project extends Attestation<IProject> {
   members: MemberOf[] = [];
   grants: Grant[] = [];
   grantee: Grantee;
-  tags: Tag[] = [];
 
   /**
    * Creates the payload for a multi-attestation.
@@ -44,17 +43,6 @@ export class Project extends Attestation<IProject> {
 
     if (this.details) {
       payload.push([this.details, this.details.payloadFor(projectIdx)]);
-      if (this.details.links?.length) {
-        this.details.links.forEach((link) => {
-          payload.push([link, link.payloadFor(projectIdx)]);
-        });
-      }
-    }
-
-    if (this.tags.length) {
-      this.tags.forEach((tag) => {
-        payload.push([tag, tag.payloadFor(projectIdx)]);
-      });
     }
 
     if (this.members?.length) {
@@ -73,8 +61,6 @@ export class Project extends Attestation<IProject> {
   }
 
   async attest(signer: SignerOrProvider): Promise<void> {
-    await super.attest(signer);
-    return;
     const payload = this.multiAttestPayload();
     const uids = await GapContract.multiAttest(
       signer,

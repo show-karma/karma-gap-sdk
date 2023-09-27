@@ -1,6 +1,7 @@
 import { BytesLike } from "ethers";
 import { GAPFetcher } from "./class/GraphQL/GAPFetcher";
 import {
+  AttestationRequestData,
   EAS,
   MultiAttestationRequest,
   SchemaItem,
@@ -10,7 +11,9 @@ import { Attestation } from "./class";
 export type Hex = `0x${string}`;
 
 export type SignerOrProvider = EASSigner & {
-  address: Hex;
+  address?: Hex;
+  _address?: Hex;
+  getAddress?: () => Promise<Hex>;
 };
 
 export interface SchemaInterface<T extends string = string> {
@@ -36,10 +39,8 @@ export interface AttestArgs<T = unknown> {
 export type TSchemaName =
   | "Community"
   | "CommunityDetails"
-  | "ExternalLink"
   | "Grant"
   | "GrantDetails"
-  | "GrantRound"
   | "GrantVerified"
   | "MemberOf"
   | "MemberDetails"
@@ -48,21 +49,17 @@ export type TSchemaName =
   | "MilestoneApproved"
   | "Project"
   | "ProjectDetails"
-  | "Details"
-  | "Tag";
+  | "Details";
 
 export type TResolvedSchemaNames =
   | "Community"
-  | "ExternalLink"
   | "Grant"
-  | "GrantRound"
   | "GrantVerified"
   | "MemberOf"
   | "MilestoneCompleted"
   | "MilestoneApproved"
   | "Project"
-  | "Details"
-  | "Tag";
+  | "Details";
 
 export type TExternalLink =
   | "twitter"
@@ -94,13 +91,26 @@ export abstract class Facade {
   }
 }
 
+export interface RawAttestationPayload {
+  schema: Hex;
+  data: {
+    payload: AttestationRequestData;
+    raw: AttestationRequestData;
+  };
+}
+
+export interface RawMultiAttestPayload {
+  payload: MultiAttestData;
+  raw: MultiAttestData;
+}
+
 export interface MultiAttestData {
   uid?: Hex;
   multiRequest: MultiAttestationRequest;
   refIdx: number;
 }
 
-export type MultiAttestPayload = [Attestation, MultiAttestData][];
+export type MultiAttestPayload = [Attestation, RawMultiAttestPayload][];
 
 export interface EASNetworkConfig {
   url: string;

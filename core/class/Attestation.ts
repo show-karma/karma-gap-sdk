@@ -227,11 +227,14 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
    *
    *
    * @param refIdx
-   * @returns
+   * @returns [Encoded payload, Raw payload]
    */
-  payloadFor(refIdx: number): MultiAttestData {
+  payloadFor(refIdx: number): {
+    payload: MultiAttestData;
+    raw: MultiAttestData;
+  } {
     this.assertPayload();
-    return {
+    const payload = (encode = true): MultiAttestData => ({
       uid: nullRef,
       refIdx,
       multiRequest: {
@@ -242,11 +245,15 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
             expirationTime: 0n,
             revocable: this.schema.revocable || true,
             value: 0n,
-            data: this.schema.encode(),
+            data: (encode ? this.schema.encode() : this.schema.schema) as any,
             recipient: this.recipient,
           },
         ],
       },
+    });
+    return {
+      payload: payload(),
+      raw: payload(false),
     };
   }
 
@@ -311,7 +318,9 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
             data: attestation.decodedDataJson,
           })
         );
-      } catch {}
+      } catch(e) {
+        console.log(e)
+      }
     });
     return result;
   }

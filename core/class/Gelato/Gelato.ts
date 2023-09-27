@@ -148,7 +148,7 @@
 //   ): Promise<Parameters<GelatoRelay["sponsoredCall"]>> {
 //     const { nonce } = await this.getNonce(address);
 //     // 2 minutes expiry
-//     const expiry = BigInt(((Date.now() + 1000 * 120) / 1000).toFixed(0));
+//     const expiry = ((Date.now() + 1000 * 120) / 1000).toFixed(0);
 
 //     const metadata = JSON.stringify(data.profile);
 
@@ -166,7 +166,7 @@
 //         tokenAddress: data.tokenAddress,
 //         tokenChainId: BigInt(data.tokenChainId),
 //         metadata,
-//         nonce: BigInt(nonce),
+//         nonce,
 //         expiry,
 //       },
 //       domain: {
@@ -187,7 +187,7 @@
 //         data.tokenAddress,
 //         BigInt(data.tokenChainId),
 //         metadata,
-//         BigInt(nonce),
+//         nonce,
 //         expiry,
 //         v,
 //         r,

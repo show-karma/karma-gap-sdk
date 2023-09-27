@@ -11,7 +11,9 @@ import {
   MultiRevokeArgs,
   SchemaInterface,
   TSchemaName,
-  SignerOrProvider
+  SignerOrProvider,
+  RawMultiAttestPayload,
+  RawAttestationPayload,
 } from "../types";
 import { AttestationError, SchemaError } from "./SchemaError";
 import { ethers } from "ethers";
@@ -318,28 +320,38 @@ export abstract class Schema<T extends string = string>
       });
     }
 
-    const payload: AttestationRequestData = {
-      recipient: to,
-      expirationTime: 0n,
-      revocable: true,
-      data: this.encode(this.schema),
-      refUID,
-      value: 0n,
+    const payload: RawAttestationPayload = {
+      schema: this.uid,
+      data: {
+        raw: {
+          recipient: to,
+          expirationTime: 0n,
+          revocable: true,
+          data: this.schema as any,
+          refUID,
+          value: 0n,
+        },
+        payload: {
+          recipient: to,
+          expirationTime: 0n,
+          revocable: true,
+          data: this.encode(this.schema),
+          refUID,
+          value: 0n,
+        },
+      },
     };
 
     if (useDefaultAttestation.includes(this.name as TSchemaName)) {
       const tx = await eas.attest({
         schema: this.uid,
-        data: payload,
+        data: payload.data.payload,
       });
 
       return tx.wait() as Promise<Hex>;
     }
 
-    const uid = await GapContract.attestBySig(signer, {
-      schema: this.uid,
-      data: payload,
-    });
+    const uid = await GapContract.attest(signer, payload);
 
     return uid;
   }

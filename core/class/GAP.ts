@@ -4,19 +4,90 @@ import {
   SchemaInterface,
   TNetwork,
   TSchemaName,
-  SignerOrProvider
+  SignerOrProvider,
 } from "../types";
 import { Schema } from "./Schema";
 import { GapSchema } from "./GapSchema";
 import { GAPFetcher } from "./GraphQL/GAPFetcher";
 import { EAS } from "@ethereum-attestation-service/eas-sdk";
 import { MountEntities, Networks } from "../consts";
-import { Wallet, ethers } from "ethers";
+import { ethers } from "ethers";
 import MulticallABI from "../abi/MultiAttester.json";
+import { version } from "../../package.json";
 
 interface GAPArgs {
   network: TNetwork;
   schemas?: SchemaInterface<TSchemaName>[];
+  /**
+   * Defined if the transactions will be gasless or not.
+   *
+   * In case of true, the transactions will be sent through [Gelato](https://gelato.network)
+   * and an API key is needed.
+   *
+   * > __Note that to safely transact through Gelato, the user must
+   * have set a handlerUrl and not expose gelato api in the frontend.__
+   */
+  gelatoOpts?: {
+    /**
+     * Endpoint in which the transaction will be sent.
+     * A custom endpoint will ensure that the transaction will be sent through Gelato
+     * and api keys won't be exposed in the frontend.
+     *
+     * __If coding a backend, you can use `apiKey` prop instead.__
+     *
+     * `core/utils/gelato/sponsor-handler.ts` is a base handler that can be used
+     * together with NextJS API routes.
+     *
+     * @example
+     *
+     * ```ts
+     * // pages/api/gelato.ts
+     * import { handler as sponsorHandler } from "core/utils/gelato/sponsor-handler";
+     *
+     * export default const handler(req, res) => sponsorHandler(req, res, "GELATO_API_KEY_ENV_VARIABLE");
+     *
+     * ```
+     */
+    sponsorUrl?: string;
+    /**
+     * The env key of gelato api key that will be used in the handler.
+     *
+     * @example
+     *
+     * ```
+     * // .env
+     * GELATO_API_KEY=1234567890
+     *
+     * // sponsor-handler.ts
+     *
+     * export async function handler(req, res) {
+     *  // ...code
+     *
+     *  const { env_gelatoApiKey } = GAP.gelatoOpts;
+     *
+     *  // Will be used to get the key from environment.
+     *  const { [env_gelatoApiKey]: apiKey } = process.env;
+     *
+     *  // send txn
+     *  // res.send(result);
+     * }
+     * ```
+     */
+    env_gelatoApiKey?: string;
+    /**
+     * API key to be used in the handler.
+     *
+     * @deprecated Use this only if you have no option of setting a backend, next/nuxt api route
+     * or if this application is a backend.
+     *
+     * > __This will expose the api key if used in the frontend.__
+     */
+    apiKey?: string;
+    /**
+     * If true, will use gelato to send transactions.
+     */
+    useGasless?: boolean;
+  };
 }
 
 /**
@@ -82,7 +153,7 @@ export class GAP extends Facade {
 
   private _schemas: GapSchema[];
 
-  static _isGasless = null;
+  private static _gelatoOpts = null;
 
   constructor(args: GAPArgs) {
     super();
@@ -93,11 +164,41 @@ export class GAP extends Facade {
     this.network = args.network;
 
     GAP._eas = new EAS(Networks[args.network].contracts.eas);
-
     this.fetch = new GAPFetcher({ network: args.network });
+
+    this.assert(args);
+    GAP._gelatoOpts = args.gelatoOpts;
 
     this._schemas = schemas.map((schema) => new GapSchema(schema));
     Schema.validate();
+
+    console.info(`Loaded GAP SDK v${version}`);
+  }
+
+  private assert(args: GAPArgs) {
+    if (
+      args.gelatoOpts &&
+      !(args.gelatoOpts.sponsorUrl || args.gelatoOpts.apiKey)
+    ) {
+      throw new Error("You must provide a `sponsorUrl` or an `apiKey`.");
+    }
+
+    if (args.gelatoOpts?.sponsorUrl && !args.gelatoOpts.env_gelatoApiKey) {
+      throw new Error(
+        "You must provide `env_gelatoApiKey` to be able to use it in a backend handler."
+      );
+    }
+
+    if (
+      (args.gelatoOpts?.env_gelatoApiKey ||
+        args.gelatoOpts?.apiKey ||
+        args.gelatoOpts?.sponsorUrl) &&
+      !args.gelatoOpts?.useGasless
+    ) {
+      console.warn(
+        "GAP::You are using gelatoOpts but not setting useGasless to true. This will send transactions through the normal provider."
+      );
+    }
   }
 
   /**
@@ -152,5 +253,43 @@ export class GAP extends Facade {
 
   get schemas() {
     return this._schemas;
+  }
+
+  /**
+   * Defined if the transactions will be gasless or not.
+   *
+   * In case of true, the transactions will be sent through [Gelato](https://gelato.network)
+   * and an API key is needed.
+   */
+  private static set gelatoOpts(gelatoOpts: GAPArgs["gelatoOpts"]) {
+    if (typeof this._gelatoOpts === "undefined") {
+      this._gelatoOpts = gelatoOpts;
+    } else {
+      throw new Error("Cannot change a readonly value gelatoOpts.");
+    }
+  }
+
+  /**
+   * Defined if the transactions will be gasless or not.
+   *
+   * In case of true, the transactions will be sent through [Gelato](https://gelato.network)
+   * and an API key is needed.
+   */
+  static get gelatoOpts(): GAPArgs["gelatoOpts"] {
+    return this._gelatoOpts;
+  }
+
+  static set useGasLess(useGasLess: boolean) {
+    if (
+      useGasLess &&
+      !this._gelatoOpts?.apiKey &&
+      !this._gelatoOpts?.sponsorUrl &&
+      !this._gelatoOpts?.env_gelatoApiKey
+    ) {
+      throw new Error(
+        "You must provide a `sponsorUrl` or an `apiKey` before using gasless transactions."
+      );
+    }
+    this._gelatoOpts.useGasless = useGasLess;
   }
 }
