@@ -778,6 +778,9 @@ export class GAPFetcher extends EASClient {
    * @param value
    */
   private getSearchFieldString(field: string, value: string) {
-    return String.raw`\\\\\"${field}\\\\\":\\\\\"${value}\\\\\"`;
+    return[
+      String.raw`\\\\\"${field}\\\\\":\\\\\"${value}\\\\\"`,
+      String.raw`\\\\\"${field}\\\\\": \\\\\"${value}\\\\\"`
+    ];
   }
 }
