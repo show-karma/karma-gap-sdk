@@ -400,9 +400,11 @@ export class GAPFetcher extends EASClient {
       schema: GapSchema.find("Project"),
       recipient: projectAttestations[0].recipient,
     });
-    project.details = projectAttestations[0];
+    const [withDetails] = await this.projectsDetails([project]);
 
-    return project;
+    if (!withDetails) throw new Error("Project not found.");
+
+    return withDetails;
   }
 
   /**
