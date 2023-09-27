@@ -55,23 +55,25 @@ exports.Networks = {
     //     Project: "",
     //   },
     // },
-    // optimism: {
-    //   chainId: 10,
-    //   url: "https://optimism.easscan.org/graphql",
-    //   contracts: {
-    //     eas: "0x4200000000000000000000000000000000000021",
-    //     schema: "0x4200000000000000000000000000000000000020",
-    //     multicall:''
-    //   },
-    //   schemas: {
-    //     Grant: "",
-    //     GrantVerified: "",
-    //     MemberOf: "",
-    //     MilestoneApproved: "",
-    //     MilestoneCompleted: "",
-    //     Project: "",
-    //   },
-    // },
+    "optimism": {
+        chainId: 10,
+        url: "https://optimism.easscan.org/graphql",
+        contracts: {
+            eas: "0x4200000000000000000000000000000000000021",
+            schema: "0x4200000000000000000000000000000000000020",
+            multicall: "0xd2eD366393FDfd243931Fe48e9fb65A192B0018c", //proxy
+        },
+        schemas: {
+            Community: "0x721c17b065dccc5c916e0c2708d0ef50f1810591b76d0402ff6fe5accbd8488f",
+            Details: "0x70a3f615f738fc6a4f56100692ada93d947c028b840940d97af7e7d6f0fa0577",
+            Grant: "0x12837231f48acbca4e1e7f4416f684f3353bd4d71d4f03a09d29e5ffa6f21a50",
+            GrantVerified: "0x13adc8df8a7324b1651e8bcec948b3e2d4fcfa2a88a52136206cb9ea44836e93",
+            MemberOf: "0x7fbb8a65924d8ad2ae12356e04b1418043e8361ba3b1b6c917de2e23df3ec81c",
+            MilestoneApproved: "0x13adc8df8a7324b1651e8bcec948b3e2d4fcfa2a88a52136206cb9ea44836e93",
+            MilestoneCompleted: "0x13adc8df8a7324b1651e8bcec948b3e2d4fcfa2a88a52136206cb9ea44836e93",
+            Project: "0x5b873b6e7a16207b526dde366e8164e95bcda2f009272306519667c5e94d2191",
+        },
+    },
     "optimism-goerli": {
         chainId: 420,
         url: "https://optimism-goerli-bedrock.easscan.org/graphql",

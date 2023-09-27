@@ -29,7 +29,7 @@ export interface AttestArgs<T = unknown> {
 export type TSchemaName = "Community" | "CommunityDetails" | "Grant" | "GrantDetails" | "GrantVerified" | "MemberOf" | "MemberDetails" | "Milestone" | "MilestoneCompleted" | "MilestoneApproved" | "Project" | "ProjectDetails" | "Details";
 export type TResolvedSchemaNames = "Community" | "Grant" | "GrantVerified" | "MemberOf" | "MilestoneCompleted" | "MilestoneApproved" | "Project" | "Details";
 export type TExternalLink = "twitter" | "github" | "website" | "linkedin" | "discord";
-export type TNetwork = "optimism-goerli" | "sepolia";
+export type TNetwork = "optimism" | "optimism-goerli" | "sepolia";
 /**
  * Generic GAP Facade interface.
  * This supplies the GAP class with the necessary properties.
