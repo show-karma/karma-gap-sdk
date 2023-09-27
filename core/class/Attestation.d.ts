@@ -1,9 +1,8 @@
-import { Hex, IAttestation, JSONStr, MultiAttestData } from "../types";
+import { Hex, IAttestation, JSONStr, MultiAttestData, SignerOrProvider } from "../types";
 import { Schema } from "./Schema";
 import { SchemaItem, SchemaValue } from "@ethereum-attestation-service/eas-sdk";
-import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
 import { GapSchema } from "./GapSchema";
-interface AttestationArgs<T = unknown, S extends Schema = Schema> {
+export interface AttestationArgs<T = unknown, S extends Schema = Schema> {
     data: T | string;
     schema: S;
     uid?: Hex;
@@ -131,9 +130,12 @@ export declare class Attestation<T = unknown, S extends Schema = GapSchema> impl
      *
      *
      * @param refIdx
-     * @returns
+     * @returns [Encoded payload, Raw payload]
      */
-    payloadFor(refIdx: number): MultiAttestData;
+    payloadFor(refIdx: number): {
+        payload: MultiAttestData;
+        raw: MultiAttestData;
+    };
     /**
      * Returns an Attestation instance from a JSON decoded schema.
      * @param data
@@ -163,4 +165,3 @@ export declare class Attestation<T = unknown, S extends Schema = GapSchema> impl
      */
     static factory<T = unknown>(data: T, schema: Schema, from: Hex, to: Hex): Attestation<T, Schema<string>>;
 }
-export {};

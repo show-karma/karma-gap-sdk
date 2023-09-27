@@ -1,15 +1,15 @@
-import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
 import { Attestation } from "../Attestation";
 import { GrantDetails, GrantRound } from "../types/attestations";
 import { IMilestone, Milestone } from "./Milestone";
 import { GapSchema } from "../GapSchema";
-import { MultiAttestPayload } from "core/types";
+import { Hex, MultiAttestPayload, SignerOrProvider } from "core/types";
 import { Community } from "./Community";
 export interface IGrant {
-    grant: true;
+    communityUID: Hex;
 }
 export declare class Grant extends Attestation<IGrant> {
     details?: GrantDetails;
+    communityUID: Hex;
     verified?: boolean;
     round?: GrantRound;
     milestones: Milestone[];
@@ -31,7 +31,7 @@ export declare class Grant extends Attestation<IGrant> {
      * @param payload
      * @param projectIdx
      */
-    multiAttestPayload(currentPayload?: MultiAttestPayload, projectIdx?: number): [Attestation<unknown, GapSchema>, import("core/types").MultiAttestData][];
+    multiAttestPayload(currentPayload?: MultiAttestPayload, projectIdx?: number): [Attestation<unknown, GapSchema>, import("core/types").RawMultiAttestPayload][];
     /**
      * @inheritdoc
      */

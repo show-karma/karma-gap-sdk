@@ -159,12 +159,14 @@ class GAPFetcher extends EASClient_1.EASClient {
      * @param name
      * @returns
      */
-    async communityByName(name) {
+    async communityBySlug(slug) {
         const communitySchema = GapSchema_1.GapSchema.find("CommunityDetails");
-        const query = gql_queries_1.gqlQueries.attestationsOf(communitySchema.uid, this.getSearchFieldString("name", name));
+        const query = gql_queries_1.gqlQueries.attestationsOf(communitySchema.uid, this.getSearchFieldString("slug", slug));
         try {
             const { schema: { attestations }, } = await this.query(query);
-            const communities = Attestation_1.Attestation.fromInterface(attestations).map((details) => {
+            if (!attestations.length)
+                throw new Error("Community not found.");
+            const communities = (0, utils_1.mapFilter)(Attestation_1.Attestation.fromInterface(attestations), (details) => !!details.name, (details) => {
                 const community = new Community_1.Community({
                     data: { community: true },
                     uid: details.refUID,
@@ -174,8 +176,6 @@ class GAPFetcher extends EASClient_1.EASClient {
                 community.details = details;
                 return community;
             });
-            if (!communities.length)
-                throw new Error("Community not found.");
             const [withDetails] = await this.communitiesDetails(communities);
             if (!withDetails)
                 throw new Error("Community not found.");
@@ -194,9 +194,9 @@ class GAPFetcher extends EASClient_1.EASClient {
     async communityById(uid) {
         const query = gql_queries_1.gqlQueries.attestation(uid);
         const { attestation } = await this.query(query);
-        const communities = Attestation_1.Attestation.fromInterface([attestation]).map((c) => new Community_1.Community(c));
-        if (!communities.length)
+        if (!attestation)
             throw new Error("Community not found.");
+        const communities = Attestation_1.Attestation.fromInterface([attestation]).map((c) => new Community_1.Community(c));
         const [withDetails] = await this.communitiesDetails(communities);
         if (!withDetails)
             throw new Error("Community not found.");
@@ -212,12 +212,8 @@ class GAPFetcher extends EASClient_1.EASClient {
      */
     async projectsDetails(projects) {
         // Get projects array and fetch details, members, grants, etc then append to the project and return the array.
-        const [projectDetails, tag, externalLink] = GapSchema_1.GapSchema.findMany([
-            "ProjectDetails",
-            "Tag",
-            "ExternalLink",
-        ]);
-        const refQuery = gql_queries_1.gqlQueries.dependentsOf(projects.map((p) => p.uid), [projectDetails.uid, tag.uid, externalLink.uid]);
+        const [projectDetails] = GapSchema_1.GapSchema.findMany(["ProjectDetails"]);
+        const refQuery = gql_queries_1.gqlQueries.dependentsOf(projects.map((p) => p.uid), [projectDetails.uid]);
         const [result, members, grants] = await Promise.all([
             this.query(refQuery),
             this.membersOf(projects),
@@ -226,13 +222,6 @@ class GAPFetcher extends EASClient_1.EASClient {
         const deps = Attestation_1.Attestation.fromInterface(result.attestations || []);
         return projects.map((project) => {
             project.details = (deps.find((ref) => ref.schema.uid === projectDetails.uid && ref.refUID === project.uid));
-            if (project.details) {
-                project.details.links = (deps.filter((ref) => ref.schema.uid === externalLink.uid));
-            }
-            project.tags = (0, utils_1.mapFilter)(deps, (ref) => ref.schema.uid === tag.uid && ref.refUID === project.uid, (ref) => new attestations_1.Tag({
-                ...ref,
-                data: ref.data,
-            }));
             project.members = members.filter((m) => m.refUID === project.uid);
             project.grants = grants.filter((g) => g.refUID === project.uid);
             return project;
@@ -246,11 +235,47 @@ class GAPFetcher extends EASClient_1.EASClient {
     async projectById(uid) {
         const query = gql_queries_1.gqlQueries.attestation(uid);
         const { attestation } = await this.query(query);
+        if (!attestation)
+            throw new Error("Project not found.");
         const projectAttestation = Attestation_1.Attestation.fromInterface([
             attestation,
         ])[0];
         const [result] = await this.projectsDetails([projectAttestation]);
         return result;
+    }
+    /**
+     * Fetch a project by its id.
+     * @param uid
+     * @returns
+     */
+    async projectBySlug(slug) {
+        const projectDetails = GapSchema_1.GapSchema.find("ProjectDetails");
+        const query = gql_queries_1.gqlQueries.attestationsOf(projectDetails.uid, this.getSearchFieldString("slug", slug));
+        const { schema: { attestations }, } = await this.query(query);
+        const projectAttestations = Attestation_1.Attestation.fromInterface(attestations).filter((p) => p.title);
+        if (!projectAttestations.length)
+            throw new Error("Project not found.");
+        const project = new entities_1.Project({
+            data: { project: true },
+            uid: projectAttestations[0].refUID,
+            schema: GapSchema_1.GapSchema.find("Project"),
+            recipient: projectAttestations[0].recipient,
+        });
+        const [withDetails] = await this.projectsDetails([project]);
+        if (!withDetails)
+            throw new Error("Project not found.");
+        return withDetails;
+    }
+    /**
+     * Check if a name is already in use.
+     * @param slug
+     * @returns
+     */
+    async slugExists(slug) {
+        const details = GapSchema_1.GapSchema.find("ProjectDetails");
+        const query = gql_queries_1.gqlQueries.attestationsOf(details.uid, "slug");
+        const { schema: { attestations }, } = await this.query(query);
+        return attestations.some((a) => a.decodedDataJson.includes(slug));
     }
     /**
      * Fetch projects with details and members.
@@ -307,41 +332,41 @@ class GAPFetcher extends EASClient_1.EASClient {
      * @returns
      */
     async grantsOf(grantee, withCommunity) {
-        const [grant, grantDetails, grantVerified, grantRound] = GapSchema_1.GapSchema.findMany(["Grant", "GrantDetails", "GrantVerified", "GrantRound"]);
+        const [grant, grantDetails, grantVerified] = GapSchema_1.GapSchema.findMany([
+            "Grant",
+            "GrantDetails",
+            "GrantVerified",
+        ]);
         const query = gql_queries_1.gqlQueries.attestationsTo(grant.uid, grantee);
         const { schema: { attestations }, } = await this.query(query);
         const grants = Attestation_1.Attestation.fromInterface(attestations);
         if (!grants.length)
             return [];
-        const ref = gql_queries_1.gqlQueries.dependentsOf(grants.map((g) => g.uid), [grantDetails.uid, grantVerified.uid, grantRound.uid], grants.map((g) => g.recipient));
+        const ref = gql_queries_1.gqlQueries.dependentsOf(grants.map((g) => g.uid), [grantDetails.uid, grantVerified.uid], grants.map((g) => g.recipient));
         const results = await this.query(ref);
         const deps = Attestation_1.Attestation.fromInterface(results.attestations || []);
         const milestones = await this.milestonesOf(grants);
         const communities = withCommunity
-            ? await this.communitiesByIds((0, utils_1.mapFilter)(grants, (g) => !!g.details?.communityUID, (g) => g.details.communityUID))
+            ? await this.communitiesByIds((0, utils_1.mapFilter)(grants, (g) => !!g.communityUID, (g) => g.communityUID))
             : [];
         return grants.map((grant) => {
             const refs = deps.filter((ref) => ref.refUID === grant.uid);
-            grant.round = (refs.find((ref) => ref.schema.uid === grantRound.uid && ref.refUID === grant.uid));
             grant.verified = !!refs.find((ref) => ref.schema.uid === grantVerified.uid && ref.refUID === grant.uid);
             grant.details = (refs.find((ref) => ref.schema.uid === grantDetails.uid &&
                 ref.refUID === grant.uid &&
                 typeof ref.endsAt === "undefined"));
             grant.milestones = milestones.filter((m) => m.refUID === grant.uid && typeof m.endsAt !== "undefined");
-            grant.community = communities.find((c) => c.uid === grant.details?.communityUID);
+            grant.community = communities.find((c) => c.uid === grant.communityUID);
             return grant;
         });
     }
     async grantsByCommunity(uid) {
         const [grant, grantDetails] = GapSchema_1.GapSchema.findMany(["Grant", "GrantDetails"]);
-        const query = gql_queries_1.gqlQueries.attestations(grantDetails.uid, uid);
+        const query = gql_queries_1.gqlQueries.attestations(grant.uid, uid);
         const { schema: { attestations }, } = await this.query(query);
-        const grantsDetails = Attestation_1.Attestation.fromInterface(attestations).map((g) => new attestations_1.GrantDetails(g));
-        if (!grantsDetails.length)
+        const grants = Attestation_1.Attestation.fromInterface(attestations).map((g) => new entities_1.Grant(g));
+        if (!grants.length)
             return [];
-        const grantsQuery = gql_queries_1.gqlQueries.attestationsIn(grantsDetails.map((g) => g.refUID));
-        const { attestations: grantAttestations } = await this.query(grantsQuery);
-        const grants = Attestation_1.Attestation.fromInterface(grantAttestations || []).map((g) => new entities_1.Grant(g));
         const refs = gql_queries_1.gqlQueries.dependentsOf(grants.map((g) => g.uid), [grantDetails.uid]);
         const results = await this.query(refs);
         const deps = Attestation_1.Attestation.fromInterface(results.attestations || []);
@@ -350,7 +375,9 @@ class GAPFetcher extends EASClient_1.EASClient {
             grant.details = (deps.find((d) => d.refUID === grant.uid &&
                 d.schema.uid === grantDetails.uid &&
                 typeof d.endsAt === "undefined"));
-            grant.milestones = milestones.filter((m) => m.refUID === grant.uid && typeof m.endsAt !== "undefined");
+            grant.milestones = milestones
+                .filter((m) => m.refUID === grant.uid && typeof m.endsAt !== "undefined")
+                .sort((a, b) => a.endsAt - b.endsAt);
             return grant;
         });
     }
@@ -383,30 +410,13 @@ class GAPFetcher extends EASClient_1.EASClient {
                 .sort((a, b) => a.endsAt - b.endsAt);
         });
         const communities = withCommunity
-            ? await this.communitiesByIds((0, utils_1.mapFilter)(grantsWithDetails, (g) => !!g.details?.communityUID, (g) => g.details.communityUID))
+            ? await this.communitiesByIds((0, utils_1.mapFilter)(grantsWithDetails, (g) => !!g.communityUID, (g) => g.communityUID))
             : [];
         grantsWithDetails.forEach((grant) => {
-            grant.community = communities.find((c) => c.uid === grant.details?.communityUID);
+            grant.community = communities.find((c) => c.uid === grant.communityUID);
         });
         return grantsWithDetails.sort((a, b) => a.milestones?.at(-1)?.endsAt - b.milestones?.at(-1)?.endsAt ||
             a.createdAt.getTime() - b.createdAt.getTime());
-    }
-    /**
-     * Fetch projects by related tag names.
-     * @param names
-     * @returns
-     */
-    async projectsByTags(names) {
-        const [tag, project] = GapSchema_1.GapSchema.findMany(["Tag", "Project"]);
-        const query = gql_queries_1.gqlQueries.attestationsOf(tag.uid);
-        const { schema: { attestations }, } = await this.query(query);
-        const tags = Attestation_1.Attestation.fromInterface(attestations).filter((t) => names.includes(t.name));
-        if (!tags.length)
-            return [];
-        const ref = gql_queries_1.gqlQueries.dependentsOf(tags.map((t) => t.uid), [project.uid]);
-        const results = await this.query(ref);
-        const deps = Attestation_1.Attestation.fromInterface(results.attestations || []);
-        return deps.filter((ref) => ref.schema.uid === project.uid);
     }
     /**
      * Fetch all milestones related to an array of Grants.
@@ -428,13 +438,13 @@ class GAPFetcher extends EASClient_1.EASClient {
             return [];
         const ref = gql_queries_1.gqlQueries.dependentsOf(milestones.map((m) => m.uid), [milestoneApproved.uid, milestoneCompleted.uid]);
         const results = await this.query(ref);
-        const deps = Attestation_1.Attestation.fromInterface(results.attestations || []).map((m) => new attestations_1.MilestoneCompleted(m));
+        const deps = Attestation_1.Attestation.fromInterface(results.attestations || []);
         return milestones.map((milestone) => {
             const refs = deps.filter((ref) => ref.refUID === milestone.uid);
             milestone.endsAt = (0, to_unix_1.toUnix)(milestone.endsAt);
-            milestone.completed = deps.find((dep) => dep.type === "completed" && dep.refUID === milestone.uid);
-            milestone.approved = deps.find((dep) => dep.type === "approved" && dep.refUID === milestone.uid);
-            milestone.rejected = deps.find((dep) => dep.type === "rejected" && dep.refUID === milestone.uid);
+            milestone.completed = refs.find((dep) => dep.type === "completed" && dep.refUID === milestone.uid);
+            milestone.approved = refs.find((dep) => dep.type === "approved" && dep.refUID === milestone.uid);
+            milestone.rejected = refs.find((dep) => dep.type === "rejected" && dep.refUID === milestone.uid);
             return milestone;
         });
     }

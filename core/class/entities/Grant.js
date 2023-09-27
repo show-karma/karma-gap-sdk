@@ -7,7 +7,7 @@ const GapSchema_1 = require("../GapSchema");
 const GAP_1 = require("../GAP");
 const SchemaError_1 = require("../SchemaError");
 const consts_1 = require("../../consts");
-const MultiAttest_1 = require("../contract/MultiAttest");
+const GapContract_1 = require("../contract/GapContract");
 class Grant extends Attestation_1.Attestation {
     constructor() {
         super(...arguments);
@@ -86,7 +86,7 @@ class Grant extends Attestation_1.Attestation {
     async attest(signer) {
         this.assertPayload();
         const payload = this.multiAttestPayload();
-        const uids = await MultiAttest_1.MultiAttest.send(signer, payload.map((p) => p[1]));
+        const uids = await GapContract_1.GapContract.multiAttest(signer, payload.map((p) => p[1]));
         uids.forEach((uid, index) => {
             payload[index][0].uid = uid;
         });
@@ -96,7 +96,7 @@ class Grant extends Attestation_1.Attestation {
      * Validate if the grant has a valid reference to a community.
      */
     assertPayload() {
-        if (!this.details || !this.details?.communityUID) {
+        if (!this.details || !this.communityUID) {
             throw new SchemaError_1.AttestationError("INVALID_REFERENCE", "Grant should include a valid reference to a community on its details.");
         }
         return true;

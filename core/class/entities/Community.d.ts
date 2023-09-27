@@ -1,8 +1,7 @@
-import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
 import { Attestation } from "../Attestation";
 import { CommunityDetails, ICommunityDetails } from "../types/attestations";
 import { Project } from "./Project";
-import { MultiAttestPayload } from "core/types";
+import { MultiAttestPayload, SignerOrProvider } from "core/types";
 import { Grant } from "./Grant";
 export interface ICommunity {
     community: true;

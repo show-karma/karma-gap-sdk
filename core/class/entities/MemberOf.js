@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.MemberOf = void 0;
 const Attestation_1 = require("../Attestation");
 const SchemaError_1 = require("../SchemaError");
-const MultiAttest_1 = require("../contract/MultiAttest");
+const GapContract_1 = require("../contract/GapContract");
 class MemberOf extends Attestation_1.Attestation {
     multiAttestPayload(currentPayload = [], projectIdx = 0) {
         const payload = [...currentPayload];
@@ -16,7 +16,7 @@ class MemberOf extends Attestation_1.Attestation {
     async attest(signer) {
         const payload = this.multiAttestPayload();
         try {
-            const [memberUID, detailsUID] = await MultiAttest_1.MultiAttest.send(signer, payload.map((p) => p[1]));
+            const [memberUID, detailsUID] = await GapContract_1.GapContract.multiAttest(signer, payload.map((p) => p[1]));
             this.uid = memberUID;
             if (this.details && detailsUID) {
                 this.details.uid = detailsUID;

@@ -33,7 +33,7 @@ exports.gqlQueries = {
       attestations(where: {
         id:{in: ${inStatement(uids)}}
         revoked:{equals:false}
-        ${search ? `decodedDataJson:{contains:"${search}"}` : ""}
+        ${search ? `decodedDataJson:{contains:"${search}",mode:insensitive}` : ""}
       }) {${attestationFields}}
     }`,
     attestationsFrom: (schemaId, attester) => schemaQuery(schemaId, `attestations(orderBy:{timeCreated: desc},
@@ -53,7 +53,7 @@ exports.gqlQueries = {
     attestationsOf: (schemaId, search) => schemaQuery(schemaId, `attestations(orderBy:{timeCreated: desc},
         where: {
           revoked:{equals:false}
-          ${search ? `decodedDataJson:{contains:"${search}"}` : ""}
+          ${search ? `decodedDataJson:{contains:"${search}",mode:insensitive}` : ""}
         })
         {${attestationFields}}`),
     dependentsOf: (refs, schemaIds, attesters = []) => `

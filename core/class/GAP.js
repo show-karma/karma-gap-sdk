@@ -12,6 +12,7 @@ const eas_sdk_1 = require("@ethereum-attestation-service/eas-sdk");
 const consts_1 = require("../consts");
 const ethers_1 = require("ethers");
 const MultiAttester_json_1 = __importDefault(require("../abi/MultiAttester.json"));
+const package_json_1 = require("../../package.json");
 /**
  * GAP SDK Facade.
  *
@@ -74,8 +75,26 @@ class GAP extends types_1.Facade {
         this.network = args.network;
         GAP._eas = new eas_sdk_1.EAS(consts_1.Networks[args.network].contracts.eas);
         this.fetch = new GAPFetcher_1.GAPFetcher({ network: args.network });
+        this.assert(args);
+        GAP._gelatoOpts = args.gelatoOpts;
         this._schemas = schemas.map((schema) => new GapSchema_1.GapSchema(schema));
         Schema_1.Schema.validate();
+        console.info(`Loaded GAP SDK v${package_json_1.version}`);
+    }
+    assert(args) {
+        if (args.gelatoOpts &&
+            !(args.gelatoOpts.sponsorUrl || args.gelatoOpts.apiKey)) {
+            throw new Error("You must provide a `sponsorUrl` or an `apiKey`.");
+        }
+        if (args.gelatoOpts?.sponsorUrl && !args.gelatoOpts.env_gelatoApiKey) {
+            throw new Error("You must provide `env_gelatoApiKey` to be able to use it in a backend handler.");
+        }
+        if ((args.gelatoOpts?.env_gelatoApiKey ||
+            args.gelatoOpts?.apiKey ||
+            args.gelatoOpts?.sponsorUrl) &&
+            !args.gelatoOpts?.useGasless) {
+            console.warn("GAP::You are using gelatoOpts but not setting useGasless to true. This will send transactions through the normal provider.");
+        }
     }
     /**
      * Creates the attestation payload using a specific schema.
@@ -121,10 +140,43 @@ class GAP extends types_1.Facade {
      */
     static getMulticall(signer) {
         const address = consts_1.Networks[this.client.network].contracts.multicall;
-        return new ethers_1.ethers.Contract(address, MultiAttester_json_1.default.abi, signer);
+        return new ethers_1.ethers.Contract(address, MultiAttester_json_1.default, signer);
     }
     get schemas() {
         return this._schemas;
     }
+    /**
+     * Defined if the transactions will be gasless or not.
+     *
+     * In case of true, the transactions will be sent through [Gelato](https://gelato.network)
+     * and an API key is needed.
+     */
+    static set gelatoOpts(gelatoOpts) {
+        if (typeof this._gelatoOpts === "undefined") {
+            this._gelatoOpts = gelatoOpts;
+        }
+        else {
+            throw new Error("Cannot change a readonly value gelatoOpts.");
+        }
+    }
+    /**
+     * Defined if the transactions will be gasless or not.
+     *
+     * In case of true, the transactions will be sent through [Gelato](https://gelato.network)
+     * and an API key is needed.
+     */
+    static get gelatoOpts() {
+        return this._gelatoOpts;
+    }
+    static set useGasLess(useGasLess) {
+        if (useGasLess &&
+            !this._gelatoOpts?.apiKey &&
+            !this._gelatoOpts?.sponsorUrl &&
+            !this._gelatoOpts?.env_gelatoApiKey) {
+            throw new Error("You must provide a `sponsorUrl` or an `apiKey` before using gasless transactions.");
+        }
+        this._gelatoOpts.useGasless = useGasLess;
+    }
 }
 exports.GAP = GAP;
+GAP._gelatoOpts = null;

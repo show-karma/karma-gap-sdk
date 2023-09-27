@@ -1,25 +1,24 @@
 import { Attestation } from "../Attestation";
-import { Hex, TExternalLink } from "core/types";
+import { Hex } from "core/types";
 import { Project } from "../entities/Project";
 /** Attestation interfaces */
-export interface IExternalLink {
+export type ExternalLink = {
+    type: string;
     url: string;
-    type: TExternalLink;
-}
-export declare class ExternalLink extends Attestation<IExternalLink> implements IExternalLink {
-    url: string;
-    type: TExternalLink;
-}
+}[];
 export interface ICommunityDetails {
     name: string;
     description: string;
     imageURL: string;
+    slug?: string;
+    links?: ExternalLink;
 }
 export declare class CommunityDetails extends Attestation<ICommunityDetails> implements ICommunityDetails {
     name: string;
     description: string;
     imageURL: string;
-    links: ExternalLink[];
+    links: ExternalLink;
+    slug?: string;
 }
 export interface IGrantDetails {
     title: string;
@@ -28,14 +27,12 @@ export interface IGrantDetails {
     assetAndChainId?: [Hex, number];
     payoutAddress?: Hex;
     description?: string;
-    communityUID: Hex;
     season?: string;
     cycle?: string;
 }
 export declare class GrantDetails extends Attestation<IGrantDetails> implements IGrantDetails {
     title: string;
     proposalURL: string;
-    communityUID: Hex;
     payoutAddress?: Hex;
     amount?: string;
     assetAndChainId?: [Hex, number];
@@ -81,12 +78,17 @@ export interface IProjectDetails {
     title: string;
     description: string;
     imageURL: string;
+    links?: ExternalLink;
+    tags?: ITag[];
+    slug?: string;
 }
 export declare class ProjectDetails extends Attestation<IProjectDetails> implements IProjectDetails {
     title: string;
     description: string;
     imageURL: string;
-    links: ExternalLink[];
+    links: ExternalLink;
+    tags?: ITag[];
+    slug: string;
 }
 export declare class Grantee {
     address: string;

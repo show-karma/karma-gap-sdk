@@ -1,6 +1,5 @@
 import { SchemaEncoder, SchemaItem, SchemaValue } from "@ethereum-attestation-service/eas-sdk";
-import { AttestArgs, Hex, MultiRevokeArgs, SchemaInterface } from "../types";
-import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
+import { AttestArgs, Hex, MultiRevokeArgs, SchemaInterface, SignerOrProvider } from "../types";
 import { Attestation } from "./Attestation";
 /**
  * Represents the EAS Schema and provides methods to encode and decode the schema,

@@ -1,4 +1,4 @@
-import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
+import { SignerOrProvider } from "../../types";
 import { Attestation } from "../Attestation";
 import { MilestoneCompleted } from "../types/attestations";
 export interface IMilestone {

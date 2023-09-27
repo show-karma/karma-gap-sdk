@@ -1,7 +1,6 @@
-import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
 import { Attestation } from "../Attestation";
-import { Grantee, MemberDetails, ProjectDetails, Tag } from "../types/attestations";
-import { Hex, MultiAttestPayload } from "core/types";
+import { Grantee, MemberDetails, ProjectDetails } from "../types/attestations";
+import { Hex, MultiAttestPayload, SignerOrProvider } from "core/types";
 import { Grant } from "./Grant";
 import { MemberOf } from "./MemberOf";
 export interface IProject {
@@ -12,7 +11,6 @@ export declare class Project extends Attestation<IProject> {
     members: MemberOf[];
     grants: Grant[];
     grantee: Grantee;
-    tags: Tag[];
     /**
      * Creates the payload for a multi-attestation.
      *

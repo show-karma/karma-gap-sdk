@@ -178,11 +178,11 @@ class Attestation {
      *
      *
      * @param refIdx
-     * @returns
+     * @returns [Encoded payload, Raw payload]
      */
     payloadFor(refIdx) {
         this.assertPayload();
-        return {
+        const payload = (encode = true) => ({
             uid: consts_1.nullRef,
             refIdx,
             multiRequest: {
@@ -193,11 +193,15 @@ class Attestation {
                         expirationTime: 0n,
                         revocable: this.schema.revocable || true,
                         value: 0n,
-                        data: this.schema.encode(),
+                        data: (encode ? this.schema.encode() : this.schema.schema),
                         recipient: this.recipient,
                     },
                 ],
             },
+        });
+        return {
+            payload: payload(),
+            raw: payload(false),
         };
     }
     /**
@@ -250,7 +254,9 @@ class Attestation {
                     data: attestation.decodedDataJson,
                 }));
             }
-            catch { }
+            catch (e) {
+                console.log(e);
+            }
         });
         return result;
     }

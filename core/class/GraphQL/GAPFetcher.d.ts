@@ -70,7 +70,7 @@ export declare class GAPFetcher extends EASClient {
      * @param name
      * @returns
      */
-    communityByName(name: string): Promise<Community>;
+    communityBySlug(slug: string): Promise<Community>;
     /**
      * Fetch a community by its id. This method will also return the
      * community details and projects.
@@ -89,6 +89,18 @@ export declare class GAPFetcher extends EASClient {
      * @returns
      */
     projectById(uid: Hex): Promise<Project>;
+    /**
+     * Fetch a project by its id.
+     * @param uid
+     * @returns
+     */
+    projectBySlug(slug: string): Promise<Project>;
+    /**
+     * Check if a name is already in use.
+     * @param slug
+     * @returns
+     */
+    slugExists(slug: string): Promise<boolean>;
     /**
      * Fetch projects with details and members.
      * @param name if set, will search by the name.
@@ -126,12 +138,6 @@ export declare class GAPFetcher extends EASClient {
      * @returns
      */
     grantsFor(projects: Project[], withCommunity?: boolean): Promise<Grant[]>;
-    /**
-     * Fetch projects by related tag names.
-     * @param names
-     * @returns
-     */
-    projectsByTags(names: string[]): Promise<Project[]>;
     /**
      * Fetch all milestones related to an array of Grants.
      * @param grants

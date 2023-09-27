@@ -6,6 +6,7 @@ const SchemaError_1 = require("./SchemaError");
 const ethers_1 = require("ethers");
 const consts_1 = require("../consts");
 const GAP_1 = require("./GAP");
+const GapContract_1 = require("./contract/GapContract");
 /**
  * Represents the EAS Schema and provides methods to encode and decode the schema,
  * and validate the schema references.
@@ -122,7 +123,7 @@ class Schema {
         }
         if (type.includes("address") &&
             !ethers_1.ethers.utils.isAddress(value) &&
-            value !== consts_1.nullResolver) {
+            value !== consts_1.zeroAddress) {
             throw new SchemaError_1.SchemaError("INVALID_SCHEMA_FIELD", `Field ${name} is of type ${type} but value is not a valid address.`);
         }
         if (type.includes("bytes") && !value.startsWith("0x")) {
@@ -233,17 +234,35 @@ class Schema {
             });
         }
         const payload = {
-            recipient: to,
-            expirationTime: 0n,
-            revocable: true,
-            data: this.encode(this.schema),
-            refUID,
-        };
-        const tx = await eas.attest({
             schema: this.uid,
-            data: payload,
-        });
-        return tx.wait();
+            data: {
+                raw: {
+                    recipient: to,
+                    expirationTime: 0n,
+                    revocable: true,
+                    data: this.schema,
+                    refUID,
+                    value: 0n,
+                },
+                payload: {
+                    recipient: to,
+                    expirationTime: 0n,
+                    revocable: true,
+                    data: this.encode(this.schema),
+                    refUID,
+                    value: 0n,
+                },
+            },
+        };
+        if (consts_1.useDefaultAttestation.includes(this.name)) {
+            const tx = await eas.attest({
+                schema: this.uid,
+                data: payload.data.payload,
+            });
+            return tx.wait();
+        }
+        const uid = await GapContract_1.GapContract.attest(signer, payload);
+        return uid;
     }
     /**
      * Bulk attest a set of attestations.
