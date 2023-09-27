@@ -1,9 +1,8 @@
-import { MultiAttestPayload } from "core/types";
+import { MultiAttestPayload, SignerOrProvider } from "core/types";
 import { Attestation } from "../Attestation";
 import { MemberDetails } from "../types/attestations";
-import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
 import { AttestationError } from "../SchemaError";
-import { MultiAttest } from "../contract/MultiAttest";
+import { GapContract } from "../contract/GapContract";
 
 export interface IMemberOf {
   memberOf: true;
@@ -26,7 +25,7 @@ export class MemberOf extends Attestation<IMemberOf> {
   async attest(signer: SignerOrProvider) {
     const payload = this.multiAttestPayload();
     try {
-      const [memberUID, detailsUID] = await MultiAttest.send(
+      const [memberUID, detailsUID] = await GapContract.multiAttest(
         signer,
         payload.map((p) => p[1])
       );

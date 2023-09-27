@@ -1,4 +1,3 @@
-import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
 import { Attestation } from "../Attestation";
 import {
   CommunityDetails,
@@ -9,8 +8,8 @@ import { nullRef } from "../../consts";
 import { AttestationError } from "../SchemaError";
 import { GapSchema } from "../GapSchema";
 import { Project } from "./Project";
-import { MultiAttestPayload } from "core/types";
-import { MultiAttest } from "../contract/MultiAttest";
+import { MultiAttestPayload, SignerOrProvider } from "core/types";
+import { GapContract } from "../contract/GapContract";
 import { Grant } from "./Grant";
 
 export interface ICommunity {
@@ -72,7 +71,7 @@ export class Community extends Attestation<ICommunity> {
 
       const payload = this.multiAttestPayload();
 
-      const uids = await MultiAttest.send(
+      const uids = await GapContract.multiAttest(
         signer,
         payload.map((p) => p[1])
       );

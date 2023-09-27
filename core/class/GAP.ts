@@ -4,6 +4,7 @@ import {
   SchemaInterface,
   TNetwork,
   TSchemaName,
+  SignerOrProvider
 } from "../types";
 import { Schema } from "./Schema";
 import { GapSchema } from "./GapSchema";
@@ -11,8 +12,7 @@ import { GAPFetcher } from "./GraphQL/GAPFetcher";
 import { EAS } from "@ethereum-attestation-service/eas-sdk";
 import { MountEntities, Networks } from "../consts";
 import { Wallet, ethers } from "ethers";
-import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
-import Multicall from "../abi/MultiAttester.json";
+import MulticallABI from "../abi/MultiAttester.json";
 
 interface GAPArgs {
   network: TNetwork;
@@ -82,6 +82,8 @@ export class GAP extends Facade {
 
   private _schemas: GapSchema[];
 
+  static _isGasless = null;
+
   constructor(args: GAPArgs) {
     super();
 
@@ -145,7 +147,7 @@ export class GAP extends Facade {
    */
   static getMulticall(signer: SignerOrProvider) {
     const address = Networks[this.client.network].contracts.multicall;
-    return new ethers.Contract(address, Multicall.abi, signer as any);
+    return new ethers.Contract(address, MulticallABI, signer as any);
   }
 
   get schemas() {

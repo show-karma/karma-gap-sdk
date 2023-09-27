@@ -5,13 +5,20 @@ import {
   SchemaItem,
   SchemaValue,
 } from "@ethereum-attestation-service/eas-sdk";
-import { AttestArgs, Hex, MultiRevokeArgs, SchemaInterface } from "../types";
+import {
+  AttestArgs,
+  Hex,
+  MultiRevokeArgs,
+  SchemaInterface,
+  TSchemaName,
+  SignerOrProvider
+} from "../types";
 import { AttestationError, SchemaError } from "./SchemaError";
 import { ethers } from "ethers";
-import { nullResolver } from "../consts";
+import { useDefaultAttestation, zeroAddress } from "../consts";
 import { GAP } from "./GAP";
-import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
 import { Attestation } from "./Attestation";
+import { GapContract } from "./contract/GapContract";
 
 /**
  * Represents the EAS Schema and provides methods to encode and decode the schema,
@@ -137,7 +144,7 @@ export abstract class Schema<T extends string = string>
 
   /**
    * Tests if the current schema is a JSON Schema.
-   * 
+   *
    * @returns boolean
    */
   isJsonSchema() {
@@ -157,7 +164,7 @@ export abstract class Schema<T extends string = string>
     if (
       type.includes("address") &&
       !ethers.utils.isAddress(value) &&
-      value !== nullResolver
+      value !== zeroAddress
     ) {
       throw new SchemaError(
         "INVALID_SCHEMA_FIELD",
@@ -317,14 +324,24 @@ export abstract class Schema<T extends string = string>
       revocable: true,
       data: this.encode(this.schema),
       refUID,
+      value: 0n,
     };
 
-    const tx = await eas.attest({
+    if (useDefaultAttestation.includes(this.name as TSchemaName)) {
+      const tx = await eas.attest({
+        schema: this.uid,
+        data: payload,
+      });
+
+      return tx.wait() as Promise<Hex>;
+    }
+
+    const uid = await GapContract.attestBySig(signer, {
       schema: this.uid,
       data: payload,
     });
 
-    return tx.wait() as Promise<Hex>;
+    return uid;
   }
 
   /**

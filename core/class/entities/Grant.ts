@@ -1,4 +1,3 @@
-import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
 import { Attestation } from "../Attestation";
 import { GrantDetails, GrantRound } from "../types/attestations";
 import { IMilestone, Milestone } from "./Milestone";
@@ -6,15 +5,17 @@ import { GapSchema } from "../GapSchema";
 import { GAP } from "../GAP";
 import { AttestationError } from "../SchemaError";
 import { nullRef } from "../../consts";
-import { MultiAttestPayload } from "core/types";
-import { MultiAttest } from "../contract/MultiAttest";
+import { Hex, MultiAttestPayload, SignerOrProvider } from "core/types";
+import { GapContract } from "../contract/GapContract";
 import { Community } from "./Community";
 
 export interface IGrant {
-  grant: true;
+  communityUID: Hex;
 }
+
 export class Grant extends Attestation<IGrant> {
   details?: GrantDetails;
+  communityUID: Hex;
   verified?: boolean = false;
   round?: GrantRound;
   milestones: Milestone[] = [];
@@ -98,7 +99,7 @@ export class Grant extends Attestation<IGrant> {
     this.assertPayload();
     const payload = this.multiAttestPayload();
 
-    const uids = await MultiAttest.send(
+    const uids = await GapContract.multiAttest(
       signer,
       payload.map((p) => p[1])
     );
@@ -114,7 +115,7 @@ export class Grant extends Attestation<IGrant> {
    * Validate if the grant has a valid reference to a community.
    */
   protected assertPayload() {
-    if (!this.details || !this.details?.communityUID) {
+    if (!this.details || !this.communityUID) {
       throw new AttestationError(
         "INVALID_REFERENCE",
         "Grant should include a valid reference to a community on its details."

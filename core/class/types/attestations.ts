@@ -39,7 +39,7 @@ export interface IGrantDetails {
   assetAndChainId?: [Hex, number];
   payoutAddress?: Hex;
   description?: string;
-  communityUID: Hex;
+  // communityUID: Hex;
   season?: string;
   cycle?: string;
 }
@@ -49,7 +49,7 @@ export class GrantDetails
 {
   title: string;
   proposalURL: string;
-  communityUID: Hex;
+  // communityUID: Hex;
   payoutAddress?: Hex;
   amount?: string = "0";
   assetAndChainId?: [Hex, number];
@@ -82,6 +82,7 @@ export interface IMemberDetails {
   name: string;
   profilePictureURL: string;
 }
+
 export class MemberDetails
   extends Attestation<IMemberDetails>
   implements IMemberDetails

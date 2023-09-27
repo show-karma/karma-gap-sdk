@@ -5,9 +5,13 @@ import {
   MultiAttestationRequest,
   SchemaItem,
 } from "@ethereum-attestation-service/eas-sdk";
-import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
+import { SignerOrProvider as EASSigner } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
 import { Attestation } from "./class";
 export type Hex = `0x${string}`;
+
+export type SignerOrProvider = EASSigner & {
+  address: Hex;
+};
 
 export interface SchemaInterface<T extends string = string> {
   name: string;
@@ -44,6 +48,20 @@ export type TSchemaName =
   | "MilestoneApproved"
   | "Project"
   | "ProjectDetails"
+  | "Details"
+  | "Tag";
+
+export type TResolvedSchemaNames =
+  | "Community"
+  | "ExternalLink"
+  | "Grant"
+  | "GrantRound"
+  | "GrantVerified"
+  | "MemberOf"
+  | "MilestoneCompleted"
+  | "MilestoneApproved"
+  | "Project"
+  | "Details"
   | "Tag";
 
 export type TExternalLink =
@@ -57,9 +75,9 @@ export type TNetwork =
   // | "mainnet"
   // | "base-goerli"
   // | "optimism"
-  // | "optimism-goerli"
+  | "optimism-goerli"
   // | "arbitrum"
-  "sepolia";
+  | "sepolia";
 
 /**
  * Generic GAP Facade interface.
@@ -95,7 +113,7 @@ export interface EASNetworkConfig {
   /**
    * A tuple containing the schema name and it's UID for that network
    */
-  schemas: Record<TSchemaName, Hex>;
+  schemas: Record<TResolvedSchemaNames, Hex>;
 }
 
 export type IGapSchema = SchemaInterface<TSchemaName>;
