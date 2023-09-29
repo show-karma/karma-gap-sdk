@@ -7,7 +7,6 @@
     "license": "MIT",
     "private": false,
     "scripts": {
-        "prepublishOnly": "npm version patch",
         "publish": "npm publish --scope=show-karma --access public"
     },
     "dependencies": {
