@@ -1,13 +1,14 @@
 {
     "name": "karma-gap-sdk",
-    "version": "0.1.21",
+    "version": "0.1.0",
     "description": "Simple and easy interface between EAS and Karma GAP.",
     "main": "dist/index.js",
     "author": "KarmaHQ",
     "license": "MIT",
     "private": false,
     "scripts": {
-        "publish": "npm publish --scope=show-karma --access public"
+        "prepublishOnly": "npx tsc && npm version patch",
+        "deploy": "npx ts-node ./core/scripts/deploy.ts"
     },
     "dependencies": {
         "@ethereum-attestation-service/eas-sdk": "^1.1.0-beta.2",

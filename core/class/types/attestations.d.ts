@@ -95,3 +95,12 @@ export declare class Grantee {
     projects: Project[];
     constructor(address: Hex, projects?: Project[]);
 }
+export interface IGrantUpdate {
+    title: string;
+    text: string;
+    type?: string;
+}
+export declare class GrantUpdate extends Attestation<IGrantUpdate> implements IGrantUpdate {
+    title: string;
+    text: string;
+}

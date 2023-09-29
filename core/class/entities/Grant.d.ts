@@ -1,5 +1,5 @@
 import { Attestation } from "../Attestation";
-import { GrantDetails, GrantRound } from "../types/attestations";
+import { GrantDetails, GrantRound, GrantUpdate, IGrantUpdate } from "../types/attestations";
 import { IMilestone, Milestone } from "./Milestone";
 import { GapSchema } from "../GapSchema";
 import { Hex, MultiAttestPayload, SignerOrProvider } from "core/types";
@@ -14,6 +14,7 @@ export declare class Grant extends Attestation<IGrant> {
     round?: GrantRound;
     milestones: Milestone[];
     community: Community;
+    updates: GrantUpdate[];
     verify(signer: SignerOrProvider): Promise<void>;
     /**
      * Add milestones to the grant.
@@ -36,6 +37,7 @@ export declare class Grant extends Attestation<IGrant> {
      * @inheritdoc
      */
     attest(signer: SignerOrProvider): Promise<void>;
+    attestUpdate(signer: SignerOrProvider, data: IGrantUpdate): Promise<void>;
     /**
      * Validate if the grant has a valid reference to a community.
      */

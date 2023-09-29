@@ -74,7 +74,7 @@ class GapContract {
      */
     static async attest(signer, payload) {
         const contract = GAP_1.GAP.getMulticall(signer);
-        if (GAP_1.GAP.gelatoOpts.useGasless) {
+        if (GAP_1.GAP.gelatoOpts?.useGasless) {
             return this.attestBySig(signer, payload);
         }
         const tx = await contract.functions.attest({

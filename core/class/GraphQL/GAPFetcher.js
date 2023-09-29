@@ -349,7 +349,7 @@ class GAPFetcher extends EASClient_1.EASClient {
         const communities = withCommunity
             ? await this.communitiesByIds((0, utils_1.mapFilter)(grants, (g) => !!g.communityUID, (g) => g.communityUID))
             : [];
-        return grants.map((grant) => {
+        const withDetails = grants.map((grant) => {
             const refs = deps.filter((ref) => ref.refUID === grant.uid);
             grant.verified = !!refs.find((ref) => ref.schema.uid === grantVerified.uid && ref.refUID === grant.uid);
             grant.details = (refs.find((ref) => ref.schema.uid === grantDetails.uid &&
@@ -357,6 +357,17 @@ class GAPFetcher extends EASClient_1.EASClient {
                 typeof ref.endsAt === "undefined"));
             grant.milestones = milestones.filter((m) => m.refUID === grant.uid && typeof m.endsAt !== "undefined");
             grant.community = communities.find((c) => c.uid === grant.communityUID);
+            return grant;
+        });
+        return this.grantsUpdates(withDetails);
+    }
+    async grantsUpdates(grants) {
+        const details = GapSchema_1.GapSchema.find("GrantDetails");
+        const query = gql_queries_1.gqlQueries.attestationsOf(details.uid, this.getSearchFieldString("type", "grant-update"), grants.map((g) => g.uid));
+        const { schema: { attestations }, } = await this.query(query);
+        const updates = Attestation_1.Attestation.fromInterface(attestations);
+        return grants.map((grant) => {
+            grant.updates = updates.filter((u) => u.refUID === grant.uid);
             return grant;
         });
     }
@@ -415,7 +426,8 @@ class GAPFetcher extends EASClient_1.EASClient {
         grantsWithDetails.forEach((grant) => {
             grant.community = communities.find((c) => c.uid === grant.communityUID);
         });
-        return grantsWithDetails.sort((a, b) => a.milestones?.at(-1)?.endsAt - b.milestones?.at(-1)?.endsAt ||
+        const grantsWithUpdates = await this.grantsUpdates(grantsWithDetails);
+        return grantsWithUpdates.sort((a, b) => a.milestones?.at(-1)?.endsAt - b.milestones?.at(-1)?.endsAt ||
             a.createdAt.getTime() - b.createdAt.getTime());
     }
     /**
@@ -481,7 +493,7 @@ class GAPFetcher extends EASClient_1.EASClient {
     getSearchFieldString(field, value) {
         return [
             String.raw `\\\\\"${field}\\\\\":\\\\\"${value}\\\\\"`,
-            String.raw `\\\\\"${field}\\\\\": \\\\\"${value}\\\\\"`
+            String.raw `\\\\\"${field}\\\\\": \\\\\"${value}\\\\\"`,
         ];
     }
 }

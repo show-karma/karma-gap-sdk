@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Grant = void 0;
 const Attestation_1 = require("../Attestation");
+const attestations_1 = require("../types/attestations");
 const Milestone_1 = require("./Milestone");
 const GapSchema_1 = require("../GapSchema");
 const GAP_1 = require("../GAP");
@@ -13,6 +14,7 @@ class Grant extends Attestation_1.Attestation {
         super(...arguments);
         this.verified = false;
         this.milestones = [];
+        this.updates = [];
     }
     async verify(signer) {
         const eas = GAP_1.GAP.eas.connect(signer);
@@ -91,6 +93,19 @@ class Grant extends Attestation_1.Attestation {
             payload[index][0].uid = uid;
         });
         console.log(uids);
+    }
+    async attestUpdate(signer, data) {
+        const grantUpdate = new attestations_1.GrantUpdate({
+            data: {
+                ...data,
+                type: "grant-update",
+            },
+            recipient: this.recipient,
+            refUID: this.uid,
+            schema: GapSchema_1.GapSchema.find("GrantDetails"),
+        });
+        await grantUpdate.attest(signer);
+        this.updates.push(grantUpdate);
     }
     /**
      * Validate if the grant has a valid reference to a community.

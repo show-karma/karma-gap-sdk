@@ -43,6 +43,8 @@ async function sendByApiKey(...params) {
  * @returns txn hash
  */
 async function sendGelatoTxn(...params) {
+    if (!GAP_1.GAP.gelatoOpts)
+        throw new Error("Gelato opts not set.");
     const { env_gelatoApiKey, sponsorUrl, useGasless } = GAP_1.GAP.gelatoOpts;
     if (!useGasless)
         throw new Error("Gasless is not enabled.");

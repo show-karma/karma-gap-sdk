@@ -52,9 +52,12 @@ exports.gqlQueries = {
           recipient: {equals: "${recipient}"}
           revoked: {equals: false}
         }) {${attestationFields}}`),
-    attestationsOf: (schemaId, search) => schemaQuery(schemaId, `attestations(orderBy:{timeCreated: desc},
+    attestationsOf: (schemaId, search, refUids) => schemaQuery(schemaId, `attestations(orderBy:{timeCreated: desc},
         where: {
           revoked:{equals:false}
+          ${refUids && refUids.length
+        ? `refUID:{in: ${inStatement(refUids)}}`
+        : ""}
           ${search
         ? `OR: [
                 ${[search]

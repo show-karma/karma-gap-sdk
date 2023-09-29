@@ -131,6 +131,7 @@ export declare class GAPFetcher extends EASClient {
      * @returns
      */
     grantsOf(grantee: Hex, withCommunity?: boolean): Promise<Grant[]>;
+    grantsUpdates(grants: Grant[]): Promise<Grant[]>;
     grantsByCommunity(uid: Hex): Promise<Grant[]>;
     /**
      * Fetch grants for an array of projects with milestones.
