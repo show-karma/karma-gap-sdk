@@ -75,12 +75,21 @@ export const gqlQueries = {
           revoked: {equals: false}
         }) {${attestationFields}}`
     ),
-  attestationsOf: (schemaId: Hex, search?: string[] | string) =>
+  attestationsOf: (
+    schemaId: Hex,
+    search?: string[] | string,
+    refUids?: Hex[]
+  ) =>
     schemaQuery(
       schemaId,
       `attestations(orderBy:{timeCreated: desc},
         where: {
           revoked:{equals:false}
+          ${
+            refUids && refUids.length
+              ? `refUID:{in: ${inStatement(refUids)}}`
+              : ""
+          }
           ${
             search
               ? `OR: [

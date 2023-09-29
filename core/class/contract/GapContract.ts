@@ -115,7 +115,7 @@ export class GapContract {
   ) {
     const contract = GAP.getMulticall(signer);
 
-    if (GAP.gelatoOpts.useGasless) {
+    if (GAP.gelatoOpts?.useGasless) {
       return this.attestBySig(signer, payload);
     }
 

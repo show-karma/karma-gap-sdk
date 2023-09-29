@@ -71,7 +71,7 @@ export type TExternalLink =
 export type TNetwork =
   // | "mainnet"
   // | "base-goerli"
-  // | "optimism"
+  | "optimism"
   | "optimism-goerli"
   // | "arbitrum"
   | "sepolia";

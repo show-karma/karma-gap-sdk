@@ -48,6 +48,7 @@ async function sendByApiKey(
 async function sendGelatoTxn(
   ...params: Parameters<GelatoRelay["sponsoredCall"]>
 ) {
+  if (!GAP.gelatoOpts) throw new Error("Gelato opts not set.");
   const { env_gelatoApiKey, sponsorUrl, useGasless } = GAP.gelatoOpts;
 
   if (!useGasless) throw new Error("Gasless is not enabled.");

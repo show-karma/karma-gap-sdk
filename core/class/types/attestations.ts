@@ -132,3 +132,17 @@ export class Grantee {
     this.projects = projects;
   }
 }
+
+export interface IGrantUpdate {
+  title: string;
+  text: string;
+  type?: string;
+}
+
+export class GrantUpdate
+  extends Attestation<IGrantUpdate>
+  implements IGrantUpdate
+{
+  title: string;
+  text: string;
+}

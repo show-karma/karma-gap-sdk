@@ -1,5 +1,10 @@
 import { Attestation } from "../Attestation";
-import { GrantDetails, GrantRound } from "../types/attestations";
+import {
+  GrantDetails,
+  GrantRound,
+  GrantUpdate,
+  IGrantUpdate,
+} from "../types/attestations";
 import { IMilestone, Milestone } from "./Milestone";
 import { GapSchema } from "../GapSchema";
 import { GAP } from "../GAP";
@@ -20,6 +25,7 @@ export class Grant extends Attestation<IGrant> {
   round?: GrantRound;
   milestones: Milestone[] = [];
   community: Community;
+  updates: GrantUpdate[] = [];
 
   async verify(signer: SignerOrProvider) {
     const eas = GAP.eas.connect(signer);
@@ -109,6 +115,21 @@ export class Grant extends Attestation<IGrant> {
     });
 
     console.log(uids);
+  }
+
+  async attestUpdate(signer: SignerOrProvider, data: IGrantUpdate) {
+    const grantUpdate = new GrantUpdate({
+      data: {
+        ...data,
+        type: "grant-update",
+      },
+      recipient: this.recipient,
+      refUID: this.uid,
+      schema: GapSchema.find("GrantDetails"),
+    });
+
+    await grantUpdate.attest(signer);
+    this.updates.push(grantUpdate);
   }
 
   /**

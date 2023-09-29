@@ -79,7 +79,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       Grant:
         "0x12837231f48acbca4e1e7f4416f684f3353bd4d71d4f03a09d29e5ffa6f21a50",
       GrantVerified:
-        "",
+        "0x13adc8df8a7324b1651e8bcec948b3e2d4fcfa2a88a52136206cb9ea44836e93",
       MemberOf:
         "0x7fbb8a65924d8ad2ae12356e04b1418043e8361ba3b1b6c917de2e23df3ec81c",
       MilestoneApproved:

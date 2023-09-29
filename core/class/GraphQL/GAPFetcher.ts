@@ -13,6 +13,7 @@ import {
 import {
   CommunityDetails,
   GrantDetails,
+  GrantUpdate,
   Grantee,
   MemberDetails,
   MilestoneCompleted,
@@ -521,7 +522,7 @@ export class GAPFetcher extends EASClient {
         )
       : [];
 
-    return grants.map((grant) => {
+    const withDetails = grants.map((grant) => {
       const refs = deps.filter((ref) => ref.refUID === grant.uid);
 
       grant.verified = !!refs.find(
@@ -544,6 +545,29 @@ export class GAPFetcher extends EASClient {
 
       grant.community = communities.find((c) => c.uid === grant.communityUID);
 
+      return grant;
+    });
+
+    return this.grantsUpdates(withDetails);
+  }
+
+  async grantsUpdates(grants: Grant[]) {
+    const details = GapSchema.find("GrantDetails");
+
+    const query = gqlQueries.attestationsOf(
+      details.uid,
+      this.getSearchFieldString("type", "grant-update"),
+      grants.map((g) => g.uid)
+    );
+
+    const {
+      schema: { attestations },
+    } = await this.query<SchemaRes>(query);
+
+    const updates = Attestation.fromInterface<GrantUpdate>(attestations);
+
+    return grants.map((grant) => {
+      grant.updates = updates.filter((u) => u.refUID === grant.uid);
       return grant;
     });
   }
@@ -662,7 +686,9 @@ export class GAPFetcher extends EASClient {
       grant.community = communities.find((c) => c.uid === grant.communityUID);
     });
 
-    return grantsWithDetails.sort(
+    const grantsWithUpdates = await this.grantsUpdates(grantsWithDetails);
+
+    return grantsWithUpdates.sort(
       (a, b) =>
         a.milestones?.at(-1)?.endsAt - b.milestones?.at(-1)?.endsAt ||
         a.createdAt.getTime() - b.createdAt.getTime()
@@ -778,9 +804,9 @@ export class GAPFetcher extends EASClient {
    * @param value
    */
   private getSearchFieldString(field: string, value: string) {
-    return[
+    return [
       String.raw`\\\\\"${field}\\\\\":\\\\\"${value}\\\\\"`,
-      String.raw`\\\\\"${field}\\\\\": \\\\\"${value}\\\\\"`
+      String.raw`\\\\\"${field}\\\\\": \\\\\"${value}\\\\\"`,
     ];
   }
 }
