@@ -4,6 +4,7 @@ import { GAPFetcher } from "./GraphQL/GAPFetcher";
 import { ethers } from "ethers";
 interface GAPArgs {
     network: TNetwork;
+    globalSchemas?: boolean;
     schemas?: SchemaInterface<TSchemaName>[];
     /**
      * Defined if the transactions will be gasless or not.
