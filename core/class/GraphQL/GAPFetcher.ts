@@ -368,7 +368,10 @@ export class GAPFetcher extends EASClient {
       attestation,
     ])[0];
 
-    const [result] = await this.projectsDetails([projectAttestation]);
+    const [result] = await this.projectsDetails([
+      new Project(projectAttestation),
+    ]);
+
     return result;
   }
 

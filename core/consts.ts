@@ -14,7 +14,6 @@ export const useDefaultAttestation: TSchemaName[] = [
   "MilestoneCompleted",
   "GrantVerified",
   "Community",
-  "CommunityDetails",
 ];
 
 export const nullRef =
@@ -63,7 +62,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
   //     Project: "",
   //   },
   // },
-  "optimism": {
+  optimism: {
     chainId: 10,
     url: "https://optimism.easscan.org/graphql",
     contracts: {

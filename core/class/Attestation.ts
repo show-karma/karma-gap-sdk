@@ -116,6 +116,7 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
   setValues(values: T) {
     const isJsonSchema = this.schema.isJsonSchema();
     if (isJsonSchema) this.schema.setValue("json", JSON.stringify(values));
+    this._data = values;
 
     Object.entries(values).forEach(([key, value]) => {
       this[key] = value;
