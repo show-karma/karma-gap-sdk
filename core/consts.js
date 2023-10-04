@@ -10,7 +10,6 @@ exports.useDefaultAttestation = [
     "MilestoneCompleted",
     "GrantVerified",
     "Community",
-    "CommunityDetails",
 ];
 exports.nullRef = "0x0000000000000000000000000000000000000000000000000000000000000000";
 // TODO: Remove null resolver and change usage to zero address
@@ -55,7 +54,7 @@ exports.Networks = {
     //     Project: "",
     //   },
     // },
-    "optimism": {
+    optimism: {
         chainId: 10,
         url: "https://optimism.easscan.org/graphql",
         contracts: {

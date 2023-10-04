@@ -240,7 +240,9 @@ class GAPFetcher extends EASClient_1.EASClient {
         const projectAttestation = Attestation_1.Attestation.fromInterface([
             attestation,
         ])[0];
-        const [result] = await this.projectsDetails([projectAttestation]);
+        const [result] = await this.projectsDetails([
+            new entities_1.Project(projectAttestation),
+        ]);
         return result;
     }
     /**
