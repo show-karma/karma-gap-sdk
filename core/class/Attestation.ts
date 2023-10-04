@@ -18,6 +18,7 @@ import { getDate } from "../utils/get-date";
 import { GAP } from "./GAP";
 import { GapSchema } from "./GapSchema";
 import { nullRef } from "../consts";
+import { GapContract } from "./contract/GapContract";
 
 export interface AttestationArgs<T = unknown, S extends Schema = Schema> {
   data: T | string;
@@ -146,17 +147,19 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
    * @param signer
    * @returns
    */
-  async revoke(signer: SignerOrProvider) {
+  revoke(signer: SignerOrProvider) {
     try {
-      const eas = GAP.eas.connect(signer);
-      const tx = await eas.revoke({
-        data: {
-          uid: this.uid,
+      return GapContract.multiRevoke(signer, [
+        {
+          data: [
+            {
+              uid: this.uid,
+              value: 0n,
+            },
+          ],
+          schema: this.schema.uid,
         },
-        schema: this.schema.uid,
-      });
-
-      return tx.wait();
+      ]);
     } catch (error) {
       console.error(error);
       throw new SchemaError("REVOKE_ERROR", "Error revoking attestation.");
@@ -318,8 +321,8 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
             data: attestation.decodedDataJson,
           })
         );
-      } catch(e) {
-        console.log(e)
+      } catch (e) {
+        console.log(e);
       }
     });
     return result;

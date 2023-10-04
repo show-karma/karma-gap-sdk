@@ -9,6 +9,7 @@ import { serializeWithBigint } from "../../utils/serialize-bigint";
 import { Gelato, sendGelatoTxn } from "../../utils/gelato/send-gelato-txn";
 import { mapFilter } from "../../utils";
 import {
+  MultiRevocationRequest,
   getUIDFromAttestTx,
   getUIDsFromAttestReceipt,
 } from "@ethereum-attestation-service/eas-sdk";
@@ -241,6 +242,63 @@ export class GapContract {
 
     const attestations = await this.getTransactionLogs(signer, txn);
     return attestations;
+  }
+
+  static async multiRevoke(
+    signer: SignerOrProvider,
+    payload: MultiRevocationRequest[]
+  ) {
+    const contract = GAP.getMulticall(signer);
+
+    if (GAP.gelatoOpts?.useGasless) {
+      return this.multiRevokeBySig(signer, payload);
+    }
+
+    const tx = await contract.functions.multiRevoke(payload);
+
+    return tx.wait?.();
+  }
+
+  /**
+   * Performs a referenced multi attestation.
+   *
+   * @returns an array with the attestation UIDs.
+   */
+  static async multiRevokeBySig(
+    signer: SignerOrProvider,
+    payload: MultiRevocationRequest[]
+  ): Promise<void> {
+    const contract = GAP.getMulticall(signer);
+    const expiry = BigInt(Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30);
+    const address = await this.getSignerAddress(signer);
+
+    const payloadHash = serializeWithBigint(payload);
+
+    const { r, s, v, nonce, chainId } = await this.signAttestation(
+      signer,
+      payloadHash,
+      expiry
+    );
+
+    console.info({ r, s, v, nonce, chainId, payloadHash, address });
+
+    const { data: populatedTxn } =
+      await contract.populateTransaction.multiRevokeBySig(
+        payload,
+        payloadHash,
+        address,
+        nonce,
+        expiry,
+        v,
+        r,
+        s
+      );
+
+    if (!populatedTxn) throw new Error("Transaction data is empty");
+
+    await sendGelatoTxn(
+      ...Gelato.buildArgs(populatedTxn, chainId, contract.address as Hex)
+    );
   }
 
   private static async getTransactionLogs(

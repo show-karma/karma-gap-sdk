@@ -17,6 +17,7 @@ import { version } from "../../package.json";
 
 interface GAPArgs {
   network: TNetwork;
+  globalSchemas?: boolean;
   schemas?: SchemaInterface<TSchemaName>[];
   /**
    * Defined if the transactions will be gasless or not.
@@ -169,7 +170,14 @@ export class GAP extends Facade {
     this.assert(args);
     GAP._gelatoOpts = args.gelatoOpts;
 
-    this._schemas = schemas.map((schema) => new GapSchema(schema));
+    this._schemas = schemas.map(
+      (schema) =>
+        new GapSchema(
+          schema,
+          false,
+          args.globalSchemas ? !args.globalSchemas : false
+        )
+    );
     Schema.validate();
 
     console.info(`Loaded GAP SDK v${version}`);
