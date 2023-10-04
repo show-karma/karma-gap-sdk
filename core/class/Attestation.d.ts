@@ -86,7 +86,7 @@ export declare class Attestation<T = unknown, S extends Schema = GapSchema> impl
      * @param signer
      * @returns
      */
-    revoke(signer: SignerOrProvider): Promise<void>;
+    revoke(signer: SignerOrProvider): Promise<any>;
     /**
      * Attests this attestation and revokes the previous one.
      * @param signer

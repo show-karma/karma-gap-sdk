@@ -138,6 +138,31 @@ class GapContract {
         const attestations = await this.getTransactionLogs(signer, txn);
         return attestations;
     }
+    static async multiRevoke(signer, payload) {
+        const contract = GAP_1.GAP.getMulticall(signer);
+        if (GAP_1.GAP.gelatoOpts?.useGasless) {
+            return this.multiRevokeBySig(signer, payload);
+        }
+        const tx = await contract.functions.multiRevoke(payload);
+        return tx.wait?.();
+    }
+    /**
+     * Performs a referenced multi attestation.
+     *
+     * @returns an array with the attestation UIDs.
+     */
+    static async multiRevokeBySig(signer, payload) {
+        const contract = GAP_1.GAP.getMulticall(signer);
+        const expiry = BigInt(Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30);
+        const address = await this.getSignerAddress(signer);
+        const payloadHash = (0, serialize_bigint_1.serializeWithBigint)(payload);
+        const { r, s, v, nonce, chainId } = await this.signAttestation(signer, payloadHash, expiry);
+        console.info({ r, s, v, nonce, chainId, payloadHash, address });
+        const { data: populatedTxn } = await contract.populateTransaction.multiRevokeBySig(payload, payloadHash, address, nonce, expiry, v, r, s);
+        if (!populatedTxn)
+            throw new Error("Transaction data is empty");
+        await (0, send_gelato_txn_1.sendGelatoTxn)(...send_gelato_txn_1.Gelato.buildArgs(populatedTxn, chainId, contract.address));
+    }
     static async getTransactionLogs(signer, txnHash) {
         const txn = await signer.provider.getTransactionReceipt(txnHash);
         if (!txn || !txn.logs.length)

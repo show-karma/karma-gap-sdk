@@ -99,7 +99,7 @@ class GAP extends types_1.Facade {
         this.fetch = new GAPFetcher_1.GAPFetcher({ network: args.network });
         this.assert(args);
         GAP._gelatoOpts = args.gelatoOpts;
-        this._schemas = schemas.map((schema) => new GapSchema_1.GapSchema(schema, false, !args.globalSchemas));
+        this._schemas = schemas.map((schema) => new GapSchema_1.GapSchema(schema, false, args.globalSchemas ? !args.globalSchemas : false));
         Schema_1.Schema.validate();
         console.info(`Loaded GAP SDK v${package_json_1.version}`);
     }

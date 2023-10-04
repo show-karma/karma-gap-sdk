@@ -4,8 +4,8 @@ exports.Attestation = void 0;
 const Schema_1 = require("./Schema");
 const SchemaError_1 = require("./SchemaError");
 const get_date_1 = require("../utils/get-date");
-const GAP_1 = require("./GAP");
 const consts_1 = require("../consts");
+const GapContract_1 = require("./contract/GapContract");
 /**
  * Represents the EAS Attestation and provides methods to manage attestations.
  * @example
@@ -99,16 +99,19 @@ class Attestation {
      * @param signer
      * @returns
      */
-    async revoke(signer) {
+    revoke(signer) {
         try {
-            const eas = GAP_1.GAP.eas.connect(signer);
-            const tx = await eas.revoke({
-                data: {
-                    uid: this.uid,
+            return GapContract_1.GapContract.multiRevoke(signer, [
+                {
+                    data: [
+                        {
+                            uid: this.uid,
+                            value: 0n,
+                        },
+                    ],
+                    schema: this.schema.uid,
                 },
-                schema: this.schema.uid,
-            });
-            return tx.wait();
+            ]);
         }
         catch (error) {
             console.error(error);

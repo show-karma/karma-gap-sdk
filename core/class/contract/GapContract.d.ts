@@ -1,4 +1,5 @@
 import { Hex, RawAttestationPayload, RawMultiAttestPayload, SignerOrProvider } from "core/types";
+import { MultiRevocationRequest } from "@ethereum-attestation-service/eas-sdk";
 export declare class GapContract {
     /**
      * Signs a message for the delegated attestation.
@@ -40,5 +41,12 @@ export declare class GapContract {
      * @returns an array with the attestation UIDs.
      */
     static multiAttestBySig(signer: SignerOrProvider, payload: RawMultiAttestPayload[]): Promise<Hex[]>;
+    static multiRevoke(signer: SignerOrProvider, payload: MultiRevocationRequest[]): Promise<any>;
+    /**
+     * Performs a referenced multi attestation.
+     *
+     * @returns an array with the attestation UIDs.
+     */
+    static multiRevokeBySig(signer: SignerOrProvider, payload: MultiRevocationRequest[]): Promise<void>;
     private static getTransactionLogs;
 }
