@@ -120,14 +120,14 @@ class Attestation {
         }
     }
     /**
-     * Attests this attestation and revokes the previous one.
-     * @param signer
-     * @param args overridable params
+     * Attests the data using the specified signer and schema.
+     * @param signer - The signer or provider to use for attestation.
+     * @param args - Additional arguments to pass to the schema's `attest` method.
+     * @returns A Promise that resolves to the UID of the attestation.
+     * @throws An `AttestationError` if an error occurs during attestation.
      */
     async attest(signer, ...args) {
         console.log(`Attesting ${this.schema.name}`);
-        if (this.uid && this.uid !== consts_1.nullRef)
-            await this.revoke(signer);
         try {
             const uid = await this.schema.attest({
                 data: this.data,

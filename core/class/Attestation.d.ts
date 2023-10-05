@@ -88,9 +88,11 @@ export declare class Attestation<T = unknown, S extends Schema = GapSchema> impl
      */
     revoke(signer: SignerOrProvider): Promise<any>;
     /**
-     * Attests this attestation and revokes the previous one.
-     * @param signer
-     * @param args overridable params
+     * Attests the data using the specified signer and schema.
+     * @param signer - The signer or provider to use for attestation.
+     * @param args - Additional arguments to pass to the schema's `attest` method.
+     * @returns A Promise that resolves to the UID of the attestation.
+     * @throws An `AttestationError` if an error occurs during attestation.
      */
     attest(signer: SignerOrProvider, ...args: unknown[]): Promise<void>;
     /**

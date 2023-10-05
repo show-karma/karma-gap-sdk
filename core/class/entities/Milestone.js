@@ -16,8 +16,6 @@ class Milestone extends Attestation_1.Attestation {
     async approve(signer, reason = "") {
         if (!this.completed)
             throw new SchemaError_1.AttestationError("ATTEST_ERROR", "Milestone is not completed");
-        if (this.approved)
-            throw new SchemaError_1.AttestationError("ATTEST_ERROR", "Milestone is already approved");
         const schema = GapSchema_1.GapSchema.find("MilestoneCompleted");
         schema.setValue("type", "approved");
         schema.setValue("reason", reason);
@@ -51,8 +49,6 @@ class Milestone extends Attestation_1.Attestation {
     async reject(signer, reason = "") {
         if (!this.completed)
             throw new SchemaError_1.AttestationError("ATTEST_ERROR", "Milestone is not completed");
-        if (this.rejected)
-            throw new SchemaError_1.AttestationError("ATTEST_ERROR", "Milestone is already rejected");
         const schema = GapSchema_1.GapSchema.find("MilestoneCompleted");
         schema.setValue("type", "rejected");
         schema.setValue("reason", reason);
@@ -84,8 +80,6 @@ class Milestone extends Attestation_1.Attestation {
      * @param reason
      */
     async complete(signer, reason = "") {
-        if (this.completed)
-            throw new SchemaError_1.AttestationError("ATTEST_ERROR", "Milestone is already completed");
         const schema = GapSchema_1.GapSchema.find("MilestoneCompleted");
         schema.setValue("type", "completed");
         schema.setValue("reason", reason);

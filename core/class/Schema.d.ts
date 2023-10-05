@@ -129,7 +129,7 @@ export declare abstract class Schema<T extends string = string> implements Schem
      * @param param0
      * @returns
      */
-    attest<T>({ data, to, signer, refUID }: AttestArgs<T>, revokeUID?: Hex): Promise<Hex>;
+    attest<T>({ data, to, signer, refUID }: AttestArgs<T>): Promise<Hex>;
     /**
      * Bulk attest a set of attestations.
      * @param signer

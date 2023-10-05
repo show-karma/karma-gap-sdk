@@ -209,22 +209,10 @@ class Schema {
      * @param param0
      * @returns
      */
-    async attest({ data, to, signer, refUID }, revokeUID) {
+    async attest({ data, to, signer, refUID }) {
         const eas = GAP_1.GAP.eas.connect(signer);
         if (this.references && !refUID)
             throw new SchemaError_1.AttestationError("INVALID_REFERENCE", "Attestation schema references another schema but no reference UID was provided.");
-        if (revokeUID) {
-            const toRevoke = await eas.getAttestation(revokeUID);
-            if (toRevoke.schema === this.raw) {
-                await eas.revoke({
-                    schema: this.raw,
-                    data: { uid: revokeUID },
-                });
-            }
-            else {
-                throw new SchemaError_1.AttestationError("INVALID_REF_UID", `Revoke UID schema does not match any ${this.name} attestation.`);
-            }
-        }
         if (this.isJsonSchema()) {
             this.setValue("json", JSON.stringify(data));
         }

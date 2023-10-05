@@ -71,6 +71,7 @@ exports.gqlQueries = {
     dependentsOf: (refs, schemaIds, attesters = []) => `
     {
       attestations(
+        orderBy:{timeCreated: desc},
         where: {
           refUID:{in: ${inStatement([refs].flat())}}
           revoked:{equals: false}
