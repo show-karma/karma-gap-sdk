@@ -27,11 +27,6 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
   async approve(signer: SignerOrProvider, reason = "") {
     if (!this.completed)
       throw new AttestationError("ATTEST_ERROR", "Milestone is not completed");
-    if (this.approved)
-      throw new AttestationError(
-        "ATTEST_ERROR",
-        "Milestone is already approved"
-      );
 
     const schema = GapSchema.find("MilestoneCompleted");
     schema.setValue("type", "approved");
@@ -71,11 +66,6 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
   async reject(signer: SignerOrProvider, reason = "") {
     if (!this.completed)
       throw new AttestationError("ATTEST_ERROR", "Milestone is not completed");
-    if (this.rejected)
-      throw new AttestationError(
-        "ATTEST_ERROR",
-        "Milestone is already rejected"
-      );
 
     const schema = GapSchema.find("MilestoneCompleted");
     schema.setValue("type", "rejected");
@@ -112,12 +102,6 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
    * @param reason
    */
   async complete(signer: SignerOrProvider, reason = "") {
-    if (this.completed)
-      throw new AttestationError(
-        "ATTEST_ERROR",
-        "Milestone is already completed"
-      );
-
     const schema = GapSchema.find("MilestoneCompleted");
     schema.setValue("type", "completed");
     schema.setValue("reason", reason);

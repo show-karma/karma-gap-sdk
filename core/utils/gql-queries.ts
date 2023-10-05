@@ -114,6 +114,7 @@ export const gqlQueries = {
   ) => `
     {
       attestations(
+        orderBy:{timeCreated: desc},
         where: {
           refUID:{in: ${inStatement([refs].flat())}}
           revoked:{equals: false}

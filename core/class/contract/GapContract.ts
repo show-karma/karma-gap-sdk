@@ -31,6 +31,7 @@ const AttestationDataTypes = {
 };
 
 export class GapContract {
+  static nonces: { [key: string]: number } = {};
   /**
    * Signs a message for the delegated attestation.
    * @param signer
@@ -42,14 +43,23 @@ export class GapContract {
     payload: string,
     expiry: bigint
   ): Promise<TSignature> {
-    const { nonce } = await this.getNonce(signer);
+    let { nonce } = await this.getNonce(signer);
     const { chainId } = await signer.provider.getNetwork();
+    const address = await this.getSignerAddress(signer);
+
+    if (this.nonces[address] === nonce) {
+      nonce++;
+    }
+
+    this.nonces[address] = nonce;
+
     const domain = {
       chainId,
       name: "gap-attestation",
       version: "1",
       verifyingContract: GAP.getMulticall(null).address,
     };
+
     const data = { payloadHash: payload, nonce, expiry };
 
     console.log({ domain, AttestationDataTypes, data });
