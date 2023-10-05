@@ -667,7 +667,9 @@ export class GAPFetcher extends EASClient {
           (d) =>
             d.refUID === grant.uid &&
             d.schema.uid === grantDetails.uid &&
-            typeof (d as Milestone).endsAt === "undefined"
+            typeof (d as GrantDetails).amount !== undefined &&
+            typeof (d as Milestone).endsAt === "undefined" &&
+            typeof (d as GrantUpdate).data.type === "undefined"
         )
       );
       grant.milestones = milestones
