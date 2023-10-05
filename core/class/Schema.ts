@@ -285,10 +285,7 @@ export abstract class Schema<T extends string = string>
    * @param param0
    * @returns
    */
-  async attest<T>(
-    { data, to, signer, refUID }: AttestArgs<T>,
-    revokeUID?: Hex
-  ): Promise<Hex> {
+  async attest<T>({ data, to, signer, refUID }: AttestArgs<T>): Promise<Hex> {
     const eas = GAP.eas.connect(signer);
 
     if (this.references && !refUID)
@@ -296,21 +293,6 @@ export abstract class Schema<T extends string = string>
         "INVALID_REFERENCE",
         "Attestation schema references another schema but no reference UID was provided."
       );
-
-    if (revokeUID) {
-      const toRevoke = await eas.getAttestation(revokeUID);
-      if (toRevoke.schema === this.raw) {
-        await eas.revoke({
-          schema: this.raw,
-          data: { uid: revokeUID },
-        });
-      } else {
-        throw new AttestationError(
-          "INVALID_REF_UID",
-          `Revoke UID schema does not match any ${this.name} attestation.`
-        );
-      }
-    }
 
     if (this.isJsonSchema()) {
       this.setValue("json", JSON.stringify(data));
