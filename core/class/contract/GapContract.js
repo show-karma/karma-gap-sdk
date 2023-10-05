@@ -20,8 +20,13 @@ class GapContract {
      * @returns r,s,v signature
      */
     static async signAttestation(signer, payload, expiry) {
-        const { nonce } = await this.getNonce(signer);
+        let { nonce } = await this.getNonce(signer);
         const { chainId } = await signer.provider.getNetwork();
+        const address = await this.getSignerAddress(signer);
+        if (this.nonces[address] === nonce) {
+            nonce++;
+        }
+        this.nonces[address] = nonce;
         const domain = {
             chainId,
             name: "gap-attestation",
@@ -173,3 +178,4 @@ class GapContract {
     }
 }
 exports.GapContract = GapContract;
+GapContract.nonces = {};
