@@ -21,14 +21,14 @@ import {
 } from "../types/attestations";
 import { GapSchema } from "../GapSchema";
 import { Schema } from "../Schema";
-import { EASClient } from "./EASClient";
 import { SchemaError } from "../SchemaError";
 import { Grant, Milestone, IProject, Project, MemberOf } from "../entities";
 import { Community } from "../entities/Community";
 import { mapFilter } from "../../utils";
+import { Fetcher } from "./Fetcher";
 
 // TODO: Split this class into small ones
-export class GAPFetcher extends EASClient {
+export class GAPFetcher extends Fetcher {
   /**
    * Fetches all the schemas deployed by an owner
    * @param owner
@@ -47,10 +47,6 @@ export class GAPFetcher extends EASClient {
     );
   }
 
-  /**
-   * Fetch a single attestation by its UID.
-   * @param uid
-   */
   async attestation<T = unknown>(uid: Hex) {
     const query = gqlQueries.attestation(uid);
     const { attestation } = await this.query<AttestationRes>(query);
@@ -58,12 +54,6 @@ export class GAPFetcher extends EASClient {
     return Attestation.fromInterface<Attestation<T>>([attestation])[0];
   }
 
-  /**
-   * Fetch attestations of a schema.
-   * @param schemaName
-   * @param search if set, will search decodedDataJson by the value.
-   * @returns
-   */
   async attestations(
     schemaName: TSchemaName,
     search?: string
@@ -78,12 +68,6 @@ export class GAPFetcher extends EASClient {
     return attestations;
   }
 
-  /**
-   * Fetch attestations of a schema.
-   * @param schemaName
-   * @param recipient
-   * @returns
-   */
   async attestationsOf(
     schemaName: TSchemaName,
     recipient: Hex
@@ -661,6 +645,7 @@ export class GAPFetcher extends EASClient {
 
     const deps = Attestation.fromInterface(attestations);
 
+    // TODO unify this with grantsOf
     grantsWithDetails.forEach((grant) => {
       grant.details = <GrantDetails>(
         deps.find(
