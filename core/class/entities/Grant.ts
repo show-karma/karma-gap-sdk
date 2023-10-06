@@ -4,6 +4,7 @@ import {
   GrantRound,
   GrantUpdate,
   IGrantUpdate,
+  ProjectDetails,
 } from "../types/attestations";
 import { IMilestone, Milestone } from "./Milestone";
 import { GapSchema } from "../GapSchema";
@@ -26,6 +27,7 @@ export class Grant extends Attestation<IGrant> {
   milestones: Milestone[] = [];
   community: Community;
   updates: GrantUpdate[] = [];
+  project?: ProjectDetails;
 
   async verify(signer: SignerOrProvider) {
     const eas = GAP.eas.connect(signer);
