@@ -374,17 +374,26 @@ class GAPFetcher extends EASClient_1.EASClient {
         });
     }
     async grantsByCommunity(uid) {
-        const [grant, grantDetails] = GapSchema_1.GapSchema.findMany(["Grant", "GrantDetails"]);
+        const [grant, grantDetails, project, projectDetails] = GapSchema_1.GapSchema.findMany([
+            "Grant",
+            "GrantDetails",
+            "Project",
+            "ProjectDetails",
+        ]);
         const query = gql_queries_1.gqlQueries.attestations(grant.uid, uid);
         const { schema: { attestations }, } = await this.query(query);
         const grants = Attestation_1.Attestation.fromInterface(attestations).map((g) => new entities_1.Grant(g));
         if (!grants.length)
             return [];
-        const refs = gql_queries_1.gqlQueries.dependentsOf(grants.map((g) => g.uid), [grantDetails.uid]);
+        const refs = gql_queries_1.gqlQueries.dependentsOf(grants.map((g) => [g.uid, g.refUID]).flat(), [grantDetails.uid, project.uid]);
         const results = await this.query(refs);
         const deps = Attestation_1.Attestation.fromInterface(results.attestations || []);
+        const projectsDetailsQuery = gql_queries_1.gqlQueries.attestationsOf(projectDetails.uid);
+        const { schema: { attestations: projectsDetailsAttestations }, } = await this.query(projectsDetailsQuery);
+        const projectsDetails = Attestation_1.Attestation.fromInterface(projectsDetailsAttestations);
         const milestones = await this.milestonesOf(grants);
         return grants.map((grant) => {
+            grant.project = (projectsDetails.find((p) => p.refUID === grant.refUID));
             grant.details = (deps.find((d) => d.refUID === grant.uid &&
                 d.schema.uid === grantDetails.uid &&
                 typeof d.amount !== undefined &&
@@ -393,6 +402,7 @@ class GAPFetcher extends EASClient_1.EASClient {
             grant.milestones = milestones
                 .filter((m) => m.refUID === grant.uid && typeof m.endsAt !== "undefined")
                 .sort((a, b) => a.endsAt - b.endsAt);
+            grant.updates = deps.filter((d) => d.data.type && d.refUID === grant.uid);
             return grant;
         });
     }

@@ -1,5 +1,5 @@
 import { Attestation } from "../Attestation";
-import { GrantDetails, GrantRound, GrantUpdate, IGrantUpdate } from "../types/attestations";
+import { GrantDetails, GrantRound, GrantUpdate, IGrantUpdate, ProjectDetails } from "../types/attestations";
 import { IMilestone, Milestone } from "./Milestone";
 import { GapSchema } from "../GapSchema";
 import { Hex, MultiAttestPayload, SignerOrProvider } from "core/types";
@@ -15,6 +15,7 @@ export declare class Grant extends Attestation<IGrant> {
     milestones: Milestone[];
     community: Community;
     updates: GrantUpdate[];
+    project?: ProjectDetails;
     verify(signer: SignerOrProvider): Promise<void>;
     /**
      * Add milestones to the grant.
