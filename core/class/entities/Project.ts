@@ -14,6 +14,8 @@ import { nullRef } from "../../consts";
 import { MemberOf } from "./MemberOf";
 import { GapContract } from "../contract/GapContract";
 
+interface _Project extends Project {}
+
 export interface IProject {
   project: true;
 }
@@ -277,5 +279,59 @@ export class Project extends Attestation<IProject> {
 
     await this.removeMembers(signer, members);
     this.members.splice(0, this.members.length);
+  }
+
+  static from(attestations: _Project[]): Project[] {
+    return attestations.map((attestation) => {
+      const project = new Project({
+        ...attestation,
+        data: {
+          project: true,
+        },
+        schema: GapSchema.find("Project"),
+      });
+
+      if (attestation.details) {
+        const { details } = attestation;
+        project.details = new ProjectDetails({
+          ...details,
+          data: {
+            ...details.data,
+          },
+          schema: GapSchema.find("ProjectDetails"),
+        });
+      }
+
+      if (attestation.members) {
+        project.members = attestation.members.map((m) => {
+          const member = new MemberOf({
+            ...m,
+            data: {
+              memberOf: true,
+            },
+            schema: GapSchema.find("MemberOf"),
+          });
+
+          if (m.details) {
+            const { details } = m;
+            member.details = new MemberDetails({
+              ...details,
+              data: {
+                ...details.data,
+              },
+              schema: GapSchema.find("MemberDetails"),
+            });
+          }
+
+          return member;
+        });
+      }
+
+      if (attestation.grants) {
+        project.grants = Grant.from(attestation.grants);
+      }
+
+      return project;
+    });
   }
 }

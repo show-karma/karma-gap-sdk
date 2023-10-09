@@ -4,10 +4,12 @@ import { toUnix } from "../../utils/to-unix";
 import {
   AttestationRes,
   AttestationsRes,
+  EASNetworkConfig,
   Hex,
   IAttestation,
   SchemaRes,
   SchemataRes,
+  TNetwork,
   TSchemaName,
 } from "../../types";
 import {
@@ -26,9 +28,22 @@ import { Grant, Milestone, IProject, Project, MemberOf } from "../entities";
 import { Community } from "../entities/Community";
 import { mapFilter } from "../../utils";
 import { Fetcher } from "./Fetcher";
+import { Networks } from "../../consts";
 
+interface EASClientProps {
+  network: TNetwork;
+}
 // TODO: Split this class into small ones
 export class GapEasClient extends Fetcher {
+  network: EASNetworkConfig & { name: TNetwork };
+
+  constructor(args: EASClientProps) {
+    const { network } = args;
+    super(Networks[network].url);
+
+    this.network = { ...Networks[network], name: network };
+  }
+
   /**
    * Fetches all the schemas deployed by an owner
    * @param owner

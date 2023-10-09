@@ -8,10 +8,11 @@ import { nullRef } from "../../consts";
 import { AttestationError } from "../SchemaError";
 import { GapSchema } from "../GapSchema";
 import { Project } from "./Project";
-import { MultiAttestPayload, SignerOrProvider } from "core/types";
+import { IAttestation, MultiAttestPayload, SignerOrProvider } from "core/types";
 import { GapContract } from "../contract/GapContract";
-import { Grant } from "./Grant";
+import { Grant, IGrant } from "./Grant";
 
+interface _Community extends Community {}
 export interface ICommunity {
   community: true;
 }
@@ -71,5 +72,35 @@ export class Community extends Attestation<ICommunity> {
       console.error(error);
       throw new AttestationError("ATTEST_ERROR", "Error during attestation.");
     }
+  }
+
+  static from(attestations: _Community[]): Community[] {
+    return attestations.map((attestation) => {
+      const community = new Community({
+        ...attestation,
+        data: {
+          community: true,
+        },
+        schema: GapSchema.find("Community"),
+      });
+
+      if (attestation.details) {
+        const { details } = attestation;
+        community.details = new CommunityDetails({
+          ...details,
+          data: {
+            ...details.data,
+          },
+          schema: GapSchema.find("CommunityDetails"),
+        });
+      }
+
+      if (attestation.grants) {
+        const { grants } = attestation as Community;
+        community.grants = Grant.from(grants);
+      }
+
+      return community;
+    });
   }
 }

@@ -4,8 +4,9 @@ import { Attestation } from "../Attestation";
 import { GapSchema } from "../GapSchema";
 import { Community, Grant, MemberOf, Milestone, Project } from "../entities";
 import { Grantee } from "../types/attestations";
+import { AxiosGQL } from "./AxiosGQL";
 
-export abstract class Fetcher extends EASClient {
+export abstract class Fetcher extends AxiosGQL {
   /**
    * Fetch a single attestation by its UID.
    * @param uid
