@@ -8,16 +8,22 @@ import {
 } from "../types";
 import { Schema } from "./Schema";
 import { GapSchema } from "./GapSchema";
-import { GAPFetcher } from "./GraphQL/GAPFetcher";
+import { GapEasClient } from "./GraphQL/GapEasClient";
 import { EAS } from "@ethereum-attestation-service/eas-sdk";
 import { MountEntities, Networks } from "../consts";
 import { ethers } from "ethers";
 import MulticallABI from "../abi/MultiAttester.json";
 import { version } from "../../package.json";
+import { Fetcher } from "./GraphQL/Fetcher";
 
 interface GAPArgs {
   network: TNetwork;
   globalSchemas?: boolean;
+  /**
+   * Custom API Client to be used to fetch attestation data.
+   * If not defined, will use the default EAS Client and rely on EAS's GraphQL API.
+   */
+  apiClient?: Fetcher;
   schemas?: SchemaInterface<TSchemaName>[];
   /**
    * Defined if the transactions will be gasless or not.
@@ -149,11 +155,10 @@ interface GAPArgs {
 export class GAP extends Facade {
   private static client: GAP;
 
-  readonly fetch: GAPFetcher;
+  readonly fetch: Fetcher;
   readonly network: TNetwork;
 
   private _schemas: GapSchema[];
-
   private static _gelatoOpts = null;
 
   constructor(args: GAPArgs) {
@@ -165,7 +170,8 @@ export class GAP extends Facade {
     this.network = args.network;
 
     GAP._eas = new EAS(Networks[args.network].contracts.eas);
-    this.fetch = new GAPFetcher({ network: args.network });
+
+    this.fetch = args.apiClient || new GapEasClient({ network: args.network });
 
     this.assert(args);
     GAP._gelatoOpts = args.gelatoOpts;

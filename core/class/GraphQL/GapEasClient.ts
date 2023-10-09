@@ -28,7 +28,7 @@ import { mapFilter } from "../../utils";
 import { Fetcher } from "./Fetcher";
 
 // TODO: Split this class into small ones
-export class GAPFetcher extends Fetcher {
+export class GapEasClient extends Fetcher {
   /**
    * Fetches all the schemas deployed by an owner
    * @param owner
@@ -81,12 +81,6 @@ export class GAPFetcher extends Fetcher {
     return attestations;
   }
 
-  /**
-   * Fetch attestations of a schema for a specific recipient.
-   * @param schemaName
-   * @param recipient
-   * @returns
-   */
   async attestationsTo(
     schemaName: TSchemaName,
     recipient: Hex
@@ -124,13 +118,6 @@ export class GAPFetcher extends Fetcher {
     return Attestation.fromInterface(attestations);
   }
 
-  /**
-   * Fetch all available communities with details and grantees uids.
-   *
-   * If search is defined, will try to find communities by the search string.
-   * @param search
-   * @returns
-   */
   async communities(search?: string) {
     const [community, communityDetails] = GapSchema.findMany([
       "Community",
@@ -149,11 +136,6 @@ export class GAPFetcher extends Fetcher {
     return this.communitiesDetails(communities);
   }
 
-  /**
-   * Fetch a set of communities by their ids.
-   * @param uids
-   * @returns
-   */
   async communitiesByIds(uids: Hex[]) {
     if (!uids.length) return [];
     const communityDetails = GapSchema.find("CommunityDetails");
@@ -186,11 +168,6 @@ export class GAPFetcher extends Fetcher {
     }
   }
 
-  /**
-   * Get details for a set of communities and returns the updated array.
-   * @param communities
-   * @returns
-   */
   async communitiesDetails(communities: Community[]) {
     const [project, communityDetails] = GapSchema.findMany([
       "Project",
@@ -225,13 +202,6 @@ export class GAPFetcher extends Fetcher {
     });
   }
 
-  /**
-   * Fetch a community by its name with details, grants and milestones.
-   *
-   * It is possible that the resulted community is not the one you are looking for.
-   * @param name
-   * @returns
-   */
   async communityBySlug(slug: string) {
     const communitySchema = GapSchema.find("CommunityDetails");
 
@@ -276,10 +246,6 @@ export class GAPFetcher extends Fetcher {
     }
   }
 
-  /**
-   * Fetch a community by its id. This method will also return the
-   * community details and projects.
-   */
   async communityById(uid: Hex) {
     const query = gqlQueries.attestation(uid);
     const { attestation } = await this.query<AttestationRes>(query);
@@ -337,11 +303,6 @@ export class GAPFetcher extends Fetcher {
     });
   }
 
-  /**
-   * Fetch a project by its id.
-   * @param uid
-   * @returns
-   */
   async projectById(uid: Hex) {
     const query = gqlQueries.attestation(uid);
     const { attestation } = await this.query<AttestationRes>(query);
@@ -359,11 +320,6 @@ export class GAPFetcher extends Fetcher {
     return result;
   }
 
-  /**
-   * Fetch a project by its id.
-   * @param uid
-   * @returns
-   */
   async projectBySlug(slug: string) {
     const projectDetails = GapSchema.find("ProjectDetails");
 
@@ -395,11 +351,6 @@ export class GAPFetcher extends Fetcher {
     return withDetails;
   }
 
-  /**
-   * Check if a name is already in use.
-   * @param slug
-   * @returns
-   */
   async slugExists(slug: string) {
     const details = GapSchema.find("ProjectDetails");
 
@@ -411,11 +362,6 @@ export class GAPFetcher extends Fetcher {
     return attestations.some((a) => a.decodedDataJson.includes(slug));
   }
 
-  /**
-   * Fetch projects with details and members.
-   * @param name if set, will search by the name.
-   * @returns
-   */
   async projects(name?: string): Promise<Project[]> {
     const result = await this.attestations("Project", name);
 
@@ -424,11 +370,6 @@ export class GAPFetcher extends Fetcher {
     return this.projectsDetails(projects);
   }
 
-  /**
-   * Fetch projects with details and members.
-   * @param grantee the public address of the grantee
-   * @returns
-   */
   async projectsOf(grantee: Hex): Promise<Project[]> {
     const result = await this.attestationsTo("Project", grantee);
 
@@ -437,22 +378,12 @@ export class GAPFetcher extends Fetcher {
     return this.projectsDetails(projects);
   }
 
-  /**
-   * Fetch Grantee with details and projects.
-   * @param address
-   * @param withProjects if true, will get grantee project details.
-   * @returns
-   */
   async grantee(address: Hex): Promise<Grantee> {
     const projects = await this.projectsOf(address);
 
     return new Grantee(address, projects);
   }
 
-  /**
-   * Fetch all Grantees with details.
-   * @returns
-   */
   async grantees(): Promise<Grantee[]> {
     const projects = await this.projects();
 
@@ -468,11 +399,6 @@ export class GAPFetcher extends Fetcher {
     );
   }
 
-  /**
-   * Fetches the grantes related to a grantee address (recipient).
-   * @param grantee
-   * @returns
-   */
   async grantsOf(grantee: Hex, withCommunity?: boolean): Promise<Grant[]> {
     const [grant, grantDetails, grantVerified] = GapSchema.findMany([
       "Grant",
@@ -628,11 +554,6 @@ export class GAPFetcher extends Fetcher {
     });
   }
 
-  /**
-   * Fetch grants for an array of projects with milestones.
-   * @param projects
-   * @returns
-   */
   async grantsFor(
     projects: Project[],
     withCommunity?: boolean
@@ -709,11 +630,6 @@ export class GAPFetcher extends Fetcher {
     );
   }
 
-  /**
-   * Fetch all milestones related to an array of Grants.
-   * @param grants
-   * @returns
-   */
   async milestonesOf(grants: Grant[]): Promise<Milestone[]> {
     const [milestone, milestoneApproved, milestoneCompleted] =
       GapSchema.findMany([
@@ -767,11 +683,6 @@ export class GAPFetcher extends Fetcher {
     });
   }
 
-  /**
-   * Bulk fetch members with details of an array of Projects.
-   * @param projects
-   * @returns
-   */
   async membersOf(projects: Project[]): Promise<MemberOf[]> {
     const [member, memberDetails] = GapSchema.findMany([
       "MemberOf",
