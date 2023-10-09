@@ -560,7 +560,12 @@ export class GAPFetcher extends Fetcher {
   }
 
   async grantsByCommunity(uid: Hex) {
-    const [grant, grantDetails] = GapSchema.findMany(["Grant", "GrantDetails"]);
+    const [grant, grantDetails, project, projectDetails] = GapSchema.findMany([
+      "Grant",
+      "GrantDetails",
+      "Project",
+      "ProjectDetails",
+    ]);
 
     const query = gqlQueries.attestations(grant.uid, uid);
     const {
@@ -574,17 +579,30 @@ export class GAPFetcher extends Fetcher {
     if (!grants.length) return [];
 
     const refs = gqlQueries.dependentsOf(
-      grants.map((g) => g.uid),
-      [grantDetails.uid]
+      grants.map((g) => [g.uid, g.refUID]).flat(),
+      [grantDetails.uid, project.uid]
     );
 
     const results = await this.query<AttestationsRes>(refs);
 
     const deps = Attestation.fromInterface(results.attestations || []);
 
+    const projectsDetailsQuery = gqlQueries.attestationsOf(projectDetails.uid);
+    const {
+      schema: { attestations: projectsDetailsAttestations },
+    } = await this.query<SchemaRes>(projectsDetailsQuery);
+
+    const projectsDetails = Attestation.fromInterface<ProjectDetails>(
+      projectsDetailsAttestations
+    );
+
     const milestones = await this.milestonesOf(grants);
 
     return grants.map((grant) => {
+      grant.project = <ProjectDetails>(
+        projectsDetails.find((p) => p.refUID === grant.refUID)
+      );
+
       grant.details = <GrantDetails>(
         deps.find(
           (d) =>
@@ -601,6 +619,10 @@ export class GAPFetcher extends Fetcher {
           (m) => m.refUID === grant.uid && typeof m.endsAt !== "undefined"
         )
         .sort((a, b) => a.endsAt - b.endsAt);
+
+      grant.updates = deps.filter(
+        (d: GrantUpdate) => d.data.type && d.refUID === grant.uid
+      ) as GrantUpdate[];
 
       return grant;
     });
