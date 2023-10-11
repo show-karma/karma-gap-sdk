@@ -57,6 +57,13 @@ interface GAPArgs {
      */
     sponsorUrl?: string;
     /**
+     * If true, env_gelatoApiKey will be marked as required.
+     * This means that the endpoint at sponsorUrl is contained in this application.
+     *
+     * E.g. Next.JS api route.
+     */
+    contained?: boolean;
+    /**
      * The env key of gelato api key that will be used in the handler.
      *
      * @example
@@ -197,7 +204,11 @@ export class GAP extends Facade {
       throw new Error("You must provide a `sponsorUrl` or an `apiKey`.");
     }
 
-    if (args.gelatoOpts?.sponsorUrl && !args.gelatoOpts.env_gelatoApiKey) {
+    if (
+      args.gelatoOpts?.sponsorUrl &&
+      args.gelatoOpts?.contained &&
+      !args.gelatoOpts.env_gelatoApiKey
+    ) {
       throw new Error(
         "You must provide `env_gelatoApiKey` to be able to use it in a backend handler."
       );
