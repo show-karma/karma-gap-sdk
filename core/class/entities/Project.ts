@@ -301,6 +301,9 @@ export class Project extends Attestation<IProject> {
           schema: GapSchema.find("ProjectDetails"),
         });
 
+        project.details.links = details.data.links || [];
+        project.details.tags = details.data.tags || [];
+
         if ((attestation.data as any).links) {
           project.details.links = (attestation.data as any).links;
         }
