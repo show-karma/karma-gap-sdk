@@ -5,6 +5,8 @@ import { GapSchema } from "../GapSchema";
 import { AttestationError } from "../SchemaError";
 import { MilestoneCompleted } from "../types/attestations";
 
+interface _Milestone extends Milestone {}
+
 export interface IMilestone {
   title: string;
   endsAt: number;
@@ -153,5 +155,49 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
       console.error(error);
       throw new AttestationError("ATTEST_ERROR", error.message);
     }
+  }
+
+  static from(attestations: _Milestone[]): Milestone[] {
+    return attestations.map((attestation) => {
+      const milestone = new Milestone({
+        ...attestation,
+        data: {
+          ...attestation.data,
+        },
+        schema: GapSchema.find("Milestone"),
+      });
+
+      if (attestation.completed) {
+        milestone.completed = new MilestoneCompleted({
+          ...attestation.completed,
+          data: {
+            ...attestation.completed.data,
+          },
+          schema: GapSchema.find("MilestoneCompleted"),
+        });
+      }
+
+      if (attestation.approved) {
+        milestone.approved = new MilestoneCompleted({
+          ...attestation.approved,
+          data: {
+            ...attestation.completed.data,
+          },
+          schema: GapSchema.find("MilestoneCompleted"),
+        });
+      }
+
+      if (attestation.rejected) {
+        milestone.rejected = new MilestoneCompleted({
+          ...attestation.rejected,
+          data: {
+            ...attestation.completed.data,
+          },
+          schema: GapSchema.find("MilestoneCompleted"),
+        });
+      }
+
+      return milestone;
+    });
   }
 }

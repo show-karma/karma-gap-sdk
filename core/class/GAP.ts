@@ -8,16 +8,22 @@ import {
 } from "../types";
 import { Schema } from "./Schema";
 import { GapSchema } from "./GapSchema";
-import { GAPFetcher } from "./GraphQL/GAPFetcher";
+import { GapEasClient } from "./GraphQL/GapEasClient";
 import { EAS } from "@ethereum-attestation-service/eas-sdk";
 import { MountEntities, Networks } from "../consts";
 import { ethers } from "ethers";
 import MulticallABI from "../abi/MultiAttester.json";
 import { version } from "../../package.json";
+import { Fetcher } from "./GraphQL/Fetcher";
 
 interface GAPArgs {
   network: TNetwork;
   globalSchemas?: boolean;
+  /**
+   * Custom API Client to be used to fetch attestation data.
+   * If not defined, will use the default EAS Client and rely on EAS's GraphQL API.
+   */
+  apiClient?: Fetcher;
   schemas?: SchemaInterface<TSchemaName>[];
   /**
    * Defined if the transactions will be gasless or not.
@@ -50,6 +56,13 @@ interface GAPArgs {
      * ```
      */
     sponsorUrl?: string;
+    /**
+     * If true, env_gelatoApiKey will be marked as required.
+     * This means that the endpoint at sponsorUrl is contained in this application.
+     *
+     * E.g. Next.JS api route.
+     */
+    contained?: boolean;
     /**
      * The env key of gelato api key that will be used in the handler.
      *
@@ -149,11 +162,10 @@ interface GAPArgs {
 export class GAP extends Facade {
   private static client: GAP;
 
-  readonly fetch: GAPFetcher;
+  readonly fetch: Fetcher;
   readonly network: TNetwork;
 
   private _schemas: GapSchema[];
-
   private static _gelatoOpts = null;
 
   constructor(args: GAPArgs) {
@@ -165,7 +177,8 @@ export class GAP extends Facade {
     this.network = args.network;
 
     GAP._eas = new EAS(Networks[args.network].contracts.eas);
-    this.fetch = new GAPFetcher({ network: args.network });
+
+    this.fetch = args.apiClient || new GapEasClient({ network: args.network });
 
     this.assert(args);
     GAP._gelatoOpts = args.gelatoOpts;
@@ -191,7 +204,11 @@ export class GAP extends Facade {
       throw new Error("You must provide a `sponsorUrl` or an `apiKey`.");
     }
 
-    if (args.gelatoOpts?.sponsorUrl && !args.gelatoOpts.env_gelatoApiKey) {
+    if (
+      args.gelatoOpts?.sponsorUrl &&
+      args.gelatoOpts?.contained &&
+      !args.gelatoOpts.env_gelatoApiKey
+    ) {
       throw new Error(
         "You must provide `env_gelatoApiKey` to be able to use it in a backend handler."
       );

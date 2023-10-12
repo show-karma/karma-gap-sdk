@@ -1,3 +1,6 @@
 {
-    "sepolia": "0xabc"
+    "sepolia": "0xabc",
+    "optimismGoerli": "0xabc",
+    "gelatoKey": "l_abx_l1",
+    "alchemy": "alchemy provider URL"
 }

@@ -119,7 +119,7 @@ export class ProjectDetails
   description: string;
   imageURL: string;
   links: ExternalLink = [];
-  tags?: ITag[] = [];
+  tags: ITag[] = [];
   slug: string;
 }
 

@@ -1,6 +1,6 @@
 {
   "name": "karma-gap-sdk",
-  "version": "0.1.24",
+  "version": "0.1.27",
   "description": "Simple and easy interface between EAS and Karma GAP.",
   "main": "dist/index.js",
   "author": "KarmaHQ",
@@ -8,7 +8,8 @@
   "private": false,
   "scripts": {
     "prepublishOnly": "npx tsc && npm version patch",
-    "deploy": "npx ts-node ./core/scripts/deploy.ts"
+    "deploy": "npx ts-node ./core/scripts/deploy.ts",
+    "csv-upload": "npx ts-node ./csv-upload/scripts/run.ts"
   },
   "dependencies": {
     "@ethereum-attestation-service/eas-sdk": "^1.1.0-beta.2",
@@ -22,6 +23,7 @@
   "devDependencies": {
     "@types/node": "^20.5.0",
     "eslint": "^8.47.0",
+    "fast-csv": "^4.3.6",
     "husky": "^8.0.3",
     "prettier": "^3.0.1",
     "typescript": "^5.1.6"

@@ -1,19 +1,26 @@
-import { Attestation } from "../Attestation";
+import { Attestation } from '../Attestation';
 import {
   GrantDetails,
   GrantRound,
   GrantUpdate,
   IGrantUpdate,
   ProjectDetails,
-} from "../types/attestations";
-import { IMilestone, Milestone } from "./Milestone";
-import { GapSchema } from "../GapSchema";
-import { GAP } from "../GAP";
-import { AttestationError } from "../SchemaError";
-import { nullRef } from "../../consts";
-import { Hex, MultiAttestPayload, SignerOrProvider } from "core/types";
-import { GapContract } from "../contract/GapContract";
-import { Community } from "./Community";
+} from '../types/attestations';
+import { IMilestone, Milestone } from './Milestone';
+import { GapSchema } from '../GapSchema';
+import { GAP } from '../GAP';
+import { AttestationError } from '../SchemaError';
+import { nullRef } from '../../consts';
+import {
+  Hex,
+  IAttestation,
+  MultiAttestPayload,
+  SignerOrProvider,
+} from 'core/types';
+import { GapContract } from '../contract/GapContract';
+import { Community } from './Community';
+
+interface _Grant extends Grant {}
 
 export interface IGrant {
   communityUID: Hex;
@@ -31,8 +38,8 @@ export class Grant extends Attestation<IGrant> {
 
   async verify(signer: SignerOrProvider) {
     const eas = GAP.eas.connect(signer);
-    const schema = GapSchema.find("MilestoneApproved");
-    schema.setValue("approved", true);
+    const schema = GapSchema.find('MilestoneApproved');
+    schema.setValue('approved', true);
 
     try {
       await eas.attest({
@@ -48,7 +55,7 @@ export class Grant extends Attestation<IGrant> {
       this.verified = true;
     } catch (error) {
       console.error(error);
-      throw new AttestationError("ATTEST_ERROR", error.message);
+      throw new AttestationError('ATTEST_ERROR', error.message);
     }
   }
 
@@ -58,7 +65,7 @@ export class Grant extends Attestation<IGrant> {
    * @param milestones
    */
   addMilestones(milestones: IMilestone[]) {
-    const schema = GapSchema.find("Milestone");
+    const schema = GapSchema.find('Milestone');
 
     const newMilestones = milestones.map((milestone) => {
       const m = new Milestone({
@@ -97,6 +104,12 @@ export class Grant extends Attestation<IGrant> {
         payload.push([m, m.payloadFor(grantIdx)]);
       });
     }
+    if (this.updates.length) {
+      this.updates.forEach((u) => {
+        payload.push([u, u.payloadFor(grantIdx)]);
+      });
+    }
+
     return payload.slice(currentPayload.length, payload.length);
   }
 
@@ -123,11 +136,11 @@ export class Grant extends Attestation<IGrant> {
     const grantUpdate = new GrantUpdate({
       data: {
         ...data,
-        type: "grant-update",
+        type: 'grant-update',
       },
       recipient: this.recipient,
       refUID: this.uid,
-      schema: GapSchema.find("GrantDetails"),
+      schema: GapSchema.find('GrantDetails'),
     });
 
     await grantUpdate.attest(signer);
@@ -140,10 +153,59 @@ export class Grant extends Attestation<IGrant> {
   protected assertPayload() {
     if (!this.details || !this.communityUID) {
       throw new AttestationError(
-        "INVALID_REFERENCE",
-        "Grant should include a valid reference to a community on its details."
+        'INVALID_REFERENCE',
+        'Grant should include a valid reference to a community on its details.'
       );
     }
     return true;
+  }
+
+  static from(attestations: _Grant[]): Grant[] {
+    return attestations.map((attestation) => {
+      const grant = new Grant({
+        ...attestation,
+        data: {
+          communityUID: attestation.data.communityUID,
+        },
+        schema: GapSchema.find('Grant'),
+      });
+
+      if (attestation.details) {
+        const { details } = attestation;
+        grant.details = new GrantDetails({
+          ...details,
+          data: {
+            ...details.data,
+          },
+          schema: GapSchema.find('GrantDetails'),
+        });
+      }
+
+      if (attestation.milestones) {
+        const { milestones } = attestation;
+        grant.milestones = Milestone.from(milestones);
+      }
+
+      if (attestation.updates) {
+        const { updates } = attestation;
+        grant.updates = updates.map(
+          (u) =>
+            new GrantUpdate({
+              ...u,
+              data: {
+                ...u.data,
+              },
+              schema: GapSchema.find('GrantDetails'),
+            })
+        );
+      }
+
+      if (attestation.project) {
+        const { project } = attestation;
+        grant.project = new ProjectDetails(project);
+      }
+
+      return grant;
+    });
   }
 }
