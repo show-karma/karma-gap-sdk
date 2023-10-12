@@ -2,8 +2,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Community = void 0;
 const Attestation_1 = require("../Attestation");
+const attestations_1 = require("../types/attestations");
 const consts_1 = require("../../consts");
 const SchemaError_1 = require("../SchemaError");
+const GapSchema_1 = require("../GapSchema");
+const Grant_1 = require("./Grant");
 class Community extends Attestation_1.Attestation {
     constructor() {
         super(...arguments);
@@ -54,6 +57,32 @@ class Community extends Attestation_1.Attestation {
             console.error(error);
             throw new SchemaError_1.AttestationError("ATTEST_ERROR", "Error during attestation.");
         }
+    }
+    static from(attestations) {
+        return attestations.map((attestation) => {
+            const community = new Community({
+                ...attestation,
+                data: {
+                    community: true,
+                },
+                schema: GapSchema_1.GapSchema.find("Community"),
+            });
+            if (attestation.details) {
+                const { details } = attestation;
+                community.details = new attestations_1.CommunityDetails({
+                    ...details,
+                    data: {
+                        ...details.data,
+                    },
+                    schema: GapSchema_1.GapSchema.find("CommunityDetails"),
+                });
+            }
+            if (attestation.grants) {
+                const { grants } = attestation;
+                community.grants = Grant_1.Grant.from(grants);
+            }
+            return community;
+        });
     }
 }
 exports.Community = Community;

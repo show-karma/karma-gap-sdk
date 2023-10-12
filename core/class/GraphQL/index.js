@@ -16,4 +16,4 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./AxiosGQL"), exports);
 __exportStar(require("./EASClient"), exports);
-__exportStar(require("./GAPFetcher"), exports);
+__exportStar(require("./GapEasClient"), exports);

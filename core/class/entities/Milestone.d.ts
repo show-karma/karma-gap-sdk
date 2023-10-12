@@ -1,6 +1,8 @@
 import { SignerOrProvider } from "../../types";
 import { Attestation } from "../Attestation";
 import { MilestoneCompleted } from "../types/attestations";
+interface _Milestone extends Milestone {
+}
 export interface IMilestone {
     title: string;
     endsAt: number;
@@ -56,4 +58,6 @@ export declare class Milestone extends Attestation<IMilestone> implements IMiles
      * Attest the status of the milestone as approved, rejected or completed.
      */
     private attestStatus;
+    static from(attestations: _Milestone[]): Milestone[];
 }
+export {};

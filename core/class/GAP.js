@@ -7,7 +7,7 @@ exports.GAP = void 0;
 const types_1 = require("../types");
 const Schema_1 = require("./Schema");
 const GapSchema_1 = require("./GapSchema");
-const GAPFetcher_1 = require("./GraphQL/GAPFetcher");
+const GapEasClient_1 = require("./GraphQL/GapEasClient");
 const eas_sdk_1 = require("@ethereum-attestation-service/eas-sdk");
 const consts_1 = require("../consts");
 const ethers_1 = require("ethers");
@@ -96,7 +96,7 @@ class GAP extends types_1.Facade {
         const schemas = args.schemas || Object.values((0, consts_1.MountEntities)(consts_1.Networks[args.network]));
         this.network = args.network;
         GAP._eas = new eas_sdk_1.EAS(consts_1.Networks[args.network].contracts.eas);
-        this.fetch = new GAPFetcher_1.GAPFetcher({ network: args.network });
+        this.fetch = args.apiClient || new GapEasClient_1.GapEasClient({ network: args.network });
         this.assert(args);
         GAP._gelatoOpts = args.gelatoOpts;
         this._schemas = schemas.map((schema) => new GapSchema_1.GapSchema(schema, false, args.globalSchemas ? !args.globalSchemas : false));
@@ -108,7 +108,9 @@ class GAP extends types_1.Facade {
             !(args.gelatoOpts.sponsorUrl || args.gelatoOpts.apiKey)) {
             throw new Error("You must provide a `sponsorUrl` or an `apiKey`.");
         }
-        if (args.gelatoOpts?.sponsorUrl && !args.gelatoOpts.env_gelatoApiKey) {
+        if (args.gelatoOpts?.sponsorUrl &&
+            args.gelatoOpts?.contained &&
+            !args.gelatoOpts.env_gelatoApiKey) {
             throw new Error("You must provide `env_gelatoApiKey` to be able to use it in a backend handler.");
         }
         if ((args.gelatoOpts?.env_gelatoApiKey ||

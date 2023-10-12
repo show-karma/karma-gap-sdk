@@ -3,6 +3,8 @@ import { CommunityDetails, ICommunityDetails } from "../types/attestations";
 import { Project } from "./Project";
 import { MultiAttestPayload, SignerOrProvider } from "core/types";
 import { Grant } from "./Grant";
+interface _Community extends Community {
+}
 export interface ICommunity {
     community: true;
 }
@@ -29,4 +31,6 @@ export declare class Community extends Attestation<ICommunity> {
      * @param details
      */
     attest(signer: SignerOrProvider, details?: ICommunityDetails): Promise<void>;
+    static from(attestations: _Community[]): Community[];
 }
+export {};

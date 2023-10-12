@@ -128,5 +128,44 @@ class Milestone extends Attestation_1.Attestation {
             throw new SchemaError_1.AttestationError("ATTEST_ERROR", error.message);
         }
     }
+    static from(attestations) {
+        return attestations.map((attestation) => {
+            const milestone = new Milestone({
+                ...attestation,
+                data: {
+                    ...attestation.data,
+                },
+                schema: GapSchema_1.GapSchema.find("Milestone"),
+            });
+            if (attestation.completed) {
+                milestone.completed = new attestations_1.MilestoneCompleted({
+                    ...attestation.completed,
+                    data: {
+                        ...attestation.completed.data,
+                    },
+                    schema: GapSchema_1.GapSchema.find("MilestoneCompleted"),
+                });
+            }
+            if (attestation.approved) {
+                milestone.approved = new attestations_1.MilestoneCompleted({
+                    ...attestation.approved,
+                    data: {
+                        ...attestation.completed.data,
+                    },
+                    schema: GapSchema_1.GapSchema.find("MilestoneCompleted"),
+                });
+            }
+            if (attestation.rejected) {
+                milestone.rejected = new attestations_1.MilestoneCompleted({
+                    ...attestation.rejected,
+                    data: {
+                        ...attestation.completed.data,
+                    },
+                    schema: GapSchema_1.GapSchema.find("MilestoneCompleted"),
+                });
+            }
+            return milestone;
+        });
+    }
 }
 exports.Milestone = Milestone;

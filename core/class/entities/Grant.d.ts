@@ -4,6 +4,8 @@ import { IMilestone, Milestone } from "./Milestone";
 import { GapSchema } from "../GapSchema";
 import { Hex, MultiAttestPayload, SignerOrProvider } from "core/types";
 import { Community } from "./Community";
+interface _Grant extends Grant {
+}
 export interface IGrant {
     communityUID: Hex;
 }
@@ -43,4 +45,6 @@ export declare class Grant extends Attestation<IGrant> {
      * Validate if the grant has a valid reference to a community.
      */
     protected assertPayload(): boolean;
+    static from(attestations: _Grant[]): Grant[];
 }
+export {};

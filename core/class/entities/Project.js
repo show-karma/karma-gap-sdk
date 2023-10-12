@@ -2,9 +2,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Project = void 0;
 const Attestation_1 = require("../Attestation");
+const attestations_1 = require("../types/attestations");
 const GapSchema_1 = require("../GapSchema");
 const SchemaError_1 = require("../SchemaError");
 const utils_1 = require("../../utils");
+const Grant_1 = require("./Grant");
 const consts_1 = require("../../consts");
 const MemberOf_1 = require("./MemberOf");
 const GapContract_1 = require("../contract/GapContract");
@@ -181,6 +183,61 @@ class Project extends Attestation_1.Attestation {
         }
         await this.removeMembers(signer, members);
         this.members.splice(0, this.members.length);
+    }
+    static from(attestations) {
+        return attestations.map((attestation) => {
+            const project = new Project({
+                ...attestation,
+                data: {
+                    project: true,
+                },
+                schema: GapSchema_1.GapSchema.find("Project"),
+            });
+            if (attestation.details) {
+                const { details } = attestation;
+                project.details = new attestations_1.ProjectDetails({
+                    ...details,
+                    data: {
+                        ...details.data,
+                    },
+                    schema: GapSchema_1.GapSchema.find("ProjectDetails"),
+                });
+                project.details.links = details.data.links || [];
+                project.details.tags = details.data.tags || [];
+                if (attestation.data.links) {
+                    project.details.links = attestation.data.links;
+                }
+                if (attestation.data.tags) {
+                    project.details.tags = attestation.tags;
+                }
+            }
+            if (attestation.members) {
+                project.members = attestation.members.map((m) => {
+                    const member = new MemberOf_1.MemberOf({
+                        ...m,
+                        data: {
+                            memberOf: true,
+                        },
+                        schema: GapSchema_1.GapSchema.find("MemberOf"),
+                    });
+                    if (m.details) {
+                        const { details } = m;
+                        member.details = new attestations_1.MemberDetails({
+                            ...details,
+                            data: {
+                                ...details.data,
+                            },
+                            schema: GapSchema_1.GapSchema.find("MemberDetails"),
+                        });
+                    }
+                    return member;
+                });
+            }
+            if (attestation.grants) {
+                project.grants = Grant_1.Grant.from(attestation.grants);
+            }
+            return project;
+        });
     }
 }
 exports.Project = Project;

@@ -3,6 +3,8 @@ import { Grantee, MemberDetails, ProjectDetails } from "../types/attestations";
 import { Hex, MultiAttestPayload, SignerOrProvider } from "core/types";
 import { Grant } from "./Grant";
 import { MemberOf } from "./MemberOf";
+interface _Project extends Project {
+}
 export interface IProject {
     project: true;
 }
@@ -66,4 +68,6 @@ export declare class Project extends Attestation<IProject> {
      * @param signer
      */
     removeAllMembers(signer: SignerOrProvider): Promise<void>;
+    static from(attestations: _Project[]): Project[];
 }
+export {};

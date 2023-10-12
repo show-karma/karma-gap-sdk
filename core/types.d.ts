@@ -1,8 +1,8 @@
 import { BytesLike } from "ethers";
-import { GAPFetcher } from "./class/GraphQL/GAPFetcher";
 import { AttestationRequestData, EAS, MultiAttestationRequest, SchemaItem } from "@ethereum-attestation-service/eas-sdk";
 import { SignerOrProvider as EASSigner } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
 import { Attestation } from "./class";
+import { Fetcher } from "./class/GraphQL/Fetcher";
 export type Hex = `0x${string}`;
 export type SignerOrProvider = EASSigner & {
     address?: Hex;
@@ -37,7 +37,7 @@ export type TNetwork = "optimism" | "optimism-goerli" | "sepolia";
 export declare abstract class Facade {
     abstract readonly network: TNetwork;
     abstract readonly schemas: SchemaInterface[];
-    abstract readonly fetch: GAPFetcher;
+    abstract readonly fetch: Fetcher;
     protected static _eas: EAS;
     static get eas(): EAS;
 }

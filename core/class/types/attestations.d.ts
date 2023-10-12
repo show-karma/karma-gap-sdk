@@ -87,7 +87,7 @@ export declare class ProjectDetails extends Attestation<IProjectDetails> impleme
     description: string;
     imageURL: string;
     links: ExternalLink;
-    tags?: ITag[];
+    tags: ITag[];
     slug: string;
 }
 export declare class Grantee {

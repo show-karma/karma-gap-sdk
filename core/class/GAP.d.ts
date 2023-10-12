@@ -1,10 +1,15 @@
 import { AttestArgs, Facade, SchemaInterface, TNetwork, TSchemaName, SignerOrProvider } from "../types";
 import { GapSchema } from "./GapSchema";
-import { GAPFetcher } from "./GraphQL/GAPFetcher";
 import { ethers } from "ethers";
+import { Fetcher } from "./GraphQL/Fetcher";
 interface GAPArgs {
     network: TNetwork;
     globalSchemas?: boolean;
+    /**
+     * Custom API Client to be used to fetch attestation data.
+     * If not defined, will use the default EAS Client and rely on EAS's GraphQL API.
+     */
+    apiClient?: Fetcher;
     schemas?: SchemaInterface<TSchemaName>[];
     /**
      * Defined if the transactions will be gasless or not.
@@ -37,6 +42,13 @@ interface GAPArgs {
          * ```
          */
         sponsorUrl?: string;
+        /**
+         * If true, env_gelatoApiKey will be marked as required.
+         * This means that the endpoint at sponsorUrl is contained in this application.
+         *
+         * E.g. Next.JS api route.
+         */
+        contained?: boolean;
         /**
          * The env key of gelato api key that will be used in the handler.
          *
@@ -134,7 +146,7 @@ interface GAPArgs {
  */
 export declare class GAP extends Facade {
     private static client;
-    readonly fetch: GAPFetcher;
+    readonly fetch: Fetcher;
     readonly network: TNetwork;
     private _schemas;
     private static _gelatoOpts;

@@ -116,5 +116,45 @@ class Grant extends Attestation_1.Attestation {
         }
         return true;
     }
+    static from(attestations) {
+        return attestations.map((attestation) => {
+            const grant = new Grant({
+                ...attestation,
+                data: {
+                    communityUID: attestation.data.communityUID,
+                },
+                schema: GapSchema_1.GapSchema.find("Grant"),
+            });
+            if (attestation.details) {
+                const { details } = attestation;
+                grant.details = new attestations_1.GrantDetails({
+                    ...details,
+                    data: {
+                        ...details.data,
+                    },
+                    schema: GapSchema_1.GapSchema.find("GrantDetails"),
+                });
+            }
+            if (attestation.milestones) {
+                const { milestones } = attestation;
+                grant.milestones = Milestone_1.Milestone.from(milestones);
+            }
+            if (attestation.updates) {
+                const { updates } = attestation;
+                grant.updates = updates.map((u) => new attestations_1.GrantUpdate({
+                    ...u,
+                    data: {
+                        ...u.data,
+                    },
+                    schema: GapSchema_1.GapSchema.find("GrantDetails"),
+                }));
+            }
+            if (attestation.project) {
+                const { project } = attestation;
+                grant.project = new attestations_1.ProjectDetails(project);
+            }
+            return grant;
+        });
+    }
 }
 exports.Grant = Grant;
