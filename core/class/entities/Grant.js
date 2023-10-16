@@ -9,6 +9,7 @@ const GAP_1 = require("../GAP");
 const SchemaError_1 = require("../SchemaError");
 const consts_1 = require("../../consts");
 const GapContract_1 = require("../contract/GapContract");
+const Community_1 = require("./Community");
 const Project_1 = require("./Project");
 class Grant extends Attestation_1.Attestation {
     constructor() {
@@ -158,6 +159,10 @@ class Grant extends Attestation_1.Attestation {
             if (attestation.project) {
                 const { project } = attestation;
                 grant.project = new Project_1.Project(project);
+            }
+            if (attestation.community) {
+                const { community } = attestation;
+                grant.community = new Community_1.Community(community);
             }
             return grant;
         });
