@@ -11,11 +11,7 @@ import { GapSchema } from '../GapSchema';
 import { GAP } from '../GAP';
 import { AttestationError } from '../SchemaError';
 import { nullRef } from '../../consts';
-import {
-  Hex,
-  MultiAttestPayload,
-  SignerOrProvider,
-} from 'core/types';
+import { Hex, MultiAttestPayload, SignerOrProvider } from 'core/types';
 import { GapContract } from '../contract/GapContract';
 import { Community } from './Community';
 import { Project } from './Project';
@@ -203,6 +199,11 @@ export class Grant extends Attestation<IGrant> {
       if (attestation.project) {
         const { project } = attestation;
         grant.project = new Project(project);
+      }
+
+      if (attestation.community) {
+        const { community } = attestation;
+        grant.community = new Community(community);
       }
 
       return grant;
