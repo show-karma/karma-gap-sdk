@@ -13,12 +13,12 @@ import { AttestationError } from '../SchemaError';
 import { nullRef } from '../../consts';
 import {
   Hex,
-  IAttestation,
   MultiAttestPayload,
   SignerOrProvider,
 } from 'core/types';
 import { GapContract } from '../contract/GapContract';
 import { Community } from './Community';
+import { Project } from './Project';
 
 interface _Grant extends Grant {}
 
@@ -34,7 +34,7 @@ export class Grant extends Attestation<IGrant> {
   milestones: Milestone[] = [];
   community: Community;
   updates: GrantUpdate[] = [];
-  project?: ProjectDetails;
+  project?: Project;
 
   async verify(signer: SignerOrProvider) {
     const eas = GAP.eas.connect(signer);
@@ -202,7 +202,7 @@ export class Grant extends Attestation<IGrant> {
 
       if (attestation.project) {
         const { project } = attestation;
-        grant.project = new ProjectDetails(project);
+        grant.project = new Project(project);
       }
 
       return grant;
