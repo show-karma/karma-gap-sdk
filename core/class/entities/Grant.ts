@@ -198,12 +198,12 @@ export class Grant extends Attestation<IGrant> {
 
       if (attestation.project) {
         const { project } = attestation;
-        grant.project = new Project(project);
+        grant.project = Project.from([project])[0];
       }
 
       if (attestation.community) {
         const { community } = attestation;
-        grant.community = new Community(community);
+        grant.community = Community.from([community])[0];
       }
 
       return grant;
