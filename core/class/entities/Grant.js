@@ -158,11 +158,11 @@ class Grant extends Attestation_1.Attestation {
             }
             if (attestation.project) {
                 const { project } = attestation;
-                grant.project = new Project_1.Project(project);
+                grant.project = Project_1.Project.from([project])[0];
             }
             if (attestation.community) {
                 const { community } = attestation;
-                grant.community = new Community_1.Community(community);
+                grant.community = Community_1.Community.from([community])[0];
             }
             return grant;
         });
