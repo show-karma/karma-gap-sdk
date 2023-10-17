@@ -4,8 +4,7 @@ import {
   GrantRound,
   GrantUpdate,
   IGrantUpdate,
-  IMilestoneCompleted,
-  ProjectDetails,
+  GrantCompleted,
 } from '../types/attestations';
 import { IMilestone, Milestone } from './Milestone';
 import { GapSchema } from '../GapSchema';
@@ -31,7 +30,7 @@ export class Grant extends Attestation<IGrant> {
   milestones: Milestone[] = [];
   community: Community;
   updates: GrantUpdate[] = [];
-  completed?: GrantUpdate;
+  completed?: GrantCompleted;
   project?: Project;
 
   async verify(signer: SignerOrProvider) {
@@ -146,7 +145,7 @@ export class Grant extends Attestation<IGrant> {
   }
 
   async complete(signer: SignerOrProvider, data: IGrantUpdate) {
-    const completed = new GrantUpdate({
+    const completed = new GrantCompleted({
       data: {
         ...data,
         type: 'grant-completed',
@@ -211,6 +210,17 @@ export class Grant extends Attestation<IGrant> {
               schema: GapSchema.find('GrantDetails'),
             })
         );
+      }
+
+      if(attestation.completed) {
+        const { completed } = attestation;
+        grant.completed = new GrantCompleted({
+          ...completed,
+          data: {
+            ...completed.data,
+          },
+          schema: GapSchema.find('GrantDetails'),
+        });
       }
 
       if (attestation.project) {
