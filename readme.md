@@ -131,7 +131,7 @@ The `gelatoOpts` is used when the developer wants to provide gasless transaction
 
 ## 4. Getting attestations
 
-After initializing the GAP client, nor you're able to fetch for attestations available on this project, such as:
+After initializing the GAP client, now you're able to fetch for attestations available on this project, such as:
 
 - Communities
 - Projects
