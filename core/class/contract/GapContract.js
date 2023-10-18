@@ -7,9 +7,9 @@ const send_gelato_txn_1 = require("../../utils/gelato/send-gelato-txn");
 const eas_sdk_1 = require("@ethereum-attestation-service/eas-sdk");
 const AttestationDataTypes = {
     Attest: [
-        { name: "payloadHash", type: "string" },
-        { name: "nonce", type: "uint256" },
-        { name: "expiry", type: "uint256" },
+        { name: 'payloadHash', type: 'string' },
+        { name: 'nonce', type: 'uint256' },
+        { name: 'expiry', type: 'uint256' },
     ],
 };
 class GapContract {
@@ -22,15 +22,10 @@ class GapContract {
     static async signAttestation(signer, payload, expiry) {
         let { nonce } = await this.getNonce(signer);
         const { chainId } = await signer.provider.getNetwork();
-        const address = await this.getSignerAddress(signer);
-        if (this.nonces[address] === nonce) {
-            nonce++;
-        }
-        this.nonces[address] = nonce;
         const domain = {
             chainId,
-            name: "gap-attestation",
-            version: "1",
+            name: 'gap-attestation',
+            version: '1',
             verifyingContract: GAP_1.GAP.getMulticall(null).address,
         };
         const data = { payloadHash: payload, nonce, expiry };
@@ -53,7 +48,7 @@ class GapContract {
     static async getSignerAddress(signer) {
         const address = signer.address || signer._address || (await signer.getAddress());
         if (!address)
-            throw new Error("Signer does not provider either address or getAddress().");
+            throw new Error('Signer does not provider either address or getAddress().');
         return address;
     }
     /**
@@ -104,7 +99,7 @@ class GapContract {
             schema: payload.schema,
         }, payloadHash, address, nonce, expiry, v, r, s);
         if (!populatedTxn)
-            throw new Error("Transaction data is empty");
+            throw new Error('Transaction data is empty');
         const txn = await (0, send_gelato_txn_1.sendGelatoTxn)(...send_gelato_txn_1.Gelato.buildArgs(populatedTxn, chainId, contract.address));
         const attestations = await this.getTransactionLogs(signer, txn);
         return attestations[0];
@@ -138,7 +133,7 @@ class GapContract {
         console.info({ r, s, v, nonce, chainId, payloadHash, address });
         const { data: populatedTxn } = await contract.populateTransaction.multiSequentialAttestBySig(payload.map((p) => p.payload), payloadHash, address, nonce, expiry, v, r, s);
         if (!populatedTxn)
-            throw new Error("Transaction data is empty");
+            throw new Error('Transaction data is empty');
         const txn = await (0, send_gelato_txn_1.sendGelatoTxn)(...send_gelato_txn_1.Gelato.buildArgs(populatedTxn, chainId, contract.address));
         const attestations = await this.getTransactionLogs(signer, txn);
         return attestations;
@@ -165,13 +160,13 @@ class GapContract {
         console.info({ r, s, v, nonce, chainId, payloadHash, address });
         const { data: populatedTxn } = await contract.populateTransaction.multiRevokeBySig(payload, payloadHash, address, nonce, expiry, v, r, s);
         if (!populatedTxn)
-            throw new Error("Transaction data is empty");
+            throw new Error('Transaction data is empty');
         await (0, send_gelato_txn_1.sendGelatoTxn)(...send_gelato_txn_1.Gelato.buildArgs(populatedTxn, chainId, contract.address));
     }
     static async getTransactionLogs(signer, txnHash) {
         const txn = await signer.provider.getTransactionReceipt(txnHash);
         if (!txn || !txn.logs.length)
-            throw new Error("Transaction not found");
+            throw new Error('Transaction not found');
         // Returns the txn logs with the attestation results. Tha last two logs are the
         // the ones from the GelatoRelay contract.
         return (0, eas_sdk_1.getUIDsFromAttestReceipt)(txn);

@@ -114,6 +114,19 @@ class Grant extends Attestation_1.Attestation {
         await grantUpdate.attest(signer);
         this.updates.push(grantUpdate);
     }
+    async complete(signer, data) {
+        const completed = new attestations_1.GrantCompleted({
+            data: {
+                ...data,
+                type: 'grant-completed',
+            },
+            recipient: this.recipient,
+            refUID: this.uid,
+            schema: GapSchema_1.GapSchema.find('GrantDetails'),
+        });
+        await completed.attest(signer);
+        this.completed = completed;
+    }
     /**
      * Validate if the grant has a valid reference to a community.
      */
@@ -155,6 +168,16 @@ class Grant extends Attestation_1.Attestation {
                     },
                     schema: GapSchema_1.GapSchema.find('GrantDetails'),
                 }));
+            }
+            if (attestation.completed) {
+                const { completed } = attestation;
+                grant.completed = new attestations_1.GrantCompleted({
+                    ...completed,
+                    data: {
+                        ...completed.data,
+                    },
+                    schema: GapSchema_1.GapSchema.find('GrantDetails'),
+                });
             }
             if (attestation.project) {
                 const { project } = attestation;

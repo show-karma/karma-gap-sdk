@@ -1,6 +1,6 @@
-import { Attestation } from "../Attestation";
-import { Hex } from "core/types";
-import { Project } from "../entities/Project";
+import { Attestation } from '../Attestation';
+import { Hex } from 'core/types';
+import { Project } from '../entities/Project';
 /** Attestation interfaces */
 export type ExternalLink = {
     type: string;
@@ -61,11 +61,11 @@ export declare class MemberDetails extends Attestation<IMemberDetails> implement
     profilePictureURL: string;
 }
 export interface IMilestoneCompleted {
-    type: "approved" | "rejected" | "completed";
+    type: 'approved' | 'rejected' | 'completed';
     reason?: string;
 }
 export declare class MilestoneCompleted extends Attestation<IMilestoneCompleted> implements IMilestoneCompleted {
-    type: "approved" | "rejected" | "completed";
+    type: 'approved' | 'rejected' | 'completed';
     reason?: string;
 }
 export interface ITag {
@@ -103,4 +103,6 @@ export interface IGrantUpdate {
 export declare class GrantUpdate extends Attestation<IGrantUpdate> implements IGrantUpdate {
     title: string;
     text: string;
+}
+export declare class GrantCompleted extends GrantUpdate {
 }
