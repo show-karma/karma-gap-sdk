@@ -1,7 +1,5 @@
 import { Hex, IAttestation, TSchemaName } from "core/types";
-import { EASClient } from "./GraphQL/EASClient";
 import { Attestation } from "./Attestation";
-import { GapSchema } from "./GapSchema";
 import { Community, Grant, MemberOf, Milestone, Project } from "./entities";
 import { Grantee } from "./types/attestations";
 import { AxiosGQL } from "./GraphQL/AxiosGQL";
