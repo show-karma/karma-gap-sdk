@@ -757,11 +757,70 @@ This is all the settings needed to enable gasless transactions with GAP SDK, and
 ## 8. Custom API
 
 The SDK provides two methods of fetching data from the network:
+
 1. Using the [EAS GraphQL API](https://optimism-goerli-bedrock.easscan.org/graphql); or
 2. Using a custom made API.
 
 When using the default EAS provider, the user will be able to use any feature offered in the SDK however, you'll also notice that it can lead to slow response times. This is caused because of what we can see in diagram on [Chapter 2](#2-architecture): the EAS api architecture doesn't support relationships between attestations then we need to call it several times in order to get the desired result, e.g., a project with all its dependents.
 
-To solve that issue, the SDK includes the `Fetcher` module, and by using it, the developer is allowed to develop their own service and integrate with the SDK. The integration is made by extending the fetcher api and implementing all of its methods. If you are not going to use a method or your service does not support it, you must implement an///// here
+To solve that issue, the SDK includes the `Fetcher` module, and by using it, the developer is allowed to develop their own service and integrate with the SDK. The integration is made by extending the fetcher api and implementing all of its methods. If you are not going to use a method or your service does not support it, you must implement an error handler or an empty return.
 
-## Appendix
+You can view the Fetcher interface in [this file](https://github.com/show-karma/karma-gap-sdk/blob/dev/core/class/Fetcher.ts).
+
+```ts
+// my-fetcher.ts
+import { Fetcher } from 'karma-gap-sdk/core/class/Fetcher.ts';
+import { Attestation } from 'karma-gap-sdk';
+
+const Endpoints = {
+  projects: {
+    byIdOrSlug: (uid: Hex) => `/projects/${uidOrSlug}`,
+  },
+};
+
+export class MyFetcher extends Fetcher {
+  projectById(uid: `0x${string}`): Promise<Project> {
+    // Note that the Fetcher class extends an axios utility class
+    // and provides a client for performing http requests
+    // by calling this.client
+    const project = await this.client.get(
+      Endpoints.projects.byIdOrSlug(uid) /* ,{...axiosOpts} */
+    );
+
+    if (!data) throw new Error('Attestation not found');
+    // You need to return a Project instance
+    return Project.from([data])[0];
+  }
+
+  async projects(name?: string): Promise<Project[]> {
+    const { data } = await this.client.get<Project[]>(Endpoints.project.all(), {
+      params: {
+        'filter[title]': name,
+      },
+    });
+
+    return Project.from(data);
+  }
+  // ... other methods
+}
+```
+
+> You can check a fully implemented client [here](https://github.com/show-karma/karma-gap-sdk/blob/dev/core/class/karma-indexer/GapIndexerClient.ts).
+
+After implementing your own client, you can setup the GAP client:
+
+```ts
+// gap.client.ts;
+import { GAP } from 'karma-gap-sdk';
+import { MyFetcher } from './MyFetcher';
+
+const gap = GAP.createClient({
+  network: 'optimism-goerli', // sepolia, optimism,
+  // Use your client here
+  apiClient: new MyFetcher('https://my-api.mydomain.com'),
+});
+
+export default gap;
+```
+
+> Note that your api service should return the data specified in the interfaces provided by each Attestation to work properly with this sdk.
