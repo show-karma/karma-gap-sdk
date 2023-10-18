@@ -411,6 +411,8 @@ export const MyComponent: React.FC = () => {
 
 > This example can be followed for any kind of attestation that comes later, such as adding milestone to grant, add grant to project, add members to project, and also to update Project, Grant, and Community details. It's also available when approving/rejecting/completing a milestone: if any of those operations is done twice, the latest one will remain.
 
+After any kind of attestation, the SDK will bind UIDs to the objects so it can be accessed after the attestation is done. For example, if you run the project attestation with all its dependents, you'll be able to get the attestation UID of the project, the details, grants, milestones, and so on.
+
 ### Revoking an attestation
 
 As every object returned by the `Fetcher` is also an `Attestation`, to revoke any attestation the developer will only need to call `attestation.revoke`:
@@ -466,7 +468,7 @@ export async function updateProjectDetails(
 
 ## 6. Attesting data in a Backend
 
-To attest data in the backend, follow the same content available in [Chapter 5](#5-attesting-data-in-a-frontend). The only difference between them is that in tha backend you'll need to instantiate an ethersjs wallet at runtime to sign attestations.
+To attest data in the backend, follow the same content available in [Chapter 5](#5-attesting-data-in-a-frontend). The only difference between them is that in the backend you'll need to instantiate an `ethersjs` wallet at runtime to sign attestations.
 
 ```ts
 import { gap } from 'gap-client';
@@ -634,6 +636,10 @@ const handler = (req: ApiRequest, res: NextApiResponse) =>
 export default handler;
 ```
 
+> Note that `NEXT_GELATO_API_KEY` is not an actualy api key but the env variable name
+> to get from process.env. This will not expose the API in the frontend.
+> .env would need a field `NEXT_GELATO_API_KEY=abcdefg123`. See [sponsor-handler.ts L63](https://github.com/show-karma/karma-gap-sdk/blob/f2f3f863c8b2b475ca74bd76bb9290a075c12f60/core/utils/gelato/sponsor-handler.ts#L63) for more details.
+
 After the api page placement, set `gelatoOpts.sponsorUrl: '/api/sponsored-txn` and all the transactions from now will be sent through Gelato Relay network.
 
 ---
@@ -749,5 +755,13 @@ This is all the settings needed to enable gasless transactions with GAP SDK, and
 > Note that if you chose this option, you will pay for the gas through gelato.
 
 ## 8. Custom API
+
+The SDK provides two methods of fetching data from the network:
+1. Using the [EAS GraphQL API](https://optimism-goerli-bedrock.easscan.org/graphql); or
+2. Using a custom made API.
+
+When using the default EAS provider, the user will be able to use any feature offered in the SDK however, you'll also notice that it can lead to slow response times. This is caused because of what we can see in diagram on [Chapter 2](#2-architecture): the EAS api architecture doesn't support relationships between attestations then we need to call it several times in order to get the desired result, e.g., a project with all its dependents.
+
+To solve that issue, the SDK includes the `Fetcher` module, and by using it, the developer is allowed to develop their own service and integrate with the SDK. The integration is made by extending the fetcher api and implementing all of its methods. If you are not going to use a method or your service does not support it, you must implement an///// here
 
 ## Appendix
