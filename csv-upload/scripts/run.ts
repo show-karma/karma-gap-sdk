@@ -166,6 +166,7 @@ async function bootstrap() {
         data: {
           text: item['Grant Update'],
           title: 'Initial Update',
+          type: 'grant-update'
         },
         recipient: project.recipient,
         schema: GapSchema.find('GrantDetails'),
