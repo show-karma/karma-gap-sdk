@@ -27,12 +27,14 @@ import { SchemaError } from '../SchemaError';
 import { Grant, Milestone, IProject, Project, MemberOf } from '../entities';
 import { Community } from '../entities/Community';
 import { mapFilter } from '../../utils';
-import { Fetcher } from './Fetcher';
+import { Fetcher } from '../Fetcher';
 import { Networks } from '../../consts';
 
 interface EASClientProps {
   network: TNetwork;
 }
+
+
 // TODO: Split this class into small ones
 export class GapEasClient extends Fetcher {
   network: EASNetworkConfig & { name: TNetwork };

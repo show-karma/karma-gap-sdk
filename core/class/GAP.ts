@@ -14,7 +14,7 @@ import { MountEntities, Networks } from "../consts";
 import { ethers } from "ethers";
 import MulticallABI from "../abi/MultiAttester.json";
 import { version } from "../../package.json";
-import { Fetcher } from "./GraphQL/Fetcher";
+import { Fetcher } from "./Fetcher";
 
 interface GAPArgs {
   network: TNetwork;
