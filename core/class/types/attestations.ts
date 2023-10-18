@@ -1,6 +1,6 @@
-import { Attestation } from "../Attestation";
-import { Hex, TExternalLink } from "core/types";
-import { Project } from "../entities/Project";
+import { Attestation } from '../Attestation';
+import { Hex, TExternalLink } from 'core/types';
+import { Project } from '../entities/Project';
 
 /** Attestation interfaces */
 
@@ -44,7 +44,7 @@ export class GrantDetails
   proposalURL: string;
   // communityUID: Hex;
   payoutAddress?: Hex;
-  amount?: string = "0";
+  amount?: string = '0';
   assetAndChainId?: [Hex, number];
   description?: string;
   season?: string;
@@ -85,14 +85,14 @@ export class MemberDetails
 }
 
 export interface IMilestoneCompleted {
-  type: "approved" | "rejected" | "completed";
+  type: 'approved' | 'rejected' | 'completed';
   reason?: string;
 }
 export class MilestoneCompleted
   extends Attestation<IMilestoneCompleted>
   implements IMilestoneCompleted
 {
-  type: "approved" | "rejected" | "completed";
+  type: 'approved' | 'rejected' | 'completed';
   reason?: string;
 }
 
@@ -146,3 +146,5 @@ export class GrantUpdate
   title: string;
   text: string;
 }
+
+export class GrantCompleted extends GrantUpdate {}
