@@ -12,7 +12,7 @@ import {
 } from '../../core';
 import { isAddress } from 'ethers/lib/utils';
 import { ethers } from 'ethers';
-import { GAP, GapIndexerClient, Grant } from '../../core/class';
+import { GAP, GapIndexerClient, Grant, MemberOf } from '../../core/class';
 import { GapContract } from '../../core/class/contract/GapContract';
 
 const [, , fileName, communityUID] = process.argv;
@@ -106,7 +106,6 @@ async function bootstrap() {
   const data = await parseCsv<CSV>(file);
   const filtered = data.filter((d) => isAddress(d.Owner) || isEns(d.Owner));
 
-
   for (const item of filtered) {
     let address = item.Owner;
     if (isEns(item.Owner)) {
@@ -144,6 +143,14 @@ async function bootstrap() {
       schema: GapSchema.find('ProjectDetails'),
     });
 
+    const member = new MemberOf({
+      data: { memberOf: true },
+      recipient: project.recipient,
+      schema: GapSchema.find('MemberOf'),
+    });
+
+    project.members.push(member);
+
     const grant = new Grant({
       data: { communityUID },
       recipient: project.recipient,
@@ -166,7 +173,7 @@ async function bootstrap() {
         data: {
           text: item['Grant Update'],
           title: 'Initial Update',
-          type: 'grant-update'
+          type: 'grant-update',
         },
         recipient: project.recipient,
         schema: GapSchema.find('GrantDetails'),
