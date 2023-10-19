@@ -13,47 +13,45 @@
 
 ## 1. What is GAP SDK?
 
-The GAP SDK is a tool that provides easiness to work with the [accountability protocol](https://gap.karmahq.xyz), and it's core is developed
-to support customisation\* and flexibility.
+The GAP SDK is a tool that provides ease of use when working with the [accountability protocol](https://gap.karmahq.xyz). Its core is developed to support customization\* and flexibility.
 
-Through this tool you will be able to:
+Through this tool, you will be able to:
 
-    - Get and display Communities, Projects, Members, Grants, Milestones and all of their dependencies;
-    - Transact attestations for all above;
-    - Transact revocations for all above;
-    - Use gasless transactions with [Gelato Relay](https://relay.gelato.network);
-    - Use a custom API to speed up requests since it follows the defined parameters.
+- Get and display Communities, Projects, Members, Grants, Milestones, and all of their dependencies.
+- Perform attestations for all of the above.
+- Execute revocations for all of the above.
+- Utilize gasless transactions with [Gelato Relay](https://relay.gelato.network).
+- Harness a custom API to expedite requests, as it adheres to the defined parameters.
 
-> \* We're currently improving the ability to customise this api through tools that facilitates the change of parameters, and this feature may seem confusing at the moment if you try to modify certain parameters such as default schemas and contracts.
+> \* We are currently working on enhancing the ability to customize this API through tools that facilitate the modification of parameters. This feature may appear confusing if you attempt to modify certain parameters, such as default schemas and contracts, at the moment.
 
 ## 2. Architecture
 
-This SDK is module-based and follows certain parameters to keep organization and ease to maintain. On its core, the SDK is divided into x modules:
+The GAP SDK is module-based and adheres to specific parameters to ensure organization and ease of maintenance. At its core, the SDK is divided into the following modules:
 
-1. **GAP** Facade: this object is responsible of bringing the user the centralization of resources for this SDK, providing all the tools and methods to bring attestations from the network to a concrete object that can be used to display, attest, modify, and revoke. GAP Facade provides the `fetcher` module and stores all the settings for the instance.
+1. **GAP Facade**: This object is responsible for centralizing resources within the SDK, providing all the tools and methods required to retrieve attestations from the network and convert them into concrete objects for display, attestation, modification, and revocation. The GAP Facade includes the `fetcher` module and stores all the necessary settings for the instance.
 
-2. **Attestations**: attestation is a generic module that can fit any kind of attestation available at [EAS](https://attest.sh) and can be inherited to specific attestation types such as a Project, for example. This generic object can also perform attestations and revokations through `Schema` module.
+2. **Attestations**: The attestation module is versatile and can accommodate various types of attestations available at [EAS](https://attest.sh). It can also be inherited to cater to specific attestation types, such as a Project, for example. This generic object is capable of performing attestations and revocations through the `Schema` module.
 
-3. **Schemas**: Schema is an **abstract module** that get the responsibility of creating a relationship to the EAS infrastructure. This is a class that will contain all the parameters, methods and interactions that are necessary to communicate with the blockchain.
+3. **Schemas**: The Schema is an **abstract module** that assumes the responsibility of establishing a connection with the EAS infrastructure. This class contains all the parameters, methods, and interactions needed to communicate with the blockchain.
 
-4. **Entities**: An entity is a specific attestation `type` that was modified to fit specific needs, such as data processing before attesting or methods overriding. An entity always extends `Attestation` module and inherits all of its features.
+4. **Entities**: An entity represents a specific attestation `type` customized to fulfill specific requirements, such as data processing prior to attestation or method overrides. An entity always extends the `Attestation` module and inherits all its features.
 
-5. **Contract**: To provide all the needs of this SDK, we use a custom middle contract adding an abstraction to the EAS original contracts. This is essential for a good experience, gas cost reduction, and monitoring. Karma's GAP SDK uses a special contract to perform this action. For better information, please check [Gap Contracts](https://github.com/show-karma/gap-contracts) repository.
+5. **Contract**: To meet the requirements of this SDK, a custom intermediary contract is utilized to add an abstraction layer to the original EAS contracts. This is essential for a better user experience, reduced gas costs, and monitoring. Karma's GAP SDK employs a special contract for this purpose. For more information, please refer to the [Gap Contracts](https://github.com/show-karma/gap-contracts) repository.
 
-6. **Fetcher**: This is an **abstract module** is responsible to interact with EAS or a custom API to get attesations and transform into an instance of `Attestation`. The `Fetcher` module is essential if a custom api is wanted.
+6. **Fetcher**: This **abstract module** is responsible for interacting with EAS or a custom API to retrieve attestations and transform them into instances of `Attestation`. The `Fetcher` module is indispensable if a custom API is desired.
 
-Let's see how all of this works with a Getting Projects example:
+Here's an example of how all these modules work together when retrieving Projects:
 
 ![img](docs/images/dfd-get-projects.png)
 
-Here you can already see the advantages of using a Custom API to get data from the network and build your own indexer instead of using EAS's available GraphQL API. We'll dive into it in [Chapter 8](#8-custom-api)
+In this diagram, you can already discern the benefits of using a Custom API to obtain data from the network and construct your own indexer, as opposed to relying on EAS's GraphQL API. We will delve into this further in [Chapter 8](#8-custom-api).
 
-> \* Note that GAP currently does not fully support multichain, and if more than one instance is created, it can lead to unexpected errors when using the fetcher. This feature is under development.
+> **Note**: GAP currently does not fully support multichain, and creating more than one instance can result in unexpected errors when using the fetcher. This feature is currently under development.
 
 ### Attestations
 
-Attestations are split into several types of entities, to create a relationship between them and allow the users to modify their attestation details witout losing the dependents reference to the main attestation. So because of it, community, project, grant, and members needs two attestations:
-the first defining an entity, and the second one defining its details, and because of that point, all these entities will include a `details` property containing all the data inserted into that attestation, such as:
+Attestations are categorized into various types of entities to establish a relationship between them and enable users to modify their attestation details without losing references to the main attestation. As a result, entities like community, project, grant, and members require two attestations: the first defines the entity, and the second defines its details. Due to this structure, all these entities will include a `details` property that contains all the data inserted into that attestation. For example:
 
 ```ts
 import { Project } from 'karma-gap-sdk';
@@ -67,9 +65,9 @@ export function printProjectDetails(project: Project) {
 }
 ```
 
-This example can be followed for all the entities in the following diagram that is related to a detail, and each one has its own interface and details parameters.
+This example can be applied to all the entities in the diagram below, each of which has its own interface and details parameters.
 
-> While effectively using this SDK, you can notice differences between the listed data in the diagram and the actual entity. This happens because we need to organize our classes to facilitate the usage of some parameters, such as `Grant.communities` that is not included in the diagram. The diagram also includes only attestation data, and some data is added during the runtime and not in the actual on-chain attestation.
+> When effectively using this SDK, you may notice differences between the data listed in the diagram and the actual entity. This discrepancy arises from the need to structure our classes to facilitate the use of certain parameters, such as `Grant.communities`, which is not included in the diagram. The diagram only encompasses attestation data, and some data is added during runtime and is not part of the on-chain attestation.
 
 ![architecture](./docs/images/attestation-architecture.png)
 
@@ -96,11 +94,11 @@ const gap = GAP.createClient({
 export default gap;
 ```
 
-The `GAP.createClient` is a factory for creating a client's singleton, and you should always use it unless you need multiple clients.
+The `GAP.createClient` serves as a factory for creating a client's singleton, and you should always use it unless you require multiple clients.
 
-> Note that multiple clients is only needed if using default EAS API client, as it provides a different endpoint for every network. If you're using a custom api, you can provide methods to filter by network and avoid client mutation.
+> Please note that the need for multiple clients arises primarily when using the default EAS API client, as it offers distinct endpoints for various networks. If you're utilizing a custom API, you can implement methods to filter by network and prevent client mutation.
 
-The `apiClient` option is used when you want to use a Custom API. The SDK provides a standard custom api that can be initiated with `apiClient: GapIndexerClient(url)` but is also possible to implement your own API in any language and data modeling, and use it as your client, and to do it, create your class and extend the abstract class `Fetcher`:
+The `apiClient` option is employed when you wish to use a Custom API. The SDK provides a standard custom API that can be initiated with `apiClient: GapIndexerClient(url)`. However, it's also possible to develop your own API in any programming language and data modeling and utilize it as your client. To achieve this, create your class and extend the abstract class `Fetcher`:
 
 ```ts
 // MyCustomApiClient.ts
@@ -127,11 +125,11 @@ const gap = GAP.createClient({
 export default gap;
 ```
 
-The `gelatoOpts` is used when the developer wants to provide gasless transactions to the end user, creating a much better user experience. More details about this feature on [Chapter 7](#7-gasless-transactions-with-gelato)
+The `gelatoOpts` option is used when developers aim to provide gasless transactions for a better user experience. For more details about this feature, please refer to [Chapter 7](#7-gasless-transactions-with-gelato).
 
-## 4. Getting attestations
+## 4. Getting Attestations
 
-After initializing the GAP client, now you're able to fetch for attestations available on this project, such as:
+After initializing the GAP client, you are now able to fetch attestations available within this project, including:
 
 - Communities
 - Projects
@@ -141,16 +139,16 @@ After initializing the GAP client, now you're able to fetch for attestations ava
 - Milestones
 - Milestone updates
 
-Indeed you can get all available attestations, we only provide methods for the higher level attestations, considering that this is the behavior we want, so looking at `Fetcher` interface, we can:
+Indeed, you can retrieve all available attestations, but we provide methods primarily for the higher-level attestations, as this aligns with the intended behavior. When examining the `Fetcher` interface, you can:
 
-- Get communities with related grants
-- Get projects that will contain related members and grants. Considering that grants will contain related updates and milestones, and Milestones will also contain its updates.
-- Get grants for grantees
-- Get projects from grantees
-- Get milestones of a grant
-- Get members of a project
+- Retrieve communities along with their related grants.
+- Obtain projects, which will contain related members and grants. Note that grants will include related updates and milestones, and milestones will also include their updates.
+- Fetch grants for grantees.
+- Retrieve projects from grantees.
+- Access milestones associated with a grant.
+- Get members of a project.
 
-To start using the fetcher, just call `gap.fetch.<target>(...args)`, like the following example:
+To begin using the fetcher, simply call `gap.fetch.<target>(...args)` as demonstrated in the following example:
 
 ```ts
 import { gap } from './gap-client';
@@ -171,19 +169,20 @@ gap.fetch
   });
 ```
 
-## 5. Attesting data in a Frontend
+## 5. Attesting Data in a Frontend
 
-Attesting data using the GAP SDK is pretty straight forward. The developer needs only to define what they want to attest, and attest but we have some attesting facilities for this module. To avoid poping up wallet several times to attest for each individual entity, we have developed a special contract that handles multiple attestations and its relationships, such as Project and Project details, with this in hand we can transact once and attest several times. Let's go through an example:
+Attesting data using the GAP SDK is quite straightforward. Developers only need to define what they want to attest, and we provide facilities for this module. To avoid frequent wallet pop-ups for individual entity attestations, we've developed a special contract that handles multiple attestations and their relationships. This means you can transact once and attest multiple times. Let's walk through an example:
 
-    User wants to create a project, and this project will include:
-        1. Its details (title, image, and description);
-        2. Two members
-        3. A Grant
-        4. The grant will get one milestone
+Suppose a user wants to create a project, and this project will include:
 
-> To attest a grant, it will ask for a community so consider that a community already exists. To create a community, the user will need to queue through [this link](https://tally.so/r/wd0jeq).
+1. Its details (title, image, and description).
+2. Two members.
+3. A grant.
+4. The grant will have one milestone.
 
-So, after setting up the GAP client, you can go to:
+> To attest a grant, it will require a community, so consider that a community already exists. To create a community, the user needs to go through [this link](https://tally.so/r/wd0jeq).
+
+After setting up the GAP client, you can proceed to:
 
 ```ts
 // get-dummy-project.ts
@@ -277,7 +276,7 @@ export function getDummyProject() {
 }
 ```
 
-After setting up the project with all its dependencies, it's time to attest, and you'll be able to do it by calling `project.attest` while providing a signer to sign the transaction. The `signer` can be an etherjs wallet or a viem/wagmi provider since it satisfies the `SignerOrProvider` interface. In some cases the EAS api can indicate that those providers does not fit into the signer's interface but most of cases it's easily soved by using `any` typing.
+Once you have set up the project with all its dependencies, it's time to attest. You can do this by calling `project.attest` and providing a signer to sign the transaction. The `signer` can be an ethers.js wallet or a Web3.js provider, as long as it satisfies the `SignerOrProvider` interface. In some cases, the EAS API may indicate that these providers do not perfectly match the signer's interface, but in most cases, this can be easily resolved by using `any` typing.
 
 ```ts
 // useSigner.ts
@@ -339,7 +338,7 @@ export const MyComponent: React.FC = () => {
 };
 ```
 
-The past example is related to when a user wants to attest a project with all its relationships but it does not need to follow the same method. It is completely possible to transact sepparated attestations using the property `refUID` for each attestation. As an example, lets say that user wants to add another grant to the project:
+The previous example is related to when a user wishes to attest a project with all its relationships, but it's not mandatory to follow the same method. It's entirely possible to transact separate attestations using the refUID property for each attestation. As an example, let's say the user wants to add another grant to the project:
 
 ```ts
 // add-grant-to-project.ts
@@ -409,13 +408,13 @@ export const MyComponent: React.FC = () => {
 };
 ```
 
-> This example can be followed for any kind of attestation that comes later, such as adding milestone to grant, add grant to project, add members to project, and also to update Project, Grant, and Community details. It's also available when approving/rejecting/completing a milestone: if any of those operations is done twice, the latest one will remain.
+> This approach can be applied to any subsequent attestation, whether it's adding a milestone to a grant, a grant to a project, members to a project, or updating Project, Grant, and Community details. It's also available when approving, rejecting, or completing a milestone. If any of these operations are performed multiple times, the latest one will take precedence.
 
-After any kind of attestation, the SDK will bind UIDs to the objects so it can be accessed after the attestation is done. For example, if you run the project attestation with all its dependents, you'll be able to get the attestation UID of the project, the details, grants, milestones, and so on.
+Following any type of attestation, the SDK will associate UIDs with the objects, making them accessible after the attestation is completed. For instance, if you perform the project attestation with all its dependents, you can retrieve the attestation UID of the project, its details, grants, milestones, and so on.
 
 ### Revoking an attestation
 
-As every object returned by the `Fetcher` is also an `Attestation`, to revoke any attestation the developer will only need to call `attestation.revoke`:
+Since every object returned by the Fetcher is also an Attestation, to revoke any attestation, the developer simply needs to call attestation.revoke.
 
 ```ts
 // revoke-project.ts
@@ -431,7 +430,7 @@ export async function revokeProject(
 
 ### Updating details
 
-To update the details of a Community, Project or Grant, all you need to do is to replace the current details and attest again:
+To update the details of a Community, Project, or Grant, simply replace the current details and attest again.
 
 ```ts
 // update-project-details.ts
@@ -448,11 +447,15 @@ export async function updateProjectDetails(
   data: IProjectDetails,
   signer: SignerOrProvider
 ) {
-  project.details = new ProjectDetails({
-    data,
-    recipient: project.recipient,
-    schema: GapSchema.find('ProjectDetails'),
-  });
+  // If project details already exists:
+  project.details.setValues(data);
+
+  // and if they not, we need to instantiate
+  // project.details = new ProjectDetails({
+  //   data,
+  //   recipient: project.recipient,
+  //   schema: GapSchema.find('ProjectDetails'),
+  // });
 
   await project.details.attest(signer);
   console.log(`Project ${project.details.name} was updated.`);
@@ -468,7 +471,7 @@ export async function updateProjectDetails(
 
 ## 6. Attesting data in a Backend
 
-To attest data in the backend, follow the same content available in [Chapter 5](#5-attesting-data-in-a-frontend). The only difference between them is that in the backend you'll need to instantiate an `ethersjs` wallet at runtime to sign attestations.
+To attest data in the backend, follow the same content as provided in [Chapter 5](#5-attesting-data-in-a-frontend). The only distinction between them is that in the backend, you'll need to instantiate an `ethers.js` wallet at runtime to sign attestations.
 
 ```ts
 import { gap } from 'gap-client';
@@ -492,19 +495,19 @@ project.attest(wallet as any).then(() => {
 });
 ```
 
-## 7. Gasless transactions with Gelato
+## 7. Gasless Transactions with Gelato
 
-Gasless transactions are a good option when the developer wants to create a user experience and attestation flow. In this SDK, we use [Gelato Relay](https://relay.gelato.network) to sponsor transactions and avoid the user to pay for network fees\*.
+Gasless transactions are an excellent option when a developer aims to enhance the user experience and attestation flow. In this SDK, we leverage [Gelato Relay](https://relay.gelato.network) to sponsor transactions, eliminating the need for users to cover network fees\*.
 
-> \* This is currently available for all attestations not including milestone completion/approvals/rejection updates as it currently needs another approach for ownership proof. Gasless for these attesations are under development and may be released soon.
+> \* Currently, this feature is available for all attestations except milestone completion/approvals/rejection updates. Gasless support for these specific attestations is under development and may be released soon.
 
-Before using it, go to [Gelato Relay](https://relay.gelato.network) app, setup and fund your account for one of the available networks (optimism goerli, sepolia, or optimism mainnet), setup the contract and get your api key.
+Before using gasless transactions, it's essential to visit the [Gelato Relay](https://relay.gelato.network) app, set up and fund your account on one of the available networks (e.g., optimism goerli, sepolia, or optimism mainnet), configure the contract, and obtain your API key.
 
 > The ABI for our contract can be found [here](https://github.com/show-karma/karma-gap-sdk/blob/dev/core/abi/MultiAttester.json).
 
-> To ensure the security of your Gelato account, only enable gasless for `multiSequentialAttest`, `attest`, and `multiRevoke` methods.
+> For the security of your Gelato account, only enable gasless transactions for the `multiSequentialAttest`, `attest`, and `multiRevoke` methods.
 
-Following with how to use gasless transactions, the developer will notice the options below when createing a GAP instance:
+Continuing with how to use gasless transactions, developers will encounter the following options when creating a GAP instance:
 
 ````ts
 interface GAPArgs {
@@ -589,10 +592,10 @@ interface GAPArgs {
 }
 ````
 
-So if `gasless` transactions are required, the developer will need to understand that it can be used in three modes, and all requireto set `gelatoOpts.useGasless: true`:
+If `gasless` transactions are required, developers should be aware that it can be used in three modes, all of which require setting `gelatoOpts.useGasless: true`:
 
-1. With API Key
-   This method is recommended only if you're using it in an external API as if used in the frontend level, the API key will be visible to all of the users. When using this method, you only need to fill `gelatoOpts.apiKey: '<gelato api key>'`. Note that a deprecation warning will pop up with this disclaimer, but don't worry, this option will not be removed from this sdk. The constructor will look like:
+1. **With API Key:**
+   This method is recommended when used in an external API. If utilized at the frontend level, the API key becomes visible to all users. To implement this method, simply fill in `gelatoOpts.apiKey: '<gelato api key>'`. Please note that a deprecation warning will appear with this disclaimer, but rest assured, this option will not be removed from the SDK. The constructor will appear as follows:
 
 ```ts
 GAP.createClient({
@@ -606,8 +609,8 @@ GAP.createClient({
 })
 ```
 
-2. With an external api support
-   In this case, you are using an external api such your indexer to provide a sposored transaction url that will communicate with gelato and the api key will not be visible. In this case, you will need to fill only `gelatoOpts.sponsorUrl`.
+2. **With External API Support:**
+   In this scenario, you're using an external API, such as your indexer, to provide a sponsored transaction URL that communicates with Gelato. Here, the API key will not be visible. To use this method, simply provide the `gelatoOpts.sponsorUrl`.
 
 ```ts
 GAP.createClient({
@@ -621,25 +624,25 @@ GAP.createClient({
 })
 ```
 
-3. With a self-contained api support
-   This case is similar to #2 but the difference is that you're using a self-contained api, such as NextJS Api, that won't require an external backend to request the transaction. In this case, you will need to provide:
+3. **With Self-Contained API Support:**
+   This case is similar to #2, but the difference is that you're using a self-contained API, such as Next.js API, which doesn't require an external backend to request the transaction. In this case, you will need to provide:
 
 ```ts
 GAP.createClient({
-    network: 'optimism-goerli',
-    gelatoOpts: {
-        sponsorUrl: '/api/my-contained-sponsor-url',
-        // marking contained as required will make possible 
-        // to send transactions through a NextJS api.
-        contained: true,
-        // to use gasless. it can be mutated
-        // through GAP.useGasless = <boolval>
-        useGasless: true
-    }
-})
+  network: 'optimism-goerli',
+  gelatoOpts: {
+    sponsorUrl: '/api/my-contained-sponsor-url',
+    // marking contained as required will make possible
+    // to send transactions through a NextJS api.
+    contained: true,
+    // to use gasless. it can be mutated
+    // through GAP.useGasless = <boolval>
+    useGasless: true,
+  },
+});
 ```
 
-When using a self-contained api to hide api keys, we provide a plug and play utility to NextJS, that can be used by `import { handler } from karma-gap-sdk`, and placing under `/pages/api/sponsored-txn.ts`:
+When using a self-contained API to hide API keys, we offer a plug-and-play utility for Next.js. You can utilize it by importing `import { handler } from karma-gap-sdk` and placing it under `/pages/api/sponsored-txn.ts`.
 
 ```ts
 // pages/api/sponsored-handler.ts
@@ -652,17 +655,13 @@ const handler = (req: ApiRequest, res: NextApiResponse) =>
 export default handler;
 ```
 
-> Note that `NEXT_GELATO_API_KEY` is not an actualy api key but the env variable name
-> to get from process.env. This will not expose the API in the frontend.
-> .env would need a field `NEXT_GELATO_API_KEY=abcdefg123`. See [sponsor-handler.ts L63](https://github.com/show-karma/karma-gap-sdk/blob/f2f3f863c8b2b475ca74bd76bb9290a075c12f60/core/utils/gelato/sponsor-handler.ts#L63) for more details.
+> Please note that `NEXT_GELATO_API_KEY` is not an actual API key but the name of the environment variable to retrieve from `process.env`. This setup will not expose the API key in the frontend. Your `.env` file should contain a field like `NEXT_GELATO_API_KEY=abcdefg123`. For more details, refer to [sponsor-handler.ts L63](https://github.com/show-karma/karma-gap-sdk/blob/f2f3f863c8b2b475ca74bd76bb9290a075c12f60/core/utils/gelato/sponsor-handler.ts#L63).
 
-After the api page placement, set `gelatoOpts.sponsorUrl: '/api/sponsored-txn` and all the transactions from now will be sent through Gelato Relay network.
-
----
+## After placing the API page, set `gelatoOpts.sponsorUrl: '/api/sponsored-txn'`, and all transactions will be routed through the Gelato Relay network.
 
 ### External API
 
-When using an external API to perform gasless transaction, you'll need to create an endpoint with a structure similar to the example below:
+When using an external API to facilitate gasless transactions, you'll need to create an endpoint with a structure similar to the example below:
 
 ```ts
 // gelato/sponsor-handler.ts
@@ -750,9 +749,9 @@ const gelato = {
 export { gelato };
 ```
 
-> If you want to customize this example, take in consideration that the body of the transaction must be in the format of `SponsoredCall` interface as this interface represents the arguments required in the EAS contract call.
+> If you wish to customize this example, please note that the transaction body must adhere to the format of the SponsoredCall interface, as this interface represents the required arguments in the EAS contract call.
 
-After setting up a custom endpoint, the constructor in your frontend app will look like:
+After setting up a custom endpoint, the constructor in your frontend app will appear as follows:
 
 ```ts
 GAP.createClient({
@@ -766,22 +765,22 @@ GAP.createClient({
 })
 ```
 
-This is all the settings needed to enable gasless transactions with GAP SDK, and from now on, users should not pay for gas anymore.
+These are all the settings needed to enable gasless transactions with the GAP SDK, and from this point forward, users should not be required to pay for gas.
 
-> Note that if you chose this option, you will pay for the gas through gelato.
+> Please note that with this option, you will cover the gas fees through Gelato.
 
 ## 8. Custom API
 
-The SDK provides two methods of fetching data from the network:
+The SDK offers two methods for fetching data from the network:
 
-1. Using the [EAS GraphQL API](https://optimism-goerli-bedrock.easscan.org/graphql); or
-2. Using a custom made API.
+1. Using the [EAS GraphQL API](https://optimism-goerli-bedrock.easscan.org/graphql).
+2. Using a custom-made API.
 
-When using the default EAS provider, the user will be able to use any feature offered in the SDK however, you'll also notice that it can lead to slow response times. This is caused because of what we can see in diagram on [Chapter 2](#2-architecture): the EAS api architecture doesn't support relationships between attestations then we need to call it several times in order to get the desired result, e.g., a project with all its dependents.
+When using the default EAS provider, users can access all the features offered by the SDK. However, it may lead to slow response times. This is because of the architectural limitations of the EAS API, as discussed in [Chapter 2](#2-architecture). The EAS API architecture doesn't support relationships between attestations, which necessitates multiple calls to retrieve the desired result, such as a project with all its dependents.
 
-To solve that issue, the SDK includes the `Fetcher` module, and by using it, the developer is allowed to develop their own service and integrate with the SDK. The integration is made by extending the fetcher api and implementing all of its methods. If you are not going to use a method or your service does not support it, you must implement an error handler or an empty return.
+To address this issue, the SDK includes the `Fetcher` module, allowing developers to create their own service and integrate it with the SDK. Integration is achieved by extending the fetcher API and implementing its methods. If you are not going to use a specific method or if your service does not support it, you should implement an error handler or return an empty response.
 
-You can view the Fetcher interface in [this file](https://github.com/show-karma/karma-gap-sdk/blob/dev/core/class/Fetcher.ts).
+You can review the Fetcher interface in [this file](https://github.com/show-karma/karma-gap-sdk/blob/dev/core/class/Fetcher.ts).
 
 ```ts
 // my-fetcher.ts
@@ -821,7 +820,7 @@ export class MyFetcher extends Fetcher {
 }
 ```
 
-> You can check a fully implemented client [here](https://github.com/show-karma/karma-gap-sdk/blob/dev/core/class/karma-indexer/GapIndexerClient.ts).
+> You can check a functional example [here](https://github.com/show-karma/karma-gap-sdk/blob/dev/core/class/karma-indexer/GapIndexerClient.ts).
 
 After implementing your own client, you can setup the GAP client:
 
@@ -839,4 +838,4 @@ const gap = GAP.createClient({
 export default gap;
 ```
 
-> Note that your api service should return the data specified in the interfaces provided by each Attestation to work properly with this sdk.
+> Note that your API service should return data that aligns with the interfaces provided by each Attestation for proper compatibility with this SDK. This ensures that the data is structured correctly to work seamlessly with the SDK.
