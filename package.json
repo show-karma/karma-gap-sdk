@@ -7,7 +7,6 @@
     "license": "MIT",
     "private": false,
     "scripts": {
-        "prepublishOnly": "npx tsc && npm version patch",
         "deploy": "npx ts-node ./core/scripts/deploy.ts",
         "csv-upload": "npx ts-node ./csv-upload/scripts/run.ts"
     },
