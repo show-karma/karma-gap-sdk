@@ -5,13 +5,22 @@ import {
   SchemaItem,
   SchemaValue,
 } from "@ethereum-attestation-service/eas-sdk";
-import { AttestArgs, Hex, MultiRevokeArgs, SchemaInterface } from "../types";
+import {
+  AttestArgs,
+  Hex,
+  MultiRevokeArgs,
+  SchemaInterface,
+  TSchemaName,
+  SignerOrProvider,
+  RawMultiAttestPayload,
+  RawAttestationPayload,
+} from "../types";
 import { AttestationError, SchemaError } from "./SchemaError";
 import { ethers } from "ethers";
-import { nullResolver } from "../consts";
+import { useDefaultAttestation, zeroAddress } from "../consts";
 import { GAP } from "./GAP";
-import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
 import { Attestation } from "./Attestation";
+import { GapContract } from "./contract/GapContract";
 
 /**
  * Represents the EAS Schema and provides methods to encode and decode the schema,
@@ -135,6 +144,15 @@ export abstract class Schema<T extends string = string>
     this._schema[idx].value = value;
   }
 
+  /**
+   * Tests if the current schema is a JSON Schema.
+   *
+   * @returns boolean
+   */
+  isJsonSchema() {
+    return !!this.schema.find((s) => s.name === "json" && s.type === "string");
+  }
+
   private assertField(item: SchemaItem, value: any) {
     const { type, name } = item;
 
@@ -148,7 +166,7 @@ export abstract class Schema<T extends string = string>
     if (
       type.includes("address") &&
       !ethers.utils.isAddress(value) &&
-      value !== nullResolver
+      value !== zeroAddress
     ) {
       throw new SchemaError(
         "INVALID_SCHEMA_FIELD",
@@ -179,6 +197,17 @@ export abstract class Schema<T extends string = string>
         "INVALID_SCHEMA_FIELD",
         `Field ${name} is of type ${type} but value is not a valid array.`
       );
+    }
+
+    if (type === "string" && name === "json") {
+      try {
+        JSON.parse(value);
+      } catch (error) {
+        throw new SchemaError(
+          "INVALID_SCHEMA_FIELD",
+          `Field ${name} is of type ${type} but value is not a valid JSON string.`
+        );
+      }
     }
   }
 
@@ -212,7 +241,7 @@ export abstract class Schema<T extends string = string>
 
   /**
    * Attest off chain data
-   * @returns 
+   * @returns
    */
   async attestOffchain({ data, signer, to, refUID }: AttestArgs) {
     const eas = await GAP.eas.getOffchain();
@@ -230,10 +259,10 @@ export abstract class Schema<T extends string = string>
   }
 
   /**
-   * Revokes one off chain attestation by its UID. 
-   * @param uid 
-   * @param signer 
-   * @returns 
+   * Revokes one off chain attestation by its UID.
+   * @param uid
+   * @param signer
+   * @returns
    */
   async revokeOffchain(uid: Hex, signer: SignerOrProvider) {
     const eas = GAP.eas.connect(signer);
@@ -242,9 +271,9 @@ export abstract class Schema<T extends string = string>
 
   /**
    * Revokes multiple off chain attestations by their UIDs.
-   * @param uids 
-   * @param signer 
-   * @returns 
+   * @param uids
+   * @param signer
+   * @returns
    */
   async multiRevokeOffchain(uids: Hex[], signer: SignerOrProvider) {
     const eas = GAP.eas.connect(signer);
@@ -256,10 +285,7 @@ export abstract class Schema<T extends string = string>
    * @param param0
    * @returns
    */
-  async attest<T>(
-    { data, to, signer, refUID }: AttestArgs<T>,
-    revokeUID?: Hex
-  ): Promise<Hex> {
+  async attest<T>({ data, to, signer, refUID }: AttestArgs<T>): Promise<Hex> {
     const eas = GAP.eas.connect(signer);
 
     if (this.references && !refUID)
@@ -268,39 +294,48 @@ export abstract class Schema<T extends string = string>
         "Attestation schema references another schema but no reference UID was provided."
       );
 
-    if (revokeUID) {
-      const toRevoke = await eas.getAttestation(revokeUID);
-      if (toRevoke.schema === this.raw) {
-        await eas.revoke({
-          schema: this.raw,
-          data: { uid: revokeUID },
-        });
-      } else {
-        throw new AttestationError(
-          "INVALID_REF_UID",
-          `Revoke UID schema does not match any ${this.name} attestation.`
-        );
-      }
+    if (this.isJsonSchema()) {
+      this.setValue("json", JSON.stringify(data));
+    } else {
+      Object.entries(data).forEach(([key, value]) => {
+        this.setValue(key, value);
+      });
     }
 
-    Object.entries(data).forEach(([key, value]) => {
-      this.setValue(key, value);
-    });
-
-    const payload: AttestationRequestData = {
-      recipient: to,
-      expirationTime: 0n,
-      revocable: true,
-      data: this.encode(this.schema),
-      refUID,
+    const payload: RawAttestationPayload = {
+      schema: this.uid,
+      data: {
+        raw: {
+          recipient: to,
+          expirationTime: 0n,
+          revocable: true,
+          data: this.schema as any,
+          refUID,
+          value: 0n,
+        },
+        payload: {
+          recipient: to,
+          expirationTime: 0n,
+          revocable: true,
+          data: this.encode(this.schema),
+          refUID,
+          value: 0n,
+        },
+      },
     };
 
-    const tx = await eas.attest({
-      schema: this.uid,
-      data: payload,
-    });
+    if (useDefaultAttestation.includes(this.name as TSchemaName)) {
+      const tx = await eas.attest({
+        schema: this.uid,
+        data: payload.data.payload,
+      });
 
-    return tx.wait() as Promise<Hex>;
+      return tx.wait() as Promise<Hex>;
+    }
+
+    const uid = await GapContract.attest(signer, payload);
+
+    return uid;
   }
 
   /**

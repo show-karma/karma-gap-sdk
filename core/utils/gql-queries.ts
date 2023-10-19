@@ -29,13 +29,32 @@ export const gqlQueries = {
         id: "${uid}"
       }) {${attestationFields}}
     }`,
+  attestations: (schemaId: Hex, uid: Hex) =>
+    schemaQuery(
+      schemaId,
+      `attestations(where: {
+        revoked: {equals: false}
+        decodedDataJson: {contains: "${uid}"}
+      }) {${attestationFields}}`
+    ),
+  attestationsIn: (uids: Hex[], search?: string) => `
+    {
+      attestations(where: {
+        id:{in: ${inStatement(uids)}}
+        revoked:{equals:false}
+        ${
+          search
+            ? `decodedDataJson:{contains:"${search}",mode:insensitive}`
+            : ""
+        }
+      }) {${attestationFields}}
+    }`,
   attestationsFrom: (schemaId: Hex, attester: Hex) =>
     schemaQuery(
       schemaId,
       `attestations(orderBy:{timeCreated: desc},
         where:{attester:{equals:"${attester}"}
         revoked:{equals:false}
-          refUID: {notIn: ["${nullRef}"]}
       }){${attestationFields}}`
     ),
   attestationsTo: (schemaId: Hex, recipient: Hex) =>
@@ -45,7 +64,6 @@ export const gqlQueries = {
         where:{
           recipient:{equals:"${recipient}"}
           revoked:{equals:false}
-          refUID: {notIn: ["${nullRef}"]}
         }){${attestationFields}}`
     ),
   attestationPairs: (schemaId: Hex, attester: Hex, recipient: Hex) =>
@@ -55,17 +73,36 @@ export const gqlQueries = {
           attester: {equals: "${attester}"}
           recipient: {equals: "${recipient}"}
           revoked: {equals: false}
-          refUID: {notIn: ["${nullRef}"]}
         }) {${attestationFields}}`
     ),
-  attestationsOf: (schemaId: Hex, search?: string) =>
+  attestationsOf: (
+    schemaId: Hex,
+    search?: string[] | string,
+    refUids?: Hex[]
+  ) =>
     schemaQuery(
       schemaId,
       `attestations(orderBy:{timeCreated: desc},
         where: {
           revoked:{equals:false}
-          refUID: {notIn: ["${nullRef}"]}
-          ${search ? `decodedDataJson:{contains:"${search}"}` : ""}
+          ${
+            refUids && refUids.length
+              ? `refUID:{in: ${inStatement(refUids)}}`
+              : ""
+          }
+          ${
+            search
+              ? `OR: [
+                ${[search]
+                  .flat()
+                  .map(
+                    (s) =>
+                      `{decodedDataJson:{contains:"${s}",mode:insensitive}}`
+                  )
+                  .join(",")}
+              ]`
+              : ""
+          }
         })
         {${attestationFields}}`
     ),
@@ -77,6 +114,7 @@ export const gqlQueries = {
   ) => `
     {
       attestations(
+        orderBy:{timeCreated: desc},
         where: {
           refUID:{in: ${inStatement([refs].flat())}}
           revoked:{equals: false}

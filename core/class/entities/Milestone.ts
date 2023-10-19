@@ -1,31 +1,145 @@
-import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
+import { SignerOrProvider } from "../../types";
 import { Attestation } from "../Attestation";
 import { GAP } from "../GAP";
 import { GapSchema } from "../GapSchema";
 import { AttestationError } from "../SchemaError";
+import { MilestoneCompleted } from "../types/attestations";
+
+interface _Milestone extends Milestone {}
 
 export interface IMilestone {
   title: string;
-  startsAt: number;
   endsAt: number;
   description: string;
 }
 export class Milestone extends Attestation<IMilestone> implements IMilestone {
   title: string;
-  startsAt: number;
   endsAt: number;
   description: string;
-  completed: boolean;
-  approved: boolean;
+  completed: MilestoneCompleted;
+  approved: MilestoneCompleted;
+  rejected: MilestoneCompleted;
 
-  async approve(signer: SignerOrProvider) {
+  /**
+   * Approves this milestone. If the milestone is not completed or already approved,
+   * it will throw an error.
+   * @param signer
+   * @param reason
+   */
+  async approve(signer: SignerOrProvider, reason = "") {
+    if (!this.completed)
+      throw new AttestationError("ATTEST_ERROR", "Milestone is not completed");
+
+    const schema = GapSchema.find("MilestoneCompleted");
+    schema.setValue("type", "approved");
+    schema.setValue("reason", reason);
+
+    await this.attestStatus(signer, schema);
+
+    this.approved = new MilestoneCompleted({
+      data: {
+        type: "approved",
+        reason,
+      },
+      refUID: this.uid,
+      schema: schema,
+      recipient: this.recipient,
+    });
+  }
+
+  /**
+   * Revokes the approved status of the milestone. If the milestone is not approved,
+   * it will throw an error.
+   * @param signer
+   */
+  async revokeApproval(signer: SignerOrProvider) {
+    if (!this.approved)
+      throw new AttestationError("ATTEST_ERROR", "Milestone is not approved");
+
+    await this.approved.revoke(signer);
+  }
+
+  /**
+   * Reject a completed milestone. If the milestone is not completed or already rejected,
+   * it will throw an error.
+   * @param signer
+   * @param reason
+   */
+  async reject(signer: SignerOrProvider, reason = "") {
+    if (!this.completed)
+      throw new AttestationError("ATTEST_ERROR", "Milestone is not completed");
+
+    const schema = GapSchema.find("MilestoneCompleted");
+    schema.setValue("type", "rejected");
+    schema.setValue("reason", reason);
+    await this.attestStatus(signer, schema);
+
+    this.rejected = new MilestoneCompleted({
+      data: {
+        type: "rejected",
+        reason,
+      },
+      refUID: this.uid,
+      schema: schema,
+      recipient: this.recipient,
+    });
+  }
+
+  /**
+   * Revokes the rejected status of the milestone. If the milestone is not rejected,
+   * it will throw an error.
+   * @param signer
+   */
+  async revokeRejection(signer: SignerOrProvider) {
+    if (!this.rejected)
+      throw new AttestationError("ATTEST_ERROR", "Milestone is not rejected");
+
+    await this.rejected.revoke(signer);
+  }
+
+  /**
+   * Marks a milestone as completed. If the milestone is already completed,
+   * it will throw an error.
+   * @param signer
+   * @param reason
+   */
+  async complete(signer: SignerOrProvider, reason = "") {
+    const schema = GapSchema.find("MilestoneCompleted");
+    schema.setValue("type", "completed");
+    schema.setValue("reason", reason);
+
+    await this.attestStatus(signer, schema);
+    this.completed = new MilestoneCompleted({
+      data: {
+        type: "completed",
+        reason,
+      },
+      refUID: this.uid,
+      schema,
+      recipient: this.recipient,
+    });
+  }
+
+  /**
+   * Revokes the completed status of the milestone. If the milestone is not completed,
+   * it will throw an error.
+   * @param signer
+   */
+  async revokeCompletion(signer: SignerOrProvider) {
+    if (!this.completed)
+      throw new AttestationError("ATTEST_ERROR", "Milestone is not completed");
+
+    await this.completed.revoke(signer);
+  }
+
+  /**
+   * Attest the status of the milestone as approved, rejected or completed.
+   */
+  private async attestStatus(signer: SignerOrProvider, schema: GapSchema) {
     const eas = GAP.eas.connect(signer);
-    const schema = GapSchema.find("MilestoneApproved");
-    schema.setValue("approved", true);
-
     try {
-      await eas.attest({
-        schema: schema.raw,
+      const tx = await eas.attest({
+        schema: schema.uid,
         data: {
           recipient: this.recipient,
           data: schema.encode(),
@@ -34,33 +148,56 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
           revocable: schema.revocable,
         },
       });
-      this.approved = true;
+
+      const uid = await tx.wait();
+      console.log(uid);
     } catch (error: any) {
       console.error(error);
       throw new AttestationError("ATTEST_ERROR", error.message);
     }
   }
 
-  async complete(signer: SignerOrProvider) {
-    const eas = GAP.eas.connect(signer);
-    const schema = GapSchema.find("MilestoneCompleted");
-    schema.setValue("completed", true);
-
-    try {
-      await eas.attest({
-        schema: schema.raw,
+  static from(attestations: _Milestone[]): Milestone[] {
+    return attestations.map((attestation) => {
+      const milestone = new Milestone({
+        ...attestation,
         data: {
-          recipient: this.recipient,
-          data: schema.encode(),
-          refUID: this.uid,
-          expirationTime: 0n,
-          revocable: schema.revocable,
+          ...attestation.data,
         },
+        schema: GapSchema.find("Milestone"),
       });
-      this.completed = true;
-    } catch (error: any) {
-      console.error(error);
-      throw new AttestationError("ATTEST_ERROR", error.message);
-    }
+
+      if (attestation.completed) {
+        milestone.completed = new MilestoneCompleted({
+          ...attestation.completed,
+          data: {
+            ...attestation.completed.data,
+          },
+          schema: GapSchema.find("MilestoneCompleted"),
+        });
+      }
+
+      if (attestation.approved) {
+        milestone.approved = new MilestoneCompleted({
+          ...attestation.approved,
+          data: {
+            ...attestation.completed.data,
+          },
+          schema: GapSchema.find("MilestoneCompleted"),
+        });
+      }
+
+      if (attestation.rejected) {
+        milestone.rejected = new MilestoneCompleted({
+          ...attestation.rejected,
+          data: {
+            ...attestation.completed.data,
+          },
+          schema: GapSchema.find("MilestoneCompleted"),
+        });
+      }
+
+      return milestone;
+    });
   }
 }

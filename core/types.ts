@@ -1,8 +1,20 @@
 import { BytesLike } from "ethers";
-import { GAPFetcher } from "./class/GraphQL/GAPFetcher";
-import { EAS, SchemaItem } from "@ethereum-attestation-service/eas-sdk";
-import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
+import {
+  AttestationRequestData,
+  EAS,
+  MultiAttestationRequest,
+  SchemaItem,
+} from "@ethereum-attestation-service/eas-sdk";
+import { SignerOrProvider as EASSigner } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
+import { Attestation } from "./class";
+import { Fetcher } from "./class/Fetcher";
 export type Hex = `0x${string}`;
+
+export type SignerOrProvider = EASSigner & {
+  address?: Hex;
+  _address?: Hex;
+  getAddress?: () => Promise<Hex>;
+};
 
 export interface SchemaInterface<T extends string = string> {
   name: string;
@@ -27,12 +39,8 @@ export interface AttestArgs<T = unknown> {
 export type TSchemaName =
   | "Community"
   | "CommunityDetails"
-  | "ExternalLink"
-  | "Grantee"
-  | "GranteeDetails"
   | "Grant"
   | "GrantDetails"
-  | "GrantRound"
   | "GrantVerified"
   | "MemberOf"
   | "MemberDetails"
@@ -41,7 +49,17 @@ export type TSchemaName =
   | "MilestoneApproved"
   | "Project"
   | "ProjectDetails"
-  | "Tag";
+  | "Details";
+
+export type TResolvedSchemaNames =
+  | "Community"
+  | "Grant"
+  | "GrantVerified"
+  | "MemberOf"
+  | "MilestoneCompleted"
+  | "MilestoneApproved"
+  | "Project"
+  | "Details";
 
 export type TExternalLink =
   | "twitter"
@@ -53,10 +71,10 @@ export type TExternalLink =
 export type TNetwork =
   // | "mainnet"
   // | "base-goerli"
-  // | "optimism"
-  // | "optimism-goerli"
+  | "optimism"
+  | "optimism-goerli"
   // | "arbitrum"
-  "sepolia";
+  | "sepolia";
 
 /**
  * Generic GAP Facade interface.
@@ -65,7 +83,7 @@ export type TNetwork =
 export abstract class Facade {
   abstract readonly network: TNetwork;
   abstract readonly schemas: SchemaInterface[];
-  abstract readonly fetch: GAPFetcher;
+  abstract readonly fetch: Fetcher;
   protected static _eas: EAS;
 
   static get eas() {
@@ -73,17 +91,39 @@ export abstract class Facade {
   }
 }
 
+export interface RawAttestationPayload {
+  schema: Hex;
+  data: {
+    payload: AttestationRequestData;
+    raw: AttestationRequestData;
+  };
+}
+
+export interface RawMultiAttestPayload {
+  payload: MultiAttestData;
+  raw: MultiAttestData;
+}
+
+export interface MultiAttestData {
+  uid?: Hex;
+  multiRequest: MultiAttestationRequest;
+  refIdx: number;
+}
+
+export type MultiAttestPayload = [Attestation, RawMultiAttestPayload][];
+
 export interface EASNetworkConfig {
   url: string;
   chainId: number;
   contracts: {
     eas: Hex;
     schema: Hex;
+    multicall: Hex;
   };
   /**
    * A tuple containing the schema name and it's UID for that network
    */
-  schemas: Record<TSchemaName, Hex>;
+  schemas: Record<TResolvedSchemaNames, Hex>;
 }
 
 export type IGapSchema = SchemaInterface<TSchemaName>;

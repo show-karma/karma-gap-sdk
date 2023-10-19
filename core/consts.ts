@@ -5,10 +5,25 @@ import {
   TSchemaName,
 } from "./types";
 
+/**
+ * Schemas that should use default EAS attestation
+ * instead of the custom contract.
+ */
+export const useDefaultAttestation: TSchemaName[] = [
+  "MilestoneApproved",
+  "MilestoneCompleted",
+  "GrantVerified",
+  "Community",
+];
+
 export const nullRef =
   "0x0000000000000000000000000000000000000000000000000000000000000000";
+
+// TODO: Remove null resolver and change usage to zero address
 export const nullResolver = "0x0000000000000000000000000000000000000000";
 
+export const zeroAddress = nullResolver;
+// resolver for dependents = 0xed081ABE885bc3575f810c904052A1f685A85903
 /**
  * The networks that are supported by the EAS
  */
@@ -19,23 +34,15 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
   //   contracts: {
   //     eas: "0xA1207F3BBa224E2c9c3c6D5aF63D0eb1582Ce587",
   //     schema: "0xA7b39296258348C78294F95B872b282326A97BDF",
+  //     multicall:''
   //   },
   //   schemas: {
   //     Grant: "",
-  //     GrantDetails: "",
-  //     GrantRound: "",
   //     GrantVerified: "",
-  //     Grantee: "",
-  //     GranteeDetails: "",
-  //     ExternalLink: "",
-  //     MemberDetails: "",
   //     MemberOf: "",
-  //     Milestone: "",
   //     MilestoneApproved: "",
   //     MilestoneCompleted: "",
   //     Project: "",
-  //     ProjectDetails: "",
-  //     Tag: "",
   //   },
   // },
   // "base-goerli": {
@@ -44,98 +51,87 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
   //   contracts: {
   //     eas: "0xAcfE09Fd03f7812F022FBf636700AdEA18Fd2A7A",
   //     schema: "0x720c2bA66D19A725143FBf5fDC5b4ADA2742682E",
+  //     multicall:''
   //   },
   //   schemas: {
   //     Grant: "",
-  //     GrantDetails: "",
-  //     GrantRound: "",
   //     GrantVerified: "",
-  //     Grantee: "",
-  //     GranteeDetails: "",
-  //     ExternalLink: "",
-  //     MemberDetails: "",
   //     MemberOf: "",
-  //     Milestone: "",
   //     MilestoneApproved: "",
   //     MilestoneCompleted: "",
   //     Project: "",
-  //     ProjectDetails: "",
-  //     Tag: "",
   //   },
   // },
-  // optimism: {
-  //   chainId: 10,
-  //   url: "https://optimism.easscan.org/graphql",
-  //   contracts: {
-  //     eas: "0x4200000000000000000000000000000000000021",
-  //     schema: "0x4200000000000000000000000000000000000020",
-  //   },
-  //   schemas: {
-  //     Grant: "",
-  //     GrantDetails: "",
-  //     GrantRound: "",
-  //     GrantVerified: "",
-  //     Grantee: "",
-  //     GranteeDetails: "",
-  //     ExternalLink: "",
-  //     MemberDetails: "",
-  //     MemberOf: "",
-  //     Milestone: "",
-  //     MilestoneApproved: "",
-  //     MilestoneCompleted: "",
-  //     Project: "",
-  //     ProjectDetails: "",
-  //     Tag: "",
-  //   },
-  // },
-  // "optimism-goerli": {
-  //   chainId: 420,
-  //   url: "https://optimism-goerli-bedrock.easscan.org/graphql",
-  //   contracts: {
-  //     eas: "0x4200000000000000000000000000000000000021",
-  //     schema: "0x4200000000000000000000000000000000000020",
-  //   },
-  //   schemas: {
-  //     Grant: "",
-  //     GrantDetails: "",
-  //     GrantRound: "",
-  //     GrantVerified: "",
-  //     Grantee: "",
-  //     GranteeDetails: "",
-  //     ExternalLink: "",
-  //     MemberDetails: "",
-  //     MemberOf: "",
-  //     Milestone: "",
-  //     MilestoneApproved: "",
-  //     MilestoneCompleted: "",
-  //     Project: "",
-  //     ProjectDetails: "",
-  //     Tag: "",
-  //   },
-  // },
+  optimism: {
+    chainId: 10,
+    url: "https://optimism.easscan.org/graphql",
+    contracts: {
+      eas: "0x4200000000000000000000000000000000000021",
+      schema: "0x4200000000000000000000000000000000000020",
+      multicall: "0xd2eD366393FDfd243931Fe48e9fb65A192B0018c", //proxy
+    },
+    schemas: {
+      Community:
+        "0x721c17b065dccc5c916e0c2708d0ef50f1810591b76d0402ff6fe5accbd8488f",
+      Details:
+        "0x70a3f615f738fc6a4f56100692ada93d947c028b840940d97af7e7d6f0fa0577",
+      Grant:
+        "0x12837231f48acbca4e1e7f4416f684f3353bd4d71d4f03a09d29e5ffa6f21a50",
+      GrantVerified:
+        "0x13adc8df8a7324b1651e8bcec948b3e2d4fcfa2a88a52136206cb9ea44836e93",
+      MemberOf:
+        "0x7fbb8a65924d8ad2ae12356e04b1418043e8361ba3b1b6c917de2e23df3ec81c",
+      MilestoneApproved:
+        "0x13adc8df8a7324b1651e8bcec948b3e2d4fcfa2a88a52136206cb9ea44836e93",
+      MilestoneCompleted:
+        "0x13adc8df8a7324b1651e8bcec948b3e2d4fcfa2a88a52136206cb9ea44836e93",
+      Project:
+        "0x5b873b6e7a16207b526dde366e8164e95bcda2f009272306519667c5e94d2191",
+    },
+  },
+  "optimism-goerli": {
+    chainId: 420,
+    url: "https://optimism-goerli-bedrock.easscan.org/graphql",
+    contracts: {
+      eas: "0x4200000000000000000000000000000000000021",
+      schema: "0x4200000000000000000000000000000000000020",
+      multicall: "0x5D5a8032b2FA06652804c33F60DcEA00e389B732", //proxy
+    },
+    schemas: {
+      Community:
+        "0xc1aade58410b3fd807c19845181996721248459c5f042284f27d21cec12a38d1", // new resolver
+      // "0x14b016a56b56db47ee2cdda6963a3481374a75e1471dafd85a17e6e5c23d2a11",
+      Details:
+        "0xfe590d9582957e10affbabcdc34a201785a1d4f77982d6616b736cce1a91ae43",
+      Grant:
+        "0xd6ce374765c355687101ba70b3f8824d555c12716d2bdad71a08ccad1ded3218",
+      GrantVerified:
+        "0xf544fbd9721ac50863d32dc0eed5992051e7fb270b38ab2ce062327cc0ae26ea",
+      MemberOf:
+        "0x78c811e506849d414a91a56dab91f07f7ed108f0bf27f550796f13e7bb2e2f2d",
+      MilestoneApproved:
+        "0xf544fbd9721ac50863d32dc0eed5992051e7fb270b38ab2ce062327cc0ae26ea",
+      MilestoneCompleted:
+        "0xf544fbd9721ac50863d32dc0eed5992051e7fb270b38ab2ce062327cc0ae26ea",
+      Project:
+        "0xec77990a252b54b17673955c774b9712766de5eecb22ca5aa2c440e0e93257fb",
+    },
+  },
   // arbitrum: {
   //   chainId: 42161,
   //   url: "https://arbitrum.easscan.org/graphql",
   //   contracts: {
   //     eas: "0xbD75f629A22Dc1ceD33dDA0b68c546A1c035c458",
   //     schema: "0xA310da9c5B885E7fb3fbA9D66E9Ba6Df512b78eB",
+  //     multicall:''
   //   },
   //   schemas: {
   //     Grant: "",
-  //     GrantDetails: "",
-  //     GrantRound: "",
   //     GrantVerified: "",
-  //     Grantee: "",
-  //     GranteeDetails: "",
-  //     ExternalLink: "",
-  //     MemberDetails: "",
   //     MemberOf: "",
-  //     Milestone: "",
   //     MilestoneApproved: "",
   //     MilestoneCompleted: "",
   //     Project: "",
-  //     ProjectDetails: "",
-  //     Tag: "",
   //   },
   // },
   sepolia: {
@@ -144,44 +140,32 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
     contracts: {
       eas: "0xC2679fBD37d54388Ce493F1DB75320D236e1815e",
       schema: "0x0a7E2Ff54e76B8E6659aedc9103FB21c038050D0",
+      multicall: "0x00Ee8a5082567c3da8f3D34D33ac8D788C4Cd754", // enhanced
+      // multicall: "0x04D6BB799f5A8c76882C4372d1FC39Cd0DDA0A4c",// original
     },
     schemas: {
       Community:
-        "0x43c83c4d3a7f335f23e35c7fc43a77f3907ad0bb2cc7a684619e1cd0f17d37b9",
-      CommunityDetails:
-        "0x3a5cbd4491c353a2daf3d1dba11feaa09911aa44f230570f106f7f62e466b0b3",
+        "0xf3d790c7fdab6c1b1f25ffcc9289e5be2792eb596d2851a4d059c8aae1bc8b2e", //test with resolver
+      // "0x1954572e3fe21bf4334afdaf1358ed7098af1ed136e76dc93c2fdc25e83934c1", // original without resolver
+      Details:
+        "0x2c270e35bfcdc4d611f0e9d3d2ab6924ec6c673505abc22a1dd07e19b67211af",
       Grant:
-        "0xfccfe22b5c861b35f2aa0c6bffacf9f13dfed27724aa66984b8adb39fbfef98c",
-      GrantDetails:
-        "0xd0d1118c21c6c7310c875fe8ed154760109246a10c2052e6fdb0066cb5fd1aa5",
-      GrantRound:
-        "0x234dee4d3e6a625b4121e2042d6267058755e53a2ecc55555da51a1e6f06cc58",
+        "0x09697aeeb3ae71de1cc19e388fd74264f11af5fba3016094764553ac341fdc72", // with communityUID/resolver
       GrantVerified:
-        "0x1e3b7d70d89f30ebe9f0ae987e34242b14e7fb07e25205458cf2813449fb4136",
-      Grantee:
-        "0x223856f6ed212325d5585fe903e952d76212047b52dc9d48b5e7d45682732a7a",
-      GranteeDetails:
-        "0xbfe0866beec569e809f79d1f19a87551c92a55940af431273da7680d02eb4010",
-      ExternalLink:
-        "0xd354de1d01ebc5df5230bc483620c80ba2af96e65e2263f6f283410697004efd",
-      MemberDetails:
-        "0x8a10b1f25006f6e4a675f268e64e1c729ee0713adbdce3984f5bdad6302aef19",
+        "0x0be8952e2dd74ffd63a02f4d55b20b603fe7a60130cb9d70de31feb9c52fdd37",
       MemberOf:
-        "0xaaa3eb892d49ca6be51e3d1dd4a75825cba020bec837db0bba0b1d76dc3dda2c",
-      Milestone:
-        "0xfdea9469a2318d97848ab6b90ab8a1e496a1d05a02d6339d088723dbfd4669de",
+        "0xdd87b3500457931252424f4439365534ba72a367503a8805ff3482353fb90301",
       MilestoneApproved:
-        "0x1e3b7d70d89f30ebe9f0ae987e34242b14e7fb07e25205458cf2813449fb4136",
+        "0xcdef0e492d2e7ad25d0b0fdb868f6dcd1f5e5c30e42fd5fa0debdc12f7618322",
       MilestoneCompleted:
-        "0x1e3b7d70d89f30ebe9f0ae987e34242b14e7fb07e25205458cf2813449fb4136",
+        "0xcdef0e492d2e7ad25d0b0fdb868f6dcd1f5e5c30e42fd5fa0debdc12f7618322",
       Project:
         "0xec77990a252b54b17673955c774b9712766de5eecb22ca5aa2c440e0e93257fb",
-      ProjectDetails:
-        "0xdddf1698baf08a6edd49a949b7a482be55a15c912ba3ebd83d7cfa6fa191d2cf",
-      Tag: "0x234dee4d3e6a625b4121e2042d6267058755e53a2ecc55555da51a1e6f06cc58",
     },
   },
 } as const;
+
+const DetailsSchema = [{ type: "string", name: "json", value: null }];
 
 /**
  * Mounts the schemas for the given network and return all the settings
@@ -198,45 +182,19 @@ export const MountEntities = (
   },
   CommunityDetails: {
     name: "CommunityDetails",
-    schema: [
-      { type: "string", name: "name", value: null },
-      { type: "string", name: "description", value: null },
-      { type: "string", name: "imageURL", value: null },
-    ],
-    uid: network.schemas.Community,
+    schema: DetailsSchema,
+    uid: network.schemas.Details,
     references: "Community",
-  },
-  Grantee: {
-    name: "Grantee",
-    schema: [{ type: "bool", name: "grantee", value: true }],
-    uid: network.schemas.Grantee,
-    references: "Community",
-  },
-  GranteeDetails: {
-    name: "GranteeDetails",
-    schema: [
-      { type: "string", name: "name", value: null },
-      { type: "string", name: "description", value: null },
-      { type: "address", name: "payoutAddress", value: null },
-      { type: "address", name: "ownerAddress", value: null },
-    ],
-    uid: network.schemas.GranteeDetails,
-    references: "Grantee",
   },
   Project: {
     name: "Project",
     schema: [{ type: "bool", name: "project", value: true }],
     uid: network.schemas.Project,
-    references: "Grantee",
   },
   ProjectDetails: {
     name: "ProjectDetails",
-    schema: [
-      { type: "string", name: "title", value: null },
-      { type: "string", name: "description", value: null },
-      { type: "string", name: "imageURL", value: null },
-    ],
-    uid: network.schemas.ProjectDetails,
+    schema: DetailsSchema,
+    uid: network.schemas.Details,
     references: "Project",
   },
   MemberOf: {
@@ -247,79 +205,59 @@ export const MountEntities = (
   },
   MemberDetails: {
     name: "MemberDetails",
-    schema: [
-      { type: "string", name: "name", value: null },
-      { type: "string", name: "profilePictureURL", value: null },
-    ],
-    uid: network.schemas.MemberDetails,
+    schema: DetailsSchema,
+    uid: network.schemas.Details,
     references: "MemberOf",
   },
   Grant: {
     name: "Grant",
-    schema: [{ type: "bool", name: "grant", value: true }],
+    schema: [{ type: "bytes32", name: "communityUID", value: true }],
+    // schema: [{ type: "bool", name: "grant", value: true }],
     uid: network.schemas.Grant,
     references: "Project",
   },
   GrantDetails: {
     name: "GrantDetails",
-    schema: [
-      { type: "string", name: "title", value: null },
-      { type: "string", name: "amount", value: null },
-      { type: "string", name: "description", value: null },
-      { type: "string", name: "proposalURL", value: null },
-      { type: "string[]", name: "assetAndChainId", value: null },
-    ],
-    uid: network.schemas.GrantDetails,
+    schema: DetailsSchema,
+    uid: network.schemas.Details,
     references: "Grant",
   },
   GrantVerified: {
     name: "GrantVerified",
-    schema: [{ type: "bool", name: "grantVerified", value: true }],
+    schema: [
+      { type: "string", name: "type", value: null },
+      { type: "string", name: "reason", value: "" },
+    ],
     uid: network.schemas.GrantVerified,
-    references: "Grant",
-  },
-  GrantRound: {
-    name: "GrantRound",
-    schema: [{ type: "bool", name: "name", value: true }],
-    uid: network.schemas.GrantRound,
     references: "Grant",
   },
   Milestone: {
     name: "Milestone",
-    schema: [
-      { type: "string", name: "title", value: null },
-      { type: "uint48", name: "startsAt", value: null },
-      { type: "uint48", name: "endsAt", value: null },
-      { type: "string", name: "description", value: null },
-    ],
+    schema: DetailsSchema,
+    uid: network.schemas.Details,
     references: "Grant",
-    uid: network.schemas.Milestone,
   },
   MilestoneApproved: {
     name: "MilestoneApproved",
-    schema: [{ type: "bool", name: "milestoneApproved", value: false }],
+    schema: [
+      { type: "string", name: "type", value: null },
+      { type: "string", name: "reason", value: "" },
+    ],
     uid: network.schemas.MilestoneApproved,
     references: "Milestone",
   },
   MilestoneCompleted: {
     name: "MilestoneCompleted",
-    schema: [{ type: "bool", name: "milestoneCompleted", value: false }],
+    schema: [
+      { type: "string", name: "type", value: null },
+      { type: "string", name: "reason", value: "" },
+    ],
     uid: network.schemas.MilestoneCompleted,
     references: "Milestone",
   },
-  Tag: {
-    name: "Tag",
-    schema: [{ type: "string", name: "name", value: null }],
-    uid: network.schemas.Tag,
-    references: "Project",
-  },
-  ExternalLink: {
-    name: "ExternalLink",
-    schema: [
-      { type: "string", name: "type", value: null },
-      { type: "string", name: "url", value: null },
-    ],
-    uid: network.schemas.ExternalLink,
-    references: "Project",
+  Details: {
+    schema: DetailsSchema,
+    name: "    schema",
+    uid: network.schemas.Details,
   },
 });

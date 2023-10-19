@@ -1,28 +1,35 @@
-import { Hex, IAttestation, JSONStr, TSchemaName } from "../types";
+import {
+  Hex,
+  IAttestation,
+  JSONStr,
+  MultiAttestData,
+  MultiAttestPayload,
+  SignerOrProvider,
+  TSchemaName,
+} from "../types";
 import { Schema } from "./Schema";
 import { AttestationError, SchemaError } from "./SchemaError";
 import {
-  EAS,
   SchemaDecodedItem,
   SchemaItem,
   SchemaValue,
 } from "@ethereum-attestation-service/eas-sdk";
 import { getDate } from "../utils/get-date";
-import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
 import { GAP } from "./GAP";
 import { GapSchema } from "./GapSchema";
 import { nullRef } from "../consts";
+import { GapContract } from "./contract/GapContract";
 
-interface AttestationArgs<T = unknown, S extends Schema = Schema> {
-  schema: S;
+export interface AttestationArgs<T = unknown, S extends Schema = Schema> {
   data: T | string;
-  uid: Hex;
+  schema: S;
+  uid?: Hex;
   refUID?: Hex;
   attester?: Hex;
-  recipient?: Hex;
+  recipient: Hex;
   revoked?: boolean;
   revocationTime?: Date | number;
-  createdAt: Date | number;
+  createdAt?: Date | number;
 }
 
 /**
@@ -65,7 +72,7 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
   protected _uid: Hex;
   readonly refUID?: Hex;
   readonly attester?: Hex;
-  readonly recipient?: Hex;
+  readonly recipient: Hex;
   readonly revoked?: boolean;
   readonly revocationTime?: Date;
   readonly createdAt: Date;
@@ -78,13 +85,13 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
     this._data = this.fromDecodedSchema(args.data);
 
     this.setValues(this._data);
-    this._uid = args.uid;
-    this.refUID = args.refUID;
+    this._uid = args.uid || nullRef;
+    this.refUID = args.refUID || nullRef;
     this.attester = args.attester;
     this.recipient = args.recipient;
     this.revoked = args.revoked;
     this.revocationTime = getDate(args.revocationTime);
-    this.createdAt = getDate(args.createdAt);
+    this.createdAt = getDate(args.createdAt || Date.now());
   }
 
   /**
@@ -107,9 +114,13 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
    * @param values
    */
   setValues(values: T) {
+    const isJsonSchema = this.schema.isJsonSchema();
+    if (isJsonSchema) this.schema.setValue("json", JSON.stringify(values));
+    this._data = values;
+
     Object.entries(values).forEach(([key, value]) => {
       this[key] = value;
-      this.setValue(key as keyof T, value.value || value);
+      if (!isJsonSchema) this.setValue(key as keyof T, value.value || value);
     });
   }
 
@@ -137,17 +148,19 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
    * @param signer
    * @returns
    */
-  async revoke(signer: SignerOrProvider) {
+  revoke(signer: SignerOrProvider) {
     try {
-      const eas = GAP.eas.connect(signer);
-      const tx = await eas.revoke({
-        data: {
-          uid: this.uid,
+      return GapContract.multiRevoke(signer, [
+        {
+          data: [
+            {
+              uid: this.uid,
+              value: 0n,
+            },
+          ],
+          schema: this.schema.uid,
         },
-        schema: this.schema.uid,
-      });
-
-      return tx.wait();
+      ]);
     } catch (error) {
       console.error(error);
       throw new SchemaError("REVOKE_ERROR", "Error revoking attestation.");
@@ -155,15 +168,14 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
   }
 
   /**
-   * Attests this attestation and revokes the previous one.
-   * @param signer
-   * @param args overridable params
-   * @returns attestation UID
+   * Attests the data using the specified signer and schema.
+   * @param signer - The signer or provider to use for attestation.
+   * @param args - Additional arguments to pass to the schema's `attest` method.
+   * @returns A Promise that resolves to the UID of the attestation.
+   * @throws An `AttestationError` if an error occurs during attestation.
    */
   async attest(signer: SignerOrProvider, ...args: unknown[]) {
     console.log(`Attesting ${this.schema.name}`);
-    if (this.uid && this.uid !== nullRef) await this.revoke(signer);
-
     try {
       const uid = await this.schema.attest<T>({
         data: this.data,
@@ -180,6 +192,76 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
   }
 
   /**
+   * Validates the payload.
+   *
+   * If an attestation should have anything
+   * specifically explicit, it should be implemented in
+   * order to avoid errors.
+   * @returns
+   */
+  protected assertPayload() {
+    return true;
+  }
+
+  /**
+   * Get the multi attestation payload for the referred index.
+   *
+   * The index should be the array position this payload wants
+   * to reference.
+   *
+   * E.g:
+   *
+   * 1. Project is index 0;
+   * 2. Project details is index 1;
+   * 3. Grant is index 2;
+   * 4. Grant details is index 3;
+   * 5. Milestone is index 4;
+   *
+   * `[Project, projectDetails, grant, grantDetails, milestone]`
+   *
+   * -> Project.payloadFor(0); // refs itself (no effect)
+   *
+   * -> project.details.payloadFor(0); // ref project
+   *
+   * -> grant.payloadFor(0); // ref project
+   *
+   * -> grant.details.payloadFor(2); // ref grant
+   *
+   * -> milestone.payloadFor(2); // ref grant
+   *
+   *
+   * @param refIdx
+   * @returns [Encoded payload, Raw payload]
+   */
+  payloadFor(refIdx: number): {
+    payload: MultiAttestData;
+    raw: MultiAttestData;
+  } {
+    this.assertPayload();
+    const payload = (encode = true): MultiAttestData => ({
+      uid: nullRef,
+      refIdx,
+      multiRequest: {
+        schema: this.schema.uid,
+        data: [
+          {
+            refUID: this.refUID,
+            expirationTime: 0n,
+            revocable: this.schema.revocable || true,
+            value: 0n,
+            data: (encode ? this.schema.encode() : this.schema.schema) as any,
+            recipient: this.recipient,
+          },
+        ],
+      },
+    });
+    return {
+      payload: payload(),
+      raw: payload(false),
+    };
+  }
+
+  /**
    * Returns an Attestation instance from a JSON decoded schema.
    * @param data
    * @returns
@@ -187,6 +269,17 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
   static fromDecodedSchema<T>(data: JSONStr): T {
     try {
       const parsed: SchemaDecodedItem[] = JSON.parse(data);
+
+      if (data.length < 2 && !/\{.*\}/gim.test(data)) return {} as T;
+      if (parsed.length === 1 && parsed[0].name === "json") {
+        const { value } = parsed[0];
+        return (
+          typeof value.value === "string"
+            ? JSON.parse(value.value)
+            : value.value
+        ) as T;
+      }
+
       if (parsed && Array.isArray(parsed)) {
         return parsed.reduce((acc, curr) => {
           const { value } = curr.value;
@@ -198,6 +291,7 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
           return acc;
         }, {}) as T;
       }
+
       throw new SchemaError(
         "INVALID_DATA",
         "Data must be a valid JSON array string."
@@ -217,14 +311,22 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
   static fromInterface<T extends Attestation = Attestation>(
     attestations: IAttestation[]
   ) {
-    return attestations.map((attestation) => {
-      const schema = Schema.get(attestation.schemaId);
-      return <T>new Attestation({
-        ...attestation,
-        schema,
-        data: attestation.decodedDataJson,
-      });
+    const result: T[] = [];
+    attestations.forEach((attestation) => {
+      try {
+        const schema = Schema.get(attestation.schemaId);
+        result.push(
+          <T>new Attestation({
+            ...attestation,
+            schema,
+            data: attestation.decodedDataJson,
+          })
+        );
+      } catch (e) {
+        console.log(e);
+      }
     });
+    return result;
   }
 
   /**

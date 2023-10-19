@@ -1,25 +1,17 @@
-import { Attestation } from "../Attestation";
-import { Hex, TExternalLink } from "core/types";
-import { Project } from "../entities/Project";
+import { Attestation } from '../Attestation';
+import { Hex, TExternalLink } from 'core/types';
+import { Project } from '../entities/Project';
 
 /** Attestation interfaces */
 
-export interface IExternalLink {
-  url: string;
-  type: TExternalLink;
-}
-export class ExternalLink
-  extends Attestation<IExternalLink>
-  implements IExternalLink
-{
-  url: string;
-  type: TExternalLink;
-}
+export type ExternalLink = { type: string; url: string }[];
 
 export interface ICommunityDetails {
   name: string;
   description: string;
   imageURL: string;
+  slug?: string;
+  links?: ExternalLink;
 }
 
 export class CommunityDetails
@@ -29,41 +21,34 @@ export class CommunityDetails
   name: string;
   description: string;
   imageURL: string;
-  links: ExternalLink[] = [];
-}
-
-export interface IGranteeDetails {
-  name: string;
-  description?: string;
-  payoutAddress: Hex;
-  ownerAddress: Hex;
-}
-export class GranteeDetails
-  extends Attestation<IGranteeDetails>
-  implements IGranteeDetails
-{
-  name: string;
-  description?: string;
-  payoutAddress: Hex;
-  ownerAddress: Hex;
+  links: ExternalLink = [];
+  slug?: string;
 }
 
 export interface IGrantDetails {
   title: string;
-  amount: string;
+  amount?: string;
   proposalURL: string;
-  assetAndChainId?: [Hex, bigint];
+  assetAndChainId?: [Hex, number];
+  payoutAddress?: Hex;
   description?: string;
+  // communityUID: Hex;
+  season?: string;
+  cycle?: string;
 }
 export class GrantDetails
   extends Attestation<IGrantDetails>
   implements IGrantDetails
 {
   title: string;
-  amount: string = "0";
   proposalURL: string;
-  assetAndChainId?: [Hex, bigint];
+  // communityUID: Hex;
+  payoutAddress?: Hex;
+  amount?: string = '0';
+  assetAndChainId?: [Hex, number];
   description?: string;
+  season?: string;
+  cycle?: string;
 }
 
 export interface IGrantRound {
@@ -90,6 +75,7 @@ export interface IMemberDetails {
   name: string;
   profilePictureURL: string;
 }
+
 export class MemberDetails
   extends Attestation<IMemberDetails>
   implements IMemberDetails
@@ -98,22 +84,17 @@ export class MemberDetails
   profilePictureURL: string;
 }
 
-export interface IMemberOf {
-  memberOf: true;
-}
-export class MemberOf extends Attestation<IMemberOf> {
-  details?: MemberDetails;
-}
-
 export interface IMilestoneCompleted {
-  completed: boolean;
+  type: 'approved' | 'rejected' | 'completed';
+  reason?: string;
 }
-export class MilestoneCompleted extends Attestation<IMilestoneCompleted> {}
-
-export interface IMilestoneApproved {
-  approved: boolean;
+export class MilestoneCompleted
+  extends Attestation<IMilestoneCompleted>
+  implements IMilestoneCompleted
+{
+  type: 'approved' | 'rejected' | 'completed';
+  reason?: string;
 }
-export class MilestoneApproved extends Attestation<IMilestoneApproved> {}
 
 export interface ITag {
   name: string;
@@ -126,6 +107,9 @@ export interface IProjectDetails {
   title: string;
   description: string;
   imageURL: string;
+  links?: ExternalLink;
+  tags?: ITag[];
+  slug?: string;
 }
 export class ProjectDetails
   extends Attestation<IProjectDetails>
@@ -134,13 +118,33 @@ export class ProjectDetails
   title: string;
   description: string;
   imageURL: string;
-  links: ExternalLink[] = [];
+  links: ExternalLink = [];
+  tags: ITag[] = [];
+  slug: string;
 }
 
-export interface IGrantee {
-  grantee: true;
-}
-export class Grantee extends Attestation<IGrantee> {
-  details?: GranteeDetails;
+export class Grantee {
+  address: string;
   projects: Project[] = [];
+
+  constructor(address: Hex, projects: Project[] = []) {
+    this.address = address;
+    this.projects = projects;
+  }
 }
+
+export interface IGrantUpdate {
+  title: string;
+  text: string;
+  type?: string;
+}
+
+export class GrantUpdate
+  extends Attestation<IGrantUpdate>
+  implements IGrantUpdate
+{
+  title: string;
+  text: string;
+}
+
+export class GrantCompleted extends GrantUpdate {}

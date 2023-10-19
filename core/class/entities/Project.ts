@@ -1,17 +1,20 @@
-import { SignerOrProvider } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
 import { Attestation } from "../Attestation";
 import {
   Grantee,
   MemberDetails,
-  MemberOf,
   ProjectDetails,
   Tag,
 } from "../types/attestations";
-import { Hex } from "core/types";
+import { Hex, MultiAttestPayload, SignerOrProvider } from "core/types";
 import { GapSchema } from "../GapSchema";
 import { AttestationError } from "../SchemaError";
 import { mapFilter } from "../../utils";
 import { Grant } from "./Grant";
+import { nullRef } from "../../consts";
+import { MemberOf } from "./MemberOf";
+import { GapContract } from "../contract/GapContract";
+
+interface _Project extends Project {}
 
 export interface IProject {
   project: true;
@@ -22,7 +25,77 @@ export class Project extends Attestation<IProject> {
   members: MemberOf[] = [];
   grants: Grant[] = [];
   grantee: Grantee;
-  tags: Tag[] = [];
+
+  /**
+   * Creates the payload for a multi-attestation.
+   *
+   * > if Current payload is set, it'll be used as the base payload
+   * and the project should refer to an index of the current payload,
+   * usually the community position.
+   *
+   * @param payload
+   * @param communityIdx
+   */
+  multiAttestPayload(
+    currentPayload: MultiAttestPayload = [],
+    communityIdx = 0
+  ): MultiAttestPayload {
+    const payload = [...currentPayload];
+    const projectIdx = payload.push([this, this.payloadFor(communityIdx)]) - 1;
+
+    if (this.details) {
+      payload.push([this.details, this.details.payloadFor(projectIdx)]);
+    }
+
+    if (this.members?.length) {
+      this.members.forEach((m) => {
+        payload.push(...m.multiAttestPayload(payload, projectIdx));
+      });
+    }
+
+    if (this.grants?.length) {
+      this.grants.forEach((g) => {
+        payload.push(...g.multiAttestPayload(payload, projectIdx));
+      });
+    }
+
+    return payload.slice(currentPayload.length, payload.length);
+  }
+
+  async attest(signer: SignerOrProvider): Promise<void> {
+    const payload = this.multiAttestPayload();
+    const uids = await GapContract.multiAttest(
+      signer,
+      payload.map((p) => p[1])
+    );
+
+    uids.forEach((uid, index) => {
+      payload[index][0].uid = uid;
+    });
+  }
+
+  /**
+   * Add new members to the project.
+   * If any member in the array already exists in the project
+   * it'll be ignored.
+   * @param members
+   */
+  pushMembers(...members: Hex[]) {
+    this.members.push(
+      ...mapFilter(
+        members,
+        (member) => !!this.members.find((m) => m.recipient === member),
+        (member) =>
+          new MemberOf({
+            data: { memberOf: true },
+            refUID: this.uid,
+            schema: GapSchema.find("MemberOf"),
+            recipient: member,
+            uid: nullRef,
+          })
+      )
+    );
+  }
 
   /**
    * Add new members to the project.
@@ -33,7 +106,7 @@ export class Project extends Attestation<IProject> {
    * @param signer
    * @param members
    */
-  async addMembers(signer: SignerOrProvider, members: MemberDetails[]) {
+  async attestMembers(signer: SignerOrProvider, members: MemberDetails[]) {
     const newMembers = mapFilter(
       members,
       (member) => !this.members.find((m) => m.recipient === member.recipient),
@@ -45,7 +118,7 @@ export class Project extends Attestation<IProject> {
           schema: GapSchema.find("MemberOf"),
           createdAt: Date.now(),
           recipient: details.recipient,
-          uid: "0x0",
+          uid: nullRef,
         });
         return { member, details };
       }
@@ -206,5 +279,70 @@ export class Project extends Attestation<IProject> {
 
     await this.removeMembers(signer, members);
     this.members.splice(0, this.members.length);
+  }
+
+  static from(attestations: _Project[]): Project[] {
+    return attestations.map((attestation) => {
+      const project = new Project({
+        ...attestation,
+        data: {
+          project: true,
+        },
+        schema: GapSchema.find("Project"),
+      });
+
+      if (attestation.details) {
+        const { details } = attestation;
+        project.details = new ProjectDetails({
+          ...details,
+          data: {
+            ...details.data,
+          },
+          schema: GapSchema.find("ProjectDetails"),
+        });
+
+        project.details.links = details.data.links || [];
+        project.details.tags = details.data.tags || [];
+
+        if ((attestation.data as any).links) {
+          project.details.links = (attestation.data as any).links;
+        }
+
+        if ((attestation.data as any).tags) {
+          project.details.tags = (attestation as any).tags;
+        }
+      }
+
+      if (attestation.members) {
+        project.members = attestation.members.map((m) => {
+          const member = new MemberOf({
+            ...m,
+            data: {
+              memberOf: true,
+            },
+            schema: GapSchema.find("MemberOf"),
+          });
+
+          if (m.details) {
+            const { details } = m;
+            member.details = new MemberDetails({
+              ...details,
+              data: {
+                ...details.data,
+              },
+              schema: GapSchema.find("MemberDetails"),
+            });
+          }
+
+          return member;
+        });
+      }
+
+      if (attestation.grants) {
+        project.grants = Grant.from(attestation.grants);
+      }
+
+      return project;
+    });
   }
 }
