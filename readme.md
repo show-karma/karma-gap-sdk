@@ -607,7 +607,20 @@ GAP.createClient({
 ```
 
 2. With an external api support
-   In this case, you are using an external api such your indexer to provide a sposored transaction url that will communicate with gelato and the api key will not be visible. In this case, you will need to fill only `gelatoOpts.sponsorUrl: 'https://my-api.mydomain.com/sponsor-url-name'`.
+   In this case, you are using an external api such your indexer to provide a sposored transaction url that will communicate with gelato and the api key will not be visible. In this case, you will need to fill only `gelatoOpts.sponsorUrl`.
+
+```ts
+GAP.createClient({
+    network: 'optimism-goerli',
+    gelatoOpts: {
+        sponsorUrl: 'https://my-api.mydomain.com/sponsor-url-name'
+        // to use gasless. it can be mutated
+        // through GAP.useGasless = <boolval>
+        useGasless: true
+    }
+})
+```
+
 3. With a self-contained api support
    This case is similar to #2 but the difference is that you're using a self-contained api, such as NextJS Api, that won't require an external backend to request the transaction. In this case, you will need to provide:
 
@@ -615,7 +628,10 @@ GAP.createClient({
 GAP.createClient({
     network: 'optimism-goerli',
     gelatoOpts: {
-        sponsorUrl: '/api/my-contained-sponsor-url'
+        sponsorUrl: '/api/my-contained-sponsor-url',
+        // marking contained as required will make possible 
+        // to send transactions through a NextJS api.
+        contained: true,
         // to use gasless. it can be mutated
         // through GAP.useGasless = <boolval>
         useGasless: true
