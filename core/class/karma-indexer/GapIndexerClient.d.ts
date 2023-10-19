@@ -1,7 +1,7 @@
 import { TSchemaName, IAttestation } from "core/types";
 import { Attestation } from "../Attestation";
 import { GapSchema } from "../GapSchema";
-import { Fetcher } from "../GraphQL/Fetcher";
+import { Fetcher } from "../Fetcher";
 import { Community, Project, Grant, Milestone, MemberOf } from "../entities";
 import { Grantee } from "../types/attestations";
 export declare class GapIndexerClient extends Fetcher {

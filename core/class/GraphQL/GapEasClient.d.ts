@@ -4,7 +4,7 @@ import { Grantee } from '../types/attestations';
 import { GapSchema } from '../GapSchema';
 import { Grant, Milestone, Project, MemberOf } from '../entities';
 import { Community } from '../entities/Community';
-import { Fetcher } from './Fetcher';
+import { Fetcher } from '../Fetcher';
 interface EASClientProps {
     network: TNetwork;
 }

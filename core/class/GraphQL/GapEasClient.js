@@ -11,7 +11,7 @@ const SchemaError_1 = require("../SchemaError");
 const entities_1 = require("../entities");
 const Community_1 = require("../entities/Community");
 const utils_1 = require("../../utils");
-const Fetcher_1 = require("./Fetcher");
+const Fetcher_1 = require("../Fetcher");
 const consts_1 = require("../../consts");
 // TODO: Split this class into small ones
 class GapEasClient extends Fetcher_1.Fetcher {

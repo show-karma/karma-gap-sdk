@@ -1,7 +1,7 @@
 import { AttestArgs, Facade, SchemaInterface, TNetwork, TSchemaName, SignerOrProvider } from "../types";
 import { GapSchema } from "./GapSchema";
 import { ethers } from "ethers";
-import { Fetcher } from "./GraphQL/Fetcher";
+import { Fetcher } from "./Fetcher";
 interface GAPArgs {
     network: TNetwork;
     globalSchemas?: boolean;

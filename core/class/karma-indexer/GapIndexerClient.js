@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.GapIndexerClient = void 0;
 const Attestation_1 = require("../Attestation");
 const GapSchema_1 = require("../GapSchema");
-const Fetcher_1 = require("../GraphQL/Fetcher");
+const Fetcher_1 = require("../Fetcher");
 const entities_1 = require("../entities");
 const Endpoints = {
     attestations: {
