@@ -102,7 +102,7 @@ The `apiClient` option is employed when you wish to use a Custom API. The SDK pr
 
 ```ts
 // MyCustomApiClient.ts
-import { Fetcher } from 'karma-gap-sdk/core/class/Fetcher';
+import { Fetcher } from '@show-karma/karma-gap-sdk/core/class/Fetcher';
 
 export class MyCustomApiClient extends Fetcher {
   // ... implement all Fetcher methods following its return types and arguments.
@@ -666,7 +666,7 @@ When using an external API to facilitate gasless transactions, you'll need to cr
 ```ts
 // gelato/sponsor-handler.ts
 import { GelatoRelay } from '@gelatonetwork/relay-sdk';
-import { Gelato } from 'karma-gap-sdk/core/utils/gelato/';
+import { Gelato } from '@show-karma/karma-gap-sdk/core/utils/gelato/';
 // Exception Handler available under your development.
 import { HttpException } from '../error/HttpException';
 
@@ -784,7 +784,7 @@ You can review the Fetcher interface in [this file](https://github.com/show-karm
 
 ```ts
 // my-fetcher.ts
-import { Fetcher } from 'karma-gap-sdk/core/class/Fetcher.ts';
+import { Fetcher } from '@show-karma/karma-gap-sdk/core/class/Fetcher.ts';
 import { Attestation } from '@show-karma/karma-gap-sdk';
 
 const Endpoints = {
