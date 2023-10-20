@@ -1,11 +1,18 @@
 {
-  "name": "karma-gap-sdk",
+  "name": "@show-karma/karma-gap-sdk",
+  "publishConfig": {
+    "access": "public"
+  },
   "version": "0.1.29",
   "description": "Simple and easy interface between EAS and Karma GAP.",
   "main": "dist/index.js",
   "author": "KarmaHQ",
   "license": "MIT",
   "private": false,
+  "repository": {
+    "url": "https://github.com/show-karma/karma-gap-sdk",
+    "type": "git"
+  },
   "scripts": {
     "deploy": "npx ts-node ./core/scripts/deploy.ts",
     "csv-upload": "npx ts-node ./csv-upload/scripts/run.ts"

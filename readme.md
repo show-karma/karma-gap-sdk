@@ -54,7 +54,7 @@ In this diagram, you can already discern the benefits of using a Custom API to o
 Attestations are categorized into various types of entities to establish a relationship between them and enable users to modify their attestation details without losing references to the main attestation. As a result, entities like community, project, grant, and members require two attestations: the first defines the entity, and the second defines its details. Due to this structure, all these entities will include a `details` property that contains all the data inserted into that attestation. For example:
 
 ```ts
-import { Project } from 'karma-gap-sdk';
+import { Project } from '@show-karma/karma-gap-sdk';
 
 export function printProjectDetails(project: Project) {
   console.log({
@@ -83,7 +83,7 @@ After installing, you can instantiante GAP:
 
 ```ts
 // gap.client.ts;
-import { GAP } from 'karma-gap-sdk';
+import { GAP } from '@show-karma/karma-gap-sdk';
 
 const gap = GAP.createClient({
   network: 'optimism-goerli', // sepolia, optimism,
@@ -113,7 +113,7 @@ export class MyCustomApiClient extends Fetcher {
 
 ```ts
 // gap.client.ts;
-import { GAP } from 'karma-gap-sdk';
+import { GAP } from '@show-karma/karma-gap-sdk';
 import { MyCustomApiClient } from './MyCustomApiClient.ts';
 
 const gap = GAP.createClient({
@@ -192,7 +192,7 @@ import {
   MemberOf,
   Grant,
   GapSchema,
-} from 'karma-gap-sdk';
+} from '@show-karma/karma-gap-sdk';
 
 export function getDummyProject() {
   // Creating Project
@@ -342,7 +342,7 @@ The previous example is related to when a user wishes to attest a project with a
 
 ```ts
 // add-grant-to-project.ts
-import { Grant, GrantDetails, GapSchema, Hex } from 'karma-gap-sdk';
+import { Grant, GrantDetails, GapSchema, Hex } from '@show-karma/karma-gap-sdk';
 
 export function addGrantToProject(
   grant: IGrantDetails,
@@ -369,7 +369,7 @@ So using the last example, we can get:
 ```ts
 import { getDummyProject } from 'util/get-dummy-project';
 import { addGrantToProject } from 'util/add-grant-to-project';
-import { Project } from 'karma-gap-sdk';
+import { Project } from '@show-karma/karma-gap-sdk';
 
 export const MyComponent: React.FC = () => {
   const signer = useSigner();
@@ -418,7 +418,7 @@ Since every object returned by the Fetcher is also an Attestation, to revoke any
 
 ```ts
 // revoke-project.ts
-import { SignerOrProvider, Project } from 'karma-gap-sdk';
+import { SignerOrProvider, Project } from '@show-karma/karma-gap-sdk';
 
 export async function revokeProject(
   project: Project,
@@ -440,7 +440,7 @@ import {
   IProjectDetails,
   ProjectDetails,
   GapSchema,
-} from 'karma-gap-sdk';
+} from '@show-karma/karma-gap-sdk';
 
 export async function updateProjectDetails(
   project: Project,
@@ -646,7 +646,7 @@ When using a self-contained API to hide API keys, we offer a plug-and-play utili
 
 ```ts
 // pages/api/sponsored-handler.ts
-import { type ApiRequest, handler as sponsorTxnHandler } from 'karma-gap-sdk';
+import { type ApiRequest, handler as sponsorTxnHandler } from '@show-karma/karma-gap-sdk';
 import type { NextApiResponse } from 'next';
 
 const handler = (req: ApiRequest, res: NextApiResponse) =>
@@ -785,7 +785,7 @@ You can review the Fetcher interface in [this file](https://github.com/show-karm
 ```ts
 // my-fetcher.ts
 import { Fetcher } from 'karma-gap-sdk/core/class/Fetcher.ts';
-import { Attestation } from 'karma-gap-sdk';
+import { Attestation } from '@show-karma/karma-gap-sdk';
 
 const Endpoints = {
   projects: {
@@ -826,7 +826,7 @@ After implementing your own client, you can setup the GAP client:
 
 ```ts
 // gap.client.ts;
-import { GAP } from 'karma-gap-sdk';
+import { GAP } from '@show-karma/karma-gap-sdk';
 import { MyFetcher } from './MyFetcher';
 
 const gap = GAP.createClient({
