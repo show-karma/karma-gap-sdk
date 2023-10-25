@@ -1,7 +1,7 @@
-import { Hex, IAttestation, JSONStr, MultiAttestData, SignerOrProvider } from "../types";
-import { Schema } from "./Schema";
-import { SchemaItem, SchemaValue } from "@ethereum-attestation-service/eas-sdk";
-import { GapSchema } from "./GapSchema";
+import { Hex, IAttestation, JSONStr, MultiAttestData, SignerOrProvider } from '../types';
+import { Schema } from './Schema';
+import { SchemaItem, SchemaValue } from '@ethereum-attestation-service/eas-sdk';
+import { GapSchema } from './GapSchema';
 export interface AttestationArgs<T = unknown, S extends Schema = Schema> {
     data: T | string;
     schema: S;

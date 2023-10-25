@@ -48,7 +48,7 @@ class Attestation {
         this.recipient = args.recipient;
         this.revoked = args.revoked;
         this.revocationTime = (0, get_date_1.getDate)(args.revocationTime);
-        this.createdAt = (0, get_date_1.getDate)(args.createdAt || Date.now());
+        this.createdAt = (0, get_date_1.getDate)(args.createdAt || Date.now() / 1000);
     }
     /**
      * Encodes the schema.
@@ -70,7 +70,7 @@ class Attestation {
     setValues(values) {
         const isJsonSchema = this.schema.isJsonSchema();
         if (isJsonSchema)
-            this.schema.setValue("json", JSON.stringify(values));
+            this.schema.setValue('json', JSON.stringify(values));
         this._data = values;
         Object.entries(values).forEach(([key, value]) => {
             this[key] = value;
@@ -90,7 +90,7 @@ class Attestation {
      * @returns
      */
     fromDecodedSchema(data) {
-        return typeof data === "string"
+        return typeof data === 'string'
             ? Attestation.fromDecodedSchema(data)
             : data;
     }
@@ -116,7 +116,7 @@ class Attestation {
         }
         catch (error) {
             console.error(error);
-            throw new SchemaError_1.SchemaError("REVOKE_ERROR", "Error revoking attestation.");
+            throw new SchemaError_1.SchemaError('REVOKE_ERROR', 'Error revoking attestation.');
         }
     }
     /**
@@ -140,7 +140,7 @@ class Attestation {
         }
         catch (error) {
             console.error(error);
-            throw new SchemaError_1.AttestationError("ATTEST_ERROR", "Error during attestation.");
+            throw new SchemaError_1.AttestationError('ATTEST_ERROR', 'Error during attestation.');
         }
     }
     /**
@@ -218,17 +218,17 @@ class Attestation {
             const parsed = JSON.parse(data);
             if (data.length < 2 && !/\{.*\}/gim.test(data))
                 return {};
-            if (parsed.length === 1 && parsed[0].name === "json") {
+            if (parsed.length === 1 && parsed[0].name === 'json') {
                 const { value } = parsed[0];
-                return (typeof value.value === "string"
+                return (typeof value.value === 'string'
                     ? JSON.parse(value.value)
                     : value.value);
             }
             if (parsed && Array.isArray(parsed)) {
                 return parsed.reduce((acc, curr) => {
                     const { value } = curr.value;
-                    if (curr.type.includes("uint")) {
-                        acc[curr.name] = ["string", "bigint"].includes(typeof value)
+                    if (curr.type.includes('uint')) {
+                        acc[curr.name] = ['string', 'bigint'].includes(typeof value)
                             ? BigInt(value)
                             : Number(value);
                     }
@@ -237,11 +237,11 @@ class Attestation {
                     return acc;
                 }, {});
             }
-            throw new SchemaError_1.SchemaError("INVALID_DATA", "Data must be a valid JSON array string.");
+            throw new SchemaError_1.SchemaError('INVALID_DATA', 'Data must be a valid JSON array string.');
         }
         catch (error) {
             console.error(error);
-            throw new SchemaError_1.SchemaError("INVALID_DATA", "Data must be a valid JSON string.");
+            throw new SchemaError_1.SchemaError('INVALID_DATA', 'Data must be a valid JSON string.');
         }
     }
     /**
@@ -272,10 +272,10 @@ class Attestation {
     assert(args, strict = false) {
         const { schema, uid } = args;
         if (!schema || !(schema instanceof Schema_1.Schema)) {
-            throw new SchemaError_1.SchemaError("MISSING_FIELD", "Schema must be an array.");
+            throw new SchemaError_1.SchemaError('MISSING_FIELD', 'Schema must be an array.');
         }
         if (!uid) {
-            throw new SchemaError_1.SchemaError("MISSING_FIELD", "Schema uid is required");
+            throw new SchemaError_1.SchemaError('MISSING_FIELD', 'Schema uid is required');
         }
         if (strict)
             Schema_1.Schema.validate();
@@ -303,7 +303,7 @@ class Attestation {
             recipient: to,
             attester: from,
             schema,
-            uid: "0x0",
+            uid: '0x0',
             createdAt: new Date(),
         });
     }
