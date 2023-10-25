@@ -834,3 +834,6 @@ export default gap;
 ```
 
 > Note that your API service should return data that aligns with the interfaces provided by each Attestation for proper compatibility with this SDK. This ensures that the data is structured correctly to work seamlessly with the SDK.
+
+## Contact Us
+If you have any questions on SDK usage, join our discord to get help: https://discord.com/invite/X4fwgzPReJ
