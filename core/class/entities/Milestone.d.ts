@@ -1,6 +1,6 @@
-import { SignerOrProvider } from "../../types";
-import { Attestation } from "../Attestation";
-import { MilestoneCompleted } from "../types/attestations";
+import { SignerOrProvider } from '../../types';
+import { Attestation } from '../Attestation';
+import { MilestoneCompleted } from '../types/attestations';
 interface _Milestone extends Milestone {
 }
 export interface IMilestone {

@@ -13,16 +13,16 @@ class Milestone extends Attestation_1.Attestation {
      * @param signer
      * @param reason
      */
-    async approve(signer, reason = "") {
+    async approve(signer, reason = '') {
         if (!this.completed)
-            throw new SchemaError_1.AttestationError("ATTEST_ERROR", "Milestone is not completed");
-        const schema = GapSchema_1.GapSchema.find("MilestoneCompleted");
-        schema.setValue("type", "approved");
-        schema.setValue("reason", reason);
+            throw new SchemaError_1.AttestationError('ATTEST_ERROR', 'Milestone is not completed');
+        const schema = GapSchema_1.GapSchema.find('MilestoneCompleted');
+        schema.setValue('type', 'approved');
+        schema.setValue('reason', reason);
         await this.attestStatus(signer, schema);
         this.approved = new attestations_1.MilestoneCompleted({
             data: {
-                type: "approved",
+                type: 'approved',
                 reason,
             },
             refUID: this.uid,
@@ -37,8 +37,13 @@ class Milestone extends Attestation_1.Attestation {
      */
     async revokeApproval(signer) {
         if (!this.approved)
-            throw new SchemaError_1.AttestationError("ATTEST_ERROR", "Milestone is not approved");
-        await this.approved.revoke(signer);
+            throw new SchemaError_1.AttestationError('ATTEST_ERROR', 'Milestone is not approved');
+        await this.approved.schema.multiRevoke(signer, [
+            {
+                schemaId: this.completed.schema.uid,
+                uid: this.completed.uid,
+            },
+        ]);
     }
     /**
      * Reject a completed milestone. If the milestone is not completed or already rejected,
@@ -46,16 +51,16 @@ class Milestone extends Attestation_1.Attestation {
      * @param signer
      * @param reason
      */
-    async reject(signer, reason = "") {
+    async reject(signer, reason = '') {
         if (!this.completed)
-            throw new SchemaError_1.AttestationError("ATTEST_ERROR", "Milestone is not completed");
-        const schema = GapSchema_1.GapSchema.find("MilestoneCompleted");
-        schema.setValue("type", "rejected");
-        schema.setValue("reason", reason);
+            throw new SchemaError_1.AttestationError('ATTEST_ERROR', 'Milestone is not completed');
+        const schema = GapSchema_1.GapSchema.find('MilestoneCompleted');
+        schema.setValue('type', 'rejected');
+        schema.setValue('reason', reason);
         await this.attestStatus(signer, schema);
         this.rejected = new attestations_1.MilestoneCompleted({
             data: {
-                type: "rejected",
+                type: 'rejected',
                 reason,
             },
             refUID: this.uid,
@@ -70,8 +75,13 @@ class Milestone extends Attestation_1.Attestation {
      */
     async revokeRejection(signer) {
         if (!this.rejected)
-            throw new SchemaError_1.AttestationError("ATTEST_ERROR", "Milestone is not rejected");
-        await this.rejected.revoke(signer);
+            throw new SchemaError_1.AttestationError('ATTEST_ERROR', 'Milestone is not rejected');
+        await this.rejected.schema.multiRevoke(signer, [
+            {
+                schemaId: this.completed.schema.uid,
+                uid: this.completed.uid,
+            },
+        ]);
     }
     /**
      * Marks a milestone as completed. If the milestone is already completed,
@@ -79,14 +89,14 @@ class Milestone extends Attestation_1.Attestation {
      * @param signer
      * @param reason
      */
-    async complete(signer, reason = "") {
-        const schema = GapSchema_1.GapSchema.find("MilestoneCompleted");
-        schema.setValue("type", "completed");
-        schema.setValue("reason", reason);
+    async complete(signer, reason = '') {
+        const schema = GapSchema_1.GapSchema.find('MilestoneCompleted');
+        schema.setValue('type', 'completed');
+        schema.setValue('reason', reason);
         await this.attestStatus(signer, schema);
         this.completed = new attestations_1.MilestoneCompleted({
             data: {
-                type: "completed",
+                type: 'completed',
                 reason,
             },
             refUID: this.uid,
@@ -101,8 +111,13 @@ class Milestone extends Attestation_1.Attestation {
      */
     async revokeCompletion(signer) {
         if (!this.completed)
-            throw new SchemaError_1.AttestationError("ATTEST_ERROR", "Milestone is not completed");
-        await this.completed.revoke(signer);
+            throw new SchemaError_1.AttestationError('ATTEST_ERROR', 'Milestone is not completed');
+        await this.completed.schema.multiRevoke(signer, [
+            {
+                schemaId: this.completed.schema.uid,
+                uid: this.completed.uid,
+            },
+        ]);
     }
     /**
      * Attest the status of the milestone as approved, rejected or completed.
@@ -125,7 +140,7 @@ class Milestone extends Attestation_1.Attestation {
         }
         catch (error) {
             console.error(error);
-            throw new SchemaError_1.AttestationError("ATTEST_ERROR", error.message);
+            throw new SchemaError_1.AttestationError('ATTEST_ERROR', error.message);
         }
     }
     static from(attestations) {
@@ -135,7 +150,7 @@ class Milestone extends Attestation_1.Attestation {
                 data: {
                     ...attestation.data,
                 },
-                schema: GapSchema_1.GapSchema.find("Milestone"),
+                schema: GapSchema_1.GapSchema.find('Milestone'),
             });
             if (attestation.completed) {
                 milestone.completed = new attestations_1.MilestoneCompleted({
@@ -143,7 +158,7 @@ class Milestone extends Attestation_1.Attestation {
                     data: {
                         ...attestation.completed.data,
                     },
-                    schema: GapSchema_1.GapSchema.find("MilestoneCompleted"),
+                    schema: GapSchema_1.GapSchema.find('MilestoneCompleted'),
                 });
             }
             if (attestation.approved) {
@@ -152,7 +167,7 @@ class Milestone extends Attestation_1.Attestation {
                     data: {
                         ...attestation.completed.data,
                     },
-                    schema: GapSchema_1.GapSchema.find("MilestoneCompleted"),
+                    schema: GapSchema_1.GapSchema.find('MilestoneCompleted'),
                 });
             }
             if (attestation.rejected) {
@@ -161,7 +176,7 @@ class Milestone extends Attestation_1.Attestation {
                     data: {
                         ...attestation.completed.data,
                     },
-                    schema: GapSchema_1.GapSchema.find("MilestoneCompleted"),
+                    schema: GapSchema_1.GapSchema.find('MilestoneCompleted'),
                 });
             }
             return milestone;
