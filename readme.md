@@ -657,7 +657,7 @@ export default handler;
 
 > Please note that `NEXT_GELATO_API_KEY` is not an actual API key but the name of the environment variable to retrieve from `process.env`. This setup will not expose the API key in the frontend. Your `.env` file should contain a field like `NEXT_GELATO_API_KEY=abcdefg123`. For more details, refer to [sponsor-handler.ts L63](https://github.com/show-karma/karma-gap-sdk/blob/f2f3f863c8b2b475ca74bd76bb9290a075c12f60/core/utils/gelato/sponsor-handler.ts#L63).
 
-## After placing the API page, set `gelatoOpts.sponsorUrl: '/api/sponsored-txn'`, and all transactions will be routed through the Gelato Relay network.
+After placing the API page, set `gelatoOpts.sponsorUrl: '/api/sponsored-txn'`, and all transactions will be routed through the Gelato Relay network.
 
 ### External API
 
