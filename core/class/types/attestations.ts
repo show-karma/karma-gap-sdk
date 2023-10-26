@@ -44,7 +44,7 @@ export class GrantDetails
   proposalURL: string;
   // communityUID: Hex;
   payoutAddress?: Hex;
-  amount?: string = '0';
+  amount?: string;
   assetAndChainId?: [Hex, number];
   description?: string;
   season?: string;
