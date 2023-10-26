@@ -7,20 +7,13 @@ import {
 import { GAP } from '../GAP';
 import { serializeWithBigint } from '../../utils/serialize-bigint';
 import { Gelato, sendGelatoTxn } from '../../utils/gelato/send-gelato-txn';
-import { mapFilter } from '../../utils';
 import {
   MultiRevocationRequest,
-  getUIDFromAttestTx,
   getUIDsFromAttestReceipt,
 } from '@ethereum-attestation-service/eas-sdk';
-
-type TSignature = {
-  r: string;
-  s: string;
-  v: string;
-  nonce: number;
-  chainId: bigint;
-};
+import { getSigRSV } from '../../utils/get-sig-rsv';
+import { getSignerAddress } from '../../utils/get-signer-address';
+import { TSignature } from '../types/contract';
 
 const AttestationDataTypes = {
   Attest: [
@@ -31,7 +24,6 @@ const AttestationDataTypes = {
 };
 
 export class GapContract {
-  static nonces: { [key: string]: number } = {};
   /**
    * Signs a message for the delegated attestation.
    * @param signer
@@ -63,30 +55,8 @@ export class GapContract {
       data
     );
 
-    const { r, s, v } = this.getRSV(signature);
+    const { r, s, v } = getSigRSV(signature);
     return { r, s, v, nonce, chainId };
-  }
-
-  /**
-   * Returns the r, s, v values of a signature
-   * @param signature
-   * @returns
-   */
-  private static getRSV(signature: string) {
-    const r = signature.slice(0, 66);
-    const s = `0x${signature.slice(66, 130)}`;
-    const v = `0x${signature.slice(130, 132)}`;
-    return { r, s, v };
-  }
-
-  private static async getSignerAddress(signer: SignerOrProvider) {
-    const address =
-      signer.address || signer._address || (await signer.getAddress());
-    if (!address)
-      throw new Error(
-        'Signer does not provider either address or getAddress().'
-      );
-    return address;
   }
 
   /**
@@ -96,9 +66,7 @@ export class GapContract {
    */
   private static async getNonce(signer: SignerOrProvider) {
     const contract = GAP.getMulticall(signer);
-    const address = await this.getSignerAddress(signer);
-
-    console.log({ address });
+    const address = await getSignerAddress(signer);
 
     const nonce = <bigint>await contract.functions.nonces(address);
     return {
@@ -140,7 +108,7 @@ export class GapContract {
   ) {
     const contract = GAP.getMulticall(signer);
     const expiry = BigInt(Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30);
-    const address = await this.getSignerAddress(signer);
+    const address = await getSignerAddress(signer);
     const payloadHash = serializeWithBigint({
       schema: payload.schema,
       data: payload.data.raw,
@@ -213,7 +181,7 @@ export class GapContract {
   ): Promise<Hex[]> {
     const contract = GAP.getMulticall(signer);
     const expiry = BigInt(Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30);
-    const address = await this.getSignerAddress(signer);
+    const address = await getSignerAddress(signer);
 
     const payloadHash = serializeWithBigint(payload.map((p) => p.raw));
 
@@ -273,7 +241,7 @@ export class GapContract {
   ): Promise<void> {
     const contract = GAP.getMulticall(signer);
     const expiry = BigInt(Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30);
-    const address = await this.getSignerAddress(signer);
+    const address = await getSignerAddress(signer);
 
     const payloadHash = serializeWithBigint(payload);
 

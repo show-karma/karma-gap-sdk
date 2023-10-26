@@ -1,8 +1,9 @@
-import { SignerOrProvider } from '../../types';
+import { Hex, SignerOrProvider } from '../../types';
 import { Attestation } from '../Attestation';
 import { GAP } from '../GAP';
 import { GapSchema } from '../GapSchema';
 import { AttestationError } from '../SchemaError';
+import { EasContract } from '../contract/EasContract';
 import { MilestoneCompleted } from '../types/attestations';
 
 interface _Milestone extends Milestone {}
@@ -48,6 +49,21 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
   }
 
   /**
+   * Revokes by signature (if sponsored txn is enabled)
+   * @param signer
+   * @returns
+   */
+  private revokeBySig(signer: SignerOrProvider, uid: Hex, schema: Hex) {
+    return EasContract.revokeBySig(signer, {
+      data: {
+        uid,
+        value: 0n,
+      },
+      schema,
+    });
+  }
+
+  /**
    * Revokes the approved status of the milestone. If the milestone is not approved,
    * it will throw an error.
    * @param signer
@@ -55,6 +71,14 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
   async revokeApproval(signer: SignerOrProvider) {
     if (!this.approved)
       throw new AttestationError('ATTEST_ERROR', 'Milestone is not approved');
+
+    if (GAP.gelatoOpts?.useGasless) {
+      return this.revokeBySig(
+        signer,
+        this.approved.uid,
+        this.approved.schema.uid
+      );
+    }
 
     await this.approved.schema.multiRevoke(signer, [
       {
@@ -99,6 +123,14 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
     if (!this.rejected)
       throw new AttestationError('ATTEST_ERROR', 'Milestone is not rejected');
 
+    if (GAP.gelatoOpts?.useGasless) {
+      return this.revokeBySig(
+        signer,
+        this.rejected.uid,
+        this.rejected.schema.uid
+      );
+    }
+
     await this.rejected.schema.multiRevoke(signer, [
       {
         schemaId: this.completed.schema.uid,
@@ -138,6 +170,14 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
   async revokeCompletion(signer: SignerOrProvider) {
     if (!this.completed)
       throw new AttestationError('ATTEST_ERROR', 'Milestone is not completed');
+
+    if (!GAP.gelatoOpts?.useGasless) {
+      return this.revokeBySig(
+        signer,
+        this.completed.uid,
+        this.completed.schema.uid
+      );
+    }
 
     await this.completed.schema.multiRevoke(signer, [
       {

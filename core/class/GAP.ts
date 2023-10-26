@@ -5,16 +5,17 @@ import {
   TNetwork,
   TSchemaName,
   SignerOrProvider,
-} from "../types";
-import { Schema } from "./Schema";
-import { GapSchema } from "./GapSchema";
-import { GapEasClient } from "./GraphQL/GapEasClient";
-import { EAS } from "@ethereum-attestation-service/eas-sdk";
-import { MountEntities, Networks } from "../consts";
-import { ethers } from "ethers";
-import MulticallABI from "../abi/MultiAttester.json";
-import { version } from "../../package.json";
-import { Fetcher } from "./Fetcher";
+} from '../types';
+import { Schema } from './Schema';
+import { GapSchema } from './GapSchema';
+import { GapEasClient } from './GraphQL/GapEasClient';
+import { EAS } from '@ethereum-attestation-service/eas-sdk';
+import { MountEntities, Networks } from '../consts';
+import { ethers } from 'ethers';
+import MulticallABI from '../abi/MultiAttester.json';
+import EASABI from '../abi/EAS.json';
+import { version } from '../../package.json';
+import { Fetcher } from './Fetcher';
 
 interface GAPArgs {
   network: TNetwork;
@@ -201,7 +202,7 @@ export class GAP extends Facade {
       args.gelatoOpts &&
       !(args.gelatoOpts.sponsorUrl || args.gelatoOpts.apiKey)
     ) {
-      throw new Error("You must provide a `sponsorUrl` or an `apiKey`.");
+      throw new Error('You must provide a `sponsorUrl` or an `apiKey`.');
     }
 
     if (
@@ -210,7 +211,7 @@ export class GAP extends Facade {
       !args.gelatoOpts.env_gelatoApiKey
     ) {
       throw new Error(
-        "You must provide `env_gelatoApiKey` to be able to use it in a backend handler."
+        'You must provide `env_gelatoApiKey` to be able to use it in a backend handler.'
       );
     }
 
@@ -221,7 +222,7 @@ export class GAP extends Facade {
       !args.gelatoOpts?.useGasless
     ) {
       console.warn(
-        "GAP::You are using gelatoOpts but not setting useGasless to true. This will send transactions through the normal provider."
+        'GAP::You are using gelatoOpts but not setting useGasless to true. This will send transactions through the normal provider.'
       );
     }
   }
@@ -262,14 +263,14 @@ export class GAP extends Facade {
   generateSlug = async (text: string): Promise<string> => {
     let slug = text
       .toLowerCase()
-      .replace(/ /g, "-")
-      .replace(/[^\w-]+/g, "");
+      .replace(/ /g, '-')
+      .replace(/[^\w-]+/g, '');
     const slugExists = await this.fetch.slugExists(slug);
 
     if (slugExists) {
-      const parts = slug.split("-");
+      const parts = slug.split('-');
       const counter = parts.pop();
-      slug = /\d+/g.test(counter) ? parts.join("-") : slug;
+      slug = /\d+/g.test(counter) ? parts.join('-') : slug;
       // eslint-disable-next-line no-param-reassign
       const nextSlug = `${slug}-${
         counter && /\d+/g.test(counter) ? +counter + 1 : 1
@@ -278,7 +279,7 @@ export class GAP extends Facade {
       return this.generateSlug(nextSlug);
     }
 
-    return slug.toLowerCase();
+    return slug.toLowerCase().replace(/-+/g, '-');
   };
 
   /**
@@ -303,6 +304,16 @@ export class GAP extends Facade {
     return new ethers.Contract(address, MulticallABI, signer as any);
   }
 
+  /**
+   * Get the EAS Contract
+   * @param signer
+   * @returns
+   */
+  static getEAS(signer: SignerOrProvider) {
+    const address = Networks[this.client.network].contracts.eas;
+    return new ethers.Contract(address, EASABI.abi, signer as any);
+  }
+
   get schemas() {
     return this._schemas;
   }
@@ -313,11 +324,11 @@ export class GAP extends Facade {
    * In case of true, the transactions will be sent through [Gelato](https://gelato.network)
    * and an API key is needed.
    */
-  private static set gelatoOpts(gelatoOpts: GAPArgs["gelatoOpts"]) {
-    if (typeof this._gelatoOpts === "undefined") {
+  private static set gelatoOpts(gelatoOpts: GAPArgs['gelatoOpts']) {
+    if (typeof this._gelatoOpts === 'undefined') {
       this._gelatoOpts = gelatoOpts;
     } else {
-      throw new Error("Cannot change a readonly value gelatoOpts.");
+      throw new Error('Cannot change a readonly value gelatoOpts.');
     }
   }
 
@@ -327,7 +338,7 @@ export class GAP extends Facade {
    * In case of true, the transactions will be sent through [Gelato](https://gelato.network)
    * and an API key is needed.
    */
-  static get gelatoOpts(): GAPArgs["gelatoOpts"] {
+  static get gelatoOpts(): GAPArgs['gelatoOpts'] {
     return this._gelatoOpts;
   }
 
@@ -339,7 +350,7 @@ export class GAP extends Facade {
       !this._gelatoOpts?.env_gelatoApiKey
     ) {
       throw new Error(
-        "You must provide a `sponsorUrl` or an `apiKey` before using gasless transactions."
+        'You must provide a `sponsorUrl` or an `apiKey` before using gasless transactions.'
       );
     }
     this._gelatoOpts.useGasless = useGasLess;
