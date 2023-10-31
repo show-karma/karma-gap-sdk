@@ -17,36 +17,42 @@ import { GapContract } from '../../core/class/contract/GapContract';
 
 const [, , fileName, communityUID] = process.argv;
 
+const network = "optimism";
+const gapAPI = "https://gapapi.karmahq.xyz";
+
 /**
  * Secret keys
  */
-const { optimismGoerli: key, gelatoApiKey, alchemy } = require(__dirname +
+const { optimism: keys } = require(__dirname +
   '/../../config/keys.json');
 
-/**
- * Mainnet provider to resolve ens names
- */
-const mainnetProviderUrl = alchemy;
+const privateKey = keys.privateKey;
+const gelatoApiKey = keys.gelatoApiKey;
+const rpcURL = keys.rpcURL;
+const mainnetURL = ""
+
+const grantTitle = "GG18 - Web3 OSS"
+
+const grantDescription = "We participated in Gitcoin Round 18 (GG18). A heartfelt thanks to all our donors for their invaluable support."
 
 /**
  * web3 provider to build wallet and sign transactions
  */
 const web3 = new ethers.providers.JsonRpcProvider(
-  'https://goerli.optimism.io'
-  // "https://eth-sepolia-public.unifra.io"
+  rpcURL
 );
 
 /**
  * Wallet to sign transactions
  */
-const wallet = new ethers.Wallet(key, web3);
+const wallet = new ethers.Wallet(privateKey, web3);
 
 /**
  * GAP client
  */
 const gap = GAP.createClient({
-  network: 'optimism-goerli',
-  apiClient: new GapIndexerClient('https://gapapi.karmahq.xyz'),
+  network: network,
+  apiClient: new GapIndexerClient(gapAPI),
   gelatoOpts: {
     // sponsorUrl: 'http://localhost:3001/attestations/sponsored-txn',
     apiKey: gelatoApiKey,
@@ -57,7 +63,7 @@ const gap = GAP.createClient({
 /**
  * Ethers client to resolve ens names
  */
-const ens = new ethers.providers.JsonRpcProvider(mainnetProviderUrl);
+const ens = new ethers.providers.JsonRpcProvider(mainnetURL);
 
 interface CSV {
   URL: string;
@@ -92,6 +98,10 @@ export function parseCsv<T>(
 const isEns = (str: string) => /^\w+\.(eth)$/.test(str);
 const isHex = (str: string): str is Hex => /^0x[a-fA-F0-9]{64}$/.test(str);
 
+function truncateWithEllipsis(input: string, limit: number = 1500): string {
+    return input.length > limit ? `${input.substr(0, limit)}...` : input;
+}
+
 async function bootstrap() {
   let uids: Hex[] = [];
 
@@ -107,6 +117,9 @@ async function bootstrap() {
   const filtered = data.filter((d) => isAddress(d.Owner) || isEns(d.Owner));
 
   for (const item of filtered) {
+
+    await new Promise(f => setTimeout(f, 4000));
+    
     let address = item.Owner;
     if (isEns(item.Owner)) {
       address = (await ens.resolveName(item.Owner)) || address;
@@ -120,9 +133,9 @@ async function bootstrap() {
 
     project.details = new ProjectDetails({
       data: {
-        description: item['Project Description'],
+        description: truncateWithEllipsis(item['Project Description']),
         imageURL: '',
-        title: item.Name || 'Gitcoin GG-18',
+        title: item.Name,
         links: [
           {
             type: 'website',
@@ -160,14 +173,15 @@ async function bootstrap() {
     grant.details = new GrantDetails({
       data: {
         proposalURL: item.URL,
-        title: item.Name,
-        description: item['Project Description'],
+        title: grantTitle,
+        description: grantDescription,
         payoutAddress: project.recipient,
       },
       recipient: project.recipient,
       schema: GapSchema.find('GrantDetails'),
     });
 
+    /*
     grant.updates.push(
       new GrantUpdate({
         data: {
@@ -178,7 +192,8 @@ async function bootstrap() {
         recipient: project.recipient,
         schema: GapSchema.find('GrantDetails'),
       })
-    );
+    );*/
+
 
     project.grants.push(grant);
     await project.attest(wallet as any);
