@@ -259,14 +259,14 @@ export class GAP extends Facade {
    * @param text
    * @returns
    */
-  generateSlug = async (text: string): Promise<string> => {
+  generateSlug = async (text: string, checkDuplicate = true): Promise<string> => {
     let slug = text
       .toLowerCase()
       .replace(/ /g, "-")
       .replace(/[^\w-]+/g, "");
     const slugExists = await this.fetch.slugExists(slug);
 
-    if (slugExists) {
+    if (slugExists && checkDuplicate) {
       const parts = slug.split("-");
       const counter = parts.pop();
       slug = /\d+/g.test(counter) ? parts.join("-") : slug;

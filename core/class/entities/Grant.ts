@@ -163,7 +163,7 @@ export class Grant extends Attestation<IGrant> {
    * Validate if the grant has a valid reference to a community.
    */
   protected assertPayload() {
-    if (!this.details || !this.communityUID) {
+    if (!this.communityUID) {
       throw new AttestationError(
         'INVALID_REFERENCE',
         'Grant should include a valid reference to a community on its details.'
