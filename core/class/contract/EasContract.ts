@@ -11,6 +11,7 @@ import {
 } from '@ethereum-attestation-service/eas-sdk';
 import { getSigRSV } from '../../utils/get-sig-rsv';
 import { nullRef } from '../../consts';
+import { AttestationError } from '../SchemaError';
 
 // Optimism impl != eas-contract repo impl
 // keccak256("Revoke(bytes32 schema,bytes32 uid,uint256 nonce)").
@@ -157,6 +158,12 @@ export class EasContract {
     signer: SignerOrProvider,
     payload: AttestationRequest
   ) {
+    if (!GAP.gelatoOpts?.useGasless)
+      throw new AttestationError(
+        'REVOKE_ERROR',
+        'Delegated revocation not enabled.'
+      );
+
     const contract = GAP.getEAS(signer);
     const expiry = BigInt(Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30);
     const { r, s, v, chainId, address } = await this.signAttestation(
@@ -192,11 +199,11 @@ export class EasContract {
     signer: SignerOrProvider,
     payload: RevocationRequest
   ) {
-    // if (!GAP.gelatoOpts?.useGasless)
-    //   throw new AttestationError(
-    //     'REVOKE_ERROR',
-    //     'Delegated revocation not enabled.'
-    //   );
+    if (!GAP.gelatoOpts?.useGasless)
+      throw new AttestationError(
+        'REVOKE_ERROR',
+        'Delegated revocation not enabled.'
+      );
 
     const contract = GAP.getEAS(signer);
     const { r, s, v, chainId, address } = await this.signRevocation(

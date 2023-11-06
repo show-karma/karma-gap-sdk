@@ -209,7 +209,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
     };
 
     try {
-      if (!GAP.gelatoOpts?.useGasless) {
+      if (GAP.gelatoOpts?.useGasless) {
         return this.attestBySig(signer, args);
       }
 
