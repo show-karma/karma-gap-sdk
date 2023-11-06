@@ -4,60 +4,127 @@ import { ethers } from 'ethers';
 import { GAP } from '../GAP';
 import { getSignerAddress } from '../../utils/get-signer-address';
 import {
+  AttestationRequest,
+  DelegatedAttestationRequest,
   DelegatedRevocationRequest,
   RevocationRequest,
 } from '@ethereum-attestation-service/eas-sdk';
-import { AttestationError } from '../SchemaError';
 import { getSigRSV } from '../../utils/get-sig-rsv';
+import { nullRef } from '../../consts';
 
-const AttestationDataTypes = {
+// Optimism impl != eas-contract repo impl
+// keccak256("Revoke(bytes32 schema,bytes32 uid,uint256 nonce)").
+// bytes32 private constant REVOKE_TYPEHASH = 0xa98d02348410c9c76735e0d0bb1396f4015ac2bb9615f9c2611d19d7a8a99650;
+const RevocationDataTypes = {
   Revoke: [
     { name: 'schema', type: 'bytes32' },
     { name: 'uid', type: 'bytes32' },
-    { name: 'value', type: 'uint256' },
     { name: 'nonce', type: 'uint256' },
-    { name: 'deadline', type: 'uint64' },
   ],
 };
+interface RevocationSignature {
+  schema: string;
+  uid: string;
+  nonce: bigint;
+}
+
+// keccak256("Attest(bytes32 schema,address recipient,uint64 expirationTime,bool revocable,bytes32 refUID,bytes data,uint256 nonce)").
+const AttestationDataTypes = {
+  Attest: [
+    { name: 'schema', type: 'bytes32' },
+    { name: 'recipient', type: 'address' },
+    { name: 'expirationTime', type: 'uint64' },
+    { name: 'revocable', type: 'bool' },
+    { name: 'refUID', type: 'bytes32' },
+    { name: 'data', type: 'bytes' },
+    { name: 'nonce', type: 'uint256' },
+  ],
+};
+interface AttestationSignature {
+  schema: string;
+  recipient: string;
+  expirationTime: bigint;
+  revocable: boolean;
+  refUID: string;
+  data: string;
+  nonce: bigint;
+}
 
 export class EasContract {
-  static async signAttestation(
-    signer: SignerOrProvider,
-    payload: RevocationRequest,
-    expiry: number
-  ) {
+  static readonly version = '1.0.0';
+  static readonly contractName = 'EAS';
+
+  static domain(chainId: bigint, verifyingContract: Hex) {
+    return {
+      chainId,
+      name: this.contractName,
+      version: this.version,
+      verifyingContract,
+    };
+  }
+
+  private static async prepareSignature(signer: SignerOrProvider) {
     const eas = GAP.getEAS(signer);
 
-    // const [{ nonce }, { chainId }, version, name] = await Promise.all([
-    //     await this.getNonce(signer, eas),
-    //     await signer.provider.getNetwork(),
-    //     await eas.functions.VERSION(),
-    //     await eas.functions.getName(),
-    //   ]);
+    const [{ nonce, address }, { chainId }] = await Promise.all([
+      this.getNonce(signer, eas),
+      signer.provider.getNetwork(),
+    ]);
 
-    const expirationTime = toUnix(expiry);
-    const { nonce, address } = await this.getNonce(signer, eas);
-    const { chainId } = await signer.provider.getNetwork();
-    const version = '1.0.0';
-    const name = 'EAS';
-
-    const domain = {
+    return {
+      nonce,
+      address,
       chainId,
-      name,
-      version,
-      verifyingContract: eas.address,
+      eas,
     };
+  }
 
-    const data = {
+  static async signRevocation(
+    signer: SignerOrProvider,
+    payload: RevocationRequest
+  ) {
+    const { nonce, address, chainId, eas } = await this.prepareSignature(
+      signer
+    );
+
+    const data: RevocationSignature = {
       schema: payload.schema,
       uid: payload.data.uid,
-      value: payload.data.value,
       nonce: BigInt(nonce),
-      deadline: BigInt(expirationTime),
     };
 
     const signature = await (signer as any)._signTypedData(
-      domain,
+      this.domain(chainId, eas.address as Hex),
+      RevocationDataTypes,
+      data
+    );
+
+    const { r, s, v } = getSigRSV(signature);
+
+    return { r, s, v: Number(v), nonce, chainId, address };
+  }
+
+  static async signAttestation(
+    signer: SignerOrProvider,
+    payload: AttestationRequest,
+    expirationTime: bigint
+  ) {
+    const { nonce, address, chainId, eas } = await this.prepareSignature(
+      signer
+    );
+
+    const data: AttestationSignature = {
+      schema: payload.schema,
+      recipient: payload.data.recipient,
+      expirationTime,
+      revocable: payload.data.revocable || true,
+      refUID: payload.data.refUID || nullRef,
+      data: payload.data.data,
+      nonce: BigInt(nonce),
+    };
+
+    const signature = await (signer as any)._signTypedData(
+      this.domain(chainId, eas.address as Hex),
       AttestationDataTypes,
       data
     );
@@ -86,6 +153,41 @@ export class EasContract {
     };
   }
 
+  static async attestBySig(
+    signer: SignerOrProvider,
+    payload: AttestationRequest
+  ) {
+    const contract = GAP.getEAS(signer);
+    const expiry = BigInt(Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30);
+    const { r, s, v, chainId, address } = await this.signAttestation(
+      signer,
+      payload,
+      expiry
+    );
+
+    const args: DelegatedAttestationRequest = {
+      ...payload,
+      signature: { v, r, s },
+      attester: address,
+    };
+
+    // const { data: populatedTxn } =
+    //   await contract.populateTransaction.revokeByDelegation(args);
+
+    // if (!populatedTxn) throw new Error('Transaction data is empty');
+
+    const tx = await contract.functions.attestByDelegation(args, {
+      // gasLimit: 1000000,
+    });
+    const result = await tx.wait?.();
+    console.log(result);
+    return;
+
+    // await sendGelatoTxn(
+    //   ...Gelato.buildArgs(populatedTxn, chainId, contract.address as Hex)
+    // );
+  }
+
   static async revokeBySig(
     signer: SignerOrProvider,
     payload: RevocationRequest
@@ -97,11 +199,9 @@ export class EasContract {
     //   );
 
     const contract = GAP.getEAS(signer);
-    const expiry = Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30;
-    const { r, s, v, chainId, address } = await this.signAttestation(
+    const { r, s, v, chainId, address } = await this.signRevocation(
       signer,
-      payload,
-      expiry
+      payload
     );
 
     const args: DelegatedRevocationRequest = {
@@ -111,20 +211,20 @@ export class EasContract {
       revoker: address,
     };
 
-    // const { data: populatedTxn } =
-    //   await contract.populateTransaction.revokeByDelegation(args);
+    const { data: populatedTxn } =
+      await contract.populateTransaction.revokeByDelegation(args);
 
-    // if (!populatedTxn) throw new Error('Transaction data is empty');
+    if (!populatedTxn) throw new Error('Transaction data is empty');
 
-    const tx = await contract.functions.revokeByDelegation(args, {
-      gasLimit: 1000000,
-    });
-    const result = await tx.wait?.();
-    console.log(result);
-    return;
+    // const tx = await contract.functions.revokeByDelegation(args, {
+    //   // gasLimit: 1000000,
+    // });
+    // const result = await tx.wait?.();
+    // console.log(result);
+    // return;
 
-    // await sendGelatoTxn(
-    //   ...Gelato.buildArgs(populatedTxn, chainId, contract.address as Hex)
-    // );
+    await sendGelatoTxn(
+      ...Gelato.buildArgs(populatedTxn, chainId, contract.address as Hex)
+    );
   }
 }

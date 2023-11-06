@@ -3,5 +3,6 @@ node_modules
 .vscode
 tests.ts
 keys.json
+keys-csv.json
 csv-upload/*.csv
 !csv-upload/example.csv

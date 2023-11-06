@@ -1,3 +1,4 @@
+import { AttestationRequest } from '@ethereum-attestation-service/eas-sdk';
 import { Hex, SignerOrProvider } from '../../types';
 import { Attestation } from '../Attestation';
 import { GAP } from '../GAP';
@@ -61,6 +62,10 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
       },
       schema,
     });
+  }
+
+  private attestBySig(signer: SignerOrProvider, payload: AttestationRequest) {
+    return EasContract.attestBySig(signer, payload);
   }
 
   /**
@@ -191,19 +196,25 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
    * Attest the status of the milestone as approved, rejected or completed.
    */
   private async attestStatus(signer: SignerOrProvider, schema: GapSchema) {
-    const eas = GAP.eas.connect(signer);
-    try {
-      const tx = await eas.attest({
-        schema: schema.uid,
-        data: {
-          recipient: this.recipient,
-          data: schema.encode(),
-          refUID: this.uid,
-          expirationTime: 0n,
-          revocable: schema.revocable,
-        },
-      });
+    const args: AttestationRequest = {
+      schema: schema.uid,
+      data: {
+        recipient: this.recipient,
+        data: schema.encode(),
+        refUID: this.uid,
+        expirationTime: 0n,
+        revocable: schema.revocable || true,
+        value: 0n,
+      },
+    };
 
+    try {
+      if (!GAP.gelatoOpts?.useGasless) {
+        return this.attestBySig(signer, args);
+      }
+
+      const eas = GAP.eas.connect(signer);
+      const tx = await eas.attest(args);
       const uid = await tx.wait();
       console.log(uid);
     } catch (error: any) {
