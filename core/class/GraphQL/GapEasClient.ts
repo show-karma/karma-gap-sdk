@@ -34,7 +34,6 @@ interface EASClientProps {
   network: TNetwork;
 }
 
-
 // TODO: Split this class into small ones
 export class GapEasClient extends Fetcher {
   network: EASNetworkConfig & { name: TNetwork };
@@ -750,5 +749,14 @@ export class GapEasClient extends Fetcher {
       String.raw`\\\\\"${field}\\\\\":\\\\\"${value}\\\\\"`,
       String.raw`\\\\\"${field}\\\\\": \\\\\"${value}\\\\\"`,
     ];
+  }
+
+  async grantsForExtProject(projectExtId: string): Promise<Grant[]> {
+    console.error(
+      new Error(
+        'Grants for external project is only supported by a custom indexer. Check https://github.com/show-karma/karma-gap-sdk for more information.'
+      )
+    );
+    return [];
   }
 }
