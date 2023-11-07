@@ -10,7 +10,7 @@ import {
   RevocationRequest,
 } from '@ethereum-attestation-service/eas-sdk';
 import { getSigRSV } from '../../utils/get-sig-rsv';
-import { nullRef } from '../../consts';
+import { nullRef, testSigAbi } from '../../consts';
 import { AttestationError } from '../SchemaError';
 
 // Optimism impl != eas-contract repo impl
@@ -120,12 +120,12 @@ export class EasContract {
       expirationTime,
       revocable: payload.data.revocable || true,
       refUID: payload.data.refUID || nullRef,
-      data: payload.data.data,
-      nonce: BigInt(nonce),
+      data: ethers.utils.keccak256(payload.data.data),
+      nonce: 1n,
     };
 
     const signature = await (signer as any)._signTypedData(
-      this.domain(chainId, eas.address as Hex),
+      this.domain(chainId, '0x6E134c2318f8DD9994e1E712C64283C903f351E9'),
       AttestationDataTypes,
       data
     );
@@ -164,8 +164,13 @@ export class EasContract {
         'Delegated revocation not enabled.'
       );
 
-    const contract = GAP.getEAS(signer);
-    const expiry = BigInt(Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30);
+    const contract = new ethers.Contract(
+      '0x6E134c2318f8DD9994e1E712C64283C903f351E9',
+      testSigAbi,
+      signer as any
+    );
+    const expiry = BigInt(Math.floor(Date.now() / 1000) + 60 * 60 * 24);
+
     const { r, s, v, chainId, address } = await this.signAttestation(
       signer,
       payload,
@@ -178,16 +183,18 @@ export class EasContract {
       attester: address,
     };
 
+    const result = await contract._verifyAttest(args);
+    console.log(result);
     // const { data: populatedTxn } =
     //   await contract.populateTransaction.revokeByDelegation(args);
 
     // if (!populatedTxn) throw new Error('Transaction data is empty');
 
-    const tx = await contract.functions.attestByDelegation(args, {
-      // gasLimit: 1000000,
-    });
-    const result = await tx.wait?.();
-    console.log(result);
+    // const tx = await contract.functions.attestByDelegation(args, {
+    //   // gasLimit: 1000000,
+    // });
+    // const result = await tx.wait?.();
+    // console.log(result);
     return;
 
     // await sendGelatoTxn(

@@ -64,7 +64,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
     });
   }
 
-  private attestBySig(signer: SignerOrProvider, payload: AttestationRequest) {
+  private attestStatusBySig(signer: SignerOrProvider, payload: AttestationRequest) {
     return EasContract.attestBySig(signer, payload);
   }
 
@@ -176,7 +176,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
     if (!this.completed)
       throw new AttestationError('ATTEST_ERROR', 'Milestone is not completed');
 
-    if (!GAP.gelatoOpts?.useGasless) {
+    if (GAP.gelatoOpts?.useGasless) {
       return this.revokeBySig(
         signer,
         this.completed.uid,
@@ -210,7 +210,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
 
     try {
       if (GAP.gelatoOpts?.useGasless) {
-        return this.attestBySig(signer, args);
+        return this.attestStatusBySig(signer, args);
       }
 
       const eas = GAP.eas.connect(signer);
