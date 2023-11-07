@@ -59,5 +59,6 @@ export declare class GapEasClient extends Fetcher {
      * @param value
      */
     private getSearchFieldString;
+    grantsForExtProject(projectExtId: string): Promise<Grant[]>;
 }
 export {};

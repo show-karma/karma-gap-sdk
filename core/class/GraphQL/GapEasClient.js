@@ -416,5 +416,9 @@ class GapEasClient extends Fetcher_1.Fetcher {
             String.raw `\\\\\"${field}\\\\\": \\\\\"${value}\\\\\"`,
         ];
     }
+    async grantsForExtProject(projectExtId) {
+        console.error(new Error('Grants for external project is only supported by a custom indexer. Check https://github.com/show-karma/karma-gap-sdk for more information.'));
+        return [];
+    }
 }
 exports.GapEasClient = GapEasClient;

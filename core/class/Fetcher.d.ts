@@ -1,8 +1,8 @@
-import { Hex, IAttestation, TSchemaName } from "core/types";
-import { Attestation } from "./Attestation";
-import { Community, Grant, MemberOf, Milestone, Project } from "./entities";
-import { Grantee } from "./types/attestations";
-import { AxiosGQL } from "./GraphQL/AxiosGQL";
+import { Hex, IAttestation, TSchemaName } from 'core/types';
+import { Attestation } from './Attestation';
+import { Community, Grant, MemberOf, Milestone, Project } from './entities';
+import { Grantee } from './types/attestations';
+import { AxiosGQL } from './GraphQL/AxiosGQL';
 export declare abstract class Fetcher extends AxiosGQL {
     /**
      * Fetch a single attestation by its UID.
@@ -129,4 +129,10 @@ export declare abstract class Fetcher extends AxiosGQL {
      * @returns
      */
     abstract slugExists(slug: string): Promise<boolean>;
+    /**
+     * Get grants for a project by an external uid
+     * > Works only for the indexed projects
+     * @param projectExtId
+     */
+    abstract grantsForExtProject(projectExtId: string): Promise<Grant[]>;
 }

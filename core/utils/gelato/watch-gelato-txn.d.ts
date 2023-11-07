@@ -3,5 +3,5 @@
  * @param taskId
  * @returns
  */
-declare function watchGelatoTxn(taskId: string): Promise<string>;
+declare function watchGelatoTxn(taskId: string, ttl?: number): Promise<string>;
 export { watchGelatoTxn };
