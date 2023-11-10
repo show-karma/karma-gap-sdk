@@ -70,6 +70,8 @@ interface CSV {
   Website: string;
   'Project Description': string;
   'Grant Update': string;
+  'Grant Title': string;
+  'Grant Description': string;
 }
 
 export function parseCsv<T>(
@@ -141,8 +143,11 @@ async function bootstrap() {
   const data = await parseCsv<CSV>(file);
   const filtered = data.filter((d) => isAddress(d.Owner) || isEns(d.Owner));
 
+  let count = 0;
   for (const item of filtered) {
-    await new Promise((f) => setTimeout(f, 4000));
+    console.log(count);
+    count+=1;
+    await new Promise((f) => setTimeout(f, 2000));
 
     let address = item.Owner;
     if (isEns(item.Owner)) {
@@ -222,8 +227,8 @@ async function bootstrap() {
     const grantDetails: DbAttestation = {
       data: {
         proposalURL: item.URL,
-        title: grantTitle,
-        description: grantDescription,
+        title: item["Grant Title"],
+        description: item["Grant Description"],
         payoutAddress: project.recipient,
       },
       type: 'GrantDetails',
@@ -237,6 +242,8 @@ async function bootstrap() {
 
     // avoid duplicate attestations
     if (await checkProjectExists(projectDetails)) continue;
+    console.log("Attesting project ");
+    console.log(item.Name);
     if (projectDetails?.data)
       projectDetails.data.slug = await gap.generateSlug(item.Name, true);
 

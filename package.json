@@ -22,6 +22,7 @@
     "@gelatonetwork/relay-sdk": "^5.2.0",
     "@types/sha256": "^0.2.0",
     "axios": "^1.4.0",
+    "csv-writer": "^1.6.0",
     "ethers": "5.7",
     "sha256": "^0.2.0",
     "simple-ts-job-runner": "^1.0.12"
