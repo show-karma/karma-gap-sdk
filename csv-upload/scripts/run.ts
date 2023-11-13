@@ -1,9 +1,15 @@
 import * as fs from 'fs';
 import * as csv from 'fast-csv';
-import { GapSchema, Hex, Project, nullRef } from '../../core';
+import { GapSchema, Hex, Project, nullRef, toUnix } from '../../core';
 import { isAddress } from 'ethers/lib/utils';
 import { ethers } from 'ethers';
-import { GAP, GapIndexerClient, Grant, MemberOf } from '../../core/class';
+import {
+  Attestation,
+  GAP,
+  GapIndexerClient,
+  Grant,
+  MemberOf,
+} from '../../core/class';
 import axios from 'axios';
 
 const [, , fileName, communityUID] = process.argv;
@@ -14,13 +20,14 @@ const ChainID = {
 };
 
 const network: keyof typeof ChainID = 'optimism-goerli';
+// const gapAPI = 'http://mint:3001';
 const gapAPI = 'https://gapstagapi.karmahq.xyz';
 
 /**
  * Secret keys
  */
 const { optimismGoerli: keys, gapAccessToken } = require(__dirname +
-  '/../../config/keys.json');
+  '/../../config/keys-csv.json');
 
 const privateKey = keys.privateKey;
 const gelatoApiKey = keys.gelatoApiKey;
@@ -72,7 +79,21 @@ interface CSV {
   'Grant Update': string;
   'Grant Title': string;
   'Grant Description': string;
+  externalId: string;
 }
+
+const duplicatedGrants: {
+  project: {
+    uid: string;
+    name?: string;
+  };
+  grant: {
+    uid: string;
+    title?: string;
+  };
+  currentExtId: string;
+  candidateExtId: string;
+}[] = [];
 
 export function parseCsv<T>(
   path: string,
@@ -112,7 +133,26 @@ type DbAttestation = {
   refUID: string;
   data?: any;
   type: string;
+  externalId?: string;
 };
+
+const toDbAttestation = (
+  attestation: Attestation,
+  externalId: string
+): DbAttestation => ({
+  attester: wallet.address,
+  chainID: ChainID[network],
+  createdAt: toUnix(attestation.createdAt || new Date())!,
+  recipient: attestation.recipient,
+  revocationTime: attestation.revocationTime?.getTime() || 0,
+  revoked: !!attestation.revoked,
+  schemaUID: attestation.schema.uid,
+  uid: attestation.uid,
+  refUID: attestation.refUID || nullRef,
+  data: attestation.data,
+  type: attestation.schema.name,
+  externalId,
+});
 
 async function sendToIndexer(attestations: DbAttestation[]) {
   await axios.post(`${gapAPI}/attestations`, attestations, {
@@ -121,12 +161,36 @@ async function sendToIndexer(attestations: DbAttestation[]) {
 }
 
 async function checkProjectExists(projectDetails: DbAttestation) {
-  const { data } = await axios.post<{ exists: boolean }>(
-    `${gapAPI}/projects/check`,
-    projectDetails
-  );
+  try {
+    const { data } = await axios.post(
+      `${gapAPI}/projects/check`,
+      projectDetails
+    );
 
-  return data.exists;
+    return Project.from([data])[0];
+  } catch {
+    return undefined;
+  }
+}
+
+async function updateExternalIds(
+  projectUID: string,
+  communityUID: string,
+  externalId: string
+) {
+  await axios.put(
+    `${gapAPI}/grants/external-id/bulk-update`,
+    {
+      projectUID,
+      communityUID,
+      externalId,
+    },
+    {
+      headers: {
+        'x-access-token': gapAccessToken,
+      },
+    }
+  );
 }
 
 async function bootstrap() {
@@ -146,7 +210,7 @@ async function bootstrap() {
   let count = 0;
   for (const item of filtered) {
     console.log(count);
-    count+=1;
+    count += 1;
     await new Promise((f) => setTimeout(f, 2000));
 
     let address = item.Owner;
@@ -198,7 +262,7 @@ async function bootstrap() {
 
     const projectDetails: DbAttestation = {
       data: {
-        description: truncateWithEllipsis(item['Project Description']),
+        description: item['Project Description'],
         imageURL: '',
         title: item.Name,
         links: [
@@ -227,8 +291,8 @@ async function bootstrap() {
     const grantDetails: DbAttestation = {
       data: {
         proposalURL: item.URL,
-        title: item["Grant Title"],
-        description: item["Grant Description"],
+        title: item['Name'],
+        description: item['Project Description'],
         payoutAddress: project.recipient,
       },
       type: 'GrantDetails',
@@ -241,8 +305,36 @@ async function bootstrap() {
     project.grants.push(grant);
 
     // avoid duplicate attestations
-    if (await checkProjectExists(projectDetails)) continue;
-    console.log("Attesting project ");
+    const hasProject = await checkProjectExists(projectDetails);
+    if (hasProject) {
+      const concurrentGrant = hasProject.grants.find(
+        (g) => g.details?.title === item['Name'] && g.externalId
+      );
+
+      if (
+        item.externalId &&
+        concurrentGrant &&
+        concurrentGrant.externalId &&
+        concurrentGrant.externalId !== item.externalId
+      ) {
+        duplicatedGrants.push({
+          project: {
+            uid: hasProject.uid,
+            name: hasProject.details?.title,
+          },
+          grant: {
+            uid: concurrentGrant.uid,
+            title: concurrentGrant.details?.title,
+          },
+          currentExtId: concurrentGrant.externalId,
+          candidateExtId: item.externalId,
+        });
+      } else if (item.externalId) {
+        await updateExternalIds(hasProject.uid, communityUID, item.externalId);
+      }
+      continue;
+    }
+    console.log('Attesting project ');
     console.log(item.Name);
     if (projectDetails?.data)
       projectDetails.data.slug = await gap.generateSlug(item.Name, true);
@@ -257,7 +349,11 @@ async function bootstrap() {
       grantDetails.uid = `ref_${grantDetails.refUID}`;
     }
 
-    await sendToIndexer([projectDetails, grantDetails]);
+    await sendToIndexer([
+      projectDetails,
+      toDbAttestation(grant, item.externalId),
+      grantDetails,
+    ]);
 
     uids.push(project.uid);
   }
@@ -265,6 +361,17 @@ async function bootstrap() {
   console.log('Attesting...');
   console.log('Attested projects: ', uids.length);
   console.log(uids);
+
+  console.log('Found concurrent grants for external ids: ');
+  console.log(duplicatedGrants);
+  const concurrentGrantFile = `${__dirname}/${Date.now()}-concurrent-grants.json`;
+  fs.writeFileSync(
+    concurrentGrantFile,
+    JSON.stringify(duplicatedGrants, null, 2)
+  );
+  console.log(
+    `\xb1[36mConcurrent grants saved to ${concurrentGrantFile}\x1b[0m`
+  );
 }
 
 bootstrap();

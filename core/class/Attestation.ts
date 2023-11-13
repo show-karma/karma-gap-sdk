@@ -30,6 +30,7 @@ export interface AttestationArgs<T = unknown, S extends Schema = Schema> {
   revoked?: boolean;
   revocationTime?: Date | number;
   createdAt?: Date | number;
+  externalId?: string;
 }
 
 /**
@@ -76,6 +77,7 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
   readonly revoked?: boolean;
   readonly revocationTime?: Date;
   readonly createdAt: Date;
+  readonly externalId?: string;
 
   private _reference?: Attestation;
 
