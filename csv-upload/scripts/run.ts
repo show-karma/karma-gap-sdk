@@ -37,8 +37,7 @@ const mainnetURL =
 
 const grantTitle = 'GG19 - Web3 OSS';
 
-const grantDescription =
-  'We are participating in Gitcoin Round 19 (GG19).';
+const grantDescription = 'We are participating in Gitcoin Round 19 (GG19).';
 
 /**
  * web3 provider to build wallet and sign transactions
@@ -57,8 +56,8 @@ const gap = GAP.createClient({
   network: network,
   apiClient: new GapIndexerClient(gapAPI),
   gelatoOpts: {
-    // sponsorUrl: 'http://localhost:3001/attestations/sponsored-txn',
-    apiKey: gelatoApiKey,
+    sponsorUrl: 'https://gapapi.karmahq.xyz/attestations/sponsored-txn',
+    // apiKey: gelatoApiKey,
     useGasless: true,
   },
 });
@@ -310,6 +309,11 @@ async function bootstrap() {
       const concurrentGrant = hasProject.grants.find(
         (g) => g.details?.title === item['Name'] && g.externalId
       );
+
+      if (!concurrentGrant) {
+        Object.assign(grant, { refUID: hasProject.uid });
+        await grant.attest(wallet as any);
+      }
 
       if (
         item.externalId &&
