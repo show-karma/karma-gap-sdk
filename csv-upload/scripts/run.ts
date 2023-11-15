@@ -19,15 +19,15 @@ const ChainID = {
   'optimism-goerli': 420,
 };
 
-const network: keyof typeof ChainID = 'optimism-goerli';
+const network: keyof typeof ChainID = 'optimism';
 // const gapAPI = 'http://mint:3001';
-const gapAPI = 'https://gapstagapi.karmahq.xyz';
+const gapAPI = 'https://gapapi.karmahq.xyz';
 
 /**
  * Secret keys
  */
-const { optimismGoerli: keys, gapAccessToken } = require(__dirname +
-  '/../../config/keys-csv.json');
+const { optimism: keys, gapAccessToken } = require(__dirname +
+  '/../../config/keys.json');
 
 const privateKey = keys.privateKey;
 const gelatoApiKey = keys.gelatoApiKey;
@@ -35,10 +35,10 @@ const rpcURL = keys.rpcURL;
 const mainnetURL =
   'https://eth-mainnet.g.alchemy.com/v2/dRC43zHg8eyn83eR5GOiO7sfFYW8sl6t';
 
-const grantTitle = 'GG18 - Web3 OSS';
+const grantTitle = 'GG19 - Web3 OSS';
 
 const grantDescription =
-  'We participated in Gitcoin Round 18 (GG18). A heartfelt thanks to all our donors for their invaluable support.';
+  'We are participating in Gitcoin Round 19 (GG19).';
 
 /**
  * web3 provider to build wallet and sign transactions
@@ -73,7 +73,7 @@ interface CSV {
   Name: string;
   Owner: string;
   Twitter: string;
-  Github: string;
+  GitHub: string;
   Website: string;
   'Project Description': string;
   'Grant Update': string;
@@ -117,7 +117,7 @@ export function parseCsv<T>(
 const isEns = (str: string) => /^\w+\.(eth)$/.test(str);
 const isHex = (str: string): str is Hex => /^0x[a-fA-F0-9]{64}$/.test(str);
 
-function truncateWithEllipsis(input: string, limit: number = 1500): string {
+function truncateWithEllipsis(input: string, limit: number = 1000): string {
   return input.length > limit ? `${input.substr(0, limit)}...` : input;
 }
 
@@ -262,7 +262,7 @@ async function bootstrap() {
 
     const projectDetails: DbAttestation = {
       data: {
-        description: item['Project Description'],
+        description: truncateWithEllipsis(item['Project Description']),
         imageURL: '',
         title: item.Name,
         links: [
@@ -276,7 +276,7 @@ async function bootstrap() {
           },
           {
             type: 'github',
-            url: item.Github,
+            url: item.GitHub,
           },
         ],
         slug: await gap.generateSlug(item.Name, false),
@@ -291,8 +291,8 @@ async function bootstrap() {
     const grantDetails: DbAttestation = {
       data: {
         proposalURL: item.URL,
-        title: item['Name'],
-        description: item['Project Description'],
+        title: grantTitle,
+        description: grantDescription,
         payoutAddress: project.recipient,
       },
       type: 'GrantDetails',
