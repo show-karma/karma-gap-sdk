@@ -26,8 +26,8 @@ const gapAPI = 'http://mint:3001';
 /**
  * Secret keys
  */
-const { optimism: keys, gapAccessToken } = require(__dirname +
-  '/../../config/keys.json');
+const { optimismGoerli: keys, gapAccessToken } = require(__dirname +
+  '/../../config/keys-csv.json');
 
 const privateKey = keys.privateKey;
 const gelatoApiKey = keys.gelatoApiKey;

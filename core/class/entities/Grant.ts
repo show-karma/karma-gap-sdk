@@ -32,6 +32,7 @@ export class Grant extends Attestation<IGrant> {
   updates: GrantUpdate[] = [];
   completed?: GrantCompleted;
   project?: Project;
+  externalId?: string;
 
   async verify(signer: SignerOrProvider) {
     const eas = GAP.eas.connect(signer);
@@ -181,7 +182,7 @@ export class Grant extends Attestation<IGrant> {
         },
         schema: GapSchema.find('Grant'),
       });
-
+      grant.externalId = attestation.externalId;
       if (attestation.details) {
         const { details } = attestation;
         grant.details = new GrantDetails({
@@ -212,7 +213,7 @@ export class Grant extends Attestation<IGrant> {
         );
       }
 
-      if(attestation.completed) {
+      if (attestation.completed) {
         const { completed } = attestation;
         grant.completed = new GrantCompleted({
           ...completed,
