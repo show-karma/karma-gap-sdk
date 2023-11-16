@@ -19,7 +19,7 @@ const ChainID = {
   'optimism-goerli': 420,
 };
 
-const network: keyof typeof ChainID = 'optimism-goerli';
+const network: keyof typeof ChainID = 'optimism';
 // const gapAPI = 'http://mint:3001';
 const gapAPI = 'https://gapapi.karmahq.xyz';
 
@@ -27,7 +27,7 @@ const gapAPI = 'https://gapapi.karmahq.xyz';
  * Secret keys
  */
 const { optimismGoerli: keys, gapAccessToken } = require(__dirname +
-  '/../../config/keys-csv.json');
+  '/../../config/keys.json');
 
 const privateKey = keys.privateKey;
 const gelatoApiKey = keys.gelatoApiKey;
