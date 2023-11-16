@@ -19,15 +19,15 @@ const ChainID = {
   'optimism-goerli': 420,
 };
 
-const network: keyof typeof ChainID = 'optimism';
-// const gapAPI = 'http://mint:3001';
-const gapAPI = 'https://gapapi.karmahq.xyz';
+const network: keyof typeof ChainID = 'optimism-goerli';
+const gapAPI = 'http://mint:3001';
+// const gapAPI = 'https://gapapi.karmahq.xyz';
 
 /**
  * Secret keys
  */
-const { optimism: keys, gapAccessToken } = require(__dirname +
-  '/../../config/keys.json');
+const { optimismGoerli: keys, gapAccessToken } = require(__dirname +
+  '/../../config/keys-csv.json');
 
 const privateKey = keys.privateKey;
 const gelatoApiKey = keys.gelatoApiKey;
@@ -56,7 +56,7 @@ const gap = GAP.createClient({
   network: network,
   apiClient: new GapIndexerClient(gapAPI),
   gelatoOpts: {
-    sponsorUrl: 'https://gapapi.karmahq.xyz/attestations/sponsored-txn',
+    sponsorUrl: 'http://mint:3001/attestations/sponsored-txn',
     // apiKey: gelatoApiKey,
     useGasless: true,
   },
@@ -313,6 +313,12 @@ async function bootstrap() {
       if (!concurrentGrant) {
         Object.assign(grant, { refUID: hasProject.uid });
         await grant.attest(wallet as any);
+        grantDetails.refUID = grant.uid;
+        grantDetails.uid = `ref_${grant.uid}`;
+        await sendToIndexer([
+          toDbAttestation(grant, item.externalId),
+          grantDetails,
+        ]);
       }
 
       if (
