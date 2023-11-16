@@ -20,8 +20,8 @@ const ChainID = {
 };
 
 const network: keyof typeof ChainID = 'optimism-goerli';
-const gapAPI = 'http://mint:3001';
-// const gapAPI = 'https://gapapi.karmahq.xyz';
+// const gapAPI = 'http://mint:3001';
+const gapAPI = 'https://gapapi.karmahq.xyz';
 
 /**
  * Secret keys
@@ -56,7 +56,7 @@ const gap = GAP.createClient({
   network: network,
   apiClient: new GapIndexerClient(gapAPI),
   gelatoOpts: {
-    sponsorUrl: 'http://mint:3001/attestations/sponsored-txn',
+    sponsorUrl: 'https://gapapi.karmahq.xyz/attestations/sponsored-txn',
     // apiKey: gelatoApiKey,
     useGasless: true,
   },
@@ -166,7 +166,7 @@ async function checkProjectExists(projectDetails: DbAttestation) {
       projectDetails
     );
 
-    return Project.from([data])[0];
+    return data;
   } catch {
     return undefined;
   }
