@@ -317,9 +317,14 @@ class GapEasClient extends Fetcher_1.Fetcher {
         const { attestations: projectAttestations } = await this.query(projectsQuery);
         const projects = Attestation_1.Attestation.fromInterface(projectAttestations);
         const milestones = await this.milestonesOf(grants);
+        const getSummaryProject = (project) => ({
+            title: project.details?.title,
+            uid: project.uid,
+            slug: project.details?.slug,
+        });
         return grants
             .map((grant) => {
-            grant.project = projects.find((p) => p.uid === grant.refUID);
+            grant.project = getSummaryProject(projects.find((p) => p.uid === grant.refUID));
             grant.details = (deps.find((d) => d.refUID === grant.uid &&
                 d.schema.uid === grantDetails.uid &&
                 typeof d.amount !== undefined &&

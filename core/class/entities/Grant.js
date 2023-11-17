@@ -182,7 +182,12 @@ class Grant extends Attestation_1.Attestation {
             }
             if (attestation.project) {
                 const { project } = attestation;
-                grant.project = Project_1.Project.from([project])[0];
+                const rawProject = Project_1.Project.from([project])[0];
+                grant.project = {
+                    title: rawProject.details?.title,
+                    uid: rawProject.uid,
+                    slug: rawProject.details?.slug,
+                };
             }
             if (attestation.community) {
                 const { community } = attestation;

@@ -4,11 +4,15 @@ import { IMilestone, Milestone } from './Milestone';
 import { GapSchema } from '../GapSchema';
 import { Hex, MultiAttestPayload, SignerOrProvider } from 'core/types';
 import { Community } from './Community';
-import { Project } from './Project';
 interface _Grant extends Grant {
 }
 export interface IGrant {
     communityUID: Hex;
+}
+export interface ISummaryProject {
+    title: string;
+    slug?: string;
+    uid: Hex;
 }
 export declare class Grant extends Attestation<IGrant> {
     details?: GrantDetails;
@@ -20,7 +24,7 @@ export declare class Grant extends Attestation<IGrant> {
     updates: GrantUpdate[];
     members: string[];
     completed?: GrantCompleted;
-    project?: Project;
+    project?: ISummaryProject;
     verify(signer: SignerOrProvider): Promise<void>;
     /**
      * Add milestones to the grant.
