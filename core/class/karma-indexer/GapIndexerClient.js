@@ -20,6 +20,7 @@ const Endpoints = {
         byAddress: (address) => `/grantees/${address}`,
         grants: (address) => `/grantees/${address}/grants`,
         projects: (address) => `/grantees/${address}/projects`,
+        communities: (address, withGrants) => `/grantees/${address}/communities${withGrants ? '?withGrants=true' : ''}`,
     },
     grants: {
         all: () => '/grants',
@@ -67,6 +68,10 @@ class GapIndexerClient extends Fetcher_1.Fetcher {
                 'filter[name]': search,
             },
         });
+        return entities_1.Community.from(data);
+    }
+    async communitiesOf(address, withGrants) {
+        const { data } = await this.client.get(Endpoints.grantees.communities(address, withGrants));
         return entities_1.Community.from(data);
     }
     communitiesByIds(uids) {

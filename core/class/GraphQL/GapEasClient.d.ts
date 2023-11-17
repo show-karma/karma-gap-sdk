@@ -29,6 +29,7 @@ export declare class GapEasClient extends Fetcher {
      */
     dependentsOf(parentSchema: TSchemaName, parentUid: Hex): Promise<Attestation[]>;
     communities(search?: string): Promise<Community[]>;
+    communitiesOf(address?: Hex): Promise<Community[]>;
     communitiesByIds(uids: Hex[]): Promise<Community[]>;
     communitiesDetails(communities: Community[]): Promise<Community[]>;
     communityBySlug(slug: string): Promise<Community>;
