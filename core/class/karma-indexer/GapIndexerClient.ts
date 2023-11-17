@@ -20,6 +20,8 @@ const Endpoints = {
     byAddress: (address: Hex) => `/grantees/${address}`,
     grants: (address: Hex) => `/grantees/${address}/grants`,
     projects: (address: Hex) => `/grantees/${address}/projects`,
+    communities: (address: Hex, withGrants) =>
+      `/grantees/${address}/communities${withGrants ? '?withGrants=true' : ''}`,
   },
   grants: {
     all: () => '/grants',
@@ -95,6 +97,14 @@ export class GapIndexerClient extends Fetcher {
           'filter[name]': search,
         },
       }
+    );
+
+    return Community.from(data);
+  }
+
+  async communitiesOf(address: Hex, withGrants: boolean): Promise<Community[]> {
+    const { data } = await this.client.get<Community[]>(
+      Endpoints.grantees.communities(address, withGrants)
     );
 
     return Community.from(data);
