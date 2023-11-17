@@ -22,6 +22,12 @@ export interface IGrant {
   communityUID: Hex;
 }
 
+export interface ISummaryProject {
+  title: string;
+  slug?: string;
+  uid: Hex;
+}
+
 export class Grant extends Attestation<IGrant> {
   details?: GrantDetails;
   communityUID: Hex;
@@ -32,7 +38,7 @@ export class Grant extends Attestation<IGrant> {
   updates: GrantUpdate[] = [];
   members: string[] = [];
   completed?: GrantCompleted;
-  project?: Project;
+  project?: ISummaryProject;
 
   async verify(signer: SignerOrProvider) {
     const eas = GAP.eas.connect(signer);
@@ -226,7 +232,12 @@ export class Grant extends Attestation<IGrant> {
 
       if (attestation.project) {
         const { project } = attestation;
-        grant.project = Project.from([project])[0];
+        const rawProject = Project.from([project as any])[0];
+        grant.project = {
+          title: rawProject.details?.title,
+          uid: rawProject.uid,
+          slug: rawProject.details?.slug,
+        };
       }
 
       if (attestation.community) {

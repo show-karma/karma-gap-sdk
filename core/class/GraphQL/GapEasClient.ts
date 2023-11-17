@@ -555,10 +555,17 @@ export class GapEasClient extends Fetcher {
 
     const milestones = await this.milestonesOf(grants);
 
+    const getSummaryProject = (project: Project) => ({
+      title: project.details?.title,
+      uid: project.uid,
+      slug: project.details?.slug,
+    });
+
     return grants
       .map((grant) => {
-        grant.project = <Project>projects.find((p) => p.uid === grant.refUID);
-
+        grant.project = getSummaryProject(
+          <Project>projects.find((p) => p.uid === grant.refUID)
+        );
         grant.details = <GrantDetails>(
           deps.find(
             (d) =>
