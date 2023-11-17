@@ -10,7 +10,6 @@ const SchemaError_1 = require("../SchemaError");
 const consts_1 = require("../../consts");
 const GapContract_1 = require("../contract/GapContract");
 const Community_1 = require("./Community");
-const Project_1 = require("./Project");
 class Grant extends Attestation_1.Attestation {
     constructor() {
         super(...arguments);
@@ -182,12 +181,7 @@ class Grant extends Attestation_1.Attestation {
             }
             if (attestation.project) {
                 const { project } = attestation;
-                const rawProject = Project_1.Project.from([project])[0];
-                grant.project = {
-                    title: rawProject.details?.title,
-                    uid: rawProject.uid,
-                    slug: rawProject.details?.slug,
-                };
+                grant.project = project;
             }
             if (attestation.community) {
                 const { community } = attestation;
