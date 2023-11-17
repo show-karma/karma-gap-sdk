@@ -17,6 +17,7 @@ class Grant extends Attestation_1.Attestation {
         this.verified = false;
         this.milestones = [];
         this.updates = [];
+        this.members = [];
     }
     async verify(signer) {
         const eas = GAP_1.GAP.eas.connect(signer);
@@ -186,6 +187,9 @@ class Grant extends Attestation_1.Attestation {
             if (attestation.community) {
                 const { community } = attestation;
                 grant.community = Community_1.Community.from([community])[0];
+            }
+            if (attestation.members) {
+                grant.members = attestation.members;
             }
             return grant;
         });
