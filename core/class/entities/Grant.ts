@@ -232,12 +232,7 @@ export class Grant extends Attestation<IGrant> {
 
       if (attestation.project) {
         const { project } = attestation;
-        const rawProject = Project.from([project as any])[0];
-        grant.project = {
-          title: rawProject.details?.title,
-          uid: rawProject.uid,
-          slug: rawProject.details?.slug,
-        };
+        grant.project = project;
       }
 
       if (attestation.community) {
