@@ -10,5 +10,5 @@ export declare abstract class IPFS {
     * retrieve data from IPFS by hash (CID)
     */
     protected abstract getData<T = unknown>(ipfsHash: string): Promise<T>;
-    protected abstract encode<T>(data: T, storageType: number): T;
+    protected abstract encode(data: string, storageType: number): any;
 }

@@ -1,8 +1,8 @@
-import { Hex, IAttestation, TSchemaName } from "core/types";
-import { Attestation } from "./Attestation";
-import { Community, Grant, MemberOf, Milestone, Project } from "./entities";
-import { Grantee } from "./types/attestations";
-import { AxiosGQL } from "./GraphQL/AxiosGQL";
+import { Hex, IAttestation, TSchemaName } from 'core/types';
+import { Attestation } from './Attestation';
+import { Community, Grant, MemberOf, Milestone, Project } from './entities';
+import { Grantee } from './types/attestations';
+import { AxiosGQL } from './GraphQL/AxiosGQL';
 export declare abstract class Fetcher extends AxiosGQL {
     /**
      * Fetch a single attestation by its UID.
@@ -38,6 +38,15 @@ export declare abstract class Fetcher extends AxiosGQL {
      * @returns
      */
     abstract communities(search?: string): Promise<Community[]>;
+    /**
+     * Fetch all available communities with details for a grantee;
+     *
+     * If search is defined, will try to find communities by the search string.
+     * @param address grantee address
+     * @param withGrants if true, will get community grants.
+     * @returns
+     */
+    abstract communitiesOf(address: Hex, withGrants?: boolean): Promise<Community[]>;
     /**
      * Fetch a set of communities by their ids.
      * @param uids
@@ -129,4 +138,10 @@ export declare abstract class Fetcher extends AxiosGQL {
      * @returns
      */
     abstract slugExists(slug: string): Promise<boolean>;
+    /**
+     * Get grants for a project by an external uid
+     * > Works only for the indexed projects
+     * @param projectExtId
+     */
+    abstract grantsForExtProject(projectExtId: string): Promise<Grant[]>;
 }

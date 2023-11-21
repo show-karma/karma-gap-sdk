@@ -82,6 +82,15 @@ class GapEasClient extends Fetcher_1.Fetcher {
             return [];
         return this.communitiesDetails(communities);
     }
+    async communitiesOf(address) {
+        const [community] = GapSchema_1.GapSchema.findMany(['Community']);
+        const query = gql_queries_1.gqlQueries.attestationsTo(community.uid, address);
+        const { schema: { attestations }, } = await this.query(query);
+        const communities = Attestation_1.Attestation.fromInterface(attestations);
+        if (!communities.length)
+            return [];
+        return this.communitiesDetails(communities);
+    }
     async communitiesByIds(uids) {
         if (!uids.length)
             return [];
@@ -308,9 +317,14 @@ class GapEasClient extends Fetcher_1.Fetcher {
         const { attestations: projectAttestations } = await this.query(projectsQuery);
         const projects = Attestation_1.Attestation.fromInterface(projectAttestations);
         const milestones = await this.milestonesOf(grants);
+        const getSummaryProject = (project) => ({
+            title: project.details?.title,
+            uid: project.uid,
+            slug: project.details?.slug,
+        });
         return grants
             .map((grant) => {
-            grant.project = projects.find((p) => p.uid === grant.refUID);
+            grant.project = getSummaryProject(projects.find((p) => p.uid === grant.refUID));
             grant.details = (deps.find((d) => d.refUID === grant.uid &&
                 d.schema.uid === grantDetails.uid &&
                 typeof d.amount !== undefined &&
@@ -415,6 +429,10 @@ class GapEasClient extends Fetcher_1.Fetcher {
             String.raw `\\\\\"${field}\\\\\":\\\\\"${value}\\\\\"`,
             String.raw `\\\\\"${field}\\\\\": \\\\\"${value}\\\\\"`,
         ];
+    }
+    async grantsForExtProject(projectExtId) {
+        console.error(new Error('Grants for external project is only supported by a custom indexer. Check https://github.com/show-karma/karma-gap-sdk for more information.'));
+        return [];
     }
 }
 exports.GapEasClient = GapEasClient;

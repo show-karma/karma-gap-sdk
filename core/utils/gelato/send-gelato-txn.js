@@ -22,9 +22,9 @@ async function sendByUrl(...params) {
  */
 async function sendByApiKey(...params) {
     const { apiKey } = GAP_1.GAP?.gelatoOpts || {};
-    if (!apiKey && params[1] === "{apiKey}")
-        throw new Error("No api key provided.");
-    if (apiKey && params[1] === "{apiKey}")
+    if (!apiKey && params[1] === '{apiKey}')
+        throw new Error('No api key provided.');
+    if (apiKey && params[1] === '{apiKey}')
         params[1] = apiKey;
     const client = new relay_sdk_1.GelatoRelay();
     const relayResponse = await client.sponsoredCall(...params);
@@ -32,9 +32,10 @@ async function sendByApiKey(...params) {
         taskId: relayResponse.taskId,
         /**
          * Waits for the transaction to be confirmed by Gelato.
+         * @param ttl interval between checks in ms
          * @returns Txn id
          */
-        wait: () => (0, watch_gelato_txn_1.watchGelatoTxn)(relayResponse.taskId),
+        wait: (ttl) => (0, watch_gelato_txn_1.watchGelatoTxn)(relayResponse.taskId, ttl),
     };
 }
 /**
@@ -44,10 +45,10 @@ async function sendByApiKey(...params) {
  */
 async function sendGelatoTxn(...params) {
     if (!GAP_1.GAP.gelatoOpts)
-        throw new Error("Gelato opts not set.");
+        throw new Error('Gelato opts not set.');
     const { env_gelatoApiKey, sponsorUrl, useGasless, contained } = GAP_1.GAP.gelatoOpts;
     if (!useGasless)
-        throw new Error("Gasless is not enabled.");
+        throw new Error('Gasless is not enabled.');
     if ((sponsorUrl && contained && env_gelatoApiKey) ||
         (sponsorUrl && !contained)) {
         return sendByUrl(...params);
@@ -85,7 +86,7 @@ data, chainId, target) {
             chainId,
             target,
         },
-        "{apiKey}",
+        '{apiKey}',
         {
             retries: 3,
         },

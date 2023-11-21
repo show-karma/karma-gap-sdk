@@ -10,13 +10,13 @@ const SchemaError_1 = require("../SchemaError");
 const consts_1 = require("../../consts");
 const GapContract_1 = require("../contract/GapContract");
 const Community_1 = require("./Community");
-const Project_1 = require("./Project");
 class Grant extends Attestation_1.Attestation {
     constructor() {
         super(...arguments);
         this.verified = false;
         this.milestones = [];
         this.updates = [];
+        this.members = [];
     }
     async verify(signer) {
         const eas = GAP_1.GAP.eas.connect(signer);
@@ -177,11 +177,14 @@ class Grant extends Attestation_1.Attestation {
             }
             if (attestation.project) {
                 const { project } = attestation;
-                grant.project = Project_1.Project.from([project])[0];
+                grant.project = project;
             }
             if (attestation.community) {
                 const { community } = attestation;
                 grant.community = Community_1.Community.from([community])[0];
+            }
+            if (attestation.members) {
+                grant.members = attestation.members;
             }
             return grant;
         });

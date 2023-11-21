@@ -11,7 +11,7 @@ class AttestationIPFS extends IPFS_1.IPFS {
         return new Promise(() => { });
     }
     encode(data, storageType) {
-        return JSON.stringify({ ipfsHash: data, type: storageType });
+        return { ipfsHash: data, type: storageType };
     }
 }
 exports.AttestationIPFS = AttestationIPFS;
