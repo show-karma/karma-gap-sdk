@@ -295,6 +295,13 @@ export abstract class Schema<T extends string = string>
       );
 
     if (this.isJsonSchema()) {
+      const ipfsManager = GAP.ipfs;
+      if(ipfsManager){
+        const ipfsHash = await ipfsManager.save(data);
+        const encodedData = ipfsManager.encode(ipfsHash, 0);
+        data = encodedData as T;
+      }
+
       this.setValue("json", JSON.stringify(data));
     } else {
       Object.entries(data).forEach(([key, value]) => {

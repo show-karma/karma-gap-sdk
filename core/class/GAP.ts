@@ -15,6 +15,9 @@ import { ethers } from "ethers";
 import MulticallABI from "../abi/MultiAttester.json";
 import { version } from "../../package.json";
 import { Fetcher } from "./Fetcher";
+import { AttestationIPFS } from "./AttestationIPFS";
+import { IPFSInterceptor } from "../utils/ipfs-interceptor";
+
 
 interface GAPArgs {
   network: TNetwork;
@@ -102,6 +105,9 @@ interface GAPArgs {
      */
     useGasless?: boolean;
   };
+
+  // need to documment here nft.storage
+  ipfsKey?: string;
 }
 
 /**
@@ -161,6 +167,7 @@ interface GAPArgs {
  */
 export class GAP extends Facade {
   private static client: GAP;
+  private static ipfsManager: AttestationIPFS;
 
   readonly fetch: Fetcher;
   readonly network: TNetwork;
@@ -180,8 +187,13 @@ export class GAP extends Facade {
 
     this.fetch = args.apiClient || new GapEasClient({ network: args.network });
 
-    this.assert(args);
+    this.assertGelatoOpts(args);
     GAP._gelatoOpts = args.gelatoOpts;
+    
+    if(this.assertIPFSOpts(args)){
+      // args.apiClient = IPFSInterceptor(args.apiClient);
+      GAP.ipfsManager = new AttestationIPFS(args.ipfsKey)
+    }
 
     this._schemas = schemas.map(
       (schema) =>
@@ -196,7 +208,7 @@ export class GAP extends Facade {
     console.info(`Loaded GAP SDK v${version}`);
   }
 
-  private assert(args: GAPArgs) {
+  private assertGelatoOpts(args: GAPArgs) {
     if (
       args.gelatoOpts &&
       !(args.gelatoOpts.sponsorUrl || args.gelatoOpts.apiKey)
@@ -224,6 +236,14 @@ export class GAP extends Facade {
         "GAP::You are using gelatoOpts but not setting useGasless to true. This will send transactions through the normal provider."
       );
     }
+  }
+
+  private assertIPFSOpts(args: GAPArgs): boolean {
+    if(!args.ipfsKey) {
+      return false;
+    }
+
+    return true;
   }
 
   /**
@@ -343,5 +363,9 @@ export class GAP extends Facade {
       );
     }
     this._gelatoOpts.useGasless = useGasLess;
+  }
+
+  static get ipfs() {
+    return this.ipfsManager
   }
 }
