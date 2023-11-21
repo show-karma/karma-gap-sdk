@@ -5,7 +5,7 @@
   },
   "version": "0.1.42",
   "description": "Simple and easy interface between EAS and Karma GAP.",
-  "main": "dist/index.js",
+  "main": "index.ts",
   "author": "KarmaHQ",
   "license": "MIT",
   "private": false,

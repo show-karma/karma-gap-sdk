@@ -1,18 +1,18 @@
-import { Attestation } from "../Attestation";
+import { Attestation } from '../Attestation';
 import {
   Grantee,
   MemberDetails,
   ProjectDetails,
   Tag,
-} from "../types/attestations";
-import { Hex, MultiAttestPayload, SignerOrProvider } from "core/types";
-import { GapSchema } from "../GapSchema";
-import { AttestationError } from "../SchemaError";
-import { mapFilter } from "../../utils";
-import { Grant } from "./Grant";
-import { nullRef } from "../../consts";
-import { MemberOf } from "./MemberOf";
-import { GapContract } from "../contract/GapContract";
+} from '../types/attestations';
+import { Hex, MultiAttestPayload, SignerOrProvider } from 'core/types';
+import { GapSchema } from '../GapSchema';
+import { AttestationError } from '../SchemaError';
+import { mapFilter } from '../../utils';
+import { Grant } from './Grant';
+import { nullRef } from '../../consts';
+import { MemberOf } from './MemberOf';
+import { GapContract } from '../contract/GapContract';
 
 interface _Project extends Project {}
 
@@ -74,6 +74,14 @@ export class Project extends Attestation<IProject> {
     });
   }
 
+  async transferOwnership(signer: SignerOrProvider, newOwner: Hex) {
+    await GapContract.transferProjectOwnership(signer, this.uid, newOwner);
+  }
+
+  isOwner(signer: SignerOrProvider): Promise<boolean> {
+    return GapContract.isProjectOwner(signer, this.uid);
+  }
+
   /**
    * Add new members to the project.
    * If any member in the array already exists in the project
@@ -89,7 +97,7 @@ export class Project extends Attestation<IProject> {
           new MemberOf({
             data: { memberOf: true },
             refUID: this.uid,
-            schema: GapSchema.find("MemberOf"),
+            schema: GapSchema.find('MemberOf'),
             recipient: member,
             uid: nullRef,
           })
@@ -115,7 +123,7 @@ export class Project extends Attestation<IProject> {
         const member = new MemberOf({
           data: { memberOf: true },
           refUID: this.uid,
-          schema: GapSchema.find("MemberOf"),
+          schema: GapSchema.find('MemberOf'),
           createdAt: Date.now(),
           recipient: details.recipient,
           uid: nullRef,
@@ -125,7 +133,7 @@ export class Project extends Attestation<IProject> {
     );
 
     if (!newMembers.length) {
-      throw new AttestationError("ATTEST_ERROR", "No new members to add.");
+      throw new AttestationError('ATTEST_ERROR', 'No new members to add.');
     }
 
     console.log(`Creating ${newMembers.length} new members`);
@@ -135,7 +143,7 @@ export class Project extends Attestation<IProject> {
       newMembers.map((m) => m.member)
     );
 
-    console.log("attested-members", attestedMembers);
+    console.log('attested-members', attestedMembers);
 
     newMembers.forEach(({ member, details }, idx) => {
       Object.assign(member, { uid: attestedMembers[idx] });
@@ -177,7 +185,7 @@ export class Project extends Attestation<IProject> {
     );
 
     if (toRevoke.length) {
-      console.log("Revoking details");
+      console.log('Revoking details');
       await this.cleanDetails(signer, toRevoke);
     }
 
@@ -186,7 +194,7 @@ export class Project extends Attestation<IProject> {
     const attestedEntities = <Hex[]>(
       await this.schema.multiAttest(signer, entities)
     );
-    console.log("attested-entities", attestedEntities);
+    console.log('attested-entities', attestedEntities);
 
     entities.forEach((entity, idx) => {
       const member = this.members.find(
@@ -206,9 +214,9 @@ export class Project extends Attestation<IProject> {
    */
   async cleanDetails(signer: SignerOrProvider, uids: Hex[]) {
     if (!uids.length) {
-      throw new AttestationError("ATTEST_ERROR", "No details to clean.");
+      throw new AttestationError('ATTEST_ERROR', 'No details to clean.');
     }
-    const memberDetails = GapSchema.find("MemberDetails");
+    const memberDetails = GapSchema.find('MemberDetails');
 
     await this.schema.multiRevoke(
       signer,
@@ -231,9 +239,9 @@ export class Project extends Attestation<IProject> {
    */
   async removeMembers(signer: SignerOrProvider, uids: Hex[]) {
     if (!uids.length) {
-      throw new AttestationError("ATTEST_ERROR", "No members to remove.");
+      throw new AttestationError('ATTEST_ERROR', 'No members to remove.');
     }
-    const memberOf = GapSchema.find("MemberOf");
+    const memberOf = GapSchema.find('MemberOf');
 
     const details = mapFilter(
       this.members,
@@ -265,7 +273,7 @@ export class Project extends Attestation<IProject> {
     );
 
     if (!members.length) {
-      throw new AttestationError("REVOKATION_ERROR", "No members to revoke.");
+      throw new AttestationError('REVOKATION_ERROR', 'No members to revoke.');
     }
 
     const details = mapFilter(
@@ -288,7 +296,7 @@ export class Project extends Attestation<IProject> {
         data: {
           project: true,
         },
-        schema: GapSchema.find("Project"),
+        schema: GapSchema.find('Project'),
       });
 
       if (attestation.details) {
@@ -298,7 +306,7 @@ export class Project extends Attestation<IProject> {
           data: {
             ...details.data,
           },
-          schema: GapSchema.find("ProjectDetails"),
+          schema: GapSchema.find('ProjectDetails'),
         });
 
         project.details.links = details.data.links || [];
@@ -320,7 +328,7 @@ export class Project extends Attestation<IProject> {
             data: {
               memberOf: true,
             },
-            schema: GapSchema.find("MemberOf"),
+            schema: GapSchema.find('MemberOf'),
           });
 
           if (m.details) {
@@ -330,7 +338,7 @@ export class Project extends Attestation<IProject> {
               data: {
                 ...details.data,
               },
-              schema: GapSchema.find("MemberDetails"),
+              schema: GapSchema.find('MemberDetails'),
             });
           }
 
