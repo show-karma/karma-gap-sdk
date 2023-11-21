@@ -1,32 +1,35 @@
-import { TSchemaName, IAttestation, TNetwork, Hex } from "core/types";
-import { Attestation } from "../Attestation";
-import { GapSchema } from "../GapSchema";
-import { Fetcher } from "../Fetcher";
-import { Community, Project, Grant, Milestone, MemberOf } from "../entities";
-import { Grantee } from "../types/attestations";
+import { TSchemaName, IAttestation, TNetwork, Hex } from 'core/types';
+import { Attestation } from '../Attestation';
+import { GapSchema } from '../GapSchema';
+import { Fetcher } from '../Fetcher';
+import { Community, Project, Grant, Milestone, MemberOf } from '../entities';
+import { Grantee } from '../types/attestations';
 
 const Endpoints = {
   attestations: {
-    all: () => "/attestations",
+    all: () => '/attestations',
     byUid: (uid: Hex) => `/attestations/${uid}`,
   },
   communities: {
-    all: () => "/communities",
+    all: () => '/communities',
     byUidOrSlug: (uidOrSlug: string) => `/communities/${uidOrSlug}`,
     grants: (uidOrSlug: string) => `/communities/${uidOrSlug}/grants`,
   },
   grantees: {
-    all: () => "/grantees",
+    all: () => '/grantees',
     byAddress: (address: Hex) => `/grantees/${address}`,
     grants: (address: Hex) => `/grantees/${address}/grants`,
     projects: (address: Hex) => `/grantees/${address}/projects`,
+    communities: (address: Hex, withGrants) =>
+      `/grantees/${address}/communities${withGrants ? '?withGrants=true' : ''}`,
   },
   grants: {
-    all: () => "/grants",
+    all: () => '/grants',
     byUid: (uid: Hex) => `/grants/${uid}`,
+    byExternalId: (id: string) => `/grants/external-id/${id}`,
   },
   project: {
-    all: () => "/projects",
+    all: () => '/projects',
     byUidOrSlug: (uidOrSlug: string) => `/projects/${uidOrSlug}`,
     grants: (uidOrSlug: string) => `/projects/${uidOrSlug}/grants`,
     milestones: (uidOrSlug: string) => `/projects/${uidOrSlug}/milestones`,
@@ -41,7 +44,7 @@ export class GapIndexerClient extends Fetcher {
       Endpoints.attestations.byUid(uid)
     );
 
-    if (!data) throw new Error("Attestation not found");
+    if (!data) throw new Error('Attestation not found');
     return Attestation.fromInterface<Attestation<T>>([data])[0];
   }
 
@@ -53,8 +56,8 @@ export class GapIndexerClient extends Fetcher {
       Endpoints.attestations.all(),
       {
         params: {
-          "filter[schemaUID]": GapSchema.get(schemaName).uid,
-          "filter[data]": search,
+          'filter[schemaUID]': GapSchema.get(schemaName).uid,
+          'filter[data]': search,
         },
       }
     );
@@ -70,8 +73,8 @@ export class GapIndexerClient extends Fetcher {
       Endpoints.attestations.all(),
       {
         params: {
-          "filter[schemaUID]": GapSchema.get(schemaName).uid,
-          "filter[recipient]": attester,
+          'filter[schemaUID]': GapSchema.get(schemaName).uid,
+          'filter[recipient]': attester,
         },
       }
     );
@@ -91,7 +94,7 @@ export class GapIndexerClient extends Fetcher {
       Endpoints.communities.all(),
       {
         params: {
-          "filter[name]": search,
+          'filter[name]': search,
         },
       }
     );
@@ -99,8 +102,16 @@ export class GapIndexerClient extends Fetcher {
     return Community.from(data);
   }
 
+  async communitiesOf(address: Hex, withGrants: boolean): Promise<Community[]> {
+    const { data } = await this.client.get<Community[]>(
+      Endpoints.grantees.communities(address, withGrants)
+    );
+
+    return Community.from(data);
+  }
+
   communitiesByIds(uids: `0x${string}`[]): Promise<Community[]> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   async communityBySlug(slug: string): Promise<Community> {
@@ -130,7 +141,7 @@ export class GapIndexerClient extends Fetcher {
   async projects(name?: string): Promise<Project[]> {
     const { data } = await this.client.get<Project[]>(Endpoints.project.all(), {
       params: {
-        "filter[title]": name,
+        'filter[title]': name,
       },
     });
 
@@ -181,6 +192,14 @@ export class GapIndexerClient extends Fetcher {
     return Grant.from(data);
   }
 
+  async grantsForExtProject(projectExtId: string): Promise<Grant[]> {
+    const { data } = await this.client.get<Grant[]>(
+      Endpoints.grants.byExternalId(projectExtId)
+    );
+
+    return Grant.from(data);
+  }
+
   async grantsByCommunity(uid: `0x${string}`) {
     const { data } = await this.client.get<Grant[]>(
       Endpoints.communities.grants(uid)
@@ -198,7 +217,7 @@ export class GapIndexerClient extends Fetcher {
   }
 
   async membersOf(projects: Project[]): Promise<MemberOf[]> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   async slugExists(slug: string): Promise<boolean> {

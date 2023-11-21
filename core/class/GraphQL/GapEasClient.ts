@@ -34,7 +34,6 @@ interface EASClientProps {
   network: TNetwork;
 }
 
-
 // TODO: Split this class into small ones
 export class GapEasClient extends Fetcher {
   network: EASNetworkConfig & { name: TNetwork };
@@ -142,6 +141,21 @@ export class GapEasClient extends Fetcher {
     ]);
 
     const query = gqlQueries.attestationsOf(community.uid, search);
+    const {
+      schema: { attestations },
+    } = await this.query<SchemaRes>(query);
+
+    const communities = Attestation.fromInterface<Community>(attestations);
+
+    if (!communities.length) return [];
+
+    return this.communitiesDetails(communities);
+  }
+
+  async communitiesOf(address?: Hex) {
+    const [community] = GapSchema.findMany(['Community']);
+
+    const query = gqlQueries.attestationsTo(community.uid, address);
     const {
       schema: { attestations },
     } = await this.query<SchemaRes>(query);
@@ -541,10 +555,17 @@ export class GapEasClient extends Fetcher {
 
     const milestones = await this.milestonesOf(grants);
 
+    const getSummaryProject = (project: Project) => ({
+      title: project.details?.title,
+      uid: project.uid,
+      slug: project.details?.slug,
+    });
+
     return grants
       .map((grant) => {
-        grant.project = <Project>projects.find((p) => p.uid === grant.refUID);
-
+        grant.project = getSummaryProject(
+          <Project>projects.find((p) => p.uid === grant.refUID)
+        );
         grant.details = <GrantDetails>(
           deps.find(
             (d) =>
@@ -750,5 +771,14 @@ export class GapEasClient extends Fetcher {
       String.raw`\\\\\"${field}\\\\\":\\\\\"${value}\\\\\"`,
       String.raw`\\\\\"${field}\\\\\": \\\\\"${value}\\\\\"`,
     ];
+  }
+
+  async grantsForExtProject(projectExtId: string): Promise<Grant[]> {
+    console.error(
+      new Error(
+        'Grants for external project is only supported by a custom indexer. Check https://github.com/show-karma/karma-gap-sdk for more information.'
+      )
+    );
+    return [];
   }
 }
