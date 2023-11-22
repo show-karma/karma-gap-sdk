@@ -67,6 +67,10 @@ export declare class Milestone extends Attestation<IMilestone> implements IMiles
      */
     multiAttestPayload(currentPayload?: MultiAttestPayload, grantIdx?: number): [Attestation<unknown, GapSchema>, import("../../types").RawMultiAttestPayload][];
     /**
+     * @inheritdoc
+     */
+    attest(signer: SignerOrProvider): Promise<void>;
+    /**
      * Attest the status of the milestone as approved, rejected or completed.
      */
     private attestStatus;

@@ -5,6 +5,7 @@ const Attestation_1 = require("../Attestation");
 const GAP_1 = require("../GAP");
 const GapSchema_1 = require("../GapSchema");
 const SchemaError_1 = require("../SchemaError");
+const GapContract_1 = require("../contract/GapContract");
 const attestations_1 = require("../types/attestations");
 class Milestone extends Attestation_1.Attestation {
     /**
@@ -137,6 +138,18 @@ class Milestone extends Attestation_1.Attestation {
             payload.push([this.completed, this.completed.payloadFor(milestoneIdx)]);
         }
         return payload.slice(currentPayload.length, payload.length);
+    }
+    /**
+     * @inheritdoc
+     */
+    async attest(signer) {
+        this.assertPayload();
+        const payload = this.multiAttestPayload();
+        const uids = await GapContract_1.GapContract.multiAttest(signer, payload.map((p) => p[1]));
+        uids.forEach((uid, index) => {
+            payload[index][0].uid = uid;
+        });
+        console.log(uids);
     }
     /**
      * Attest the status of the milestone as approved, rejected or completed.
