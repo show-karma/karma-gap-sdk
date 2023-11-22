@@ -282,6 +282,9 @@ export abstract class Schema<T extends string = string>
 
   /**
    * Attest for a schema.
+   * 
+   * if "ipfsKey" is enabled, the data will be upload in the IPFS and the CID will be in the Attestation Body.
+   * 
    * @param param0
    * @returns
    */

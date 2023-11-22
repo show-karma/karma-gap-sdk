@@ -16,8 +16,6 @@ import MulticallABI from "../abi/MultiAttester.json";
 import { version } from "../../package.json";
 import { Fetcher } from "./Fetcher";
 import { AttestationIPFS } from "./AttestationIPFS";
-import { IPFSInterceptor } from "../utils/ipfs-interceptor";
-
 
 interface GAPArgs {
   network: TNetwork;
@@ -106,7 +104,16 @@ interface GAPArgs {
     useGasless?: boolean;
   };
 
-  // need to documment here nft.storage
+  /**
+   * Specifies an optional IPFS key for uploading project details and other related data.
+   * 
+   * This key is used to authenticate with the IPFS storage service, specifically designed for use with "NFT.STORAGE".
+   * Utilizing IPFS (InterPlanetary File System) offers a decentralized solution for storing data, ensuring better
+   * scalability and efficiency compared to sending large amounts of data directly in the attestation body.
+   * 
+   * If an IPFS key is not provided, the default storage method will be used.
+   * 
+   */
   ipfsKey?: string;
 }
 
@@ -191,7 +198,6 @@ export class GAP extends Facade {
     GAP._gelatoOpts = args.gelatoOpts;
     
     if(this.assertIPFSOpts(args)){
-      // args.apiClient = IPFSInterceptor(args.apiClient);
       GAP.ipfsManager = new AttestationIPFS(args.ipfsKey)
     }
 
