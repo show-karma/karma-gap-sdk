@@ -70,22 +70,18 @@ class Grant extends Attestation_1.Attestation {
      * @param payload
      * @param projectIdx
      */
-    multiAttestPayload(currentPayload = [], projectIdx = 0) {
+    async multiAttestPayload(currentPayload = [], projectIdx = 0) {
         this.assertPayload();
         const payload = [...currentPayload];
-        const grantIdx = payload.push([this, this.payloadFor(projectIdx)]) - 1;
+        const grantIdx = payload.push([this, await this.payloadFor(projectIdx)]) - 1;
         if (this.details) {
-            payload.push([this.details, this.details.payloadFor(grantIdx)]);
+            payload.push([this.details, await this.details.payloadFor(grantIdx)]);
         }
         if (this.milestones.length) {
-            this.milestones.forEach((m) => {
-                payload.push([m, m.payloadFor(grantIdx)]);
-            });
+            await Promise.all(this.milestones.map(async (m) => payload.push([m, await m.payloadFor(grantIdx)])));
         }
         if (this.updates.length) {
-            this.updates.forEach((u) => {
-                payload.push([u, u.payloadFor(grantIdx)]);
-            });
+            await Promise.all(this.updates.map(async (u) => payload.push([u, await u.payloadFor(grantIdx)])));
         }
         return payload.slice(currentPayload.length, payload.length);
     }
@@ -94,7 +90,7 @@ class Grant extends Attestation_1.Attestation {
      */
     async attest(signer) {
         this.assertPayload();
-        const payload = this.multiAttestPayload();
+        const payload = await this.multiAttestPayload();
         const uids = await GapContract_1.GapContract.multiAttest(signer, payload.map((p) => p[1]));
         uids.forEach((uid, index) => {
             payload[index][0].uid = uid;

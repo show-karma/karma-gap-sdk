@@ -13,6 +13,7 @@ const consts_1 = require("../consts");
 const ethers_1 = require("ethers");
 const MultiAttester_json_1 = __importDefault(require("../abi/MultiAttester.json"));
 const package_json_1 = require("../../package.json");
+const AttestationIPFS_1 = require("./AttestationIPFS");
 /**
  * GAP SDK Facade.
  *
@@ -97,13 +98,16 @@ class GAP extends types_1.Facade {
         this.network = args.network;
         GAP._eas = new eas_sdk_1.EAS(consts_1.Networks[args.network].contracts.eas);
         this.fetch = args.apiClient || new GapEasClient_1.GapEasClient({ network: args.network });
-        this.assert(args);
+        this.assertGelatoOpts(args);
         GAP._gelatoOpts = args.gelatoOpts;
+        if (this.assertIPFSOpts(args)) {
+            GAP.ipfsManager = new AttestationIPFS_1.AttestationIPFS(args.ipfsKey);
+        }
         this._schemas = schemas.map((schema) => new GapSchema_1.GapSchema(schema, false, args.globalSchemas ? !args.globalSchemas : false));
         Schema_1.Schema.validate();
         console.info(`Loaded GAP SDK v${package_json_1.version}`);
     }
-    assert(args) {
+    assertGelatoOpts(args) {
         if (args.gelatoOpts &&
             !(args.gelatoOpts.sponsorUrl || args.gelatoOpts.apiKey)) {
             throw new Error("You must provide a `sponsorUrl` or an `apiKey`.");
@@ -119,6 +123,12 @@ class GAP extends types_1.Facade {
             !args.gelatoOpts?.useGasless) {
             console.warn("GAP::You are using gelatoOpts but not setting useGasless to true. This will send transactions through the normal provider.");
         }
+    }
+    assertIPFSOpts(args) {
+        if (!args.ipfsKey) {
+            return false;
+        }
+        return true;
     }
     /**
      * Creates the attestation payload using a specific schema.
@@ -200,6 +210,9 @@ class GAP extends types_1.Facade {
             throw new Error("You must provide a `sponsorUrl` or an `apiKey` before using gasless transactions.");
         }
         this._gelatoOpts.useGasless = useGasLess;
+    }
+    static get ipfs() {
+        return this.ipfsManager;
     }
 }
 exports.GAP = GAP;

@@ -23,7 +23,7 @@ export declare class Project extends Attestation<IProject> {
      * @param payload
      * @param communityIdx
      */
-    multiAttestPayload(currentPayload?: MultiAttestPayload, communityIdx?: number): MultiAttestPayload;
+    multiAttestPayload(currentPayload?: MultiAttestPayload, communityIdx?: number): Promise<MultiAttestPayload>;
     attest(signer: SignerOrProvider): Promise<void>;
     /**
      * Add new members to the project.

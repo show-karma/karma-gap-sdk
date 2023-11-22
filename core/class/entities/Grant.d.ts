@@ -42,7 +42,7 @@ export declare class Grant extends Attestation<IGrant> {
      * @param payload
      * @param projectIdx
      */
-    multiAttestPayload(currentPayload?: MultiAttestPayload, projectIdx?: number): [Attestation<unknown, GapSchema>, import("core/types").RawMultiAttestPayload][];
+    multiAttestPayload(currentPayload?: MultiAttestPayload, projectIdx?: number): Promise<[Attestation<unknown, GapSchema>, import("core/types").RawMultiAttestPayload][]>;
     /**
      * @inheritdoc
      */

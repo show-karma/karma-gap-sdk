@@ -20,3 +20,4 @@ __exportStar(require("./gql-queries"), exports);
 __exportStar(require("./map-filter"), exports);
 __exportStar(require("./serialize-bigint"), exports);
 __exportStar(require("./to-unix"), exports);
+__exportStar(require("./get-ipfs-data"), exports);

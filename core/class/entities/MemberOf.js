@@ -5,16 +5,16 @@ const Attestation_1 = require("../Attestation");
 const SchemaError_1 = require("../SchemaError");
 const GapContract_1 = require("../contract/GapContract");
 class MemberOf extends Attestation_1.Attestation {
-    multiAttestPayload(currentPayload = [], projectIdx = 0) {
+    async multiAttestPayload(currentPayload = [], projectIdx = 0) {
         const payload = [...currentPayload];
-        const memberIdx = payload.push([this, this.payloadFor(projectIdx)]) - 1;
+        const memberIdx = payload.push([this, await this.payloadFor(projectIdx)]) - 1;
         if (this.details) {
-            payload.push([this.details, this.details.payloadFor(memberIdx)]);
+            payload.push([this.details, await this.details.payloadFor(memberIdx)]);
         }
         return payload.slice(currentPayload.length, payload.length);
     }
     async attest(signer) {
-        const payload = this.multiAttestPayload();
+        const payload = await this.multiAttestPayload();
         try {
             const [memberUID, detailsUID] = await GapContract_1.GapContract.multiAttest(signer, payload.map((p) => p[1]));
             this.uid = memberUID;

@@ -22,7 +22,7 @@ export declare class Community extends Attestation<ICommunity> {
      * @param payload
      * @param refIdx
      */
-    multiAttestPayload(): MultiAttestPayload;
+    multiAttestPayload(): Promise<MultiAttestPayload>;
     /**
      * Attest a community with its details.
      *

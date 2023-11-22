@@ -6,6 +6,6 @@ export interface IMemberOf {
 }
 export declare class MemberOf extends Attestation<IMemberOf> {
     details?: MemberDetails;
-    multiAttestPayload(currentPayload?: MultiAttestPayload, projectIdx?: number): [Attestation<unknown, import("..").GapSchema>, import("core/types").RawMultiAttestPayload][];
+    multiAttestPayload(currentPayload?: MultiAttestPayload, projectIdx?: number): Promise<[Attestation<unknown, import("..").GapSchema>, import("core/types").RawMultiAttestPayload][]>;
     attest(signer: SignerOrProvider): Promise<void>;
 }

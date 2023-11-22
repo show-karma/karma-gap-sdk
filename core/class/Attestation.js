@@ -4,6 +4,7 @@ exports.Attestation = void 0;
 const Schema_1 = require("./Schema");
 const SchemaError_1 = require("./SchemaError");
 const get_date_1 = require("../utils/get-date");
+const GAP_1 = require("./GAP");
 const consts_1 = require("../consts");
 const GapContract_1 = require("./contract/GapContract");
 /**
@@ -184,8 +185,16 @@ class Attestation {
      * @param refIdx
      * @returns [Encoded payload, Raw payload]
      */
-    payloadFor(refIdx) {
+    async payloadFor(refIdx) {
         this.assertPayload();
+        if (this.schema.isJsonSchema()) {
+            const ipfsManager = GAP_1.GAP.ipfs;
+            if (ipfsManager) {
+                const ipfsHash = await ipfsManager.save(this._data);
+                const encodedData = ipfsManager.encode(ipfsHash, 0);
+                this.schema.setValue("json", JSON.stringify(encodedData));
+            }
+        }
         const payload = (encode = true) => ({
             uid: consts_1.nullRef,
             refIdx,

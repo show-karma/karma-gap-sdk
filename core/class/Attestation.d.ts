@@ -134,10 +134,10 @@ export declare class Attestation<T = unknown, S extends Schema = GapSchema> impl
      * @param refIdx
      * @returns [Encoded payload, Raw payload]
      */
-    payloadFor(refIdx: number): {
+    payloadFor(refIdx: number): Promise<{
         payload: MultiAttestData;
         raw: MultiAttestData;
-    };
+    }>;
     /**
      * Returns an Attestation instance from a JSON decoded schema.
      * @param data
