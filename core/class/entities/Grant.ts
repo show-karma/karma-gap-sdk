@@ -95,22 +95,32 @@ export class Grant extends Attestation<IGrant> {
    * @param payload
    * @param projectIdx
    */
-  async multiAttestPayload(currentPayload: MultiAttestPayload = [], projectIdx = 0) {
+  async multiAttestPayload(
+    currentPayload: MultiAttestPayload = [],
+    projectIdx = 0
+  ) {
     this.assertPayload();
     const payload = [...currentPayload];
-    const grantIdx = payload.push([this, await this.payloadFor(projectIdx)]) - 1;
+    const grantIdx =
+      payload.push([this, await this.payloadFor(projectIdx)]) - 1;
     if (this.details) {
       payload.push([this.details, await this.details.payloadFor(grantIdx)]);
     }
 
     if (this.milestones.length) {
       await Promise.all(
-        this.milestones.map(async (m) =>  payload.push([m, await m.payloadFor(grantIdx)]))
+        this.milestones.map(async (m) =>
+          payload.push(
+            ...(await m.multiAttestPayload(currentPayload, grantIdx))
+          )
+        )
       );
     }
     if (this.updates.length) {
       await Promise.all(
-        this.updates.map(async (u) =>  payload.push([u, await u.payloadFor(grantIdx)]))
+        this.updates.map(async (u) =>
+          payload.push([u, await u.payloadFor(grantIdx)])
+        )
       );
     }
 
