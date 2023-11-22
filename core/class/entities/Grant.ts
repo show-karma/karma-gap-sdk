@@ -105,7 +105,6 @@ export class Grant extends Attestation<IGrant> {
 
     if (this.milestones.length) {
       this.milestones.forEach((m) => {
-        // payload.push([m, m.payloadFor(grantIdx)]);
         payload.push(...m.multiAttestPayload(currentPayload, grantIdx));
       });
     }
