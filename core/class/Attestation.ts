@@ -175,7 +175,7 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
    * @throws An `AttestationError` if an error occurs during attestation.
    */
   async attest(signer: SignerOrProvider, ...args: unknown[]) {
-    console.log({data: this.data})
+    console.log(`Attesting ${this.schema.name}`);
     try {
       const uid = await this.schema.attest<T>({
         data: this.data,
