@@ -127,25 +127,15 @@ class Milestone extends Attestation_1.Attestation {
      * usually the community position.
      *
      * @param payload
-     * @param projectIdx
+     * @param grantIdx
      */
-    multiAttestPayload(currentPayload = [], projectIdx = 0) {
+    multiAttestPayload(currentPayload = [], grantIdx = 0) {
         this.assertPayload();
         const payload = [...currentPayload];
-        const grantIdx = payload.push([this, this.payloadFor(projectIdx)]) - 1;
+        const milestoneIdx = payload.push([this, this.payloadFor(grantIdx)]) - 1;
         if (this.completed) {
-            payload.push([this.completed, this.completed.payloadFor(grantIdx)]);
+            payload.push([this.completed, this.completed.payloadFor(milestoneIdx)]);
         }
-        // if (this.milestones.length) {
-        //   this.milestones.forEach((m) => {
-        //     payload.push([m, m.payloadFor(grantIdx)]);
-        //   });
-        // }
-        // if (this.updates.length) {
-        //   this.updates.forEach((u) => {
-        //     payload.push([u, u.payloadFor(grantIdx)]);
-        //   });
-        // }
         return payload.slice(currentPayload.length, payload.length);
     }
     /**

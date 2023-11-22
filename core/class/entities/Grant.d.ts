@@ -1,9 +1,9 @@
-import { Attestation } from '../Attestation';
-import { GrantDetails, GrantRound, GrantUpdate, IGrantUpdate, GrantCompleted } from '../types/attestations';
-import { IMilestone, Milestone } from './Milestone';
-import { GapSchema } from '../GapSchema';
-import { Hex, MultiAttestPayload, SignerOrProvider } from 'core/types';
-import { Community } from './Community';
+import { Attestation } from "../Attestation";
+import { GrantDetails, GrantRound, GrantUpdate, IGrantUpdate, GrantCompleted } from "../types/attestations";
+import { IMilestone, Milestone } from "./Milestone";
+import { GapSchema } from "../GapSchema";
+import { Hex, MultiAttestPayload, SignerOrProvider } from "core/types";
+import { Community } from "./Community";
 interface _Grant extends Grant {
 }
 export interface IGrant {

@@ -63,9 +63,9 @@ export declare class Milestone extends Attestation<IMilestone> implements IMiles
      * usually the community position.
      *
      * @param payload
-     * @param projectIdx
+     * @param grantIdx
      */
-    multiAttestPayload(currentPayload?: MultiAttestPayload, projectIdx?: number): [Attestation<unknown, GapSchema>, import("../../types").RawMultiAttestPayload][];
+    multiAttestPayload(currentPayload?: MultiAttestPayload, grantIdx?: number): [Attestation<unknown, GapSchema>, import("../../types").RawMultiAttestPayload][];
     /**
      * Attest the status of the milestone as approved, rejected or completed.
      */
