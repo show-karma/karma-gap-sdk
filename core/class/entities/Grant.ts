@@ -1,20 +1,20 @@
-import { Attestation } from '../Attestation';
+import { Attestation } from "../Attestation";
 import {
   GrantDetails,
   GrantRound,
   GrantUpdate,
   IGrantUpdate,
   GrantCompleted,
-} from '../types/attestations';
-import { IMilestone, Milestone } from './Milestone';
-import { GapSchema } from '../GapSchema';
-import { GAP } from '../GAP';
-import { AttestationError } from '../SchemaError';
-import { nullRef } from '../../consts';
-import { Hex, MultiAttestPayload, SignerOrProvider } from 'core/types';
-import { GapContract } from '../contract/GapContract';
-import { Community } from './Community';
-import { Project } from './Project';
+} from "../types/attestations";
+import { IMilestone, Milestone } from "./Milestone";
+import { GapSchema } from "../GapSchema";
+import { GAP } from "../GAP";
+import { AttestationError } from "../SchemaError";
+import { nullRef } from "../../consts";
+import { Hex, MultiAttestPayload, SignerOrProvider } from "core/types";
+import { GapContract } from "../contract/GapContract";
+import { Community } from "./Community";
+import { Project } from "./Project";
 
 interface _Grant extends Grant {}
 
@@ -42,8 +42,8 @@ export class Grant extends Attestation<IGrant> {
 
   async verify(signer: SignerOrProvider) {
     const eas = GAP.eas.connect(signer);
-    const schema = GapSchema.find('MilestoneApproved');
-    schema.setValue('approved', true);
+    const schema = GapSchema.find("MilestoneApproved");
+    schema.setValue("approved", true);
 
     try {
       await eas.attest({
@@ -59,7 +59,7 @@ export class Grant extends Attestation<IGrant> {
       this.verified = true;
     } catch (error) {
       console.error(error);
-      throw new AttestationError('ATTEST_ERROR', error.message);
+      throw new AttestationError("ATTEST_ERROR", error.message);
     }
   }
 
@@ -69,7 +69,7 @@ export class Grant extends Attestation<IGrant> {
    * @param milestones
    */
   addMilestones(milestones: IMilestone[]) {
-    const schema = GapSchema.find('Milestone');
+    const schema = GapSchema.find("Milestone");
 
     const newMilestones = milestones.map((milestone) => {
       const m = new Milestone({
@@ -105,7 +105,8 @@ export class Grant extends Attestation<IGrant> {
 
     if (this.milestones.length) {
       this.milestones.forEach((m) => {
-        payload.push([m, m.payloadFor(grantIdx)]);
+        // payload.push([m, m.payloadFor(grantIdx)]);
+        payload.push(...m.multiAttestPayload(currentPayload, grantIdx));
       });
     }
     if (this.updates.length) {
@@ -140,11 +141,11 @@ export class Grant extends Attestation<IGrant> {
     const grantUpdate = new GrantUpdate({
       data: {
         ...data,
-        type: 'grant-update',
+        type: "grant-update",
       },
       recipient: this.recipient,
       refUID: this.uid,
-      schema: GapSchema.find('GrantDetails'),
+      schema: GapSchema.find("GrantDetails"),
     });
 
     await grantUpdate.attest(signer);
@@ -155,11 +156,11 @@ export class Grant extends Attestation<IGrant> {
     const completed = new GrantCompleted({
       data: {
         ...data,
-        type: 'grant-completed',
+        type: "grant-completed",
       },
       recipient: this.recipient,
       refUID: this.uid,
-      schema: GapSchema.find('GrantDetails'),
+      schema: GapSchema.find("GrantDetails"),
     });
 
     await completed.attest(signer);
@@ -172,8 +173,8 @@ export class Grant extends Attestation<IGrant> {
   protected assertPayload() {
     if (!this.details || !this.communityUID) {
       throw new AttestationError(
-        'INVALID_REFERENCE',
-        'Grant should include a valid reference to a community on its details.'
+        "INVALID_REFERENCE",
+        "Grant should include a valid reference to a community on its details."
       );
     }
     return true;
@@ -186,7 +187,7 @@ export class Grant extends Attestation<IGrant> {
         data: {
           communityUID: attestation.data.communityUID,
         },
-        schema: GapSchema.find('Grant'),
+        schema: GapSchema.find("Grant"),
       });
 
       if (attestation.details) {
@@ -196,7 +197,7 @@ export class Grant extends Attestation<IGrant> {
           data: {
             ...details.data,
           },
-          schema: GapSchema.find('GrantDetails'),
+          schema: GapSchema.find("GrantDetails"),
         });
       }
 
@@ -214,7 +215,7 @@ export class Grant extends Attestation<IGrant> {
               data: {
                 ...u.data,
               },
-              schema: GapSchema.find('GrantDetails'),
+              schema: GapSchema.find("GrantDetails"),
             })
         );
       }
@@ -226,7 +227,7 @@ export class Grant extends Attestation<IGrant> {
           data: {
             ...completed.data,
           },
-          schema: GapSchema.find('GrantDetails'),
+          schema: GapSchema.find("GrantDetails"),
         });
       }
 

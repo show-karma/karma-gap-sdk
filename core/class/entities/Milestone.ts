@@ -1,9 +1,10 @@
-import { SignerOrProvider } from '../../types';
-import { Attestation } from '../Attestation';
-import { GAP } from '../GAP';
-import { GapSchema } from '../GapSchema';
-import { AttestationError } from '../SchemaError';
-import { MilestoneCompleted } from '../types/attestations';
+import { MultiAttestPayload, SignerOrProvider } from "../../types";
+import { Attestation } from "../Attestation";
+import { GAP } from "../GAP";
+import { GapSchema } from "../GapSchema";
+import { AttestationError } from "../SchemaError";
+import { GapContract } from "../contract/GapContract";
+import { MilestoneCompleted } from "../types/attestations";
 
 interface _Milestone extends Milestone {}
 
@@ -26,19 +27,19 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
    * @param signer
    * @param reason
    */
-  async approve(signer: SignerOrProvider, reason = '') {
+  async approve(signer: SignerOrProvider, reason = "") {
     if (!this.completed)
-      throw new AttestationError('ATTEST_ERROR', 'Milestone is not completed');
+      throw new AttestationError("ATTEST_ERROR", "Milestone is not completed");
 
-    const schema = GapSchema.find('MilestoneCompleted');
-    schema.setValue('type', 'approved');
-    schema.setValue('reason', reason);
+    const schema = GapSchema.find("MilestoneCompleted");
+    schema.setValue("type", "approved");
+    schema.setValue("reason", reason);
 
     await this.attestStatus(signer, schema);
 
     this.approved = new MilestoneCompleted({
       data: {
-        type: 'approved',
+        type: "approved",
         reason,
       },
       refUID: this.uid,
@@ -54,7 +55,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
    */
   async revokeApproval(signer: SignerOrProvider) {
     if (!this.approved)
-      throw new AttestationError('ATTEST_ERROR', 'Milestone is not approved');
+      throw new AttestationError("ATTEST_ERROR", "Milestone is not approved");
 
     await this.approved.schema.multiRevoke(signer, [
       {
@@ -70,18 +71,18 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
    * @param signer
    * @param reason
    */
-  async reject(signer: SignerOrProvider, reason = '') {
+  async reject(signer: SignerOrProvider, reason = "") {
     if (!this.completed)
-      throw new AttestationError('ATTEST_ERROR', 'Milestone is not completed');
+      throw new AttestationError("ATTEST_ERROR", "Milestone is not completed");
 
-    const schema = GapSchema.find('MilestoneCompleted');
-    schema.setValue('type', 'rejected');
-    schema.setValue('reason', reason);
+    const schema = GapSchema.find("MilestoneCompleted");
+    schema.setValue("type", "rejected");
+    schema.setValue("reason", reason);
     await this.attestStatus(signer, schema);
 
     this.rejected = new MilestoneCompleted({
       data: {
-        type: 'rejected',
+        type: "rejected",
         reason,
       },
       refUID: this.uid,
@@ -97,7 +98,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
    */
   async revokeRejection(signer: SignerOrProvider) {
     if (!this.rejected)
-      throw new AttestationError('ATTEST_ERROR', 'Milestone is not rejected');
+      throw new AttestationError("ATTEST_ERROR", "Milestone is not rejected");
 
     await this.rejected.schema.multiRevoke(signer, [
       {
@@ -113,15 +114,15 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
    * @param signer
    * @param reason
    */
-  async complete(signer: SignerOrProvider, reason = '') {
-    const schema = GapSchema.find('MilestoneCompleted');
-    schema.setValue('type', 'completed');
-    schema.setValue('reason', reason);
+  async complete(signer: SignerOrProvider, reason = "") {
+    const schema = GapSchema.find("MilestoneCompleted");
+    schema.setValue("type", "completed");
+    schema.setValue("reason", reason);
 
     await this.attestStatus(signer, schema);
     this.completed = new MilestoneCompleted({
       data: {
-        type: 'completed',
+        type: "completed",
         reason,
       },
       refUID: this.uid,
@@ -137,7 +138,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
    */
   async revokeCompletion(signer: SignerOrProvider) {
     if (!this.completed)
-      throw new AttestationError('ATTEST_ERROR', 'Milestone is not completed');
+      throw new AttestationError("ATTEST_ERROR", "Milestone is not completed");
 
     await this.completed.schema.multiRevoke(signer, [
       {
@@ -145,6 +146,45 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
         uid: this.completed.uid,
       },
     ]);
+  }
+
+  /**
+   * Creates the payload for a multi-attestation.
+   *
+   * > if Current payload is set, it'll be used as the base payload
+   * and the project should refer to an index of the current payload,
+   * usually the community position.
+   *
+   * @param payload
+   * @param grantIdx
+   */
+  multiAttestPayload(currentPayload: MultiAttestPayload = [], grantIdx = 0) {
+    this.assertPayload();
+    const payload = [...currentPayload];
+    const milestoneIdx = payload.push([this, this.payloadFor(grantIdx)]) - 1;
+    if (this.completed) {
+      payload.push([this.completed, this.completed.payloadFor(milestoneIdx)]);
+    }
+    return payload.slice(currentPayload.length, payload.length);
+  }
+
+  /**
+   * @inheritdoc
+   */
+  async attest(signer: SignerOrProvider): Promise<void> {
+    this.assertPayload();
+    const payload = this.multiAttestPayload();
+
+    const uids = await GapContract.multiAttest(
+      signer,
+      payload.map((p) => p[1])
+    );
+
+    uids.forEach((uid, index) => {
+      payload[index][0].uid = uid;
+    });
+
+    console.log(uids);
   }
 
   /**
@@ -168,7 +208,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
       console.log(uid);
     } catch (error: any) {
       console.error(error);
-      throw new AttestationError('ATTEST_ERROR', error.message);
+      throw new AttestationError("ATTEST_ERROR", error.message);
     }
   }
 
@@ -179,7 +219,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
         data: {
           ...attestation.data,
         },
-        schema: GapSchema.find('Milestone'),
+        schema: GapSchema.find("Milestone"),
       });
 
       if (attestation.completed) {
@@ -188,7 +228,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
           data: {
             ...attestation.completed.data,
           },
-          schema: GapSchema.find('MilestoneCompleted'),
+          schema: GapSchema.find("MilestoneCompleted"),
         });
       }
 
@@ -198,7 +238,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
           data: {
             ...attestation.completed.data,
           },
-          schema: GapSchema.find('MilestoneCompleted'),
+          schema: GapSchema.find("MilestoneCompleted"),
         });
       }
 
@@ -208,7 +248,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
           data: {
             ...attestation.completed.data,
           },
-          schema: GapSchema.find('MilestoneCompleted'),
+          schema: GapSchema.find("MilestoneCompleted"),
         });
       }
 
