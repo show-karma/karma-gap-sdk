@@ -89,6 +89,16 @@ interface GAPArgs {
          */
         useGasless?: boolean;
     };
+    /**
+     * Specifies an optional IPFS key for uploading project details and other related data.
+     *
+     * This key is used to authenticate with the IPFS storage service, specifically designed for use with "NFT.STORAGE".
+     * Utilizing IPFS (InterPlanetary File System) offers a decentralized solution for storing data, ensuring better
+     * scalability and efficiency compared to sending large amounts of data directly in the attestation body.
+     *
+     * If an IPFS key is not provided, the default storage method will be used.
+     *
+     */
     ipfsKey?: string;
 }
 /**

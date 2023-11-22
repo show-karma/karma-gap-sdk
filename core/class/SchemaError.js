@@ -17,6 +17,7 @@ const SchemaErrorCodes = {
     INVALID_REF_UID: 50013,
     REVOKATION_ERROR: 50014,
     NOT_REVOCABLE: 50015,
+    IPFS_UPLOAD: 50016,
 };
 class SchemaError extends Error {
     constructor(code, append) {

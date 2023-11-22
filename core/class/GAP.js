@@ -101,7 +101,6 @@ class GAP extends types_1.Facade {
         this.assertGelatoOpts(args);
         GAP._gelatoOpts = args.gelatoOpts;
         if (this.assertIPFSOpts(args)) {
-            // args.apiClient = IPFSInterceptor(args.apiClient);
             GAP.ipfsManager = new AttestationIPFS_1.AttestationIPFS(args.ipfsKey);
         }
         this._schemas = schemas.map((schema) => new GapSchema_1.GapSchema(schema, false, args.globalSchemas ? !args.globalSchemas : false));
