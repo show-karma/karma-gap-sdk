@@ -5,6 +5,7 @@ const Attestation_1 = require("../Attestation");
 const GAP_1 = require("../GAP");
 const GapSchema_1 = require("../GapSchema");
 const SchemaError_1 = require("../SchemaError");
+const GapContract_1 = require("../contract/GapContract");
 const attestations_1 = require("../types/attestations");
 class Milestone extends Attestation_1.Attestation {
     /**
@@ -118,6 +119,40 @@ class Milestone extends Attestation_1.Attestation {
                 uid: this.completed.uid,
             },
         ]);
+    }
+    /**
+     * Creates the payload for a multi-attestation.
+     *
+     * > if Current payload is set, it'll be used as the base payload
+     * and the project should refer to an index of the current payload,
+     * usually the community position.
+     *
+     * @param payload
+     * @param grantIdx
+     */
+    async multiAttestPayload(currentPayload = [], grantIdx = 0) {
+        this.assertPayload();
+        const payload = [...currentPayload];
+        const milestoneIdx = payload.push([this, await this.payloadFor(grantIdx)]) - 1;
+        if (this.completed) {
+            payload.push([
+                this.completed,
+                await this.completed.payloadFor(milestoneIdx),
+            ]);
+        }
+        return payload.slice(currentPayload.length, payload.length);
+    }
+    /**
+     * @inheritdoc
+     */
+    async attest(signer) {
+        this.assertPayload();
+        const payload = await this.multiAttestPayload();
+        const uids = await GapContract_1.GapContract.multiAttest(signer, payload.map((p) => p[1]));
+        uids.forEach((uid, index) => {
+            payload[index][0].uid = uid;
+        });
+        console.log(uids);
     }
     /**
      * Attest the status of the milestone as approved, rejected or completed.
