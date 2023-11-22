@@ -24,7 +24,7 @@ export abstract class IPFS {
   }
 
   /**
-  * Encode data using IPFS (CID)
+  * Encode Attestation data using IPFS cid
   */
   protected abstract encode (data: string, storageType: number);
 }
