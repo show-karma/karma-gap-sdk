@@ -32,17 +32,17 @@ export class Community extends Attestation<ICommunity> {
    * @param payload
    * @param refIdx
    */
-  multiAttestPayload() {
-    const payload: MultiAttestPayload = [[this, this.payloadFor(0)]];
+  async multiAttestPayload() {
+    const payload: MultiAttestPayload = [[this, await this.payloadFor(0)]];
 
     if (this.details) {
-      payload.push([this.details, this.details.payloadFor(0)]);
+      payload.push([this.details, await this.details.payloadFor(0)]);
     }
 
     if (this.projects?.length) {
-      this.projects.forEach((p) => {
-        payload.push(...p.multiAttestPayload(payload, 0));
-      });
+      await Promise.all(
+        this.projects.map(async (p) =>  payload.push(...(await p.multiAttestPayload(payload, 0))))
+      )
     }
 
     return payload;
