@@ -5,25 +5,20 @@
 1. [What is GAP SDK?](#1-what-is-gap-sdk)
 2. [Architecture](#2-architecture)
 3. [Getting started](#3-getting-started)
-4. [Getting attestations](#4-getting-attestations)
-5. [Attesting data in a Frontend](#5-attesting-data-in-a-frontend)
-6. [Attesting data in a Backend](#6-attesting-data-in-a-backend)
+4. [Fetching Entities](#4-getting-attestations)
+5. [Creating entities in the Frontend](#5-attesting-data-in-a-frontend)
+6. [Creating entities in the Backend](#6-attesting-data-in-a-backend)
 7. [Gasless transactions with Gelato](#7-gasless-transactions-with-gelato)
 8. [Speed up requests with a Custom API](#8-custom-api)
 
 ## 1. What is GAP SDK?
 
-The GAP SDK is a tool that provides ease of use when working with the [accountability protocol](https://gap.karmahq.xyz). Its core is developed to support customization\* and flexibility.
+The GAP SDK is a library for easy integration with [Grantee Accountability Protocol](https://gap.karmahq.xyz). Using this library, you will be able to:
 
-Through this tool, you will be able to:
-
-- Get and display Communities, Projects, Members, Grants, Milestones, and all of their dependencies.
-- Perform attestations for all of the above.
-- Execute revocations for all of the above.
+- Fetch and display Communities, Projects, Members, Grants, Milestones, and all of their dependencies.
+- Create, update and delete all of the above.
 - Utilize gasless transactions with [Gelato Relay](https://relay.gelato.network).
-- Harness a custom API to expedite requests, as it adheres to the defined parameters.
-
-> \* We are currently working on enhancing the ability to customize this API through tools that facilitate the modification of parameters. This feature may appear confusing if you attempt to modify certain parameters, such as default schemas and contracts, at the moment.
+- Utilize custom API endpoints to speed up queries instead of accessing data onchain through RPC end points.
 
 ## 2. Architecture
 
@@ -45,13 +40,13 @@ Here's an example of how all these modules work together when retrieving Project
 
 ![img](docs/images/dfd-get-projects.png)
 
-In this diagram, you can already discern the benefits of using a Custom API to obtain data from the network and construct your own indexer, as opposed to relying on EAS's GraphQL API. We will delve into this further in [Chapter 8](#8-custom-api).
+In this diagram, you can already discern the benefits of using a Custom API to obtain data from the network and construct your own indexer, as opposed to relying on EAS's GraphQL API. We will delve into this further in [Section 8](#8-custom-api).
 
 > **Note**: GAP currently does not fully support multichain, and creating more than one instance can result in unexpected errors when using the fetcher. This feature is currently under development.
 
 ### Attestations
 
-Attestations are categorized into various types of entities to establish a relationship between them and enable users to modify their attestation details without losing references to the main attestation. As a result, entities like community, project, grant, and members require two attestations: the first defines the entity, and the second defines its details. Due to this structure, all these entities will include a `details` property that contains all the data inserted into that attestation. For example:
+All the data in the protocol is stored as attestations using [EAS](https://attest.sh). Attestations are categorized into various types of entities to establish a relationship between them and enable users to modify their attestation details without losing references to the main attestation. As a result, entities like community, project, grant, and members require two attestations: the first defines the entity, and the second defines its details. Due to this structure, all these entities will include a `details` property that contains all the data inserted into that attestation. For example:
 
 ```ts
 import { Project } from '@show-karma/karma-gap-sdk';
@@ -87,8 +82,8 @@ import { GAP } from '@show-karma/karma-gap-sdk';
 
 const gap = GAP.createClient({
   network: 'optimism-goerli', // sepolia, optimism,
-  // apiClient: custom api client, see it on Chap. 8;
-  // gelatoOpts: for gasless transactions, see it on Chap. 7;
+  // apiClient: custom api client, see Section 8;
+  // gelatoOpts: for gasless transactions, see Section 7;
 });
 
 export default gap;
@@ -109,7 +104,7 @@ export class MyCustomApiClient extends Fetcher {
 }
 ```
 
-[..] Then you can use it on GapClient. More details about how to implement a custom fetcher on [Chapter 8](#8-custom-api).
+[..] Then you can use it on GapClient. More details about how to implement a custom fetcher on [Section 8](#8-custom-api).
 
 ```ts
 // gap.client.ts;
@@ -120,6 +115,8 @@ const gap = GAP.createClient({
   network: 'optimism-goerli', // sepolia, optimism,
   apiClient: new MyCustomApiClient('https://my-custom-api.mydomain.com'),
   // gelatoOpts: for gasless transactions, see it on Chap. 7;
+  // ipfsKey: for cheaper attestations;
+
 });
 
 export default gap;
@@ -127,9 +124,12 @@ export default gap;
 
 The `gelatoOpts` option is used when developers aim to provide gasless transactions for a better user experience. For more details about this feature, please refer to [Chapter 7](#7-gasless-transactions-with-gelato).
 
-## 4. Getting Attestations
+The `ipfsKey` is utilized to upload a project's data to the InterPlanetary File System (IPFS) and then include the resulting IPFS hash in the body of the Attestation. This approach is advantageous because it significantly reduces the size of the Attestation body. By storing the bulk of data on IPFS—a decentralized storage solution—and referencing it via a hash, the overall cost of creating and sending Attestations is reduced, making the process more efficient and cost-effective.
 
-After initializing the GAP client, you are now able to fetch attestations available within this project, including:
+
+## 4. Fetching Entities
+
+After initializing the GAP client, you are now able to fetch entities available including:
 
 - Communities
 - Projects
@@ -139,7 +139,7 @@ After initializing the GAP client, you are now able to fetch attestations availa
 - Milestones
 - Milestone updates
 
-Indeed, you can retrieve all available attestations, but we provide methods primarily for the higher-level attestations, as this aligns with the intended behavior. When examining the `Fetcher` interface, you can:
+Indeed, you can retrieve all available entities, but we provide methods primarily for the higher-level entities, as this aligns with the intended behavior. When examining the `Fetcher` interface, you can:
 
 - Retrieve communities along with their related grants.
 - Obtain projects, which will contain related members and grants. Note that grants will include related updates and milestones, and milestones will also include their updates.
@@ -169,9 +169,9 @@ gap.fetch
   });
 ```
 
-## 5. Attesting Data in a Frontend
+## 5. Creating entities in the Frontend
 
-Attesting data using the GAP SDK is quite straightforward. Developers only need to define what they want to attest, and we provide facilities for this module. To avoid frequent wallet pop-ups for individual entity attestations, we've developed a special contract that handles multiple attestations and their relationships. This means you can transact once and attest multiple times. Let's walk through an example:
+Creating entities (by adding attestations) using the GAP SDK is quite straightforward. Developers only need to define what they want to attest, and we provide facilities for this module. To avoid frequent wallet pop-ups for individual entity attestations, we've developed a special contract that handles multiple attestations and their relationships. This means you can transact once and attest multiple times. Let's walk through an example:
 
 Suppose a user wants to create a project, and this project will include:
 
@@ -412,9 +412,9 @@ export const MyComponent: React.FC = () => {
 
 Following any type of attestation, the SDK will associate UIDs with the objects, making them accessible after the attestation is completed. For instance, if you perform the project attestation with all its dependents, you can retrieve the attestation UID of the project, its details, grants, milestones, and so on.
 
-### Revoking an attestation
+### Deleting an entity
 
-Since every object returned by the Fetcher is also an Attestation, to revoke any attestation, the developer simply needs to call attestation.revoke.
+Since every object returned by the Fetcher is also an Attestation, to delete an entitye, you just have to revoke the attestation by calling attestation.revoke.
 
 ```ts
 // revoke-project.ts
@@ -469,9 +469,9 @@ export async function updateProjectDetails(
 
 > Note that you cannot update Milestone without losing all of its references.
 
-## 6. Attesting data in a Backend
+## 6. Create entities in a Backend
 
-To attest data in the backend, follow the same content as provided in [Chapter 5](#5-attesting-data-in-a-frontend). The only distinction between them is that in the backend, you'll need to instantiate an `ethers.js` wallet at runtime to sign attestations.
+To create entities in the backend, follow the same content as provided in [Section 5](#5-attesting-data-in-a-frontend). The only distinction between them is that in the backend, you'll need to instantiate an `ethers.js` wallet at runtime to sign attestations.
 
 ```ts
 import { gap } from 'gap-client';
@@ -839,3 +839,6 @@ export default gap;
 ```
 
 > Note that your API service should return data that aligns with the interfaces provided by each Attestation for proper compatibility with this SDK. This ensures that the data is structured correctly to work seamlessly with the SDK.
+
+## Contact Us
+If you have any questions on SDK usage, join our discord to get help: https://discord.com/invite/X4fwgzPReJ

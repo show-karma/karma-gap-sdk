@@ -282,6 +282,9 @@ export abstract class Schema<T extends string = string>
 
   /**
    * Attest for a schema.
+   * 
+   * if "ipfsKey" is enabled, the data will be upload in the IPFS and the CID will be in the Attestation Body.
+   * 
    * @param param0
    * @returns
    */
@@ -295,6 +298,13 @@ export abstract class Schema<T extends string = string>
       );
 
     if (this.isJsonSchema()) {
+      const ipfsManager = GAP.ipfs;
+      if(ipfsManager){
+        const ipfsHash = await ipfsManager.save(data);
+        const encodedData = ipfsManager.encode(ipfsHash, 0);
+        data = encodedData as T;
+      }
+
       this.setValue("json", JSON.stringify(data));
     } else {
       Object.entries(data).forEach(([key, value]) => {
