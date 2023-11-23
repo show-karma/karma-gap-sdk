@@ -13,7 +13,6 @@ const consts_1 = require("../consts");
 const ethers_1 = require("ethers");
 const MultiAttester_json_1 = __importDefault(require("../abi/MultiAttester.json"));
 const package_json_1 = require("../../package.json");
-const AttestationIPFS_1 = require("./AttestationIPFS");
 /**
  * GAP SDK Facade.
  *
@@ -80,13 +79,13 @@ class GAP extends types_1.Facade {
         this.generateSlug = async (text) => {
             let slug = text
                 .toLowerCase()
-                .replace(/ /g, "-")
-                .replace(/[^\w-]+/g, "");
+                .replace(/ /g, '-')
+                .replace(/[^\w-]+/g, '');
             const slugExists = await this.fetch.slugExists(slug);
             if (slugExists) {
-                const parts = slug.split("-");
+                const parts = slug.split('-');
                 const counter = parts.pop();
-                slug = /\d+/g.test(counter) ? parts.join("-") : slug;
+                slug = /\d+/g.test(counter) ? parts.join('-') : slug;
                 // eslint-disable-next-line no-param-reassign
                 const nextSlug = `${slug}-${counter && /\d+/g.test(counter) ? +counter + 1 : 1}`;
                 console.log({ nextSlug, counter, slug });
@@ -100,9 +99,7 @@ class GAP extends types_1.Facade {
         this.fetch = args.apiClient || new GapEasClient_1.GapEasClient({ network: args.network });
         this.assertGelatoOpts(args);
         GAP._gelatoOpts = args.gelatoOpts;
-        if (this.assertIPFSOpts(args)) {
-            GAP.ipfsManager = new AttestationIPFS_1.AttestationIPFS(args.ipfsKey);
-        }
+        GAP.remoteStorage = args.remoteStorage;
         this._schemas = schemas.map((schema) => new GapSchema_1.GapSchema(schema, false, args.globalSchemas ? !args.globalSchemas : false));
         Schema_1.Schema.validate();
         console.info(`Loaded GAP SDK v${package_json_1.version}`);
@@ -110,25 +107,19 @@ class GAP extends types_1.Facade {
     assertGelatoOpts(args) {
         if (args.gelatoOpts &&
             !(args.gelatoOpts.sponsorUrl || args.gelatoOpts.apiKey)) {
-            throw new Error("You must provide a `sponsorUrl` or an `apiKey`.");
+            throw new Error('You must provide a `sponsorUrl` or an `apiKey`.');
         }
         if (args.gelatoOpts?.sponsorUrl &&
             args.gelatoOpts?.contained &&
             !args.gelatoOpts.env_gelatoApiKey) {
-            throw new Error("You must provide `env_gelatoApiKey` to be able to use it in a backend handler.");
+            throw new Error('You must provide `env_gelatoApiKey` to be able to use it in a backend handler.');
         }
         if ((args.gelatoOpts?.env_gelatoApiKey ||
             args.gelatoOpts?.apiKey ||
             args.gelatoOpts?.sponsorUrl) &&
             !args.gelatoOpts?.useGasless) {
-            console.warn("GAP::You are using gelatoOpts but not setting useGasless to true. This will send transactions through the normal provider.");
+            console.warn('GAP::You are using gelatoOpts but not setting useGasless to true. This will send transactions through the normal provider.');
         }
-    }
-    assertIPFSOpts(args) {
-        if (!args.ipfsKey) {
-            return false;
-        }
-        return true;
     }
     /**
      * Creates the attestation payload using a specific schema.
@@ -186,11 +177,11 @@ class GAP extends types_1.Facade {
      * and an API key is needed.
      */
     static set gelatoOpts(gelatoOpts) {
-        if (typeof this._gelatoOpts === "undefined") {
+        if (typeof this._gelatoOpts === 'undefined') {
             this._gelatoOpts = gelatoOpts;
         }
         else {
-            throw new Error("Cannot change a readonly value gelatoOpts.");
+            throw new Error('Cannot change a readonly value gelatoOpts.');
         }
     }
     /**
@@ -207,12 +198,12 @@ class GAP extends types_1.Facade {
             !this._gelatoOpts?.apiKey &&
             !this._gelatoOpts?.sponsorUrl &&
             !this._gelatoOpts?.env_gelatoApiKey) {
-            throw new Error("You must provide a `sponsorUrl` or an `apiKey` before using gasless transactions.");
+            throw new Error('You must provide a `sponsorUrl` or an `apiKey` before using gasless transactions.');
         }
         this._gelatoOpts.useGasless = useGasLess;
     }
-    static get ipfs() {
-        return this.ipfsManager;
+    static get remoteClient() {
+        return this.remoteStorage;
     }
 }
 exports.GAP = GAP;

@@ -20,4 +20,7 @@ __exportStar(require("./GapSchema"), exports);
 __exportStar(require("./Schema"), exports);
 __exportStar(require("./SchemaError"), exports);
 __exportStar(require("./entities"), exports);
+__exportStar(require("./Fetcher"), exports);
 __exportStar(require("./karma-indexer/GapIndexerClient"), exports);
+__exportStar(require("./remote-storage/IpfsStorage"), exports);
+__exportStar(require("./remote-storage/RemoteStorage"), exports);

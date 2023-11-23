@@ -14,7 +14,7 @@ declare const SchemaErrorCodes: {
     INVALID_REF_UID: number;
     REVOKATION_ERROR: number;
     NOT_REVOCABLE: number;
-    IPFS_UPLOAD: number;
+    REMOTE_STORAGE_UPLOAD: number;
 };
 export declare class SchemaError extends Error {
     readonly code: number;
@@ -23,5 +23,7 @@ export declare class SchemaError extends Error {
     get message(): string;
 }
 export declare class AttestationError extends SchemaError {
+}
+export declare class RemoteStorageError extends SchemaError {
 }
 export {};
