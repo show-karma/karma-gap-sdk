@@ -14,7 +14,7 @@ const SchemaErrorCodes = {
   INVALID_REF_UID: 50013,
   REVOKATION_ERROR: 50014,
   NOT_REVOCABLE: 50015,
-  IPFS_UPLOAD: 50016,
+  REMOTE_STORAGE_UPLOAD: 50016,
 };
 
 export class SchemaError extends Error {
@@ -22,8 +22,8 @@ export class SchemaError extends Error {
   private readonly _message: string;
 
   constructor(code: keyof typeof SchemaErrorCodes, append?: string) {
-    super(`${code}${append ? `: ${append}` : ""}`);
-    this._message = append || code.replace(/_/g, " ");
+    super(`${code}${append ? `: ${append}` : ''}`);
+    this._message = append || code.replace(/_/g, ' ');
     this.code = SchemaErrorCodes[code];
   }
 
@@ -33,3 +33,4 @@ export class SchemaError extends Error {
 }
 
 export class AttestationError extends SchemaError {}
+export class RemoteStorageError extends SchemaError {}

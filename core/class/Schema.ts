@@ -4,7 +4,7 @@ import {
   SchemaEncoder,
   SchemaItem,
   SchemaValue,
-} from "@ethereum-attestation-service/eas-sdk";
+} from '@ethereum-attestation-service/eas-sdk';
 import {
   AttestArgs,
   Hex,
@@ -14,13 +14,13 @@ import {
   SignerOrProvider,
   RawMultiAttestPayload,
   RawAttestationPayload,
-} from "../types";
-import { AttestationError, SchemaError } from "./SchemaError";
-import { ethers } from "ethers";
-import { useDefaultAttestation, zeroAddress } from "../consts";
-import { GAP } from "./GAP";
-import { Attestation } from "./Attestation";
-import { GapContract } from "./contract/GapContract";
+} from '../types';
+import { AttestationError, SchemaError } from './SchemaError';
+import { ethers } from 'ethers';
+import { useDefaultAttestation, zeroAddress } from '../consts';
+import { GAP } from './GAP';
+import { Attestation } from './Attestation';
+import { GapContract } from './contract/GapContract';
 
 /**
  * Represents the EAS Schema and provides methods to encode and decode the schema,
@@ -136,7 +136,7 @@ export abstract class Schema<T extends string = string>
     const idx = this._schema.findIndex((item) => item.name === key);
     if (!~idx)
       throw new SchemaError(
-        "INVALID_SCHEMA_FIELD",
+        'INVALID_SCHEMA_FIELD',
         `Field ${key} not found in schema ${this.name}`
       );
 
@@ -150,61 +150,61 @@ export abstract class Schema<T extends string = string>
    * @returns boolean
    */
   isJsonSchema() {
-    return !!this.schema.find((s) => s.name === "json" && s.type === "string");
+    return !!this.schema.find((s) => s.name === 'json' && s.type === 'string');
   }
 
   private assertField(item: SchemaItem, value: any) {
     const { type, name } = item;
 
-    if (type.includes("uint") && /\D/.test(value)) {
+    if (type.includes('uint') && /\D/.test(value)) {
       throw new SchemaError(
-        "INVALID_SCHEMA_FIELD",
+        'INVALID_SCHEMA_FIELD',
         `Field ${name} is of type ${type} but value is not a number.`
       );
     }
 
     if (
-      type.includes("address") &&
+      type.includes('address') &&
       !ethers.utils.isAddress(value) &&
       value !== zeroAddress
     ) {
       throw new SchemaError(
-        "INVALID_SCHEMA_FIELD",
+        'INVALID_SCHEMA_FIELD',
         `Field ${name} is of type ${type} but value is not a valid address.`
       );
     }
 
-    if (type.includes("bytes") && !value.startsWith("0x")) {
+    if (type.includes('bytes') && !value.startsWith('0x')) {
       throw new SchemaError(
-        "INVALID_SCHEMA_FIELD",
+        'INVALID_SCHEMA_FIELD',
         `Field ${name} is of type ${type} but value is not a valid hex string.`
       );
     }
 
     if (
-      type.includes("bool") &&
-      (!["true", "false", true, false].includes(value) ||
-        typeof value !== "boolean")
+      type.includes('bool') &&
+      (!['true', 'false', true, false].includes(value) ||
+        typeof value !== 'boolean')
     ) {
       throw new SchemaError(
-        "INVALID_SCHEMA_FIELD",
+        'INVALID_SCHEMA_FIELD',
         `Field ${name} is of type ${type} but value is not a valid boolean.`
       );
     }
 
-    if (type.includes("tuple") && !Array.isArray(value)) {
+    if (type.includes('tuple') && !Array.isArray(value)) {
       throw new SchemaError(
-        "INVALID_SCHEMA_FIELD",
+        'INVALID_SCHEMA_FIELD',
         `Field ${name} is of type ${type} but value is not a valid array.`
       );
     }
 
-    if (type === "string" && name === "json") {
+    if (type === 'string' && name === 'json') {
       try {
         JSON.parse(value);
       } catch (error) {
         throw new SchemaError(
-          "INVALID_SCHEMA_FIELD",
+          'INVALID_SCHEMA_FIELD',
           `Field ${name} is of type ${type} but value is not a valid JSON string.`
         );
       }
@@ -220,11 +220,11 @@ export abstract class Schema<T extends string = string>
     const { name, schema, uid, references } = args;
 
     if (!name) {
-      throw new SchemaError("MISSING_FIELD", "Schema name is required");
+      throw new SchemaError('MISSING_FIELD', 'Schema name is required');
     }
 
     if (!schema && !Array.isArray(schema)) {
-      throw new SchemaError("MISSING_FIELD", "Schema must be an array.");
+      throw new SchemaError('MISSING_FIELD', 'Schema must be an array.');
     }
 
     // if (!uid) {
@@ -233,7 +233,7 @@ export abstract class Schema<T extends string = string>
 
     if (strict && references && !Schema.exists(references)) {
       throw new SchemaError(
-        "INVALID_REFERENCE",
+        'INVALID_REFERENCE',
         `Schema ${name} references ${references} but it does not exist.`
       );
     }
@@ -283,14 +283,14 @@ export abstract class Schema<T extends string = string>
   /**
    * Validates and attests a given schema.
    *
-   * This function checks a schema against predefined standards or rules. If the 'ipfsKey' parameter is enabled, 
-   * it uploads the data to the IPFS (InterPlanetary File System). Upon successful upload, the function 
+   * This function checks a schema against predefined standards or rules. If the 'ipfsKey' parameter is enabled,
+   * it uploads the data to the IPFS (InterPlanetary File System). Upon successful upload, the function
    * returns the CID (Content Identifier) within the Attestation Body, providing a reference to the data on IPFS.
    *
    * Usage:
    * - Ensure that the schema to be attested conforms to the required format.
    * - Enable 'ipfsKey' if you wish to store the data on IPFS and retrieve its CID.
-   * 
+   *
    * @param {Object} param0 - An object containing the schema and other optional settings.
    * @returns {Object} An object containing the attestation results, including the CID if 'ipfsKey' is enabled.
    */
@@ -299,19 +299,19 @@ export abstract class Schema<T extends string = string>
 
     if (this.references && !refUID)
       throw new AttestationError(
-        "INVALID_REFERENCE",
-        "Attestation schema references another schema but no reference UID was provided."
+        'INVALID_REFERENCE',
+        'Attestation schema references another schema but no reference UID was provided.'
       );
 
     if (this.isJsonSchema()) {
-      const ipfsManager = GAP.ipfs;
-      if(ipfsManager){
-        const ipfsHash = await ipfsManager.save(data);
-        const encodedData = ipfsManager.encode(ipfsHash, 0);
+      const { remoteClient } = GAP;
+      if (remoteClient) {
+        const cid = await remoteClient.save(data, this.name);
+        const encodedData = remoteClient.encode(cid);
         data = encodedData as T;
       }
 
-      this.setValue("json", JSON.stringify(data));
+      this.setValue('json', JSON.stringify(data));
     } else {
       Object.entries(data).forEach(([key, value]) => {
         this.setValue(key, value);
@@ -364,7 +364,7 @@ export abstract class Schema<T extends string = string>
     entities.forEach((entity) => {
       if (this.references && !entity.refUID)
         throw new SchemaError(
-          "INVALID_REF_UID",
+          'INVALID_REF_UID',
           `Entity ${entity.schema.name} references another schema but no reference UID was provided.`
         );
     });
@@ -441,7 +441,7 @@ export abstract class Schema<T extends string = string>
       if (!this.exists(schema.name)) this.schemas.push(schema);
       else
         throw new SchemaError(
-          "SCHEMA_ALREADY_EXISTS",
+          'SCHEMA_ALREADY_EXISTS',
           `Schema ${schema.name} already exists.`
         );
     });
@@ -458,7 +458,7 @@ export abstract class Schema<T extends string = string>
 
     if (!schema)
       throw new SchemaError(
-        "SCHEMA_NOT_FOUND",
+        'SCHEMA_NOT_FOUND',
         `Schema ${name} not found. Available schemas: ${Schema.getNames()}`
       );
 
@@ -491,7 +491,7 @@ export abstract class Schema<T extends string = string>
       else
         errors.push(
           new SchemaError(
-            "INVALID_REFERENCE",
+            'INVALID_REFERENCE',
             `Schema ${schema.name} references ${schema.references} but it does not exist.`
           )
         );
@@ -517,7 +517,7 @@ export abstract class Schema<T extends string = string>
     const idx = this.schemas.findIndex((item) => schema.name === item.name);
     if (!~idx)
       throw new SchemaError(
-        "SCHEMA_NOT_FOUND",
+        'SCHEMA_NOT_FOUND',
         `Schema ${schema.name} not found.`
       );
 
@@ -536,9 +536,9 @@ export abstract class Schema<T extends string = string>
    * @returns
    */
   static rawToObject(abi: string) {
-    const items = abi.trim().replace(/,\s+/gim, ",").split(",");
+    const items = abi.trim().replace(/,\s+/gim, ',').split(',');
     const schema: SchemaItem[] = items.map((item) => {
-      const [type, name] = item.split(" ");
+      const [type, name] = item.split(' ');
       return { type, name, value: null };
     });
 
@@ -554,7 +554,7 @@ export abstract class Schema<T extends string = string>
    * ```
    */
   get raw() {
-    return this.schema.map((item) => `${item.type} ${item.name}`).join(",");
+    return this.schema.map((item) => `${item.type} ${item.name}`).join(',');
   }
 
   get schema() {
