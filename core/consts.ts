@@ -116,7 +116,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       MilestoneCompleted:
         '0xf544fbd9721ac50863d32dc0eed5992051e7fb270b38ab2ce062327cc0ae26ea',
       Project:
-        '0xec77990a252b54b17673955c774b9712766de5eecb22ca5aa2c440e0e93257fb',
+        '0xc427dc7a06c53800a8e9d1e5769efd68be633834d3feff0137b54efdf00da61b',
     },
   },
   // arbitrum: {
