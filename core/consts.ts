@@ -97,7 +97,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       eas: '0x4200000000000000000000000000000000000021',
       schema: '0x4200000000000000000000000000000000000020',
       multicall: '0x4F9CAE59824021f704D7D4eBF3ADEAc44767ED05', //proxy,
-      projectResolver: '0xf66D9b6559279e4c39cD652c77AD7864ffc2a344',
+      projectResolver: '0x633ce8ddC0F0eA4D51dbaCa6Ef1AEFD82dCEB370',
     },
     schemas: {
       Community:
