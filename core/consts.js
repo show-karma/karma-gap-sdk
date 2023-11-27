@@ -81,7 +81,7 @@ exports.Networks = {
             eas: '0x4200000000000000000000000000000000000021',
             schema: '0x4200000000000000000000000000000000000020',
             multicall: '0x4F9CAE59824021f704D7D4eBF3ADEAc44767ED05',
-            projectResolver: '0x1bff3D65F1F88CCa1D5Db35c31340949946093a0',
+            projectResolver: '0x0d63f7820d97C12139d60791BC9996f6Fe2b9C85',
         },
         schemas: {
             Community: '0xc1aade58410b3fd807c19845181996721248459c5f042284f27d21cec12a38d1',
@@ -92,7 +92,7 @@ exports.Networks = {
             MemberOf: '0x78c811e506849d414a91a56dab91f07f7ed108f0bf27f550796f13e7bb2e2f2d',
             MilestoneApproved: '0xf544fbd9721ac50863d32dc0eed5992051e7fb270b38ab2ce062327cc0ae26ea',
             MilestoneCompleted: '0xf544fbd9721ac50863d32dc0eed5992051e7fb270b38ab2ce062327cc0ae26ea',
-            Project: '0x796b8f9cbc91df78ef69ca6617bd8b43ce2952cf381fe42a0ec02aec7edb17d3',
+            Project: '0x7a5ada362eb509782600167c2cba7117c3f146515282767a534863d01a870f13',
         },
     },
     // arbitrum: {
