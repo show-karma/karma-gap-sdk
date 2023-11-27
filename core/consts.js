@@ -92,7 +92,7 @@ exports.Networks = {
             MemberOf: '0x78c811e506849d414a91a56dab91f07f7ed108f0bf27f550796f13e7bb2e2f2d',
             MilestoneApproved: '0xf544fbd9721ac50863d32dc0eed5992051e7fb270b38ab2ce062327cc0ae26ea',
             MilestoneCompleted: '0xf544fbd9721ac50863d32dc0eed5992051e7fb270b38ab2ce062327cc0ae26ea',
-            Project: '0xc427dc7a06c53800a8e9d1e5769efd68be633834d3feff0137b54efdf00da61b',
+            Project: '0x796b8f9cbc91df78ef69ca6617bd8b43ce2952cf381fe42a0ec02aec7edb17d3',
         },
     },
     // arbitrum: {
