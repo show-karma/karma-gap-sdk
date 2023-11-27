@@ -17,7 +17,7 @@ import { MountEntities, Networks } from '../consts';
 import { ethers } from 'ethers';
 import { version } from '../../package.json';
 import { Fetcher } from './Fetcher';
-import { AttestationIPFS } from './AttestationIPFS';
+import { RemoteStorage } from './remote-storage/RemoteStorage';
 
 interface GAPArgs {
   network: TNetwork;
@@ -105,18 +105,12 @@ interface GAPArgs {
      */
     useGasless?: boolean;
   };
-
   /**
-   * Specifies an optional IPFS key for uploading project details and other related data.
-   *
-   * This key is used to authenticate with the IPFS storage service, specifically designed for use with "NFT.STORAGE".
-   * Utilizing IPFS (InterPlanetary File System) offers a decentralized solution for storing data, ensuring better
-   * scalability and efficiency compared to sending large amounts of data directly in the attestation body.
-   *
-   * If an IPFS key is not provided, the default storage method will be used.
-   *
+   * Defines a remote storage client to be used to store data.
+   * If defined, all the details data from an attestation will
+   * be stored in the remote storage, e.g. IPFS.
    */
-  ipfsKey?: string;
+  remoteStorage?: RemoteStorage;
 }
 
 /**
@@ -176,7 +170,7 @@ interface GAPArgs {
  */
 export class GAP extends Facade {
   private static client: GAP;
-  private static ipfsManager: AttestationIPFS;
+  private static remoteStorage?: RemoteStorage;
 
   readonly fetch: Fetcher;
   readonly network: TNetwork;
@@ -199,9 +193,7 @@ export class GAP extends Facade {
     this.assertGelatoOpts(args);
     GAP._gelatoOpts = args.gelatoOpts;
 
-    if (this.assertIPFSOpts(args)) {
-      GAP.ipfsManager = new AttestationIPFS(args.ipfsKey);
-    }
+    GAP.remoteStorage = args.remoteStorage;
 
     this._schemas = schemas.map(
       (schema) =>
@@ -244,14 +236,6 @@ export class GAP extends Facade {
         'GAP::You are using gelatoOpts but not setting useGasless to true. This will send transactions through the normal provider.'
       );
     }
-  }
-
-  private assertIPFSOpts(args: GAPArgs): boolean {
-    if (!args.ipfsKey) {
-      return false;
-    }
-
-    return true;
   }
 
   /**
@@ -382,7 +366,7 @@ export class GAP extends Facade {
     this._gelatoOpts.useGasless = useGasLess;
   }
 
-  static get ipfs() {
-    return this.ipfsManager;
+  static get remoteClient() {
+    return this.remoteStorage;
   }
 }

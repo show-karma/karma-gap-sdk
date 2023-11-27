@@ -168,3 +168,18 @@ export interface SchemaRes {
     attestations: IAttestation[];
   };
 }
+
+/**
+ * Valid remote storage types
+ */
+export const enum STORAGE_TYPE {
+  IPFS = 0,
+  ARWEAVE = 1,
+  SWARM = 2,
+  UNKNOWN = 3,
+}
+
+export type TRemoteStorageOutput<T = unknown> = {
+  hash: T;
+  storageType: number;
+};
