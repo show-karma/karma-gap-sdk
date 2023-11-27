@@ -81,7 +81,7 @@ exports.Networks = {
             eas: '0x4200000000000000000000000000000000000021',
             schema: '0x4200000000000000000000000000000000000020',
             multicall: '0x4F9CAE59824021f704D7D4eBF3ADEAc44767ED05',
-            projectResolver: '0x633ce8ddC0F0eA4D51dbaCa6Ef1AEFD82dCEB370',
+            projectResolver: '0x0d63f7820d97C12139d60791BC9996f6Fe2b9C85',
         },
         schemas: {
             Community: '0xc1aade58410b3fd807c19845181996721248459c5f042284f27d21cec12a38d1',
