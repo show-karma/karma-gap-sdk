@@ -29,7 +29,7 @@ export interface AttestArgs<T = unknown> {
 export type TSchemaName = 'Community' | 'CommunityDetails' | 'Grant' | 'GrantDetails' | 'GrantVerified' | 'MemberOf' | 'MemberDetails' | 'Milestone' | 'MilestoneCompleted' | 'MilestoneApproved' | 'Project' | 'ProjectDetails' | 'Details';
 export type TResolvedSchemaNames = 'Community' | 'Grant' | 'GrantVerified' | 'MemberOf' | 'MilestoneCompleted' | 'MilestoneApproved' | 'Project' | 'Details';
 export type TExternalLink = 'twitter' | 'github' | 'website' | 'linkedin' | 'discord';
-export type TNetwork = 'optimism' | 'optimism-goerli' | 'sepolia';
+export type TNetwork = 'optimism' | 'optimism-goerli';
 /**
  * Generic GAP Facade interface.
  * This supplies the GAP class with the necessary properties.
@@ -65,6 +65,7 @@ export interface EASNetworkConfig {
         eas: Hex;
         schema: Hex;
         multicall: Hex;
+        projectResolver: Hex;
     };
     /**
      * A tuple containing the schema name and it's UID for that network

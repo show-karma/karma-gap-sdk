@@ -1,4 +1,4 @@
-import { EASNetworkConfig, SchemaInterface, TNetwork, TSchemaName } from "./types";
+import { EASNetworkConfig, SchemaInterface, TNetwork, TSchemaName } from './types';
 /**
  * Schemas that should use default EAS attestation
  * instead of the custom contract.
