@@ -8,15 +8,14 @@ import {
 } from '../types';
 import { Schema } from './Schema';
 import { GapSchema } from './GapSchema';
-import { GapEasClient } from './GraphQL/GapEasClient';
 import { EAS } from '@ethereum-attestation-service/eas-sdk';
 import { MountEntities, Networks } from '../consts';
 import { ethers } from 'ethers';
 import MulticallABI from '../abi/MultiAttester.json';
 import { version } from '../../package.json';
 import { Fetcher } from './Fetcher';
-import { IpfsStorage } from './remote-storage/IpfsStorage';
 import { RemoteStorage } from './remote-storage/RemoteStorage';
+import { GapEasClient } from './GraphQL';
 
 interface GAPArgs {
   network: TNetwork;
@@ -168,7 +167,7 @@ interface GAPArgs {
  * ```
  */
 export class GAP extends Facade {
-  private static client: GAP;
+  private client: GAP;
   private static remoteStorage?: RemoteStorage;
 
   readonly fetch: Fetcher;
@@ -185,9 +184,15 @@ export class GAP extends Facade {
 
     this.network = args.network;
 
-    GAP._eas = new EAS(Networks[args.network].contracts.eas);
+    this._eas = new EAS(Networks[args.network].contracts.eas);
 
-    this.fetch = args.apiClient || new GapEasClient({ network: args.network });
+    this.fetch =
+      args.apiClient ||
+      new GapEasClient({
+        network: args.network,
+      });
+
+    this.fetch.gapInstance = this;
 
     this.assertGelatoOpts(args);
     GAP._gelatoOpts = args.gelatoOpts;
@@ -198,11 +203,13 @@ export class GAP extends Facade {
       (schema) =>
         new GapSchema(
           schema,
+          this,
           false,
           args.globalSchemas ? !args.globalSchemas : false
         )
     );
-    Schema.validate();
+
+    Schema.validate(this.network);
 
     console.info(`Loaded GAP SDK v${version}`);
   }
@@ -245,7 +252,7 @@ export class GAP extends Facade {
    * @param schema
    */
   async attest<T>(attestation: AttestArgs<T> & { schemaName: TSchemaName }) {
-    const schema = GapSchema.find(attestation.schemaName);
+    const schema = GapSchema.find(attestation.schemaName, this.network);
     return schema.attest(attestation);
   }
 
@@ -254,7 +261,7 @@ export class GAP extends Facade {
    * @param schemas
    */
   replaceSchemas(schemas: GapSchema[]) {
-    Schema.replaceAll(schemas);
+    Schema.replaceAll(schemas, this.network);
   }
 
   /**
@@ -262,7 +269,7 @@ export class GAP extends Facade {
    * @throws {SchemaError} if desired schema name does not exist.
    */
   replaceSingleSchema(schema: GapSchema) {
-    Schema.replaceOne(schema);
+    Schema.replaceOne(schema, this.network);
   }
 
   /**
@@ -293,24 +300,38 @@ export class GAP extends Facade {
   };
 
   /**
-   * Creates or returns an existing GAP client.
-   *
-   * _Use the constructor only if multiple clients are needed._
-   * @static
-   * @param {GAPArgs} args
+   * Returns a copy of the original schema with no pointers.
+   * @param name
    * @returns
    */
-  static createClient(args: GAPArgs) {
-    if (!this.client) this.client = new this(args);
-    return this.client;
+  findSchema(name: TSchemaName): GapSchema {
+    const found = Schema.get<TSchemaName, GapSchema>(name, this.network);
+    return GapSchema.clone(found);
+  }
+
+  /**
+   * Find many schemas by name and return their copies as an array in the same order.
+   * @param names
+   * @returns
+   */
+  findManySchemas(names: TSchemaName[]): GapSchema[] {
+    const schemas = Schema.getMany<TSchemaName, GapSchema>(names, this.network);
+    return schemas.map((s) => GapSchema.clone(s));
   }
 
   /**
    * Get the multicall contract
    * @param signer
    */
-  static getMulticall(signer: SignerOrProvider) {
-    const address = Networks[this.client.network].contracts.multicall;
+  static async getMulticall(signer: SignerOrProvider) {
+    const chain = await signer.provider.getNetwork();
+    const network = Object.values(Networks).find(
+      (n) => +n.chainId === Number(chain.chainId)
+    );
+    if (!network)
+      throw new Error(`Network ${chain.name || chain.chainId} not supported.`);
+
+    const address = network.contracts.multicall;
     return new ethers.Contract(address, MulticallABI, signer as any);
   }
 

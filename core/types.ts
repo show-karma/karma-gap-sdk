@@ -6,7 +6,7 @@ import {
   SchemaItem,
 } from '@ethereum-attestation-service/eas-sdk';
 import { SignerOrProvider as EASSigner } from '@ethereum-attestation-service/eas-sdk/dist/transaction';
-import { Attestation } from './class';
+import { Attestation, GAP } from './class';
 import { Fetcher } from './class/Fetcher';
 export type Hex = `0x${string}`;
 
@@ -84,9 +84,9 @@ export abstract class Facade {
   abstract readonly network: TNetwork;
   abstract readonly schemas: SchemaInterface[];
   abstract readonly fetch: Fetcher;
-  protected static _eas: EAS;
+  protected _eas: EAS;
 
-  static get eas() {
+  get eas() {
     return this._eas;
   }
 }

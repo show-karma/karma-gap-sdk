@@ -44,7 +44,7 @@ const wallet = new ethers.Wallet(key, web3);
 /**
  * GAP client
  */
-const gap = GAP.createClient({
+const gap = new GAP({
   network: 'optimism-goerli',
   apiClient: new GapIndexerClient('https://gapapi.karmahq.xyz'),
   gelatoOpts: {
@@ -115,7 +115,7 @@ async function bootstrap() {
     const project = new Project({
       data: { project: true },
       recipient: address as Hex,
-      schema: GapSchema.find('Project'),
+      schema: gap.findSchema('Project'),
     });
 
     project.details = new ProjectDetails({
@@ -140,13 +140,13 @@ async function bootstrap() {
         slug: await gap.generateSlug(item.Name),
       },
       recipient: project.recipient,
-      schema: GapSchema.find('ProjectDetails'),
+      schema: gap.findSchema('ProjectDetails'),
     });
 
     const member = new MemberOf({
       data: { memberOf: true },
       recipient: project.recipient,
-      schema: GapSchema.find('MemberOf'),
+      schema: gap.findSchema('MemberOf'),
     });
 
     project.members.push(member);
@@ -154,7 +154,7 @@ async function bootstrap() {
     const grant = new Grant({
       data: { communityUID },
       recipient: project.recipient,
-      schema: GapSchema.find('Grant'),
+      schema: gap.findSchema('Grant'),
     });
 
     grant.details = new GrantDetails({
@@ -165,7 +165,7 @@ async function bootstrap() {
         payoutAddress: project.recipient,
       },
       recipient: project.recipient,
-      schema: GapSchema.find('GrantDetails'),
+      schema: gap.findSchema('GrantDetails'),
     });
 
     grant.updates.push(
@@ -176,7 +176,7 @@ async function bootstrap() {
           type: 'grant-update',
         },
         recipient: project.recipient,
-        schema: GapSchema.find('GrantDetails'),
+        schema: gap.findSchema('GrantDetails'),
       })
     );
 

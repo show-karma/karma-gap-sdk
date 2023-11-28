@@ -45,7 +45,10 @@ export class GapIndexerClient extends Fetcher {
     );
 
     if (!data) throw new Error('Attestation not found');
-    return Attestation.fromInterface<Attestation<T>>([data])[0];
+    return Attestation.fromInterface<Attestation<T>>(
+      [data],
+      this.gap.network
+    )[0];
   }
 
   async attestations(
@@ -56,7 +59,7 @@ export class GapIndexerClient extends Fetcher {
       Endpoints.attestations.all(),
       {
         params: {
-          'filter[schemaUID]': GapSchema.get(schemaName).uid,
+          'filter[schemaUID]': this.gap.findSchema(schemaName).uid,
           'filter[data]': search,
         },
       }
@@ -73,7 +76,7 @@ export class GapIndexerClient extends Fetcher {
       Endpoints.attestations.all(),
       {
         params: {
-          'filter[schemaUID]': GapSchema.get(schemaName).uid,
+          'filter[schemaUID]': this.gap.findSchema(schemaName).uid,
           'filter[recipient]': attester,
         },
       }
@@ -99,7 +102,7 @@ export class GapIndexerClient extends Fetcher {
       }
     );
 
-    return Community.from(data);
+    return Community.from(data, this.gap.network);
   }
 
   async communitiesOf(address: Hex, withGrants: boolean): Promise<Community[]> {
@@ -107,7 +110,7 @@ export class GapIndexerClient extends Fetcher {
       Endpoints.grantees.communities(address, withGrants)
     );
 
-    return Community.from(data);
+    return Community.from(data, this.gap.network);
   }
 
   communitiesByIds(uids: `0x${string}`[]): Promise<Community[]> {
@@ -119,7 +122,7 @@ export class GapIndexerClient extends Fetcher {
       Endpoints.communities.byUidOrSlug(slug)
     );
 
-    return Community.from([data])[0];
+    return Community.from([data], this.gap.network)[0];
   }
 
   communityById(uid: `0x${string}`): Promise<Community> {
@@ -131,7 +134,7 @@ export class GapIndexerClient extends Fetcher {
       Endpoints.project.byUidOrSlug(slug)
     );
 
-    return Project.from([data])[0];
+    return Project.from([data], this.gap.network)[0];
   }
 
   projectById(uid: `0x${string}`): Promise<Project> {
@@ -145,7 +148,7 @@ export class GapIndexerClient extends Fetcher {
       },
     });
 
-    return Project.from(data);
+    return Project.from(data, this.gap.network);
   }
 
   async projectsOf(grantee: `0x${string}`): Promise<Project[]> {
@@ -153,7 +156,7 @@ export class GapIndexerClient extends Fetcher {
       Endpoints.grantees.projects(grantee)
     );
 
-    return Project.from(data);
+    return Project.from(data, this.gap.network);
   }
 
   async grantee(address: `0x${string}`): Promise<Grantee> {
@@ -178,7 +181,7 @@ export class GapIndexerClient extends Fetcher {
       Endpoints.grantees.grants(grantee)
     );
 
-    return Grant.from(data);
+    return Grant.from(data, this.gap.network);
   }
 
   async grantsFor(
@@ -189,7 +192,7 @@ export class GapIndexerClient extends Fetcher {
       Endpoints.project.grants(projects[0].uid)
     );
 
-    return Grant.from(data);
+    return Grant.from(data, this.gap.network);
   }
 
   async grantsForExtProject(projectExtId: string): Promise<Grant[]> {
@@ -197,7 +200,7 @@ export class GapIndexerClient extends Fetcher {
       Endpoints.grants.byExternalId(projectExtId)
     );
 
-    return Grant.from(data);
+    return Grant.from(data, this.gap.network);
   }
 
   async grantsByCommunity(uid: `0x${string}`) {
@@ -205,7 +208,7 @@ export class GapIndexerClient extends Fetcher {
       Endpoints.communities.grants(uid)
     );
 
-    return Grant.from(data);
+    return Grant.from(data, this.gap.network);
   }
 
   async milestonesOf(grants: Grant[]): Promise<Milestone[]> {
@@ -213,7 +216,7 @@ export class GapIndexerClient extends Fetcher {
       Endpoints.project.milestones(grants[0].uid)
     );
 
-    return Milestone.from(data);
+    return Milestone.from(data, this.gap.network);
   }
 
   async membersOf(projects: Project[]): Promise<MemberOf[]> {

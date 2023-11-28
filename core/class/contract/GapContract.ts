@@ -7,7 +7,6 @@ import {
 import { GAP } from '../GAP';
 import { serializeWithBigint } from '../../utils/serialize-bigint';
 import { Gelato, sendGelatoTxn } from '../../utils/gelato/send-gelato-txn';
-import { mapFilter } from '../../utils';
 import {
   MultiRevocationRequest,
   getUIDFromAttestTx,
@@ -50,7 +49,7 @@ export class GapContract {
       chainId,
       name: 'gap-attestation',
       version: '1',
-      verifyingContract: GAP.getMulticall(null).address,
+      verifyingContract: (await GAP.getMulticall(null)).address,
     };
 
     const data = { payloadHash: payload, nonce, expiry };
@@ -95,7 +94,7 @@ export class GapContract {
    * @returns
    */
   private static async getNonce(signer: SignerOrProvider) {
-    const contract = GAP.getMulticall(signer);
+    const contract = await GAP.getMulticall(signer);
     const address = await this.getSignerAddress(signer);
 
     console.log({ address });
@@ -117,7 +116,7 @@ export class GapContract {
     signer: SignerOrProvider,
     payload: RawAttestationPayload
   ) {
-    const contract = GAP.getMulticall(signer);
+    const contract = await GAP.getMulticall(signer);
 
     if (GAP.gelatoOpts?.useGasless) {
       return this.attestBySig(signer, payload);
@@ -138,7 +137,7 @@ export class GapContract {
     signer: SignerOrProvider,
     payload: RawAttestationPayload
   ) {
-    const contract = GAP.getMulticall(signer);
+    const contract = await GAP.getMulticall(signer);
     const expiry = BigInt(Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30);
     const address = await this.getSignerAddress(signer);
     const payloadHash = serializeWithBigint({
@@ -186,7 +185,7 @@ export class GapContract {
     signer: SignerOrProvider,
     payload: RawMultiAttestPayload[]
   ): Promise<Hex[]> {
-    const contract = GAP.getMulticall(signer);
+    const contract = await GAP.getMulticall(signer);
 
     if (GAP.gelatoOpts?.useGasless) {
       return this.multiAttestBySig(signer, payload);
@@ -211,7 +210,7 @@ export class GapContract {
     signer: SignerOrProvider,
     payload: RawMultiAttestPayload[]
   ): Promise<Hex[]> {
-    const contract = GAP.getMulticall(signer);
+    const contract = await GAP.getMulticall(signer);
     const expiry = BigInt(Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30);
     const address = await this.getSignerAddress(signer);
 
@@ -251,7 +250,7 @@ export class GapContract {
     signer: SignerOrProvider,
     payload: MultiRevocationRequest[]
   ) {
-    const contract = GAP.getMulticall(signer);
+    const contract = await GAP.getMulticall(signer);
 
     if (GAP.gelatoOpts?.useGasless) {
       return this.multiRevokeBySig(signer, payload);
@@ -271,7 +270,7 @@ export class GapContract {
     signer: SignerOrProvider,
     payload: MultiRevocationRequest[]
   ): Promise<void> {
-    const contract = GAP.getMulticall(signer);
+    const contract = await GAP.getMulticall(signer);
     const expiry = BigInt(Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30);
     const address = await this.getSignerAddress(signer);
 
