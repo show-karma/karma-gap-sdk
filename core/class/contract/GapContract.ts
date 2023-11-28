@@ -49,7 +49,7 @@ export class GapContract {
       chainId,
       name: 'gap-attestation',
       version: '1',
-      verifyingContract: (await GAP.getMulticall(null)).address,
+      verifyingContract: (await GAP.getMulticall(signer)).address,
     };
 
     const data = { payloadHash: payload, nonce, expiry };

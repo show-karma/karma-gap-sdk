@@ -121,7 +121,7 @@ export abstract class Schema<T extends string = string>
     ignoreSchema = false
   ) {
     this.assert(args, strict);
-
+    this.gap = gap;
     this._schema = args.schema;
     this.uid = args.uid;
     this.name = args.name;
@@ -162,9 +162,7 @@ export abstract class Schema<T extends string = string>
    * @returns boolean
    */
   isJsonSchema() {
-    return !!this.schema[this.gap.network].find(
-      (s) => s.name === 'json' && s.type === 'string'
-    );
+    return !!this.schema.find((s) => s.name === 'json' && s.type === 'string');
   }
 
   private assertField(item: SchemaItem, value: any) {

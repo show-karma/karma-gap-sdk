@@ -211,7 +211,7 @@ export class GAP extends Facade {
 
     Schema.validate(this.network);
 
-    console.info(`Loaded GAP SDK v${version}`);
+    console.info(`Loaded GAP SDK v${version} for network ${this.network}`);
   }
 
   private assertGelatoOpts(args: GAPArgs) {
@@ -324,7 +324,8 @@ export class GAP extends Facade {
    * @param signer
    */
   static async getMulticall(signer: SignerOrProvider) {
-    const chain = await signer.provider.getNetwork();
+    const chain =
+      (await signer.provider.getNetwork()) || (signer.provider as any).network;
     const network = Object.values(Networks).find(
       (n) => +n.chainId === Number(chain.chainId)
     );
