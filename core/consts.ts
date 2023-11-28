@@ -97,7 +97,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       eas: '0x4200000000000000000000000000000000000021',
       schema: '0x4200000000000000000000000000000000000020',
       multicall: '0x4F9CAE59824021f704D7D4eBF3ADEAc44767ED05', //proxy,
-      projectResolver: '0x0d63f7820d97C12139d60791BC9996f6Fe2b9C85',
+      projectResolver: '0x329eB409aB163F046D7C043f3C7F0288cf9A42dC',
     },
     schemas: {
       Community:
@@ -116,7 +116,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       MilestoneCompleted:
         '0xf544fbd9721ac50863d32dc0eed5992051e7fb270b38ab2ce062327cc0ae26ea',
       Project:
-        '0x7a5ada362eb509782600167c2cba7117c3f146515282767a534863d01a870f13',
+        '0xc67996c87cac567b7a0bf9c08b92500baf8c5c62c20915f1e70729359b6c4b01',
     },
   },
   // arbitrum: {
