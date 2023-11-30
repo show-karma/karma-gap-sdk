@@ -1,5 +1,6 @@
-import { SignerOrProvider } from '../../types';
+import { MultiAttestPayload, SignerOrProvider } from '../../types';
 import { Attestation } from '../Attestation';
+import { GapSchema } from '../GapSchema';
 import { MilestoneCompleted } from '../types/attestations';
 interface _Milestone extends Milestone {
 }
@@ -54,6 +55,21 @@ export declare class Milestone extends Attestation<IMilestone> implements IMiles
      * @param signer
      */
     revokeCompletion(signer: SignerOrProvider): Promise<void>;
+    /**
+     * Creates the payload for a multi-attestation.
+     *
+     * > if Current payload is set, it'll be used as the base payload
+     * and the project should refer to an index of the current payload,
+     * usually the community position.
+     *
+     * @param payload
+     * @param grantIdx
+     */
+    multiAttestPayload(currentPayload?: MultiAttestPayload, grantIdx?: number): Promise<[Attestation<unknown, GapSchema>, import("../../types").RawMultiAttestPayload][]>;
+    /**
+     * @inheritdoc
+     */
+    attest(signer: SignerOrProvider): Promise<void>;
     /**
      * Attest the status of the milestone as approved, rejected or completed.
      */

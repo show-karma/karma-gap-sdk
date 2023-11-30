@@ -25,6 +25,7 @@ export declare class Grant extends Attestation<IGrant> {
     members: string[];
     completed?: GrantCompleted;
     project?: ISummaryProject;
+    categories?: string[];
     verify(signer: SignerOrProvider): Promise<void>;
     /**
      * Add milestones to the grant.

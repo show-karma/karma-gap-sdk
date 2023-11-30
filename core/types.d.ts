@@ -1,8 +1,8 @@
-import { BytesLike } from "ethers";
-import { AttestationRequestData, EAS, MultiAttestationRequest, SchemaItem } from "@ethereum-attestation-service/eas-sdk";
-import { SignerOrProvider as EASSigner } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
-import { Attestation } from "./class";
-import { Fetcher } from "./class/Fetcher";
+import { BytesLike } from 'ethers';
+import { AttestationRequestData, EAS, MultiAttestationRequest, SchemaItem } from '@ethereum-attestation-service/eas-sdk';
+import { SignerOrProvider as EASSigner } from '@ethereum-attestation-service/eas-sdk/dist/transaction';
+import { Attestation } from './class';
+import { Fetcher } from './class/Fetcher';
 export type Hex = `0x${string}`;
 export type SignerOrProvider = EASSigner & {
     address?: Hex;
@@ -26,10 +26,10 @@ export interface AttestArgs<T = unknown> {
     refUID?: Hex;
     signer: SignerOrProvider;
 }
-export type TSchemaName = "Community" | "CommunityDetails" | "Grant" | "GrantDetails" | "GrantVerified" | "MemberOf" | "MemberDetails" | "Milestone" | "MilestoneCompleted" | "MilestoneApproved" | "Project" | "ProjectDetails" | "Details";
-export type TResolvedSchemaNames = "Community" | "Grant" | "GrantVerified" | "MemberOf" | "MilestoneCompleted" | "MilestoneApproved" | "Project" | "Details";
-export type TExternalLink = "twitter" | "github" | "website" | "linkedin" | "discord";
-export type TNetwork = "optimism" | "optimism-goerli" | "sepolia";
+export type TSchemaName = 'Community' | 'CommunityDetails' | 'Grant' | 'GrantDetails' | 'GrantVerified' | 'MemberOf' | 'MemberDetails' | 'Milestone' | 'MilestoneCompleted' | 'MilestoneApproved' | 'Project' | 'ProjectDetails' | 'Details';
+export type TResolvedSchemaNames = 'Community' | 'Grant' | 'GrantVerified' | 'MemberOf' | 'MilestoneCompleted' | 'MilestoneApproved' | 'Project' | 'Details';
+export type TExternalLink = 'twitter' | 'github' | 'website' | 'linkedin' | 'discord';
+export type TNetwork = 'optimism' | 'optimism-goerli' | 'sepolia';
 /**
  * Generic GAP Facade interface.
  * This supplies the GAP class with the necessary properties.
@@ -105,3 +105,16 @@ export interface SchemaRes {
         attestations: IAttestation[];
     };
 }
+/**
+ * Valid remote storage types
+ */
+export declare const enum STORAGE_TYPE {
+    IPFS = 0,
+    ARWEAVE = 1,
+    SWARM = 2,
+    UNKNOWN = 3
+}
+export type TRemoteStorageOutput<T = unknown> = {
+    hash: T;
+    storageType: number;
+};

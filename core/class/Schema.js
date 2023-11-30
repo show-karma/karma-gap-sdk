@@ -104,7 +104,7 @@ class Schema {
     setValue(key, value) {
         const idx = this._schema.findIndex((item) => item.name === key);
         if (!~idx)
-            throw new SchemaError_1.SchemaError("INVALID_SCHEMA_FIELD", `Field ${key} not found in schema ${this.name}`);
+            throw new SchemaError_1.SchemaError('INVALID_SCHEMA_FIELD', `Field ${key} not found in schema ${this.name}`);
         this.assertField(this._schema[idx], value);
         this._schema[idx].value = value;
     }
@@ -114,35 +114,35 @@ class Schema {
      * @returns boolean
      */
     isJsonSchema() {
-        return !!this.schema.find((s) => s.name === "json" && s.type === "string");
+        return !!this.schema.find((s) => s.name === 'json' && s.type === 'string');
     }
     assertField(item, value) {
         const { type, name } = item;
-        if (type.includes("uint") && /\D/.test(value)) {
-            throw new SchemaError_1.SchemaError("INVALID_SCHEMA_FIELD", `Field ${name} is of type ${type} but value is not a number.`);
+        if (type.includes('uint') && /\D/.test(value)) {
+            throw new SchemaError_1.SchemaError('INVALID_SCHEMA_FIELD', `Field ${name} is of type ${type} but value is not a number.`);
         }
-        if (type.includes("address") &&
+        if (type.includes('address') &&
             !ethers_1.ethers.utils.isAddress(value) &&
             value !== consts_1.zeroAddress) {
-            throw new SchemaError_1.SchemaError("INVALID_SCHEMA_FIELD", `Field ${name} is of type ${type} but value is not a valid address.`);
+            throw new SchemaError_1.SchemaError('INVALID_SCHEMA_FIELD', `Field ${name} is of type ${type} but value is not a valid address.`);
         }
-        if (type.includes("bytes") && !value.startsWith("0x")) {
-            throw new SchemaError_1.SchemaError("INVALID_SCHEMA_FIELD", `Field ${name} is of type ${type} but value is not a valid hex string.`);
+        if (type.includes('bytes') && !value.startsWith('0x')) {
+            throw new SchemaError_1.SchemaError('INVALID_SCHEMA_FIELD', `Field ${name} is of type ${type} but value is not a valid hex string.`);
         }
-        if (type.includes("bool") &&
-            (!["true", "false", true, false].includes(value) ||
-                typeof value !== "boolean")) {
-            throw new SchemaError_1.SchemaError("INVALID_SCHEMA_FIELD", `Field ${name} is of type ${type} but value is not a valid boolean.`);
+        if (type.includes('bool') &&
+            (!['true', 'false', true, false].includes(value) ||
+                typeof value !== 'boolean')) {
+            throw new SchemaError_1.SchemaError('INVALID_SCHEMA_FIELD', `Field ${name} is of type ${type} but value is not a valid boolean.`);
         }
-        if (type.includes("tuple") && !Array.isArray(value)) {
-            throw new SchemaError_1.SchemaError("INVALID_SCHEMA_FIELD", `Field ${name} is of type ${type} but value is not a valid array.`);
+        if (type.includes('tuple') && !Array.isArray(value)) {
+            throw new SchemaError_1.SchemaError('INVALID_SCHEMA_FIELD', `Field ${name} is of type ${type} but value is not a valid array.`);
         }
-        if (type === "string" && name === "json") {
+        if (type === 'string' && name === 'json') {
             try {
                 JSON.parse(value);
             }
             catch (error) {
-                throw new SchemaError_1.SchemaError("INVALID_SCHEMA_FIELD", `Field ${name} is of type ${type} but value is not a valid JSON string.`);
+                throw new SchemaError_1.SchemaError('INVALID_SCHEMA_FIELD', `Field ${name} is of type ${type} but value is not a valid JSON string.`);
             }
         }
     }
@@ -154,16 +154,16 @@ class Schema {
     assert(args, strict = false) {
         const { name, schema, uid, references } = args;
         if (!name) {
-            throw new SchemaError_1.SchemaError("MISSING_FIELD", "Schema name is required");
+            throw new SchemaError_1.SchemaError('MISSING_FIELD', 'Schema name is required');
         }
         if (!schema && !Array.isArray(schema)) {
-            throw new SchemaError_1.SchemaError("MISSING_FIELD", "Schema must be an array.");
+            throw new SchemaError_1.SchemaError('MISSING_FIELD', 'Schema must be an array.');
         }
         // if (!uid) {
         //   throw new SchemaError("MISSING_FIELD", "Schema uid is required");
         // }
         if (strict && references && !Schema.exists(references)) {
-            throw new SchemaError_1.SchemaError("INVALID_REFERENCE", `Schema ${name} references ${references} but it does not exist.`);
+            throw new SchemaError_1.SchemaError('INVALID_REFERENCE', `Schema ${name} references ${references} but it does not exist.`);
         }
     }
     /**
@@ -221,15 +221,15 @@ class Schema {
     async attest({ data, to, signer, refUID }) {
         const eas = GAP_1.GAP.eas.connect(signer);
         if (this.references && !refUID)
-            throw new SchemaError_1.AttestationError("INVALID_REFERENCE", "Attestation schema references another schema but no reference UID was provided.");
+            throw new SchemaError_1.AttestationError('INVALID_REFERENCE', 'Attestation schema references another schema but no reference UID was provided.');
         if (this.isJsonSchema()) {
-            const ipfsManager = GAP_1.GAP.ipfs;
-            if (ipfsManager) {
-                const ipfsHash = await ipfsManager.save(data);
-                const encodedData = ipfsManager.encode(ipfsHash, 0);
+            const { remoteClient } = GAP_1.GAP;
+            if (remoteClient) {
+                const cid = await remoteClient.save(data, this.name);
+                const encodedData = remoteClient.encode(cid);
                 data = encodedData;
             }
-            this.setValue("json", JSON.stringify(data));
+            this.setValue('json', JSON.stringify(data));
         }
         else {
             Object.entries(data).forEach(([key, value]) => {
@@ -276,7 +276,7 @@ class Schema {
     async multiAttest(signer, entities = []) {
         entities.forEach((entity) => {
             if (this.references && !entity.refUID)
-                throw new SchemaError_1.SchemaError("INVALID_REF_UID", `Entity ${entity.schema.name} references another schema but no reference UID was provided.`);
+                throw new SchemaError_1.SchemaError('INVALID_REF_UID', `Entity ${entity.schema.name} references another schema but no reference UID was provided.`);
         });
         const eas = GAP_1.GAP.eas.connect(signer);
         const entityBySchema = entities.reduce((acc, entity) => {
@@ -338,7 +338,7 @@ class Schema {
             if (!this.exists(schema.name))
                 this.schemas.push(schema);
             else
-                throw new SchemaError_1.SchemaError("SCHEMA_ALREADY_EXISTS", `Schema ${schema.name} already exists.`);
+                throw new SchemaError_1.SchemaError('SCHEMA_ALREADY_EXISTS', `Schema ${schema.name} already exists.`);
         });
     }
     static getAll() {
@@ -347,7 +347,7 @@ class Schema {
     static get(name) {
         const schema = this.schemas.find((schema) => schema.name === name || schema.uid === name);
         if (!schema)
-            throw new SchemaError_1.SchemaError("SCHEMA_NOT_FOUND", `Schema ${name} not found. Available schemas: ${Schema.getNames()}`);
+            throw new SchemaError_1.SchemaError('SCHEMA_NOT_FOUND', `Schema ${name} not found. Available schemas: ${Schema.getNames()}`);
         return schema;
     }
     /**
@@ -372,7 +372,7 @@ class Schema {
             if (!schema.references || Schema.exists(schema.references))
                 return;
             else
-                errors.push(new SchemaError_1.SchemaError("INVALID_REFERENCE", `Schema ${schema.name} references ${schema.references} but it does not exist.`));
+                errors.push(new SchemaError_1.SchemaError('INVALID_REFERENCE', `Schema ${schema.name} references ${schema.references} but it does not exist.`));
         });
         if (errors.length)
             throw errors;
@@ -392,7 +392,7 @@ class Schema {
     static replaceOne(schema) {
         const idx = this.schemas.findIndex((item) => schema.name === item.name);
         if (!~idx)
-            throw new SchemaError_1.SchemaError("SCHEMA_NOT_FOUND", `Schema ${schema.name} not found.`);
+            throw new SchemaError_1.SchemaError('SCHEMA_NOT_FOUND', `Schema ${schema.name} not found.`);
         this.schemas[idx] = schema;
     }
     /**
@@ -407,9 +407,9 @@ class Schema {
      * @returns
      */
     static rawToObject(abi) {
-        const items = abi.trim().replace(/,\s+/gim, ",").split(",");
+        const items = abi.trim().replace(/,\s+/gim, ',').split(',');
         const schema = items.map((item) => {
-            const [type, name] = item.split(" ");
+            const [type, name] = item.split(' ');
             return { type, name, value: null };
         });
         return schema;
@@ -423,7 +423,7 @@ class Schema {
      * ```
      */
     get raw() {
-        return this.schema.map((item) => `${item.type} ${item.name}`).join(",");
+        return this.schema.map((item) => `${item.type} ${item.name}`).join(',');
     }
     get schema() {
         return this._schema;

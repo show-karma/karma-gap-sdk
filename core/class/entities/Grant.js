@@ -17,6 +17,7 @@ class Grant extends Attestation_1.Attestation {
         this.milestones = [];
         this.updates = [];
         this.members = [];
+        this.categories = [];
     }
     async verify(signer) {
         const eas = GAP_1.GAP.eas.connect(signer);
@@ -78,7 +79,7 @@ class Grant extends Attestation_1.Attestation {
             payload.push([this.details, await this.details.payloadFor(grantIdx)]);
         }
         if (this.milestones.length) {
-            await Promise.all(this.milestones.map(async (m) => payload.push([m, await m.payloadFor(grantIdx)])));
+            await Promise.all(this.milestones.map(async (m) => payload.push(...(await m.multiAttestPayload(currentPayload, grantIdx)))));
         }
         if (this.updates.length) {
             await Promise.all(this.updates.map(async (u) => payload.push([u, await u.payloadFor(grantIdx)])));
@@ -185,6 +186,9 @@ class Grant extends Attestation_1.Attestation {
             }
             if (attestation.members) {
                 grant.members = attestation.members;
+            }
+            if (attestation.categories) {
+                grant.categories = attestation.categories;
             }
             return grant;
         });

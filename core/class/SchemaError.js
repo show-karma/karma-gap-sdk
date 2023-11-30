@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AttestationError = exports.SchemaError = void 0;
+exports.RemoteStorageError = exports.AttestationError = exports.SchemaError = void 0;
 const SchemaErrorCodes = {
     INVALID_SCHEMA: 50001,
     INVALID_SCHEMA_NAME: 50002,
@@ -17,12 +17,12 @@ const SchemaErrorCodes = {
     INVALID_REF_UID: 50013,
     REVOKATION_ERROR: 50014,
     NOT_REVOCABLE: 50015,
-    IPFS_UPLOAD: 50016,
+    REMOTE_STORAGE_UPLOAD: 50016,
 };
 class SchemaError extends Error {
     constructor(code, append) {
-        super(`${code}${append ? `: ${append}` : ""}`);
-        this._message = append || code.replace(/_/g, " ");
+        super(`${code}${append ? `: ${append}` : ''}`);
+        this._message = append || code.replace(/_/g, ' ');
         this.code = SchemaErrorCodes[code];
     }
     get message() {
@@ -33,3 +33,6 @@ exports.SchemaError = SchemaError;
 class AttestationError extends SchemaError {
 }
 exports.AttestationError = AttestationError;
+class RemoteStorageError extends SchemaError {
+}
+exports.RemoteStorageError = RemoteStorageError;

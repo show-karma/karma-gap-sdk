@@ -1,8 +1,8 @@
-import { AttestArgs, Facade, SchemaInterface, TNetwork, TSchemaName, SignerOrProvider } from "../types";
-import { GapSchema } from "./GapSchema";
-import { ethers } from "ethers";
-import { Fetcher } from "./Fetcher";
-import { AttestationIPFS } from "./AttestationIPFS";
+import { AttestArgs, Facade, SchemaInterface, TNetwork, TSchemaName, SignerOrProvider } from '../types';
+import { GapSchema } from './GapSchema';
+import { ethers } from 'ethers';
+import { Fetcher } from './Fetcher';
+import { RemoteStorage } from './remote-storage/RemoteStorage';
 interface GAPArgs {
     network: TNetwork;
     globalSchemas?: boolean;
@@ -90,16 +90,11 @@ interface GAPArgs {
         useGasless?: boolean;
     };
     /**
-     * Specifies an optional IPFS key for uploading project details and other related data.
-     *
-     * This key is used to authenticate with the IPFS storage service, specifically designed for use with "NFT.STORAGE".
-     * Utilizing IPFS (InterPlanetary File System) offers a decentralized solution for storing data, ensuring better
-     * scalability and efficiency compared to sending large amounts of data directly in the attestation body.
-     *
-     * If an IPFS key is not provided, the default storage method will be used.
-     *
+     * Defines a remote storage client to be used to store data.
+     * If defined, all the details data from an attestation will
+     * be stored in the remote storage, e.g. IPFS.
      */
-    ipfsKey?: string;
+    remoteStorage?: RemoteStorage;
 }
 /**
  * GAP SDK Facade.
@@ -158,14 +153,13 @@ interface GAPArgs {
  */
 export declare class GAP extends Facade {
     private static client;
-    private static ipfsManager;
+    private static remoteStorage?;
     readonly fetch: Fetcher;
     readonly network: TNetwork;
     private _schemas;
     private static _gelatoOpts;
     constructor(args: GAPArgs);
     private assertGelatoOpts;
-    private assertIPFSOpts;
     /**
      * Creates the attestation payload using a specific schema.
      * @param from
@@ -220,8 +214,8 @@ export declare class GAP extends Facade {
      * In case of true, the transactions will be sent through [Gelato](https://gelato.network)
      * and an API key is needed.
      */
-    static get gelatoOpts(): GAPArgs["gelatoOpts"];
+    static get gelatoOpts(): GAPArgs['gelatoOpts'];
     static set useGasLess(useGasLess: boolean);
-    static get ipfs(): AttestationIPFS;
+    static get remoteClient(): RemoteStorage<unknown>;
 }
 export {};
