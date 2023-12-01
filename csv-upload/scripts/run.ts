@@ -26,7 +26,7 @@ const gapAPI = 'https://gapapi.karmahq.xyz';
 /**
  * Secret keys
  */
-const { optimismGoerli: keys, gapAccessToken } = require(__dirname +
+const { optimism: keys, gapAccessToken } = require(__dirname +
   '/../../config/keys.json');
 
 const privateKey = keys.privateKey;
@@ -35,7 +35,7 @@ const rpcURL = keys.rpcURL;
 const mainnetURL =
   'https://eth-mainnet.g.alchemy.com/v2/dRC43zHg8eyn83eR5GOiO7sfFYW8sl6t';
 
-const grantTitle = 'GG19 - Web3 OSS';
+const grantTitle = 'GG19 - Climate Solutions';
 
 const grantDescription = 'We are participating in Gitcoin Round 19 (GG19).';
 
@@ -116,7 +116,7 @@ export function parseCsv<T>(
 const isEns = (str: string) => /^\w+\.(eth)$/.test(str);
 const isHex = (str: string): str is Hex => /^0x[a-fA-F0-9]{64}$/.test(str);
 
-function truncateWithEllipsis(input: string, limit: number = 1000): string {
+function truncateWithEllipsis(input: string, limit: number = 500): string {
   return input.length > limit ? `${input.substr(0, limit)}...` : input;
 }
 
@@ -307,10 +307,11 @@ async function bootstrap() {
     const hasProject = await checkProjectExists(projectDetails);
     if (hasProject) {
       const concurrentGrant = hasProject.grants.find(
-        (g) => g.details?.title === item['Name'] && g.externalId
+        (g) => g.details?.data?.title === grantTitle && g.externalId
       );
 
       if (!concurrentGrant) {
+        console.log(`Didn't find grant ${item.Name}`);
         Object.assign(grant, { refUID: hasProject.uid });
         await grant.attest(wallet as any);
         grantDetails.refUID = grant.uid;
