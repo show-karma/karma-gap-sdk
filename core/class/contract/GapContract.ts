@@ -332,11 +332,11 @@ export class GapContract {
     signer: SignerOrProvider,
     projectUID: Hex
   ): Promise<boolean> {
-    const contract = GAP.getMulticall(signer);
+    const contract = GAP.getProjectResolver(signer);
     const address = await this.getSignerAddress(signer);
-    const isOwner = await contract.functions.isProjectAdmin(
-      address,
-      projectUID
+    const isOwner = await contract.functions.isAdmin(
+      projectUID,
+      address
     );
     return !!isOwner?.[0];
   }
