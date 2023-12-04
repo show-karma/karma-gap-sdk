@@ -182,9 +182,9 @@ class GapContract {
      * @returns
      */
     static async isProjectOwner(signer, projectUID) {
-        const contract = GAP_1.GAP.getMulticall(signer);
+        const contract = GAP_1.GAP.getProjectResolver(signer);
         const address = await this.getSignerAddress(signer);
-        const isOwner = await contract.functions.isProjectAdmin(address, projectUID);
+        const isOwner = await contract.functions.isAdmin(address, projectUID);
         return !!isOwner?.[0];
     }
     static async getTransactionLogs(signer, txnHash) {
