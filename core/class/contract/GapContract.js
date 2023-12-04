@@ -184,7 +184,7 @@ class GapContract {
     static async isProjectOwner(signer, projectUID) {
         const contract = GAP_1.GAP.getProjectResolver(signer);
         const address = await this.getSignerAddress(signer);
-        const isOwner = await contract.functions.isAdmin(address, projectUID);
+        const isOwner = await contract.functions.isAdmin(projectUID, address);
         return !!isOwner?.[0];
     }
     static async getTransactionLogs(signer, txnHash) {
