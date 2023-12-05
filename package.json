@@ -3,9 +3,9 @@
     "publishConfig": {
         "access": "public"
     },
-    "version": "0.2.1",
+    "version": "0.2.3",
     "description": "Simple and easy interface between EAS and Karma GAP.",
-    "main": "dist/index.js",
+    "main": "./index.js",
     "author": "KarmaHQ",
     "license": "MIT",
     "private": false,

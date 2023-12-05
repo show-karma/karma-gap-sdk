@@ -7,10 +7,13 @@ exports.getIPFSData = void 0;
 const axios_1 = __importDefault(require("axios"));
 async function getIPFSData(cid) {
     try {
-        const { data } = await axios_1.default.get(`https://ipfs.io/ipfs/${cid}`);
+        const { data } = await axios_1.default.get(`https://ipfs.io/ipfs/${cid}`, {
+            timeout: 5000,
+        });
         return data;
     }
     catch (err) {
+        console.error(err);
         throw new Error(`Error to retrive data for CID: ${cid}`);
     }
 }
