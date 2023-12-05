@@ -44,6 +44,7 @@ export class Grant extends Attestation<IGrant> {
   members: string[] = [];
   completed?: GrantCompleted;
   project?: ISummaryProject;
+  categories?: string[] = [];
 
   async verify(signer: SignerOrProvider) {
     const eas = this.schema.gap.eas.connect(signer);
@@ -257,6 +258,10 @@ export class Grant extends Attestation<IGrant> {
 
       if (attestation.members) {
         grant.members = attestation.members;
+      }
+
+      if(attestation.categories) {
+        grant.categories = attestation.categories;
       }
 
       return grant;
