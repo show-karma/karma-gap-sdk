@@ -89,6 +89,7 @@ export class Community extends Attestation<ICommunity> {
           community: true,
         },
         schema: GapSchema.find('Community', network),
+        chainID: attestation.chainID,
       });
 
       if (attestation.details) {
@@ -99,6 +100,7 @@ export class Community extends Attestation<ICommunity> {
             ...details.data,
           },
           schema: GapSchema.find('CommunityDetails', network),
+          chainID: attestation.chainID,
         });
       }
 

@@ -299,6 +299,7 @@ export class Project extends Attestation<IProject> {
           project: true,
         },
         schema: GapSchema.find('Project', network),
+        chainID: attestation.chainID,
       });
 
       if (attestation.details) {
@@ -309,6 +310,7 @@ export class Project extends Attestation<IProject> {
             ...details.data,
           },
           schema: GapSchema.find('ProjectDetails', network),
+          chainID: attestation.chainID,
         });
 
         project.details.links = details.data.links || [];
@@ -331,6 +333,7 @@ export class Project extends Attestation<IProject> {
               memberOf: true,
             },
             schema: GapSchema.find('MemberOf', network),
+            chainID: attestation.chainID,
           });
 
           if (m.details) {
@@ -341,6 +344,7 @@ export class Project extends Attestation<IProject> {
                 ...details.data,
               },
               schema: GapSchema.find('MemberDetails', network),
+              chainID: attestation.chainID,
             });
           }
 

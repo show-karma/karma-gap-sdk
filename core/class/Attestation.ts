@@ -18,7 +18,7 @@ import {
 import { getDate } from '../utils/get-date';
 import { GAP } from './GAP';
 import { GapSchema } from './GapSchema';
-import { nullRef } from '../consts';
+import { Networks, nullRef } from '../consts';
 import { GapContract } from './contract/GapContract';
 
 export interface AttestationArgs<T = unknown, S extends Schema = Schema> {
@@ -31,6 +31,7 @@ export interface AttestationArgs<T = unknown, S extends Schema = Schema> {
   revoked?: boolean;
   revocationTime?: Date | number;
   createdAt?: Date | number;
+  chainID?: number;
 }
 
 /**
@@ -77,6 +78,7 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
   readonly revoked?: boolean;
   readonly revocationTime?: Date;
   readonly createdAt: Date;
+  private _chainID: number;
 
   private _reference?: Attestation;
 
@@ -93,6 +95,7 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
     this.revoked = args.revoked;
     this.revocationTime = getDate(args.revocationTime);
     this.createdAt = getDate(args.createdAt || Date.now() / 1000);
+    this._chainID = args.chainID || Networks[this.schema.gap.network].chainId;
   }
 
   /**
@@ -331,6 +334,7 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
           <T>new Attestation({
             ...attestation,
             schema,
+            chainID: Networks[network].chainId,
             data: attestation.decodedDataJson,
           })
         );
@@ -358,6 +362,10 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
     }
 
     if (strict) Schema.validate(this.schema.gap.network);
+  }
+
+  get chainID() {
+    return this._chainID;
   }
 
   get data(): T {
@@ -388,6 +396,7 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
       schema,
       uid: '0x0',
       createdAt: new Date(),
+      chainID: Networks[schema.gap.network].chainId,
     });
   }
 }

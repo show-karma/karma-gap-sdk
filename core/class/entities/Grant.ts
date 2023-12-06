@@ -5,6 +5,7 @@ import {
   GrantUpdate,
   IGrantUpdate,
   GrantCompleted,
+  ProjectDetails,
 } from '../types/attestations';
 import { IMilestone, Milestone } from './Milestone';
 import { GapSchema } from '../GapSchema';
@@ -133,10 +134,46 @@ export class Grant extends Attestation<IGrant> {
     return payload.slice(currentPayload.length, payload.length);
   }
 
+  async attestProject(
+    signer: SignerOrProvider,
+    originalProjectChainId: number
+  ) {
+    const project = new Project({
+      data: { project: true },
+      schema: this.schema.gap.findSchema('Project'),
+      recipient: this.recipient,
+      chainID: this.chainID,
+    });
+
+    (project.details as Attestation) = new Attestation({
+      data: {
+        json: {
+          originalProjectChainId,
+          uid: this.refUID,
+        },
+      },
+      chainID: this.chainID,
+      recipient: this.recipient,
+      schema: this.schema.gap.findSchema('ProjectDetails'),
+    });
+
+    // Overwrite refuid
+    Object.assign(this, { refUID: nullRef });
+    project.grants = [this];
+
+    await project.attest(signer);
+  }
+
   /**
    * @inheritdoc
    */
-  async attest(signer: SignerOrProvider): Promise<void> {
+  async attest(
+    signer: SignerOrProvider,
+    projectChainId: number
+  ): Promise<void> {
+    if (projectChainId !== this.chainID) {
+      return this.attestProject(signer, projectChainId);
+    }
     this.assertPayload();
     const payload = await this.multiAttestPayload();
 
@@ -203,6 +240,7 @@ export class Grant extends Attestation<IGrant> {
           communityUID: attestation.data.communityUID,
         },
         schema: GapSchema.find('Grant', network),
+        chainID: attestation.chainID,
       });
 
       if (attestation.details) {
@@ -213,6 +251,7 @@ export class Grant extends Attestation<IGrant> {
             ...details.data,
           },
           schema: GapSchema.find('GrantDetails', network),
+          chainID: attestation.chainID,
         });
       }
 
@@ -231,6 +270,7 @@ export class Grant extends Attestation<IGrant> {
                 ...u.data,
               },
               schema: GapSchema.find('GrantDetails', network),
+              chainID: attestation.chainID,
             })
         );
       }
@@ -243,6 +283,7 @@ export class Grant extends Attestation<IGrant> {
             ...completed.data,
           },
           schema: GapSchema.find('GrantDetails', network),
+          chainID: attestation.chainID,
         });
       }
 
@@ -260,7 +301,7 @@ export class Grant extends Attestation<IGrant> {
         grant.members = attestation.members;
       }
 
-      if(attestation.categories) {
+      if (attestation.categories) {
         grant.categories = attestation.categories;
       }
 

@@ -227,6 +227,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
           ...attestation.data,
         },
         schema: GapSchema.find('Milestone', network),
+        chainID: attestation.chainID,
       });
 
       if (attestation.completed) {
@@ -236,6 +237,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
             ...attestation.completed.data,
           },
           schema: GapSchema.find('MilestoneCompleted', network),
+          chainID: attestation.chainID,
         });
       }
 
@@ -246,6 +248,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
             ...attestation.completed.data,
           },
           schema: GapSchema.find('MilestoneCompleted', network),
+          chainID: attestation.chainID,
         });
       }
 
@@ -256,6 +259,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
             ...attestation.completed.data,
           },
           schema: GapSchema.find('MilestoneCompleted', network),
+          chainID: attestation.chainID,
         });
       }
 

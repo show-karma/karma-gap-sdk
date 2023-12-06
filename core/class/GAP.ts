@@ -151,8 +151,7 @@ interface GAPArgs {
  *
  * const schemas = MountEntities(Networks.sepolia);
  *
- * // Use GAP.createClient to create a singleton GAP client
- * const gap = GAP.createClient({
+ * const gap = new GAP({
  *   network: "sepolia",
  *   owner: "0xd7d1DB401EA825b0325141Cd5e6cd7C2d01825f2",
  *   schemas: Object.values(schemas),
@@ -167,7 +166,6 @@ interface GAPArgs {
  * ```
  */
 export class GAP extends Facade {
-  private client: GAP;
   private static remoteStorage?: RemoteStorage;
 
   readonly fetch: Fetcher;
