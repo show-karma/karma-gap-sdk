@@ -147,10 +147,8 @@ export class Grant extends Attestation<IGrant> {
 
     (project.details as Attestation) = new Attestation({
       data: {
-        json: {
-          originalProjectChainId,
-          uid: this.refUID,
-        },
+        originalProjectChainId,
+        uid: this.refUID,
       },
       chainID: this.chainID,
       recipient: this.recipient,
