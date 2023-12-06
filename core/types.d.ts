@@ -38,8 +38,8 @@ export declare abstract class Facade {
     abstract readonly network: TNetwork;
     abstract readonly schemas: SchemaInterface[];
     abstract readonly fetch: Fetcher;
-    protected static _eas: EAS;
-    static get eas(): EAS;
+    protected _eas: EAS;
+    get eas(): EAS;
 }
 export interface RawAttestationPayload {
     schema: Hex;

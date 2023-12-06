@@ -1,8 +1,8 @@
-import { Attestation } from "../Attestation";
-import { Grantee, MemberDetails, ProjectDetails } from "../types/attestations";
-import { Hex, MultiAttestPayload, SignerOrProvider } from "core/types";
-import { Grant } from "./Grant";
-import { MemberOf } from "./MemberOf";
+import { Attestation } from '../Attestation';
+import { Grantee, MemberDetails, ProjectDetails } from '../types/attestations';
+import { Hex, MultiAttestPayload, SignerOrProvider, TNetwork } from 'core/types';
+import { Grant } from './Grant';
+import { MemberOf } from './MemberOf';
 interface _Project extends Project {
 }
 export interface IProject {
@@ -68,6 +68,6 @@ export declare class Project extends Attestation<IProject> {
      * @param signer
      */
     removeAllMembers(signer: SignerOrProvider): Promise<void>;
-    static from(attestations: _Project[]): Project[];
+    static from(attestations: _Project[], network: TNetwork): Project[];
 }
 export {};

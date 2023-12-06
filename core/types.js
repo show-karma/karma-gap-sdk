@@ -6,7 +6,7 @@ exports.Facade = void 0;
  * This supplies the GAP class with the necessary properties.
  */
 class Facade {
-    static get eas() {
+    get eas() {
         return this._eas;
     }
 }

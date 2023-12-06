@@ -5,11 +5,11 @@ const Attestation_1 = require("../Attestation");
 const attestations_1 = require("../types/attestations");
 const Milestone_1 = require("./Milestone");
 const GapSchema_1 = require("../GapSchema");
-const GAP_1 = require("../GAP");
 const SchemaError_1 = require("../SchemaError");
 const consts_1 = require("../../consts");
 const GapContract_1 = require("../contract/GapContract");
 const Community_1 = require("./Community");
+const Project_1 = require("./Project");
 class Grant extends Attestation_1.Attestation {
     constructor() {
         super(...arguments);
@@ -20,8 +20,8 @@ class Grant extends Attestation_1.Attestation {
         this.categories = [];
     }
     async verify(signer) {
-        const eas = GAP_1.GAP.eas.connect(signer);
-        const schema = GapSchema_1.GapSchema.find('MilestoneApproved');
+        const eas = this.schema.gap.eas.connect(signer);
+        const schema = this.schema.gap.findSchema('MilestoneApproved');
         schema.setValue('approved', true);
         try {
             await eas.attest({
@@ -47,7 +47,7 @@ class Grant extends Attestation_1.Attestation {
      * @param milestones
      */
     addMilestones(milestones) {
-        const schema = GapSchema_1.GapSchema.find('Milestone');
+        const schema = this.schema.gap.findSchema('Milestone');
         const newMilestones = milestones.map((milestone) => {
             const m = new Milestone_1.Milestone({
                 data: milestone,
@@ -86,10 +86,36 @@ class Grant extends Attestation_1.Attestation {
         }
         return payload.slice(currentPayload.length, payload.length);
     }
+    async attestProject(signer, originalProjectChainId) {
+        const project = new Project_1.Project({
+            data: { project: true },
+            schema: this.schema.gap.findSchema('Project'),
+            recipient: this.recipient,
+            chainID: this.chainID,
+        });
+        project.details = new Attestation_1.Attestation({
+            data: {
+                json: {
+                    originalProjectChainId,
+                    uid: this.refUID,
+                },
+            },
+            chainID: this.chainID,
+            recipient: this.recipient,
+            schema: this.schema.gap.findSchema('ProjectDetails'),
+        });
+        // Overwrite refuid
+        Object.assign(this, { refUID: consts_1.nullRef });
+        project.grants = [this];
+        await project.attest(signer);
+    }
     /**
      * @inheritdoc
      */
-    async attest(signer) {
+    async attest(signer, projectChainId) {
+        if (projectChainId !== this.chainID) {
+            return this.attestProject(signer, projectChainId);
+        }
         this.assertPayload();
         const payload = await this.multiAttestPayload();
         const uids = await GapContract_1.GapContract.multiAttest(signer, payload.map((p) => p[1]));
@@ -106,7 +132,7 @@ class Grant extends Attestation_1.Attestation {
             },
             recipient: this.recipient,
             refUID: this.uid,
-            schema: GapSchema_1.GapSchema.find('GrantDetails'),
+            schema: this.schema.gap.findSchema('GrantDetails'),
         });
         await grantUpdate.attest(signer);
         this.updates.push(grantUpdate);
@@ -119,7 +145,7 @@ class Grant extends Attestation_1.Attestation {
             },
             recipient: this.recipient,
             refUID: this.uid,
-            schema: GapSchema_1.GapSchema.find('GrantDetails'),
+            schema: this.schema.gap.findSchema('GrantDetails'),
         });
         await completed.attest(signer);
         this.completed = completed;
@@ -133,14 +159,15 @@ class Grant extends Attestation_1.Attestation {
         }
         return true;
     }
-    static from(attestations) {
+    static from(attestations, network) {
         return attestations.map((attestation) => {
             const grant = new Grant({
                 ...attestation,
                 data: {
                     communityUID: attestation.data.communityUID,
                 },
-                schema: GapSchema_1.GapSchema.find('Grant'),
+                schema: GapSchema_1.GapSchema.find('Grant', network),
+                chainID: attestation.chainID,
             });
             if (attestation.details) {
                 const { details } = attestation;
@@ -149,12 +176,13 @@ class Grant extends Attestation_1.Attestation {
                     data: {
                         ...details.data,
                     },
-                    schema: GapSchema_1.GapSchema.find('GrantDetails'),
+                    schema: GapSchema_1.GapSchema.find('GrantDetails', network),
+                    chainID: attestation.chainID,
                 });
             }
             if (attestation.milestones) {
                 const { milestones } = attestation;
-                grant.milestones = Milestone_1.Milestone.from(milestones);
+                grant.milestones = Milestone_1.Milestone.from(milestones, network);
             }
             if (attestation.updates) {
                 const { updates } = attestation;
@@ -163,7 +191,8 @@ class Grant extends Attestation_1.Attestation {
                     data: {
                         ...u.data,
                     },
-                    schema: GapSchema_1.GapSchema.find('GrantDetails'),
+                    schema: GapSchema_1.GapSchema.find('GrantDetails', network),
+                    chainID: attestation.chainID,
                 }));
             }
             if (attestation.completed) {
@@ -173,7 +202,8 @@ class Grant extends Attestation_1.Attestation {
                     data: {
                         ...completed.data,
                     },
-                    schema: GapSchema_1.GapSchema.find('GrantDetails'),
+                    schema: GapSchema_1.GapSchema.find('GrantDetails', network),
+                    chainID: attestation.chainID,
                 });
             }
             if (attestation.project) {
@@ -182,7 +212,7 @@ class Grant extends Attestation_1.Attestation {
             }
             if (attestation.community) {
                 const { community } = attestation;
-                grant.community = Community_1.Community.from([community])[0];
+                grant.community = Community_1.Community.from([community], network)[0];
             }
             if (attestation.members) {
                 grant.members = attestation.members;

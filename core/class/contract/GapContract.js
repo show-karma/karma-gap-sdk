@@ -26,7 +26,7 @@ class GapContract {
             chainId,
             name: 'gap-attestation',
             version: '1',
-            verifyingContract: GAP_1.GAP.getMulticall(null).address,
+            verifyingContract: (await GAP_1.GAP.getMulticall(signer)).address,
         };
         const data = { payloadHash: payload, nonce, expiry };
         console.log({ domain, AttestationDataTypes, data });
@@ -57,7 +57,7 @@ class GapContract {
      * @returns
      */
     static async getNonce(signer) {
-        const contract = GAP_1.GAP.getMulticall(signer);
+        const contract = await GAP_1.GAP.getMulticall(signer);
         const address = await this.getSignerAddress(signer);
         console.log({ address });
         const nonce = await contract.functions.nonces(address);
@@ -73,7 +73,7 @@ class GapContract {
      * @returns
      */
     static async attest(signer, payload) {
-        const contract = GAP_1.GAP.getMulticall(signer);
+        const contract = await GAP_1.GAP.getMulticall(signer);
         if (GAP_1.GAP.gelatoOpts?.useGasless) {
             return this.attestBySig(signer, payload);
         }
@@ -86,7 +86,7 @@ class GapContract {
         return attestations;
     }
     static async attestBySig(signer, payload) {
-        const contract = GAP_1.GAP.getMulticall(signer);
+        const contract = await GAP_1.GAP.getMulticall(signer);
         const expiry = BigInt(Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30);
         const address = await this.getSignerAddress(signer);
         const payloadHash = (0, serialize_bigint_1.serializeWithBigint)({
@@ -110,7 +110,7 @@ class GapContract {
      * @returns an array with the attestation UIDs.
      */
     static async multiAttest(signer, payload) {
-        const contract = GAP_1.GAP.getMulticall(signer);
+        const contract = await GAP_1.GAP.getMulticall(signer);
         if (GAP_1.GAP.gelatoOpts?.useGasless) {
             return this.multiAttestBySig(signer, payload);
         }
@@ -125,7 +125,7 @@ class GapContract {
      * @returns an array with the attestation UIDs.
      */
     static async multiAttestBySig(signer, payload) {
-        const contract = GAP_1.GAP.getMulticall(signer);
+        const contract = await GAP_1.GAP.getMulticall(signer);
         const expiry = BigInt(Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30);
         const address = await this.getSignerAddress(signer);
         const payloadHash = (0, serialize_bigint_1.serializeWithBigint)(payload.map((p) => p.raw));
@@ -139,7 +139,7 @@ class GapContract {
         return attestations;
     }
     static async multiRevoke(signer, payload) {
-        const contract = GAP_1.GAP.getMulticall(signer);
+        const contract = await GAP_1.GAP.getMulticall(signer);
         if (GAP_1.GAP.gelatoOpts?.useGasless) {
             return this.multiRevokeBySig(signer, payload);
         }
@@ -152,7 +152,7 @@ class GapContract {
      * @returns an array with the attestation UIDs.
      */
     static async multiRevokeBySig(signer, payload) {
-        const contract = GAP_1.GAP.getMulticall(signer);
+        const contract = await GAP_1.GAP.getMulticall(signer);
         const expiry = BigInt(Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30);
         const address = await this.getSignerAddress(signer);
         const payloadHash = (0, serialize_bigint_1.serializeWithBigint)(payload);

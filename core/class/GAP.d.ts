@@ -136,8 +136,7 @@ interface GAPArgs {
  *
  * const schemas = MountEntities(Networks.sepolia);
  *
- * // Use GAP.createClient to create a singleton GAP client
- * const gap = GAP.createClient({
+ * const gap = new GAP({
  *   network: "sepolia",
  *   owner: "0xd7d1DB401EA825b0325141Cd5e6cd7C2d01825f2",
  *   schemas: Object.values(schemas),
@@ -152,7 +151,6 @@ interface GAPArgs {
  * ```
  */
 export declare class GAP extends Facade {
-    private static client;
     private static remoteStorage?;
     readonly fetch: Fetcher;
     readonly network: TNetwork;
@@ -187,19 +185,22 @@ export declare class GAP extends Facade {
      */
     generateSlug: (text: string) => Promise<string>;
     /**
-     * Creates or returns an existing GAP client.
-     *
-     * _Use the constructor only if multiple clients are needed._
-     * @static
-     * @param {GAPArgs} args
+     * Returns a copy of the original schema with no pointers.
+     * @param name
      * @returns
      */
-    static createClient(args: GAPArgs): GAP;
+    findSchema(name: TSchemaName): GapSchema;
+    /**
+     * Find many schemas by name and return their copies as an array in the same order.
+     * @param names
+     * @returns
+     */
+    findManySchemas(names: TSchemaName[]): GapSchema[];
     /**
      * Get the multicall contract
      * @param signer
      */
-    static getMulticall(signer: SignerOrProvider): ethers.Contract;
+    static getMulticall(signer: SignerOrProvider): Promise<ethers.Contract>;
     get schemas(): GapSchema[];
     /**
      * Defined if the transactions will be gasless or not.
