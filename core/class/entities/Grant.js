@@ -95,10 +95,8 @@ class Grant extends Attestation_1.Attestation {
         });
         project.details = new Attestation_1.Attestation({
             data: {
-                json: {
-                    originalProjectChainId,
-                    uid: this.refUID,
-                },
+                originalProjectChainId,
+                uid: this.refUID,
             },
             chainID: this.chainID,
             recipient: this.recipient,
