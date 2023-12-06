@@ -96,7 +96,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
     contracts: {
       eas: '0x4200000000000000000000000000000000000021',
       schema: '0x4200000000000000000000000000000000000020',
-      multicall: '0x4F9CAE59824021f704D7D4eBF3ADEAc44767ED05', //proxy,
+      multicall: '0x5D5a8032b2FA06652804c33F60DcEA00e389B732', //proxy,
       projectResolver: '0xbCf8910Bc3971eA59D93256357b76E846CF2e1F8',
     },
     schemas: {
