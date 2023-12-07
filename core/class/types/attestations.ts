@@ -148,3 +148,10 @@ export class GrantUpdate
 }
 
 export class GrantCompleted extends GrantUpdate {}
+
+
+
+export interface IGrantQuestion {
+  outcome: string;
+  impact: string;
+}
