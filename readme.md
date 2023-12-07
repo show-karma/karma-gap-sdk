@@ -123,7 +123,6 @@ export default gap;
 
 The `gelatoOpts` option is used when developers aim to provide gasless transactions for a better user experience. For more details about this feature, please refer to [Chapter 7](#7-gasless-transactions-with-gelato).
 
-
 The `ipfsKey` is utilized to upload a project's data to the InterPlanetary File System (IPFS) and then include the resulting IPFS hash in the body of the Attestation. This approach is advantageous because it significantly reduces the size of the Attestation body. By storing the bulk of data on IPFS—a decentralized storage solution—and referencing it via a hash, the overall cost of creating and sending Attestations is reduced, making the process more efficient and cost-effective.
 
 ## 4. Fetching Entities
