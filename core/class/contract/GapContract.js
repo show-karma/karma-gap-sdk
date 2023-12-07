@@ -163,6 +163,30 @@ class GapContract {
             throw new Error('Transaction data is empty');
         await (0, send_gelato_txn_1.sendGelatoTxn)(...send_gelato_txn_1.Gelato.buildArgs(populatedTxn, chainId, contract.address));
     }
+    /**
+     * Transfer the ownership of an attestation
+     * @param signer
+     * @param projectUID
+     * @param newOwner
+     * @returns
+     */
+    static async transferProjectOwnership(signer, projectUID, newOwner) {
+        const contract = GAP_1.GAP.getProjectResolver(signer);
+        const tx = await contract.functions.transferProjectOwnership(projectUID, newOwner);
+        return tx.wait?.();
+    }
+    /**
+     * Check if the signer is the owner of the project
+     * @param signer
+     * @param projectUID
+     * @returns
+     */
+    static async isProjectOwner(signer, projectUID) {
+        const contract = GAP_1.GAP.getProjectResolver(signer);
+        const address = await this.getSignerAddress(signer);
+        const isOwner = await contract.functions.isAdmin(projectUID, address);
+        return !!isOwner?.[0];
+    }
     static async getTransactionLogs(signer, txnHash) {
         const txn = await signer.provider.getTransactionReceipt(txnHash);
         if (!txn || !txn.logs.length)
