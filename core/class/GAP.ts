@@ -1,3 +1,6 @@
+import MulticallABI from '../abi/MultiAttester.json';
+import ProjectResolverABI from '../abi/ProjectResolver.json';
+
 import {
   AttestArgs,
   Facade,
@@ -12,10 +15,8 @@ import { GapEasClient } from './GraphQL/GapEasClient';
 import { EAS } from '@ethereum-attestation-service/eas-sdk';
 import { MountEntities, Networks } from '../consts';
 import { ethers } from 'ethers';
-import MulticallABI from '../abi/MultiAttester.json';
 import { version } from '../../package.json';
 import { Fetcher } from './Fetcher';
-import { IpfsStorage } from './remote-storage/IpfsStorage';
 import { RemoteStorage } from './remote-storage/RemoteStorage';
 
 interface GAPArgs {
@@ -312,6 +313,15 @@ export class GAP extends Facade {
   static getMulticall(signer: SignerOrProvider) {
     const address = Networks[this.client.network].contracts.multicall;
     return new ethers.Contract(address, MulticallABI, signer as any);
+  }
+
+  /**
+   * Get the multicall contract
+   * @param signer
+   */
+  static getProjectResolver(signer: SignerOrProvider) {
+    const address = Networks[this.client.network].contracts.projectResolver;
+    return new ethers.Contract(address, ProjectResolverABI, signer as any);
   }
 
   get schemas() {

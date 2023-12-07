@@ -74,7 +74,7 @@ export type TNetwork =
   | 'optimism'
   | 'optimism-goerli'
   // | "arbitrum"
-  | 'sepolia';
+  // | 'sepolia';y
 
 /**
  * Generic GAP Facade interface.
@@ -119,6 +119,7 @@ export interface EASNetworkConfig {
     eas: Hex;
     schema: Hex;
     multicall: Hex;
+    projectResolver: Hex;
   };
   /**
    * A tuple containing the schema name and it's UID for that network
