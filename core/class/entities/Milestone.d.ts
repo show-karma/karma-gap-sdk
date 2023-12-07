@@ -1,4 +1,4 @@
-import { MultiAttestPayload, SignerOrProvider, TNetwork } from '../../types';
+import { MultiAttestPayload, SignerOrProvider } from '../../types';
 import { Attestation } from '../Attestation';
 import { GapSchema } from '../GapSchema';
 import { MilestoneCompleted } from '../types/attestations';
@@ -74,6 +74,6 @@ export declare class Milestone extends Attestation<IMilestone> implements IMiles
      * Attest the status of the milestone as approved, rejected or completed.
      */
     private attestStatus;
-    static from(attestations: _Milestone[], network: TNetwork): Milestone[];
+    static from(attestations: _Milestone[]): Milestone[];
 }
 export {};

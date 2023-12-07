@@ -79,10 +79,9 @@ class Schema {
      * @param strict If true, will throw an error if schema reference is not valid. With this option, user should add schemas
      * in a strict order.
      */
-    constructor(args, gap, strict = false, ignoreSchema = false) {
+    constructor(args, strict = false, ignoreSchema = false) {
         this._schema = [];
         this.assert(args, strict);
-        this.gap = gap;
         this._schema = args.schema;
         this.uid = args.uid;
         this.name = args.name;
@@ -163,7 +162,7 @@ class Schema {
         // if (!uid) {
         //   throw new SchemaError("MISSING_FIELD", "Schema uid is required");
         // }
-        if (strict && references && !Schema.exists(references, this.gap.network)) {
+        if (strict && references && !Schema.exists(references)) {
             throw new SchemaError_1.SchemaError('INVALID_REFERENCE', `Schema ${name} references ${references} but it does not exist.`);
         }
     }
@@ -172,7 +171,7 @@ class Schema {
      * @returns
      */
     async attestOffchain({ data, signer, to, refUID }) {
-        const eas = await this.gap.eas.getOffchain();
+        const eas = await GAP_1.GAP.eas.getOffchain();
         const payload = {
             data,
             version: eas.version,
@@ -192,7 +191,7 @@ class Schema {
      * @returns
      */
     async revokeOffchain(uid, signer) {
-        const eas = this.gap.eas.connect(signer);
+        const eas = GAP_1.GAP.eas.connect(signer);
         return eas.revokeOffchain(uid);
     }
     /**
@@ -202,7 +201,7 @@ class Schema {
      * @returns
      */
     async multiRevokeOffchain(uids, signer) {
-        const eas = this.gap.eas.connect(signer);
+        const eas = GAP_1.GAP.eas.connect(signer);
         return eas.multiRevokeOffchain(uids);
     }
     /**
@@ -220,7 +219,7 @@ class Schema {
      * @returns {Object} An object containing the attestation results, including the CID if 'ipfsKey' is enabled.
      */
     async attest({ data, to, signer, refUID }) {
-        const eas = this.gap.eas.connect(signer);
+        const eas = GAP_1.GAP.eas.connect(signer);
         if (this.references && !refUID)
             throw new SchemaError_1.AttestationError('INVALID_REFERENCE', 'Attestation schema references another schema but no reference UID was provided.');
         if (this.isJsonSchema()) {
@@ -279,7 +278,7 @@ class Schema {
             if (this.references && !entity.refUID)
                 throw new SchemaError_1.SchemaError('INVALID_REF_UID', `Entity ${entity.schema.name} references another schema but no reference UID was provided.`);
         });
-        const eas = this.gap.eas.connect(signer);
+        const eas = GAP_1.GAP.eas.connect(signer);
         const entityBySchema = entities.reduce((acc, entity) => {
             const schema = entity.schema.uid;
             if (!acc[schema])
@@ -314,7 +313,7 @@ class Schema {
             acc[schemaId].push(uid);
             return acc;
         }, {});
-        const eas = this.gap.eas.connect(signer);
+        const eas = GAP_1.GAP.eas.connect(signer);
         const payload = Object.entries(groupBySchema).map(([schema, uids]) => ({
             schema,
             data: uids.map((uid) => ({ uid })),
@@ -324,8 +323,8 @@ class Schema {
         });
         return tx.wait();
     }
-    static exists(name, network) {
-        return this.schemas[network].find((schema) => schema.name === name);
+    static exists(name) {
+        return this.schemas.find((schema) => schema.name === name);
     }
     /**
      * Adds the schema signature to a shares list. Use Schema.get("SchemaName") to get the schema.
@@ -334,21 +333,21 @@ class Schema {
      * of the class AND its data can be overriden by any changes.__
      * @param schemas
      */
-    static add(network, ...schemas) {
+    static add(...schemas) {
         schemas.forEach((schema) => {
-            if (!this.exists(schema.name, network))
-                this.schemas[network].push(schema);
+            if (!this.exists(schema.name))
+                this.schemas.push(schema);
             else
                 throw new SchemaError_1.SchemaError('SCHEMA_ALREADY_EXISTS', `Schema ${schema.name} already exists.`);
         });
     }
-    static getAll(network) {
-        return this.schemas[network];
+    static getAll() {
+        return this.schemas;
     }
-    static get(name, network) {
-        const schema = this.schemas[network].find((schema) => schema.name === name || schema.uid === name);
+    static get(name) {
+        const schema = this.schemas.find((schema) => schema.name === name || schema.uid === name);
         if (!schema)
-            throw new SchemaError_1.SchemaError('SCHEMA_NOT_FOUND', `Schema ${name} not found. Available schemas: ${Schema.getNames(network)}`);
+            throw new SchemaError_1.SchemaError('SCHEMA_NOT_FOUND', `Schema ${name} not found. Available schemas: ${Schema.getNames()}`);
         return schema;
     }
     /**
@@ -356,21 +355,21 @@ class Schema {
      * @param names
      * @returns
      */
-    static getMany(names, network) {
-        return names.map((name) => this.get(name, network));
+    static getMany(names) {
+        return names.map((name) => this.get(name));
     }
-    static getNames(network) {
-        return Schema.schemas[network].map((schema) => schema.name);
+    static getNames() {
+        return Schema.schemas.map((schema) => schema.name);
     }
     /**
      * Validade references
      * @throws {SchemaError} if any reference is not valid
      * @returns {true} if references are valid
      */
-    static validate(network) {
+    static validate() {
         const errors = [];
-        this.schemas[network].forEach((schema) => {
-            if (!schema.references || Schema.exists(schema.references, network))
+        this.schemas.forEach((schema) => {
+            if (!schema.references || Schema.exists(schema.references))
                 return;
             else
                 errors.push(new SchemaError_1.SchemaError('INVALID_REFERENCE', `Schema ${schema.name} references ${schema.references} but it does not exist.`));
@@ -383,15 +382,15 @@ class Schema {
      * Replaces the schema list with a new list.
      * @param schemas
      */
-    static replaceAll(schemas, network) {
-        this.schemas[network] = schemas;
+    static replaceAll(schemas) {
+        this.schemas = schemas;
     }
     /**
      * Replaces a schema from the schema list.
      * @throws {SchemaError} if desired schema name does not exist.
      */
-    static replaceOne(schema, network) {
-        const idx = this.schemas[network].findIndex((item) => schema.name === item.name);
+    static replaceOne(schema) {
+        const idx = this.schemas.findIndex((item) => schema.name === item.name);
         if (!~idx)
             throw new SchemaError_1.SchemaError('SCHEMA_NOT_FOUND', `Schema ${schema.name} not found.`);
         this.schemas[idx] = schema;
@@ -435,7 +434,7 @@ class Schema {
      * the changes made to it will reflect the original instance.
      */
     get children() {
-        return Schema.schemas[this.gap.network].filter((schema) => schema.references === this.name || schema.references === this.uid);
+        return Schema.schemas.filter((schema) => schema.references === this.name || schema.references === this.uid);
     }
     /**
      * Asserts and sets the schema value.
@@ -447,8 +446,4 @@ class Schema {
     }
 }
 exports.Schema = Schema;
-Schema.schemas = {
-    'optimism-goerli': [],
-    optimism: [],
-    sepolia: [],
-};
+Schema.schemas = [];

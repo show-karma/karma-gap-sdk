@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GapIndexerClient = void 0;
 const Attestation_1 = require("../Attestation");
+const GapSchema_1 = require("../GapSchema");
 const Fetcher_1 = require("../Fetcher");
 const entities_1 = require("../entities");
 const Endpoints = {
@@ -38,12 +39,12 @@ class GapIndexerClient extends Fetcher_1.Fetcher {
         const { data } = await this.client.get(Endpoints.attestations.byUid(uid));
         if (!data)
             throw new Error('Attestation not found');
-        return Attestation_1.Attestation.fromInterface([data], this.gap.network)[0];
+        return Attestation_1.Attestation.fromInterface([data])[0];
     }
     async attestations(schemaName, search) {
         const { data } = await this.client.get(Endpoints.attestations.all(), {
             params: {
-                'filter[schemaUID]': this.gap.findSchema(schemaName).uid,
+                'filter[schemaUID]': GapSchema_1.GapSchema.get(schemaName).uid,
                 'filter[data]': search,
             },
         });
@@ -52,7 +53,7 @@ class GapIndexerClient extends Fetcher_1.Fetcher {
     async attestationsOf(schemaName, attester) {
         const { data } = await this.client.get(Endpoints.attestations.all(), {
             params: {
-                'filter[schemaUID]': this.gap.findSchema(schemaName).uid,
+                'filter[schemaUID]': GapSchema_1.GapSchema.get(schemaName).uid,
                 'filter[recipient]': attester,
             },
         });
@@ -67,25 +68,25 @@ class GapIndexerClient extends Fetcher_1.Fetcher {
                 'filter[name]': search,
             },
         });
-        return entities_1.Community.from(data, this.gap.network);
+        return entities_1.Community.from(data);
     }
     async communitiesOf(address, withGrants) {
         const { data } = await this.client.get(Endpoints.grantees.communities(address, withGrants));
-        return entities_1.Community.from(data, this.gap.network);
+        return entities_1.Community.from(data);
     }
     communitiesByIds(uids) {
         throw new Error('Method not implemented.');
     }
     async communityBySlug(slug) {
         const { data } = await this.client.get(Endpoints.communities.byUidOrSlug(slug));
-        return entities_1.Community.from([data], this.gap.network)[0];
+        return entities_1.Community.from([data])[0];
     }
     communityById(uid) {
         return this.communityBySlug(uid);
     }
     async projectBySlug(slug) {
         const { data } = await this.client.get(Endpoints.project.byUidOrSlug(slug));
-        return entities_1.Project.from([data], this.gap.network)[0];
+        return entities_1.Project.from([data])[0];
     }
     projectById(uid) {
         return this.projectBySlug(uid);
@@ -96,11 +97,11 @@ class GapIndexerClient extends Fetcher_1.Fetcher {
                 'filter[title]': name,
             },
         });
-        return entities_1.Project.from(data, this.gap.network);
+        return entities_1.Project.from(data);
     }
     async projectsOf(grantee) {
         const { data } = await this.client.get(Endpoints.grantees.projects(grantee));
-        return entities_1.Project.from(data, this.gap.network);
+        return entities_1.Project.from(data);
     }
     async grantee(address) {
         const { data } = await this.client.get(Endpoints.grantees.byAddress(address));
@@ -112,23 +113,23 @@ class GapIndexerClient extends Fetcher_1.Fetcher {
     }
     async grantsOf(grantee, withCommunity) {
         const { data } = await this.client.get(Endpoints.grantees.grants(grantee));
-        return entities_1.Grant.from(data, this.gap.network);
+        return entities_1.Grant.from(data);
     }
     async grantsFor(projects, withCommunity) {
         const { data } = await this.client.get(Endpoints.project.grants(projects[0].uid));
-        return entities_1.Grant.from(data, this.gap.network);
+        return entities_1.Grant.from(data);
     }
     async grantsForExtProject(projectExtId) {
         const { data } = await this.client.get(Endpoints.grants.byExternalId(projectExtId));
-        return entities_1.Grant.from(data, this.gap.network);
+        return entities_1.Grant.from(data);
     }
     async grantsByCommunity(uid) {
         const { data } = await this.client.get(Endpoints.communities.grants(uid));
-        return entities_1.Grant.from(data, this.gap.network);
+        return entities_1.Grant.from(data);
     }
     async milestonesOf(grants) {
         const { data } = await this.client.get(Endpoints.project.milestones(grants[0].uid));
-        return entities_1.Milestone.from(data, this.gap.network);
+        return entities_1.Milestone.from(data);
     }
     async membersOf(projects) {
         throw new Error('Method not implemented.');

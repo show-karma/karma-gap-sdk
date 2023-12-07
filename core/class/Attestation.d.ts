@@ -1,4 +1,4 @@
-import { Hex, IAttestation, JSONStr, MultiAttestData, SignerOrProvider, TNetwork } from '../types';
+import { Hex, IAttestation, JSONStr, MultiAttestData, SignerOrProvider } from '../types';
 import { Schema } from './Schema';
 import { SchemaItem, SchemaValue } from '@ethereum-attestation-service/eas-sdk';
 import { GapSchema } from './GapSchema';
@@ -12,7 +12,6 @@ export interface AttestationArgs<T = unknown, S extends Schema = Schema> {
     revoked?: boolean;
     revocationTime?: Date | number;
     createdAt?: Date | number;
-    chainID?: number;
 }
 /**
  * Represents the EAS Attestation and provides methods to manage attestations.
@@ -20,13 +19,13 @@ export interface AttestationArgs<T = unknown, S extends Schema = Schema> {
  *
  * ```ts
  * const grantee = new Attestation({
- *  schema: Schema.get("Grantee", "network-name"), // Use this.schema.gap.findSchema("SchemaName") if using default GAP schemas
+ *  schema: Schema.get("Grantee"), // Use GapSchema.find("SchemaName") if using default GAP schemas
  *  data: { grantee: true },
  *  uid: "0xabc123",
  * });
  *
  * const granteeDetails = new Attestation({
- *  schema: Schema.get("GranteeDetails", "optimism"),
+ *  schema: Schema.get("GranteeDetails"),
  *  data: {
  *    name: "John Doe",
  *    description: "A description",
@@ -55,7 +54,6 @@ export declare class Attestation<T = unknown, S extends Schema = GapSchema> impl
     readonly revoked?: boolean;
     readonly revocationTime?: Date;
     readonly createdAt: Date;
-    private _chainID;
     private _reference?;
     constructor(args: AttestationArgs<T, S>);
     /**
@@ -149,14 +147,13 @@ export declare class Attestation<T = unknown, S extends Schema = GapSchema> impl
     /**
      * Transform attestation interface-based into class-based.
      */
-    static fromInterface<T extends Attestation = Attestation>(attestations: IAttestation[], network: TNetwork): T[];
+    static fromInterface<T extends Attestation = Attestation>(attestations: IAttestation[]): T[];
     /**
      * Asserts if schema is valid.
      * > Does not check refUID if `strict = false`. To check refUID use `Schema.validate()`
      * @param args
      */
     protected assert(args: AttestationArgs, strict?: boolean): void;
-    get chainID(): number;
     get data(): T;
     get uid(): Hex;
     set uid(uid: Hex);

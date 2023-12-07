@@ -8,16 +8,16 @@ const Schema_1 = require("./Schema");
  * @extends Schema
  */
 class GapSchema extends Schema_1.Schema {
-    constructor(args, gap, strict = false, ignoreSchema = false) {
-        super(args, gap, strict, ignoreSchema);
+    constructor(args, strict = false, ignoreSchema = false) {
+        super(args, strict, ignoreSchema);
         if (!ignoreSchema)
-            Schema_1.Schema.add(gap.network, new GapSchema({
+            Schema_1.Schema.add(new GapSchema({
                 name: args.name,
                 schema: args.schema.map((s) => ({ ...s })),
                 uid: args.uid,
                 references: args.references,
                 revocable: args.revocable,
-            }, gap, strict, true));
+            }, strict, true));
     }
     /**
      * Clones a schema without references to the original.
@@ -31,15 +31,15 @@ class GapSchema extends Schema_1.Schema {
             uid: schema.uid,
             references: schema.references,
             revocable: schema.revocable,
-        }, schema.gap, false, true);
+        }, false, true);
     }
     /**
      * Returns a copy of the original schema with no pointers.
      * @param name
      * @returns
      */
-    static find(name, network) {
-        const found = Schema_1.Schema.get(name, network);
+    static find(name) {
+        const found = Schema_1.Schema.get(name);
         return this.clone(found);
     }
     /**
@@ -47,15 +47,15 @@ class GapSchema extends Schema_1.Schema {
      * @param names
      * @returns
      */
-    static findMany(names, network) {
-        const schemas = Schema_1.Schema.getMany(names, network);
+    static findMany(names) {
+        const schemas = Schema_1.Schema.getMany(names);
         return schemas.map((s) => this.clone(s));
     }
     /**
      * Get all schemas that references this schema.
      */
     get children() {
-        return (0, utils_1.mapFilter)(GapSchema.schemas[this.gap.network], (s) => s.references === this.name || s.references === this.uid, (s) => new GapSchema(s, s.gap, false, true));
+        return (0, utils_1.mapFilter)(GapSchema.schemas, (s) => s.references === this.name || s.references === this.uid, (s) => new GapSchema(s, false, true));
     }
 }
 exports.GapSchema = GapSchema;
