@@ -3,5 +3,8 @@ node_modules
 .vscode
 tests.ts
 keys.json
+**concurrent-grants.json
 csv-upload/*.csv
 !csv-upload/example.csv
+config/keys-csv.json
+config/keys.json

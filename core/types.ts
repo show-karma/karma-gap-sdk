@@ -1,13 +1,13 @@
-import { BytesLike } from "ethers";
+import { BytesLike } from 'ethers';
 import {
   AttestationRequestData,
   EAS,
   MultiAttestationRequest,
   SchemaItem,
-} from "@ethereum-attestation-service/eas-sdk";
-import { SignerOrProvider as EASSigner } from "@ethereum-attestation-service/eas-sdk/dist/transaction";
-import { Attestation } from "./class";
-import { Fetcher } from "./class/Fetcher";
+} from '@ethereum-attestation-service/eas-sdk';
+import { SignerOrProvider as EASSigner } from '@ethereum-attestation-service/eas-sdk/dist/transaction';
+import { Attestation } from './class';
+import { Fetcher } from './class/Fetcher';
 export type Hex = `0x${string}`;
 
 export type SignerOrProvider = EASSigner & {
@@ -37,44 +37,44 @@ export interface AttestArgs<T = unknown> {
 }
 
 export type TSchemaName =
-  | "Community"
-  | "CommunityDetails"
-  | "Grant"
-  | "GrantDetails"
-  | "GrantVerified"
-  | "MemberOf"
-  | "MemberDetails"
-  | "Milestone"
-  | "MilestoneCompleted"
-  | "MilestoneApproved"
-  | "Project"
-  | "ProjectDetails"
-  | "Details";
+  | 'Community'
+  | 'CommunityDetails'
+  | 'Grant'
+  | 'GrantDetails'
+  | 'GrantVerified'
+  | 'MemberOf'
+  | 'MemberDetails'
+  | 'Milestone'
+  | 'MilestoneCompleted'
+  | 'MilestoneApproved'
+  | 'Project'
+  | 'ProjectDetails'
+  | 'Details';
 
 export type TResolvedSchemaNames =
-  | "Community"
-  | "Grant"
-  | "GrantVerified"
-  | "MemberOf"
-  | "MilestoneCompleted"
-  | "MilestoneApproved"
-  | "Project"
-  | "Details";
+  | 'Community'
+  | 'Grant'
+  | 'GrantVerified'
+  | 'MemberOf'
+  | 'MilestoneCompleted'
+  | 'MilestoneApproved'
+  | 'Project'
+  | 'Details';
 
 export type TExternalLink =
-  | "twitter"
-  | "github"
-  | "website"
-  | "linkedin"
-  | "discord";
+  | 'twitter'
+  | 'github'
+  | 'website'
+  | 'linkedin'
+  | 'discord';
 
 export type TNetwork =
   // | "mainnet"
   // | "base-goerli"
-  | "optimism"
-  | "optimism-goerli"
+  | 'optimism'
+  | 'optimism-goerli'
   // | "arbitrum"
-  | "sepolia";
+  // | 'sepolia';y
 
 /**
  * Generic GAP Facade interface.
@@ -119,6 +119,7 @@ export interface EASNetworkConfig {
     eas: Hex;
     schema: Hex;
     multicall: Hex;
+    projectResolver: Hex;
   };
   /**
    * A tuple containing the schema name and it's UID for that network
@@ -167,3 +168,18 @@ export interface SchemaRes {
     attestations: IAttestation[];
   };
 }
+
+/**
+ * Valid remote storage types
+ */
+export const enum STORAGE_TYPE {
+  IPFS = 0,
+  ARWEAVE = 1,
+  SWARM = 2,
+  UNKNOWN = 3,
+}
+
+export type TRemoteStorageOutput<T = unknown> = {
+  hash: T;
+  storageType: number;
+};

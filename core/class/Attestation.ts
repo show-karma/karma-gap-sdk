@@ -6,19 +6,19 @@ import {
   MultiAttestPayload,
   SignerOrProvider,
   TSchemaName,
-} from "../types";
-import { Schema } from "./Schema";
-import { AttestationError, SchemaError } from "./SchemaError";
+} from '../types';
+import { Schema } from './Schema';
+import { AttestationError, SchemaError } from './SchemaError';
 import {
   SchemaDecodedItem,
   SchemaItem,
   SchemaValue,
-} from "@ethereum-attestation-service/eas-sdk";
-import { getDate } from "../utils/get-date";
-import { GAP } from "./GAP";
-import { GapSchema } from "./GapSchema";
-import { nullRef } from "../consts";
-import { GapContract } from "./contract/GapContract";
+} from '@ethereum-attestation-service/eas-sdk';
+import { getDate } from '../utils/get-date';
+import { GAP } from './GAP';
+import { GapSchema } from './GapSchema';
+import { nullRef } from '../consts';
+import { GapContract } from './contract/GapContract';
 
 export interface AttestationArgs<T = unknown, S extends Schema = Schema> {
   data: T | string;
@@ -91,7 +91,7 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
     this.recipient = args.recipient;
     this.revoked = args.revoked;
     this.revocationTime = getDate(args.revocationTime);
-    this.createdAt = getDate(args.createdAt || Date.now());
+    this.createdAt = getDate(args.createdAt || Date.now() / 1000);
   }
 
   /**
@@ -115,7 +115,7 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
    */
   setValues(values: T) {
     const isJsonSchema = this.schema.isJsonSchema();
-    if (isJsonSchema) this.schema.setValue("json", JSON.stringify(values));
+    if (isJsonSchema) this.schema.setValue('json', JSON.stringify(values));
     this._data = values;
 
     Object.entries(values).forEach(([key, value]) => {
@@ -137,7 +137,7 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
    * @returns
    */
   fromDecodedSchema(data: T | JSONStr): T {
-    return typeof data === "string"
+    return typeof data === 'string'
       ? Attestation.fromDecodedSchema<T>(data)
       : data;
   }
@@ -163,7 +163,7 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
       ]);
     } catch (error) {
       console.error(error);
-      throw new SchemaError("REVOKE_ERROR", "Error revoking attestation.");
+      throw new SchemaError('REVOKE_ERROR', 'Error revoking attestation.');
     }
   }
 
@@ -187,7 +187,7 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
       console.log(`Attested ${this.schema.name} with UID ${uid}`);
     } catch (error) {
       console.error(error);
-      throw new AttestationError("ATTEST_ERROR", "Error during attestation.");
+      throw new AttestationError('ATTEST_ERROR', 'Error during attestation.');
     }
   }
 
@@ -233,11 +233,21 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
    * @param refIdx
    * @returns [Encoded payload, Raw payload]
    */
-  payloadFor(refIdx: number): {
+  async payloadFor(refIdx: number): Promise<{
     payload: MultiAttestData;
     raw: MultiAttestData;
-  } {
+  }> {
     this.assertPayload();
+
+    if (this.schema.isJsonSchema()) {
+      const { remoteClient } = GAP;
+      if (remoteClient) {
+        const cid = await remoteClient.save(this._data, this.schema.name);
+        const encodedData = remoteClient.encode(cid);
+        this.schema.setValue('json', JSON.stringify(encodedData));
+      }
+    }
+
     const payload = (encode = true): MultiAttestData => ({
       uid: nullRef,
       refIdx,
@@ -271,10 +281,10 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
       const parsed: SchemaDecodedItem[] = JSON.parse(data);
 
       if (data.length < 2 && !/\{.*\}/gim.test(data)) return {} as T;
-      if (parsed.length === 1 && parsed[0].name === "json") {
+      if (parsed.length === 1 && parsed[0].name === 'json') {
         const { value } = parsed[0];
         return (
-          typeof value.value === "string"
+          typeof value.value === 'string'
             ? JSON.parse(value.value)
             : value.value
         ) as T;
@@ -283,8 +293,8 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
       if (parsed && Array.isArray(parsed)) {
         return parsed.reduce((acc, curr) => {
           const { value } = curr.value;
-          if (curr.type.includes("uint")) {
-            acc[curr.name] = ["string", "bigint"].includes(typeof value)
+          if (curr.type.includes('uint')) {
+            acc[curr.name] = ['string', 'bigint'].includes(typeof value)
               ? BigInt(value as any)
               : Number(value);
           } else acc[curr.name] = value;
@@ -293,14 +303,14 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
       }
 
       throw new SchemaError(
-        "INVALID_DATA",
-        "Data must be a valid JSON array string."
+        'INVALID_DATA',
+        'Data must be a valid JSON array string.'
       );
     } catch (error) {
       console.error(error);
       throw new SchemaError(
-        "INVALID_DATA",
-        "Data must be a valid JSON string."
+        'INVALID_DATA',
+        'Data must be a valid JSON string.'
       );
     }
   }
@@ -338,11 +348,11 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
     const { schema, uid } = args;
 
     if (!schema || !(schema instanceof Schema)) {
-      throw new SchemaError("MISSING_FIELD", "Schema must be an array.");
+      throw new SchemaError('MISSING_FIELD', 'Schema must be an array.');
     }
 
     if (!uid) {
-      throw new SchemaError("MISSING_FIELD", "Schema uid is required");
+      throw new SchemaError('MISSING_FIELD', 'Schema uid is required');
     }
 
     if (strict) Schema.validate();
@@ -374,7 +384,7 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
       recipient: to,
       attester: from,
       schema,
-      uid: "0x0",
+      uid: '0x0',
       createdAt: new Date(),
     });
   }

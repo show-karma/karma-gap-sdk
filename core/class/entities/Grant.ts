@@ -22,6 +22,12 @@ export interface IGrant {
   communityUID: Hex;
 }
 
+export interface ISummaryProject {
+  title: string;
+  slug?: string;
+  uid: Hex;
+}
+
 export class Grant extends Attestation<IGrant> {
   details?: GrantDetails;
   communityUID: Hex;
@@ -30,8 +36,10 @@ export class Grant extends Attestation<IGrant> {
   milestones: Milestone[] = [];
   community: Community;
   updates: GrantUpdate[] = [];
+  members: string[] = [];
   completed?: GrantCompleted;
-  project?: Project;
+  project?: ISummaryProject;
+  categories?: string[] = [];
 
   async verify(signer: SignerOrProvider) {
     const eas = GAP.eas.connect(signer);
@@ -88,23 +96,33 @@ export class Grant extends Attestation<IGrant> {
    * @param payload
    * @param projectIdx
    */
-  multiAttestPayload(currentPayload: MultiAttestPayload = [], projectIdx = 0) {
+  async multiAttestPayload(
+    currentPayload: MultiAttestPayload = [],
+    projectIdx = 0
+  ) {
     this.assertPayload();
     const payload = [...currentPayload];
-    const grantIdx = payload.push([this, this.payloadFor(projectIdx)]) - 1;
+    const grantIdx =
+      payload.push([this, await this.payloadFor(projectIdx)]) - 1;
     if (this.details) {
-      payload.push([this.details, this.details.payloadFor(grantIdx)]);
+      payload.push([this.details, await this.details.payloadFor(grantIdx)]);
     }
 
     if (this.milestones.length) {
-      this.milestones.forEach((m) => {
-        payload.push([m, m.payloadFor(grantIdx)]);
-      });
+      await Promise.all(
+        this.milestones.map(async (m) =>
+          payload.push(
+            ...(await m.multiAttestPayload(currentPayload, grantIdx))
+          )
+        )
+      );
     }
     if (this.updates.length) {
-      this.updates.forEach((u) => {
-        payload.push([u, u.payloadFor(grantIdx)]);
-      });
+      await Promise.all(
+        this.updates.map(async (u) =>
+          payload.push([u, await u.payloadFor(grantIdx)])
+        )
+      );
     }
 
     return payload.slice(currentPayload.length, payload.length);
@@ -115,7 +133,7 @@ export class Grant extends Attestation<IGrant> {
    */
   async attest(signer: SignerOrProvider): Promise<void> {
     this.assertPayload();
-    const payload = this.multiAttestPayload();
+    const payload = await this.multiAttestPayload();
 
     const uids = await GapContract.multiAttest(
       signer,
@@ -212,7 +230,7 @@ export class Grant extends Attestation<IGrant> {
         );
       }
 
-      if(attestation.completed) {
+      if (attestation.completed) {
         const { completed } = attestation;
         grant.completed = new GrantCompleted({
           ...completed,
@@ -225,12 +243,20 @@ export class Grant extends Attestation<IGrant> {
 
       if (attestation.project) {
         const { project } = attestation;
-        grant.project = Project.from([project])[0];
+        grant.project = project;
       }
 
       if (attestation.community) {
         const { community } = attestation;
         grant.community = Community.from([community])[0];
+      }
+
+      if (attestation.members) {
+        grant.members = attestation.members;
+      }
+
+      if(attestation.categories) {
+        grant.categories = attestation.categories;
       }
 
       return grant;
