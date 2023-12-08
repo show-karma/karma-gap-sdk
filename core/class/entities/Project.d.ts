@@ -1,6 +1,6 @@
 import { Attestation } from '../Attestation';
 import { Grantee, MemberDetails, ProjectDetails } from '../types/attestations';
-import { Hex, MultiAttestPayload, SignerOrProvider, TNetwork } from 'core/types';
+import { Hex, MultiAttestPayload, SignerOrProvider } from 'core/types';
 import { Grant } from './Grant';
 import { MemberOf } from './MemberOf';
 interface _Project extends Project {
@@ -25,6 +25,8 @@ export declare class Project extends Attestation<IProject> {
      */
     multiAttestPayload(currentPayload?: MultiAttestPayload, communityIdx?: number): Promise<MultiAttestPayload>;
     attest(signer: SignerOrProvider): Promise<void>;
+    transferOwnership(signer: SignerOrProvider, newOwner: Hex): Promise<void>;
+    isOwner(signer: SignerOrProvider): Promise<boolean>;
     /**
      * Add new members to the project.
      * If any member in the array already exists in the project
@@ -68,6 +70,6 @@ export declare class Project extends Attestation<IProject> {
      * @param signer
      */
     removeAllMembers(signer: SignerOrProvider): Promise<void>;
-    static from(attestations: _Project[], network: TNetwork): Project[];
+    static from(attestations: _Project[]): Project[];
 }
 export {};

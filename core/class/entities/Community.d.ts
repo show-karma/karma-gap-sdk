@@ -1,8 +1,8 @@
-import { Attestation } from '../Attestation';
-import { CommunityDetails, ICommunityDetails } from '../types/attestations';
-import { Project } from './Project';
-import { MultiAttestPayload, SignerOrProvider, TNetwork } from 'core/types';
-import { Grant } from './Grant';
+import { Attestation } from "../Attestation";
+import { CommunityDetails, ICommunityDetails } from "../types/attestations";
+import { Project } from "./Project";
+import { MultiAttestPayload, SignerOrProvider } from "core/types";
+import { Grant } from "./Grant";
 interface _Community extends Community {
 }
 export interface ICommunity {
@@ -31,6 +31,6 @@ export declare class Community extends Attestation<ICommunity> {
      * @param details
      */
     attest(signer: SignerOrProvider, details?: ICommunityDetails): Promise<void>;
-    static from(attestations: _Community[], network: TNetwork): Community[];
+    static from(attestations: _Community[]): Community[];
 }
 export {};
