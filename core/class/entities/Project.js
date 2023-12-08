@@ -51,7 +51,7 @@ class Project extends Attestation_1.Attestation {
         await GapContract_1.GapContract.transferProjectOwnership(signer, this.uid, newOwner);
     }
     isOwner(signer) {
-        return GapContract_1.GapContract.isProjectOwner(signer, this.uid);
+        return GapContract_1.GapContract.isProjectOwner(signer, this.uid, this.chainID);
     }
     /**
      * Add new members to the project.

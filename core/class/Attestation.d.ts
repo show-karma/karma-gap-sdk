@@ -12,6 +12,7 @@ export interface AttestationArgs<T = unknown, S extends Schema = Schema> {
     revoked?: boolean;
     revocationTime?: Date | number;
     createdAt?: Date | number;
+    chainID?: number;
 }
 /**
  * Represents the EAS Attestation and provides methods to manage attestations.
@@ -54,6 +55,7 @@ export declare class Attestation<T = unknown, S extends Schema = GapSchema> impl
     readonly revoked?: boolean;
     readonly revocationTime?: Date;
     readonly createdAt: Date;
+    readonly chainID: number;
     private _reference?;
     constructor(args: AttestationArgs<T, S>);
     /**

@@ -204,7 +204,7 @@ export declare class GAP extends Facade {
      * Get the multicall contract
      * @param signer
      */
-    static getProjectResolver(signer: SignerOrProvider): ethers.Contract;
+    static getProjectResolver(signer: SignerOrProvider, chainId?: number): ethers.Contract;
     get schemas(): GapSchema[];
     /**
      * Defined if the transactions will be gasless or not.

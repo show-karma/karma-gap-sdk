@@ -14,6 +14,7 @@ const eas_sdk_1 = require("@ethereum-attestation-service/eas-sdk");
 const consts_1 = require("../consts");
 const ethers_1 = require("ethers");
 const package_json_1 = require("../../package.json");
+const get_web3_provider_1 = require("../utils/get-web3-provider");
 /**
  * GAP SDK Facade.
  *
@@ -172,9 +173,10 @@ class GAP extends types_1.Facade {
      * Get the multicall contract
      * @param signer
      */
-    static getProjectResolver(signer) {
+    static getProjectResolver(signer, chainId) {
+        const provider = chainId ? (0, get_web3_provider_1.getWeb3Provider)(chainId) : signer;
         const address = consts_1.Networks[this.client.network].contracts.projectResolver;
-        return new ethers_1.ethers.Contract(address, ProjectResolver_json_1.default, signer);
+        return new ethers_1.ethers.Contract(address, ProjectResolver_json_1.default, provider);
     }
     get schemas() {
         return this._schemas;
