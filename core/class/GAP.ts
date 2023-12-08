@@ -18,6 +18,7 @@ import { ethers } from 'ethers';
 import { version } from '../../package.json';
 import { Fetcher } from './Fetcher';
 import { RemoteStorage } from './remote-storage/RemoteStorage';
+import { getWeb3Provider } from '../utils/get-web3-provider';
 
 interface GAPArgs {
   network: TNetwork;
@@ -319,9 +320,10 @@ export class GAP extends Facade {
    * Get the multicall contract
    * @param signer
    */
-  static getProjectResolver(signer: SignerOrProvider) {
+  static getProjectResolver(signer: SignerOrProvider, chainId?: number) {
+    const provider = chainId ? getWeb3Provider(chainId) : signer;
     const address = Networks[this.client.network].contracts.projectResolver;
-    return new ethers.Contract(address, ProjectResolverABI, signer as any);
+    return new ethers.Contract(address, ProjectResolverABI, provider as any);
   }
 
   get schemas() {
