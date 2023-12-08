@@ -3,7 +3,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Simple and easy interface between EAS and Karma GAP.",
   "main": "./index.js",
   "author": "KarmaHQ",
@@ -16,7 +16,7 @@
   "scripts": {
     "deploy": "npx ts-node ./core/scripts/deploy.ts",
     "csv-upload": "npx ts-node ./csv-upload/scripts/run.ts",
-    "publish": "npm publish --scope=@show-karma/karma-gap-sdk --access public"
+    "publish-npm": "npm version patch && tsc && cd .dist && npm publish --scope=@show-karma/karma-gap-sdk --access public"
   },
   "dependencies": {
     "@ethereum-attestation-service/eas-sdk": "^1.1.0-beta.2",
