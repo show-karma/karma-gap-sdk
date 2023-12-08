@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getWeb3Provider = void 0;
-const consts_1 = require("core/consts");
+const consts_1 = require("../consts");
 const ethers_1 = require("ethers");
 const providers = {};
 const getWeb3Provider = (chainId) => {

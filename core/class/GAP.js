@@ -14,7 +14,7 @@ const eas_sdk_1 = require("@ethereum-attestation-service/eas-sdk");
 const consts_1 = require("../consts");
 const ethers_1 = require("ethers");
 const package_json_1 = require("../../package.json");
-const get_web3_provider_1 = require("core/utils/get-web3-provider");
+const get_web3_provider_1 = require("../utils/get-web3-provider");
 /**
  * GAP SDK Facade.
  *
