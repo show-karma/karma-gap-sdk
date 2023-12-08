@@ -17,7 +17,7 @@ export declare class GapContract {
      * @returns
      */
     private static getRSV;
-    static getSignerAddress(signer: SignerOrProvider): Promise<string>;
+    private static getSignerAddress;
     /**
      * Get nonce for the transaction
      * @param address
@@ -51,20 +51,5 @@ export declare class GapContract {
      * @returns an array with the attestation UIDs.
      */
     static multiRevokeBySig(signer: SignerOrProvider, payload: MultiRevocationRequest[]): Promise<void>;
-    /**
-     * Transfer the ownership of an attestation
-     * @param signer
-     * @param projectUID
-     * @param newOwner
-     * @returns
-     */
-    static transferProjectOwnership(signer: SignerOrProvider, projectUID: Hex, newOwner: Hex): Promise<any>;
-    /**
-     * Check if the signer is the owner of the project
-     * @param signer
-     * @param projectUID
-     * @returns
-     */
-    static isProjectOwner(signer: SignerOrProvider, projectUID: Hex): Promise<boolean>;
     private static getTransactionLogs;
 }

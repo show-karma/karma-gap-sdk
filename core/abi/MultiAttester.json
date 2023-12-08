@@ -9,25 +9,6 @@
         "anonymous": false,
         "inputs": [
             {
-                "indexed": true,
-                "internalType": "address",
-                "name": "attester",
-                "type": "address"
-            },
-            {
-                "indexed": false,
-                "internalType": "bytes32",
-                "name": "uid",
-                "type": "bytes32"
-            }
-        ],
-        "name": "GapAttested",
-        "type": "event"
-    },
-    {
-        "anonymous": false,
-        "inputs": [
-            {
                 "indexed": false,
                 "internalType": "uint8",
                 "name": "version",
@@ -223,14 +204,118 @@
                 "internalType": "address",
                 "name": "easAddr",
                 "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "projectResolverAddr",
-                "type": "address"
             }
         ],
         "name": "initialize",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "components": [
+                    {
+                        "internalType": "bytes32",
+                        "name": "uid",
+                        "type": "bytes32"
+                    },
+                    {
+                        "components": [
+                            {
+                                "internalType": "bytes32",
+                                "name": "schema",
+                                "type": "bytes32"
+                            },
+                            {
+                                "components": [
+                                    {
+                                        "internalType": "address",
+                                        "name": "recipient",
+                                        "type": "address"
+                                    },
+                                    {
+                                        "internalType": "uint64",
+                                        "name": "expirationTime",
+                                        "type": "uint64"
+                                    },
+                                    {
+                                        "internalType": "bool",
+                                        "name": "revocable",
+                                        "type": "bool"
+                                    },
+                                    {
+                                        "internalType": "bytes32",
+                                        "name": "refUID",
+                                        "type": "bytes32"
+                                    },
+                                    {
+                                        "internalType": "bytes",
+                                        "name": "data",
+                                        "type": "bytes"
+                                    },
+                                    {
+                                        "internalType": "uint256",
+                                        "name": "value",
+                                        "type": "uint256"
+                                    }
+                                ],
+                                "internalType": "struct AttestationRequestData[]",
+                                "name": "data",
+                                "type": "tuple[]"
+                            }
+                        ],
+                        "internalType": "struct MultiAttestationRequest",
+                        "name": "multiRequest",
+                        "type": "tuple"
+                    },
+                    {
+                        "internalType": "uint256",
+                        "name": "refIdx",
+                        "type": "uint256"
+                    }
+                ],
+                "internalType": "struct Gap.AttestationRequestNode[]",
+                "name": "requestNodes",
+                "type": "tuple[]"
+            },
+            {
+                "internalType": "string",
+                "name": "payloadHash",
+                "type": "string"
+            },
+            {
+                "internalType": "address",
+                "name": "attester",
+                "type": "address"
+            },
+            {
+                "internalType": "uint256",
+                "name": "nonce",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint256",
+                "name": "expiry",
+                "type": "uint256"
+            },
+            {
+                "internalType": "uint8",
+                "name": "v",
+                "type": "uint8"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "r",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "bytes32",
+                "name": "s",
+                "type": "bytes32"
+            }
+        ],
+        "name": "multiSequentialAttestBySig",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
@@ -419,82 +504,36 @@
         "type": "function"
     },
     {
+        "inputs": [],
+        "name": "renounceOwnership",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
         "inputs": [
             {
-                "components": [
-                    {
-                        "internalType": "bytes32",
-                        "name": "uid",
-                        "type": "bytes32"
-                    },
-                    {
-                        "components": [
-                            {
-                                "internalType": "bytes32",
-                                "name": "schema",
-                                "type": "bytes32"
-                            },
-                            {
-                                "components": [
-                                    {
-                                        "internalType": "address",
-                                        "name": "recipient",
-                                        "type": "address"
-                                    },
-                                    {
-                                        "internalType": "uint64",
-                                        "name": "expirationTime",
-                                        "type": "uint64"
-                                    },
-                                    {
-                                        "internalType": "bool",
-                                        "name": "revocable",
-                                        "type": "bool"
-                                    },
-                                    {
-                                        "internalType": "bytes32",
-                                        "name": "refUID",
-                                        "type": "bytes32"
-                                    },
-                                    {
-                                        "internalType": "bytes",
-                                        "name": "data",
-                                        "type": "bytes"
-                                    },
-                                    {
-                                        "internalType": "uint256",
-                                        "name": "value",
-                                        "type": "uint256"
-                                    }
-                                ],
-                                "internalType": "struct AttestationRequestData[]",
-                                "name": "data",
-                                "type": "tuple[]"
-                            }
-                        ],
-                        "internalType": "struct MultiAttestationRequest",
-                        "name": "multiRequest",
-                        "type": "tuple"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "refIdx",
-                        "type": "uint256"
-                    }
-                ],
-                "internalType": "struct Gap.AttestationRequestNode[]",
-                "name": "requestNodes",
-                "type": "tuple[]"
-            },
+                "internalType": "address",
+                "name": "newOwner",
+                "type": "address"
+            }
+        ],
+        "name": "transferOwnership",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "stateMutability": "nonpayable",
+        "type": "constructor"
+    },
+    {
+        "inputs": [
             {
                 "internalType": "string",
                 "name": "payloadHash",
                 "type": "string"
-            },
-            {
-                "internalType": "address",
-                "name": "attester",
-                "type": "address"
             },
             {
                 "internalType": "uint256",
@@ -522,66 +561,16 @@
                 "type": "bytes32"
             }
         ],
-        "name": "multiSequentialAttestBySig",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "renounceOwnership",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "contract IProjectResolver",
-                "name": "projectResolver",
-                "type": "address"
-            }
-        ],
-        "name": "setProjectResolver",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [
+        "name": "_recoverSignerAddress",
+        "outputs": [
             {
                 "internalType": "address",
-                "name": "newOwner",
+                "name": "signer",
                 "type": "address"
             }
         ],
-        "name": "transferOwnership",
-        "outputs": [],
-        "stateMutability": "nonpayable",
+        "stateMutability": "view",
         "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "bytes32",
-                "name": "projectUid",
-                "type": "bytes32"
-            },
-            {
-                "internalType": "address",
-                "name": "newOwner",
-                "type": "address"
-            }
-        ],
-        "name": "transferProjectOwnership",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "stateMutability": "nonpayable",
-        "type": "constructor"
     },
     {
         "inputs": [],
@@ -656,30 +645,6 @@
         "inputs": [
             {
                 "internalType": "address",
-                "name": "addr",
-                "type": "address"
-            },
-            {
-                "internalType": "bytes32",
-                "name": "projectUid",
-                "type": "bytes32"
-            }
-        ],
-        "name": "isProjectAdmin",
-        "outputs": [
-            {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "address",
                 "name": "",
                 "type": "address"
             }
@@ -703,25 +668,6 @@
                 "internalType": "address",
                 "name": "",
                 "type": "address"
-            }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-    },
-    {
-        "inputs": [
-            {
-                "internalType": "bytes32",
-                "name": "refSchemaUid",
-                "type": "bytes32"
-            }
-        ],
-        "name": "refIsProject",
-        "outputs": [
-            {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
             }
         ],
         "stateMutability": "view",

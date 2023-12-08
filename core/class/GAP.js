@@ -4,16 +4,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GAP = void 0;
-const MultiAttester_json_1 = __importDefault(require("../abi/MultiAttester.json"));
-const ProjectResolver_json_1 = __importDefault(require("../abi/ProjectResolver.json"));
 const types_1 = require("../types");
 const Schema_1 = require("./Schema");
 const GapSchema_1 = require("./GapSchema");
-const GapEasClient_1 = require("./GraphQL/GapEasClient");
 const eas_sdk_1 = require("@ethereum-attestation-service/eas-sdk");
 const consts_1 = require("../consts");
 const ethers_1 = require("ethers");
+const MultiAttester_json_1 = __importDefault(require("../abi/MultiAttester.json"));
 const package_json_1 = require("../../package.json");
+const GraphQL_1 = require("./GraphQL");
 /**
  * GAP SDK Facade.
  *
@@ -54,8 +53,7 @@ const package_json_1 = require("../../package.json");
  *
  * const schemas = MountEntities(Networks.sepolia);
  *
- * // Use GAP.createClient to create a singleton GAP client
- * const gap = GAP.createClient({
+ * const gap = new GAP({
  *   network: "sepolia",
  *   owner: "0xd7d1DB401EA825b0325141Cd5e6cd7C2d01825f2",
  *   schemas: Object.values(schemas),
@@ -96,14 +94,19 @@ class GAP extends types_1.Facade {
         };
         const schemas = args.schemas || Object.values((0, consts_1.MountEntities)(consts_1.Networks[args.network]));
         this.network = args.network;
-        GAP._eas = new eas_sdk_1.EAS(consts_1.Networks[args.network].contracts.eas);
-        this.fetch = args.apiClient || new GapEasClient_1.GapEasClient({ network: args.network });
+        this._eas = new eas_sdk_1.EAS(consts_1.Networks[args.network].contracts.eas);
+        this.fetch =
+            args.apiClient ||
+                new GraphQL_1.GapEasClient({
+                    network: args.network,
+                });
+        this.fetch.gapInstance = this;
         this.assertGelatoOpts(args);
         GAP._gelatoOpts = args.gelatoOpts;
         GAP.remoteStorage = args.remoteStorage;
-        this._schemas = schemas.map((schema) => new GapSchema_1.GapSchema(schema, false, args.globalSchemas ? !args.globalSchemas : false));
-        Schema_1.Schema.validate();
-        console.info(`Loaded GAP SDK v${package_json_1.version}`);
+        this._schemas = schemas.map((schema) => new GapSchema_1.GapSchema(schema, this, false, args.globalSchemas ? !args.globalSchemas : false));
+        Schema_1.Schema.validate(this.network);
+        console.info(`Loaded GAP SDK v${package_json_1.version} for network ${this.network}`);
     }
     assertGelatoOpts(args) {
         if (args.gelatoOpts &&
@@ -130,7 +133,7 @@ class GAP extends types_1.Facade {
      * @param schema
      */
     async attest(attestation) {
-        const schema = GapSchema_1.GapSchema.find(attestation.schemaName);
+        const schema = GapSchema_1.GapSchema.find(attestation.schemaName, this.network);
         return schema.attest(attestation);
     }
     /**
@@ -138,43 +141,44 @@ class GAP extends types_1.Facade {
      * @param schemas
      */
     replaceSchemas(schemas) {
-        Schema_1.Schema.replaceAll(schemas);
+        Schema_1.Schema.replaceAll(schemas, this.network);
     }
     /**
      *  Replaces a schema from the schema list.
      * @throws {SchemaError} if desired schema name does not exist.
      */
     replaceSingleSchema(schema) {
-        Schema_1.Schema.replaceOne(schema);
+        Schema_1.Schema.replaceOne(schema, this.network);
     }
     /**
-     * Creates or returns an existing GAP client.
-     *
-     * _Use the constructor only if multiple clients are needed._
-     * @static
-     * @param {GAPArgs} args
+     * Returns a copy of the original schema with no pointers.
+     * @param name
      * @returns
      */
-    static createClient(args) {
-        if (!this.client)
-            this.client = new this(args);
-        return this.client;
+    findSchema(name) {
+        const found = Schema_1.Schema.get(name, this.network);
+        return GapSchema_1.GapSchema.clone(found);
+    }
+    /**
+     * Find many schemas by name and return their copies as an array in the same order.
+     * @param names
+     * @returns
+     */
+    findManySchemas(names) {
+        const schemas = Schema_1.Schema.getMany(names, this.network);
+        return schemas.map((s) => GapSchema_1.GapSchema.clone(s));
     }
     /**
      * Get the multicall contract
      * @param signer
      */
-    static getMulticall(signer) {
-        const address = consts_1.Networks[this.client.network].contracts.multicall;
+    static async getMulticall(signer) {
+        const chain = (await signer.provider.getNetwork()) || signer.provider.network;
+        const network = Object.values(consts_1.Networks).find((n) => +n.chainId === Number(chain.chainId));
+        if (!network)
+            throw new Error(`Network ${chain.name || chain.chainId} not supported.`);
+        const address = network.contracts.multicall;
         return new ethers_1.ethers.Contract(address, MultiAttester_json_1.default, signer);
-    }
-    /**
-     * Get the multicall contract
-     * @param signer
-     */
-    static getProjectResolver(signer) {
-        const address = consts_1.Networks[this.client.network].contracts.projectResolver;
-        return new ethers_1.ethers.Contract(address, ProjectResolver_json_1.default, signer);
     }
     get schemas() {
         return this._schemas;

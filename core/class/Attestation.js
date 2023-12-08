@@ -13,13 +13,13 @@ const GapContract_1 = require("./contract/GapContract");
  *
  * ```ts
  * const grantee = new Attestation({
- *  schema: Schema.get("Grantee"), // Use GapSchema.find("SchemaName") if using default GAP schemas
+ *  schema: Schema.get("Grantee", "network-name"), // Use this.schema.gap.findSchema("SchemaName") if using default GAP schemas
  *  data: { grantee: true },
  *  uid: "0xabc123",
  * });
  *
  * const granteeDetails = new Attestation({
- *  schema: Schema.get("GranteeDetails"),
+ *  schema: Schema.get("GranteeDetails", "optimism"),
  *  data: {
  *    name: "John Doe",
  *    description: "A description",
@@ -50,6 +50,7 @@ class Attestation {
         this.revoked = args.revoked;
         this.revocationTime = (0, get_date_1.getDate)(args.revocationTime);
         this.createdAt = (0, get_date_1.getDate)(args.createdAt || Date.now() / 1000);
+        this._chainID = args.chainID || consts_1.Networks[this.schema.gap.network].chainId;
     }
     /**
      * Encodes the schema.
@@ -256,14 +257,15 @@ class Attestation {
     /**
      * Transform attestation interface-based into class-based.
      */
-    static fromInterface(attestations) {
+    static fromInterface(attestations, network) {
         const result = [];
         attestations.forEach((attestation) => {
             try {
-                const schema = Schema_1.Schema.get(attestation.schemaId);
+                const schema = Schema_1.Schema.get(attestation.schemaId, network);
                 result.push(new Attestation({
                     ...attestation,
                     schema,
+                    chainID: consts_1.Networks[network].chainId,
                     data: attestation.decodedDataJson,
                 }));
             }
@@ -287,7 +289,10 @@ class Attestation {
             throw new SchemaError_1.SchemaError('MISSING_FIELD', 'Schema uid is required');
         }
         if (strict)
-            Schema_1.Schema.validate();
+            Schema_1.Schema.validate(this.schema.gap.network);
+    }
+    get chainID() {
+        return this._chainID;
     }
     get data() {
         return this._data;
@@ -314,6 +319,7 @@ class Attestation {
             schema,
             uid: '0x0',
             createdAt: new Date(),
+            chainID: consts_1.Networks[schema.gap.network].chainId,
         });
     }
 }
