@@ -25,6 +25,8 @@ export declare class Project extends Attestation<IProject> {
      */
     multiAttestPayload(currentPayload?: MultiAttestPayload, communityIdx?: number): Promise<MultiAttestPayload>;
     attest(signer: SignerOrProvider): Promise<void>;
+    transferOwnership(signer: SignerOrProvider, newOwner: Hex): Promise<void>;
+    isOwner(signer: SignerOrProvider): Promise<boolean>;
     /**
      * Add new members to the project.
      * If any member in the array already exists in the project

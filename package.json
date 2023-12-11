@@ -15,7 +15,8 @@
     },
     "scripts": {
         "deploy": "npx ts-node ./core/scripts/deploy.ts",
-        "csv-upload": "npx ts-node ./csv-upload/scripts/run.ts"
+        "csv-upload": "npx ts-node ./csv-upload/scripts/run.ts",
+        "publish-npm": "npm version patch && tsc && cd .dist && npm publish --scope=@show-karma/karma-gap-sdk --access public"
     },
     "dependencies": {
         "@ethereum-attestation-service/eas-sdk": "^1.1.0-beta.2",

@@ -47,6 +47,12 @@ class Project extends Attestation_1.Attestation {
             payload[index][0].uid = uid;
         });
     }
+    async transferOwnership(signer, newOwner) {
+        await GapContract_1.GapContract.transferProjectOwnership(signer, this.uid, newOwner);
+    }
+    isOwner(signer) {
+        return GapContract_1.GapContract.isProjectOwner(signer, this.uid, this.chainID);
+    }
     /**
      * Add new members to the project.
      * If any member in the array already exists in the project
