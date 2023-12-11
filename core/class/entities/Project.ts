@@ -84,6 +84,14 @@ export class Project extends Attestation<IProject> {
     });
   }
 
+  async transferOwnership(signer: SignerOrProvider, newOwner: Hex) {
+    await GapContract.transferProjectOwnership(signer, this.uid, newOwner);
+  }
+
+  isOwner(signer: SignerOrProvider): Promise<boolean> {
+    return GapContract.isProjectOwner(signer, this.uid, this.chainID);
+  }
+
   /**
    * Add new members to the project.
    * If any member in the array already exists in the project

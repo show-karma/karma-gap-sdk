@@ -9,7 +9,6 @@ import { serializeWithBigint } from '../../utils/serialize-bigint';
 import { Gelato, sendGelatoTxn } from '../../utils/gelato/send-gelato-txn';
 import {
   MultiRevocationRequest,
-  getUIDFromAttestTx,
   getUIDsFromAttestReceipt,
 } from '@ethereum-attestation-service/eas-sdk';
 
@@ -78,7 +77,7 @@ export class GapContract {
     return { r, s, v };
   }
 
-  private static async getSignerAddress(signer: SignerOrProvider) {
+  public static async getSignerAddress(signer: SignerOrProvider) {
     const address =
       signer.address || signer._address || (await signer.getAddress());
     if (!address)
@@ -301,6 +300,43 @@ export class GapContract {
     await sendGelatoTxn(
       ...Gelato.buildArgs(populatedTxn, chainId, contract.address as Hex)
     );
+  }
+
+  /**
+   * Transfer the ownership of an attestation
+   * @param signer
+   * @param projectUID
+   * @param newOwner
+   * @returns
+   */
+  static async transferProjectOwnership(
+    signer: SignerOrProvider,
+    projectUID: Hex,
+    newOwner: Hex
+  ) {
+    const contract = GAP.getProjectResolver(signer);
+    const tx = await contract.functions.transferProjectOwnership(
+      projectUID,
+      newOwner
+    );
+    return tx.wait?.();
+  }
+
+  /**
+   * Check if the signer is the owner of the project
+   * @param signer
+   * @param projectUID
+   * @returns
+   */
+  static async isProjectOwner(
+    signer: SignerOrProvider,
+    projectUID: Hex,
+    projectChainId: number
+  ): Promise<boolean> {
+    const contract = GAP.getProjectResolver(signer, projectChainId);
+    const address = await this.getSignerAddress(signer);
+    const isOwner = await contract.functions.isAdmin(projectUID, address);
+    return !!isOwner?.[0];
   }
 
   private static async getTransactionLogs(
