@@ -18,6 +18,7 @@ class Grant extends Attestation_1.Attestation {
         this.updates = [];
         this.members = [];
         this.categories = [];
+        this.questions = [];
     }
     async verify(signer) {
         const eas = GAP_1.GAP.eas.connect(signer);

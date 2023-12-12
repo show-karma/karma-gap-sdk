@@ -106,3 +106,7 @@ export declare class GrantUpdate extends Attestation<IGrantUpdate> implements IG
 }
 export declare class GrantCompleted extends GrantUpdate {
 }
+export interface IGrantQuestion {
+    outcome: string;
+    impact: string;
+}

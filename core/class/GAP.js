@@ -4,6 +4,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GAP = void 0;
+const MultiAttester_json_1 = __importDefault(require("../abi/MultiAttester.json"));
+const ProjectResolver_json_1 = __importDefault(require("../abi/ProjectResolver.json"));
 const types_1 = require("../types");
 const Schema_1 = require("./Schema");
 const GapSchema_1 = require("./GapSchema");
@@ -11,8 +13,8 @@ const GapEasClient_1 = require("./GraphQL/GapEasClient");
 const eas_sdk_1 = require("@ethereum-attestation-service/eas-sdk");
 const consts_1 = require("../consts");
 const ethers_1 = require("ethers");
-const MultiAttester_json_1 = __importDefault(require("../abi/MultiAttester.json"));
 const package_json_1 = require("../../package.json");
+const get_web3_provider_1 = require("../utils/get-web3-provider");
 /**
  * GAP SDK Facade.
  *
@@ -166,6 +168,15 @@ class GAP extends types_1.Facade {
     static getMulticall(signer) {
         const address = consts_1.Networks[this.client.network].contracts.multicall;
         return new ethers_1.ethers.Contract(address, MultiAttester_json_1.default, signer);
+    }
+    /**
+     * Get the multicall contract
+     * @param signer
+     */
+    static getProjectResolver(signer, chainId) {
+        const provider = chainId ? (0, get_web3_provider_1.getWeb3Provider)(chainId) : signer;
+        const address = consts_1.Networks[this.client.network].contracts.projectResolver;
+        return new ethers_1.ethers.Contract(address, ProjectResolver_json_1.default, provider);
     }
     get schemas() {
         return this._schemas;

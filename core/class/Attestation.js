@@ -50,6 +50,7 @@ class Attestation {
         this.revoked = args.revoked;
         this.revocationTime = (0, get_date_1.getDate)(args.revocationTime);
         this.createdAt = (0, get_date_1.getDate)(args.createdAt || Date.now() / 1000);
+        this.chainID = args.chainID;
     }
     /**
      * Encodes the schema.
