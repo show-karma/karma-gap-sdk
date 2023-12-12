@@ -229,6 +229,9 @@ class GapEasClient extends Fetcher_1.Fetcher {
         const { schema: { attestations }, } = await this.query(query);
         return attestations.some((a) => a.decodedDataJson.includes(slug));
     }
+    searchProjects(query) {
+        throw new Error('Method not implemented.');
+    }
     async projects(name) {
         const result = await this.attestations('Project', name);
         if (!result.length)

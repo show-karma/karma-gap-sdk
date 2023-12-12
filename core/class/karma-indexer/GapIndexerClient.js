@@ -91,6 +91,14 @@ class GapIndexerClient extends Fetcher_1.Fetcher {
     projectById(uid) {
         return this.projectBySlug(uid);
     }
+    async searchProjects(query) {
+        const { data } = await this.client.get(Endpoints.project.all(), {
+            params: {
+                q: query,
+            },
+        });
+        return entities_1.Project.from(data);
+    }
     async projects(name) {
         const { data } = await this.client.get(Endpoints.project.all(), {
             params: {

@@ -16,6 +16,7 @@ export declare class GapIndexerClient extends Fetcher {
     communityById(uid: `0x${string}`): Promise<Community>;
     projectBySlug(slug: string): Promise<Project>;
     projectById(uid: `0x${string}`): Promise<Project>;
+    searchProjects(query: string): Promise<Project[]>;
     projects(name?: string): Promise<Project[]>;
     projectsOf(grantee: `0x${string}`): Promise<Project[]>;
     grantee(address: `0x${string}`): Promise<Grantee>;
