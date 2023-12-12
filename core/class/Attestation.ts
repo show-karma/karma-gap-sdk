@@ -30,6 +30,7 @@ export interface AttestationArgs<T = unknown, S extends Schema = Schema> {
   revoked?: boolean;
   revocationTime?: Date | number;
   createdAt?: Date | number;
+  chainID?: number;
 }
 
 /**
@@ -76,6 +77,7 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
   readonly revoked?: boolean;
   readonly revocationTime?: Date;
   readonly createdAt: Date;
+  readonly chainID: number;
 
   private _reference?: Attestation;
 
@@ -92,6 +94,7 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
     this.revoked = args.revoked;
     this.revocationTime = getDate(args.revocationTime);
     this.createdAt = getDate(args.createdAt || Date.now() / 1000);
+    this.chainID = args.chainID;
   }
 
   /**

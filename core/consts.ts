@@ -65,6 +65,8 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
   optimism: {
     chainId: 10,
     url: 'https://optimism.easscan.org/graphql',
+    rpcUrl:
+      'https://opt-mainnet.g.alchemy.com/v2/fx2SlVDrPbXwPMQT4v0lRT1PABA16Myl',
     contracts: {
       eas: '0x4200000000000000000000000000000000000021',
       schema: '0x4200000000000000000000000000000000000020',
@@ -93,6 +95,8 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
   'optimism-goerli': {
     chainId: 420,
     url: 'https://optimism-goerli-bedrock.easscan.org/graphql',
+    rpcUrl:
+      'https://opt-goerli.g.alchemy.com/v2/94gBUTVw7SbDxxdeB8gi3KQmgQSD7SHi',
     contracts: {
       eas: '0x4200000000000000000000000000000000000021',
       schema: '0x4200000000000000000000000000000000000020',

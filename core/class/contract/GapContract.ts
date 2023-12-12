@@ -330,14 +330,12 @@ export class GapContract {
    */
   static async isProjectOwner(
     signer: SignerOrProvider,
-    projectUID: Hex
+    projectUID: Hex,
+    projectChainId: number
   ): Promise<boolean> {
-    const contract = GAP.getProjectResolver(signer);
+    const contract = GAP.getProjectResolver(signer, projectChainId);
     const address = await this.getSignerAddress(signer);
-    const isOwner = await contract.functions.isAdmin(
-      projectUID,
-      address
-    );
+    const isOwner = await contract.functions.isAdmin(projectUID, address);
     return !!isOwner?.[0];
   }
 

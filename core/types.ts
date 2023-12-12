@@ -114,6 +114,7 @@ export type MultiAttestPayload = [Attestation, RawMultiAttestPayload][];
 
 export interface EASNetworkConfig {
   url: string;
+  rpcUrl: string;
   chainId: number;
   contracts: {
     eas: Hex;

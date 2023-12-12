@@ -41,7 +41,8 @@ export class Project extends Attestation<IProject> {
     communityIdx = 0
   ): Promise<MultiAttestPayload> {
     const payload = [...currentPayload];
-    const projectIdx = payload.push([this, await this.payloadFor(communityIdx)]) - 1;
+    const projectIdx =
+      payload.push([this, await this.payloadFor(communityIdx)]) - 1;
 
     if (this.details) {
       payload.push([this.details, await this.details.payloadFor(projectIdx)]);
@@ -49,16 +50,18 @@ export class Project extends Attestation<IProject> {
 
     if (this.members?.length) {
       await Promise.all(
-        this.members.map(async (m) => payload.push(...(await m.multiAttestPayload(payload, projectIdx))))
+        this.members.map(async (m) =>
+          payload.push(...(await m.multiAttestPayload(payload, projectIdx)))
+        )
       );
     }
 
     if (this.grants?.length) {
       await Promise.all(
-        this.grants.map(async (g) => payload.push(...(await g.multiAttestPayload(payload, projectIdx))))
+        this.grants.map(async (g) =>
+          payload.push(...(await g.multiAttestPayload(payload, projectIdx)))
+        )
       );
-
- 
     }
 
     return payload.slice(currentPayload.length, payload.length);
@@ -81,7 +84,7 @@ export class Project extends Attestation<IProject> {
   }
 
   isOwner(signer: SignerOrProvider): Promise<boolean> {
-    return GapContract.isProjectOwner(signer, this.uid);
+    return GapContract.isProjectOwner(signer, this.uid, this.chainID);
   }
 
   /**
