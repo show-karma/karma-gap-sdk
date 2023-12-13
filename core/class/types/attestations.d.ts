@@ -108,6 +108,7 @@ export declare class GrantUpdate extends Attestation<IGrantUpdate> implements IG
 export declare class GrantCompleted extends GrantUpdate {
 }
 export interface IGrantDetailsQuestion {
-    outcome: string;
-    impact: string;
+    query: string;
+    explanation: string;
+    type: string;
 }
