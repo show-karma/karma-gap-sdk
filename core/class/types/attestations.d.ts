@@ -29,6 +29,7 @@ export interface IGrantDetails {
     description?: string;
     season?: string;
     cycle?: string;
+    questions?: IGrantDetailsQuestion[];
 }
 export declare class GrantDetails extends Attestation<IGrantDetails> implements IGrantDetails {
     title: string;
