@@ -122,7 +122,7 @@ exports.Networks = {
             eas: '0xC2679fBD37d54388Ce493F1DB75320D236e1815e',
             schema: '0x0a7E2Ff54e76B8E6659aedc9103FB21c038050D0',
             multicall: '0xec8d7BFe344790FD860920C41B46B259c005727A',
-            projectResolver: '0xec8d7BFe344790FD860920C41B46B259c005727A', // fake
+            projectResolver: '0x099787D5a5aC92779A519CfD925ACB0Dc7E8bd23',
         },
         schemas: {
             Community: '0xf3d790c7fdab6c1b1f25ffcc9289e5be2792eb596d2851a4d059c8aae1bc8b2e',
