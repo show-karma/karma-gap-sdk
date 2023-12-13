@@ -49,6 +49,7 @@ export class GrantDetails
   description?: string;
   season?: string;
   cycle?: string;
+  questions?: IGrantDetailsQuestion[] = [];
 }
 
 export interface IGrantRound {
@@ -151,7 +152,7 @@ export class GrantCompleted extends GrantUpdate {}
 
 
 
-export interface IGrantQuestion {
+export interface IGrantDetailsQuestion {
   outcome: string;
   impact: string;
 }
