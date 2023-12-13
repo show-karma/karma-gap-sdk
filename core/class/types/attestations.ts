@@ -50,7 +50,7 @@ export class GrantDetails
   description?: string;
   season?: string;
   cycle?: string;
-  questions?: IGrantDetailsQuestion[] = [];
+  questions?: IGrantDetailsQuestion[];
 }
 
 export interface IGrantRound {

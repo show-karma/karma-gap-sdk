@@ -209,10 +209,6 @@ export class Grant extends Attestation<IGrant> {
           },
           schema: GapSchema.find('GrantDetails'),
         });
-
-        if(details.data?.questions){
-          Object.assign(grant.details, {questions: details.data.questions});
-        }
       }
 
       if (attestation.milestones) {
