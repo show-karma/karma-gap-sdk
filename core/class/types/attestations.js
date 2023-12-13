@@ -10,6 +10,10 @@ class CommunityDetails extends Attestation_1.Attestation {
 }
 exports.CommunityDetails = CommunityDetails;
 class GrantDetails extends Attestation_1.Attestation {
+    constructor() {
+        super(...arguments);
+        this.questions = [];
+    }
 }
 exports.GrantDetails = GrantDetails;
 class GrantRound extends Attestation_1.Attestation {
