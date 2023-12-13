@@ -39,6 +39,7 @@ export declare class GrantDetails extends Attestation<IGrantDetails> implements 
     description?: string;
     season?: string;
     cycle?: string;
+    questions?: IGrantDetailsQuestion[];
 }
 export interface IGrantRound {
     name: string;
@@ -106,7 +107,7 @@ export declare class GrantUpdate extends Attestation<IGrantUpdate> implements IG
 }
 export declare class GrantCompleted extends GrantUpdate {
 }
-export interface IGrantQuestion {
+export interface IGrantDetailsQuestion {
     outcome: string;
     impact: string;
 }
