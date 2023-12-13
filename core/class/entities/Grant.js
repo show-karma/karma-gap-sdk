@@ -151,6 +151,9 @@ class Grant extends Attestation_1.Attestation {
                     },
                     schema: GapSchema_1.GapSchema.find('GrantDetails'),
                 });
+                if (details.data?.questions) {
+                    Object.assign(grant.details, { questions: details.data.questions });
+                }
             }
             if (attestation.milestones) {
                 const { milestones } = attestation;
