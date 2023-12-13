@@ -35,6 +35,7 @@ export interface IGrantDetails {
   // communityUID: Hex;
   season?: string;
   cycle?: string;
+  questions?: IGrantDetailsQuestion[];
 }
 export class GrantDetails
   extends Attestation<IGrantDetails>
@@ -150,9 +151,8 @@ export class GrantUpdate
 
 export class GrantCompleted extends GrantUpdate {}
 
-
-
 export interface IGrantDetailsQuestion {
-  outcome: string;
-  impact: string;
-}
+  query: string,
+  explanation: string,
+  type: string
+ }
