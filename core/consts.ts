@@ -72,6 +72,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       schema: '0x4200000000000000000000000000000000000020',
       multicall: '0xd2eD366393FDfd243931Fe48e9fb65A192B0018c', //proxy,
       projectResolver: '0x7177AdC0f924b695C0294A40C4C5FEFf5EE1E141',
+      communityResolver: '0x6dC1D6b864e8BEf815806f9e4677123496e12026',
     },
     schemas: {
       Community:
@@ -102,6 +103,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       schema: '0x4200000000000000000000000000000000000020',
       multicall: '0x5D5a8032b2FA06652804c33F60DcEA00e389B732', //proxy,
       projectResolver: '0xbCf8910Bc3971eA59D93256357b76E846CF2e1F8',
+      communityResolver: '0xa09369bDE7E4403a9C821AffA00E649cF85Ef09e'
     },
     schemas: {
       Community:
@@ -132,6 +134,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       schema: '0xA310da9c5B885E7fb3fbA9D66E9Ba6Df512b78eB',
       multicall: '0x6dC1D6b864e8BEf815806f9e4677123496e12026', //proxy,
       projectResolver: '0x28BE0b0515be8BB8822aF1467A6613795E74717b',
+      communityResolver: '0xD534C4704F82494aBbc901560046fB62Ac63E9C4'
     },
     schemas: {
       Community:
@@ -161,6 +164,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       schema: '0x0a7E2Ff54e76B8E6659aedc9103FB21c038050D0',
       multicall: '0xec8d7BFe344790FD860920C41B46B259c005727A',
       projectResolver: '0x099787D5a5aC92779A519CfD925ACB0Dc7E8bd23',
+      communityResolver: '0xa9E55D9F52d7B47792d2Db15F6A9674c56ccc5C9'
     },
     schemas: {
       Community:
