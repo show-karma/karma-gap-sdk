@@ -1,5 +1,6 @@
 import { SchemaEncoder, SchemaItem, SchemaValue } from '@ethereum-attestation-service/eas-sdk';
-import { AttestArgs, Hex, MultiRevokeArgs, SchemaInterface, SignerOrProvider } from '../types';
+import { AttestArgs, Hex, MultiRevokeArgs, SchemaInterface, SignerOrProvider, TNetwork } from '../types';
+import { GAP } from './GAP';
 import { Attestation } from './Attestation';
 /**
  * Represents the EAS Schema and provides methods to encode and decode the schema,
@@ -67,20 +68,21 @@ import { Attestation } from './Attestation';
  * ```
  */
 export declare abstract class Schema<T extends string = string> implements SchemaInterface<T> {
-    protected static schemas: Schema[];
+    protected static schemas: Record<TNetwork, Schema[]>;
     protected encoder: SchemaEncoder;
     private _schema;
     readonly uid: Hex;
     readonly name: string;
     readonly revocable?: boolean;
     readonly references?: T;
+    readonly gap: GAP;
     /**
      * Creates a new schema instance
      * @param args
      * @param strict If true, will throw an error if schema reference is not valid. With this option, user should add schemas
      * in a strict order.
      */
-    constructor(args: SchemaInterface<T>, strict?: boolean, ignoreSchema?: boolean);
+    constructor(args: SchemaInterface<T>, gap?: GAP, strict?: boolean, ignoreSchema?: boolean);
     /**
      * Encode the schema to be used as payload in the attestation
      * @returns
@@ -153,7 +155,7 @@ export declare abstract class Schema<T extends string = string> implements Schem
      * @returns
      */
     multiRevoke(signer: SignerOrProvider, toRevoke: MultiRevokeArgs[]): Promise<void>;
-    static exists(name: string): Schema<string>;
+    static exists(name: string, network: TNetwork): Schema<string>;
     /**
      * Adds the schema signature to a shares list. Use Schema.get("SchemaName") to get the schema.
      *
@@ -161,32 +163,32 @@ export declare abstract class Schema<T extends string = string> implements Schem
      * of the class AND its data can be overriden by any changes.__
      * @param schemas
      */
-    static add<T extends Schema>(...schemas: T[]): void;
-    static getAll<T extends Schema>(): T[];
-    static get<N extends string, T extends Schema>(name: N): T;
+    static add<T extends Schema>(network: TNetwork, ...schemas: T[]): void;
+    static getAll<T extends Schema>(network: TNetwork): T[];
+    static get<N extends string, T extends Schema>(name: N, network: TNetwork): T;
     /**
      * Find many schemas by name and return them as an array in the same order.
      * @param names
      * @returns
      */
-    static getMany<N extends string, T extends Schema>(names: N[]): T[];
-    static getNames(): string[];
+    static getMany<N extends string, T extends Schema>(names: N[], network: TNetwork): T[];
+    static getNames(network: TNetwork): string[];
     /**
      * Validade references
      * @throws {SchemaError} if any reference is not valid
      * @returns {true} if references are valid
      */
-    static validate(): true;
+    static validate(network: TNetwork): true;
     /**
      * Replaces the schema list with a new list.
      * @param schemas
      */
-    static replaceAll(schemas: Schema[]): void;
+    static replaceAll(schemas: Schema[], network: TNetwork): void;
     /**
      * Replaces a schema from the schema list.
      * @throws {SchemaError} if desired schema name does not exist.
      */
-    static replaceOne(schema: Schema): void;
+    static replaceOne(schema: Schema, network: TNetwork): void;
     /**
      * Transforms the given raw schema to SchemaItem[]
      *

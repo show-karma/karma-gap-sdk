@@ -29,7 +29,7 @@ export interface AttestArgs<T = unknown> {
 export type TSchemaName = 'Community' | 'CommunityDetails' | 'Grant' | 'GrantDetails' | 'GrantVerified' | 'MemberOf' | 'MemberDetails' | 'Milestone' | 'MilestoneCompleted' | 'MilestoneApproved' | 'Project' | 'ProjectDetails' | 'Details';
 export type TResolvedSchemaNames = 'Community' | 'Grant' | 'GrantVerified' | 'MemberOf' | 'MilestoneCompleted' | 'MilestoneApproved' | 'Project' | 'Details';
 export type TExternalLink = 'twitter' | 'github' | 'website' | 'linkedin' | 'discord';
-export type TNetwork = 'optimism' | 'optimism-goerli';
+export type TNetwork = 'optimism' | 'optimism-goerli' | "arbitrum" | 'sepolia';
 /**
  * Generic GAP Facade interface.
  * This supplies the GAP class with the necessary properties.
@@ -38,8 +38,8 @@ export declare abstract class Facade {
     abstract readonly network: TNetwork;
     abstract readonly schemas: SchemaInterface[];
     abstract readonly fetch: Fetcher;
-    protected static _eas: EAS;
-    static get eas(): EAS;
+    protected _eas: EAS;
+    get eas(): EAS;
 }
 export interface RawAttestationPayload {
     schema: Hex;

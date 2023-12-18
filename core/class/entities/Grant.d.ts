@@ -2,7 +2,7 @@ import { Attestation } from '../Attestation';
 import { GrantDetails, GrantRound, GrantUpdate, IGrantUpdate, GrantCompleted } from '../types/attestations';
 import { IMilestone, Milestone } from './Milestone';
 import { GapSchema } from '../GapSchema';
-import { Hex, MultiAttestPayload, SignerOrProvider } from 'core/types';
+import { Hex, MultiAttestPayload, SignerOrProvider, TNetwork } from 'core/types';
 import { Community } from './Community';
 interface _Grant extends Grant {
 }
@@ -44,16 +44,17 @@ export declare class Grant extends Attestation<IGrant> {
      * @param projectIdx
      */
     multiAttestPayload(currentPayload?: MultiAttestPayload, projectIdx?: number): Promise<[Attestation<unknown, GapSchema>, import("core/types").RawMultiAttestPayload][]>;
+    attestProject(signer: SignerOrProvider, originalProjectChainId: number): Promise<void>;
     /**
      * @inheritdoc
      */
-    attest(signer: SignerOrProvider): Promise<void>;
+    attest(signer: SignerOrProvider, projectChainId: number): Promise<void>;
     attestUpdate(signer: SignerOrProvider, data: IGrantUpdate): Promise<void>;
     complete(signer: SignerOrProvider, data: IGrantUpdate): Promise<void>;
     /**
      * Validate if the grant has a valid reference to a community.
      */
     protected assertPayload(): boolean;
-    static from(attestations: _Grant[]): Grant[];
+    static from(attestations: _Grant[], network: TNetwork): Grant[];
 }
 export {};

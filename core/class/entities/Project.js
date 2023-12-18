@@ -63,7 +63,7 @@ class Project extends Attestation_1.Attestation {
         this.members.push(...(0, utils_1.mapFilter)(members, (member) => !!this.members.find((m) => m.recipient === member), (member) => new MemberOf_1.MemberOf({
             data: { memberOf: true },
             refUID: this.uid,
-            schema: GapSchema_1.GapSchema.find('MemberOf'),
+            schema: this.schema.gap.findSchema('MemberOf'),
             recipient: member,
             uid: consts_1.nullRef,
         })));
@@ -84,7 +84,7 @@ class Project extends Attestation_1.Attestation {
             const member = new MemberOf_1.MemberOf({
                 data: { memberOf: true },
                 refUID: this.uid,
-                schema: GapSchema_1.GapSchema.find('MemberOf'),
+                schema: this.schema.gap.findSchema('MemberOf'),
                 createdAt: Date.now(),
                 recipient: details.recipient,
                 uid: consts_1.nullRef,
@@ -142,7 +142,7 @@ class Project extends Attestation_1.Attestation {
         if (!uids.length) {
             throw new SchemaError_1.AttestationError('ATTEST_ERROR', 'No details to clean.');
         }
-        const memberDetails = GapSchema_1.GapSchema.find('MemberDetails');
+        const memberDetails = this.schema.gap.findSchema('MemberDetails');
         await this.schema.multiRevoke(signer, uids.map((uid) => ({ schemaId: memberDetails.uid, uid })));
         this.members.forEach((member) => {
             if (!member.details)
@@ -162,7 +162,7 @@ class Project extends Attestation_1.Attestation {
         if (!uids.length) {
             throw new SchemaError_1.AttestationError('ATTEST_ERROR', 'No members to remove.');
         }
-        const memberOf = GapSchema_1.GapSchema.find('MemberOf');
+        const memberOf = this.schema.gap.findSchema('MemberOf');
         const details = (0, utils_1.mapFilter)(this.members, (m) => uids.includes(m.uid) && !!m.details, (m) => m.details?.uid);
         if (details.length) {
             await this.cleanDetails(signer, details);
@@ -186,14 +186,15 @@ class Project extends Attestation_1.Attestation {
         await this.removeMembers(signer, members);
         this.members.splice(0, this.members.length);
     }
-    static from(attestations) {
+    static from(attestations, network) {
         return attestations.map((attestation) => {
             const project = new Project({
                 ...attestation,
                 data: {
                     project: true,
                 },
-                schema: GapSchema_1.GapSchema.find('Project'),
+                schema: GapSchema_1.GapSchema.find('Project', network),
+                chainID: attestation.chainID,
             });
             if (attestation.details) {
                 const { details } = attestation;
@@ -202,7 +203,8 @@ class Project extends Attestation_1.Attestation {
                     data: {
                         ...details.data,
                     },
-                    schema: GapSchema_1.GapSchema.find('ProjectDetails'),
+                    schema: GapSchema_1.GapSchema.find('ProjectDetails', network),
+                    chainID: attestation.chainID,
                 });
                 project.details.links = details.data.links || [];
                 project.details.tags = details.data.tags || [];
@@ -220,7 +222,8 @@ class Project extends Attestation_1.Attestation {
                         data: {
                             memberOf: true,
                         },
-                        schema: GapSchema_1.GapSchema.find('MemberOf'),
+                        schema: GapSchema_1.GapSchema.find('MemberOf', network),
+                        chainID: attestation.chainID,
                     });
                     if (m.details) {
                         const { details } = m;
@@ -229,14 +232,15 @@ class Project extends Attestation_1.Attestation {
                             data: {
                                 ...details.data,
                             },
-                            schema: GapSchema_1.GapSchema.find('MemberDetails'),
+                            schema: GapSchema_1.GapSchema.find('MemberDetails', network),
+                            chainID: attestation.chainID,
                         });
                     }
                     return member;
                 });
             }
             if (attestation.grants) {
-                project.grants = Grant_1.Grant.from(attestation.grants);
+                project.grants = Grant_1.Grant.from(attestation.grants, network);
             }
             return project;
         });

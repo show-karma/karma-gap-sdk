@@ -41,7 +41,7 @@ class Community extends Attestation_1.Attestation {
      * @param details
      */
     async attest(signer, details) {
-        console.log("Attesting community");
+        console.log('Attesting community');
         try {
             this._uid = await this.schema.attest({
                 signer,
@@ -53,17 +53,18 @@ class Community extends Attestation_1.Attestation {
         }
         catch (error) {
             console.error(error);
-            throw new SchemaError_1.AttestationError("ATTEST_ERROR", "Error during attestation.");
+            throw new SchemaError_1.AttestationError('ATTEST_ERROR', 'Error during attestation.');
         }
     }
-    static from(attestations) {
+    static from(attestations, network) {
         return attestations.map((attestation) => {
             const community = new Community({
                 ...attestation,
                 data: {
                     community: true,
                 },
-                schema: GapSchema_1.GapSchema.find("Community"),
+                schema: GapSchema_1.GapSchema.find('Community', network),
+                chainID: attestation.chainID,
             });
             if (attestation.details) {
                 const { details } = attestation;
@@ -72,12 +73,13 @@ class Community extends Attestation_1.Attestation {
                     data: {
                         ...details.data,
                     },
-                    schema: GapSchema_1.GapSchema.find("CommunityDetails"),
+                    schema: GapSchema_1.GapSchema.find('CommunityDetails', network),
+                    chainID: attestation.chainID,
                 });
             }
             if (attestation.grants) {
                 const { grants } = attestation;
-                community.grants = Grant_1.Grant.from(grants);
+                community.grants = Grant_1.Grant.from(grants, network);
             }
             return community;
         });

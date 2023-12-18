@@ -97,53 +97,49 @@ exports.Networks = {
             Project: '0xa727441596f5a9878552d3ad6c53c31629a709451e6081ba01bff0f73bf1af5a',
         },
     },
-    // arbitrum: {
-    //   chainId: 42161,
-    //   url: "https://arbitrum.easscan.org/graphql",
-    //   contracts: {
-    //     eas: "0xbD75f629A22Dc1ceD33dDA0b68c546A1c035c458",
-    //     schema: "0xA310da9c5B885E7fb3fbA9D66E9Ba6Df512b78eB",
-    //     multicall:''
-    //   },
-    //   schemas: {
-    //     Grant: "",
-    //     GrantVerified: "",
-    //     MemberOf: "",
-    //     MilestoneApproved: "",
-    //     MilestoneCompleted: "",
-    //     Project: "",
-    //   },
-    // },
-    // sepolia: {
-    //   chainId: 11155111,
-    //   url: 'https://sepolia.easscan.org/graphql',
-    //   contracts: {
-    //     eas: '0xC2679fBD37d54388Ce493F1DB75320D236e1815e',
-    //     schema: '0x0a7E2Ff54e76B8E6659aedc9103FB21c038050D0',
-    //     multicall: '0x00Ee8a5082567c3da8f3D34D33ac8D788C4Cd754', // enhanced
-    //     // multicall: "0x04D6BB799f5A8c76882C4372d1FC39Cd0DDA0A4c",// original,
-    //     projectResolver: '0x7177AdC0f924b695C0294A40C4C5FEFf5EE1E141',
-    //   },
-    //   schemas: {
-    //     Community:
-    //       '0xf3d790c7fdab6c1b1f25ffcc9289e5be2792eb596d2851a4d059c8aae1bc8b2e', //test with resolver
-    //     // "0x1954572e3fe21bf4334afdaf1358ed7098af1ed136e76dc93c2fdc25e83934c1", // original without resolver
-    //     Details:
-    //       '0x2c270e35bfcdc4d611f0e9d3d2ab6924ec6c673505abc22a1dd07e19b67211af',
-    //     Grant:
-    //       '0x09697aeeb3ae71de1cc19e388fd74264f11af5fba3016094764553ac341fdc72', // with communityUID/resolver
-    //     GrantVerified:
-    //       '0x0be8952e2dd74ffd63a02f4d55b20b603fe7a60130cb9d70de31feb9c52fdd37',
-    //     MemberOf:
-    //       '0xdd87b3500457931252424f4439365534ba72a367503a8805ff3482353fb90301',
-    //     MilestoneApproved:
-    //       '0xcdef0e492d2e7ad25d0b0fdb868f6dcd1f5e5c30e42fd5fa0debdc12f7618322',
-    //     MilestoneCompleted:
-    //       '0xcdef0e492d2e7ad25d0b0fdb868f6dcd1f5e5c30e42fd5fa0debdc12f7618322',
-    //     Project:
-    //       '0xec77990a252b54b17673955c774b9712766de5eecb22ca5aa2c440e0e93257fb',
-    //   },
-    // },
+    arbitrum: {
+        chainId: 42161,
+        url: 'https://arbitrum.easscan.org/graphql',
+        rpcUrl: 'https://arb-mainnet.g.alchemy.com/v2/DXd3HzYN7toBt3fgAbfnAA0OMODxdcgD',
+        contracts: {
+            eas: '0xbD75f629A22Dc1ceD33dDA0b68c546A1c035c458',
+            schema: '0xA310da9c5B885E7fb3fbA9D66E9Ba6Df512b78eB',
+            multicall: '0x6dC1D6b864e8BEf815806f9e4677123496e12026',
+            projectResolver: '0x28BE0b0515be8BB8822aF1467A6613795E74717b',
+        },
+        schemas: {
+            Community: '0xc604f0661cfd522583835ed2b2c644b80e068139d287f93c7f1680888894bacc',
+            Details: '0x16bfe4783b7a9c743c401222c56a07ecb77ed42afc84b61ff1f62f5936c0b9d7',
+            Grant: '0xea02ab33f9f4c92ba02c9bb21614b7410b98c940a0d8eb8ad3a20204d8b4bda5',
+            GrantVerified: '0xd25ccdfbf87659a9081681eb90598d8b944ed28544da7d57c3ccbe6e6422cc15',
+            MemberOf: '0x5f430aec9d04f0dcb3729775c5dfe10752e436469a7607f8c64ae44ef996e477',
+            MilestoneApproved: '0xd25ccdfbf87659a9081681eb90598d8b944ed28544da7d57c3ccbe6e6422cc15',
+            MilestoneCompleted: '0xd25ccdfbf87659a9081681eb90598d8b944ed28544da7d57c3ccbe6e6422cc15',
+            Project: '0xac2a06e955a7e25e6729efe1a6532237e3435b21ccd3dc827ae3c94e624d25b3',
+        },
+    },
+    sepolia: {
+        chainId: 11155111,
+        url: 'https://sepolia.easscan.org/graphql',
+        rpcUrl: 'https://rpc.sepolia.io',
+        contracts: {
+            eas: '0xC2679fBD37d54388Ce493F1DB75320D236e1815e',
+            schema: '0x0a7E2Ff54e76B8E6659aedc9103FB21c038050D0',
+            multicall: '0xec8d7BFe344790FD860920C41B46B259c005727A',
+            projectResolver: '0x099787D5a5aC92779A519CfD925ACB0Dc7E8bd23',
+        },
+        schemas: {
+            Community: '0xf3d790c7fdab6c1b1f25ffcc9289e5be2792eb596d2851a4d059c8aae1bc8b2e',
+            // "0x1954572e3fe21bf4334afdaf1358ed7098af1ed136e76dc93c2fdc25e83934c1", // original without resolver
+            Details: '0x2c270e35bfcdc4d611f0e9d3d2ab6924ec6c673505abc22a1dd07e19b67211af',
+            Grant: '0x09697aeeb3ae71de1cc19e388fd74264f11af5fba3016094764553ac341fdc72',
+            GrantVerified: '0x0be8952e2dd74ffd63a02f4d55b20b603fe7a60130cb9d70de31feb9c52fdd37',
+            MemberOf: '0xdd87b3500457931252424f4439365534ba72a367503a8805ff3482353fb90301',
+            MilestoneApproved: '0xcdef0e492d2e7ad25d0b0fdb868f6dcd1f5e5c30e42fd5fa0debdc12f7618322',
+            MilestoneCompleted: '0xcdef0e492d2e7ad25d0b0fdb868f6dcd1f5e5c30e42fd5fa0debdc12f7618322',
+            Project: '0xec77990a252b54b17673955c774b9712766de5eecb22ca5aa2c440e0e93257fb',
+        },
+    },
 };
 const DetailsSchema = [{ type: 'string', name: 'json', value: null }];
 /**
