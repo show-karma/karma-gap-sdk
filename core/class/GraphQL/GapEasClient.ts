@@ -36,6 +36,7 @@ interface EASClientProps {
 
 // TODO: Split this class into small ones
 export class GapEasClient extends Fetcher {
+
   network: EASNetworkConfig & { name: TNetwork };
 
   constructor(args: EASClientProps) {
@@ -417,6 +418,10 @@ export class GapEasClient extends Fetcher {
     } = await this.query<SchemaRes>(query);
 
     return attestations.some((a) => a.decodedDataJson.includes(slug));
+  }
+
+  searchProjects(query: string): Promise<Project[]> {
+    throw new Error('Method not implemented.');
   }
 
   async projects(name?: string): Promise<Project[]> {

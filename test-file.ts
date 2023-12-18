@@ -1,5 +1,7 @@
 import { ethers } from "ethers";
 import { Project, GAP, Grant, Hex, GapSchema } from "./core";
+import { GapIndexerClient } from "./core/class";
+import axios from "axios";
 
 const key = require("./config/keys.json").sepolia;
 
@@ -11,6 +13,7 @@ const web3 = new ethers.providers.JsonRpcProvider(
 const wallet = new ethers.Wallet(key, web3);
 const gap = new GAP({
   network: "optimism-goerli",
+  apiClient: new GapIndexerClient("http://localhost:3001"),
   gelatoOpts: {
     // env_gelatoApiKey: "GELATO_API_KEY",
     // sponsorUrl: "http://localhost:3000/api/sponsored-txn",
@@ -78,7 +81,12 @@ async function getProject(uid: Hex) {
   console.log(JSON.stringify(projectDetails([project]), null, 2));
 }
 
-attestation().then((uids) => {
-  console.log(uids);
-  getProject(uids[0]);
-});
+
+axios.get("http://localhost:3001/grants/0x73ddffeff8b14fbea412ac79ba7814eb0dec9bae84b12a91c2c3c91f6b3580c4").then(({data}) => {
+  Grant.from([data]);
+})
+
+// attestation().then((uids) => {
+//   console.log(uids);
+//   getProject(uids[0]);
+// });

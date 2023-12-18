@@ -114,6 +114,13 @@ export abstract class Fetcher extends AxiosGQL {
   abstract projectBySlug(slug: string): Promise<Project>;
 
   /**
+   * Search projects by name. This method will return a list of projects
+   * __Must be implemented by the indexer__
+   * @param query
+   */
+  abstract searchProjects(query: string): Promise<Project[]>;
+
+  /**
    * Fetch projects with details and members.
    * @param name if set, will search by the name.
    * @returns
