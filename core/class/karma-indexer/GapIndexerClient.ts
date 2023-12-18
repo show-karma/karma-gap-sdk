@@ -148,7 +148,7 @@ export class GapIndexerClient extends Fetcher {
       },
     });
 
-    return Project.from(data);
+    return Project.from(data, this.gap.network);
   }
 
   async projects(name?: string): Promise<Project[]> {

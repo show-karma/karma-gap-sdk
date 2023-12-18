@@ -95,6 +95,7 @@ export abstract class Schema<T extends string = string>
     'optimism-goerli': [],
     optimism: [],
     sepolia: [],
+    arbitrum: [],
   };
 
   protected encoder: SchemaEncoder;
