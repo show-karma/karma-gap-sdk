@@ -126,7 +126,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
   arbitrum: {
     chainId: 42161,
     url: 'https://arbitrum.easscan.org/graphql',
-    rpcUrl: 'https://arb-mainnet.g.alchemy.com/v2/DXd3HzYN7toBt3fgAbfnAA0OMODxdcgD',
+    rpcUrl: 'https://arb-mainnet.g.alchemy.com/v2/okcKBSKXvLuSCbas6QWGvKuh-IcHHSOr',
     contracts: {
       eas: '0xbD75f629A22Dc1ceD33dDA0b68c546A1c035c458',
       schema: '0xA310da9c5B885E7fb3fbA9D66E9Ba6Df512b78eB',
