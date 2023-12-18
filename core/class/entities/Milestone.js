@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Milestone = void 0;
 const Attestation_1 = require("../Attestation");
-const GAP_1 = require("../GAP");
 const GapSchema_1 = require("../GapSchema");
 const SchemaError_1 = require("../SchemaError");
 const GapContract_1 = require("../contract/GapContract");
@@ -17,7 +16,7 @@ class Milestone extends Attestation_1.Attestation {
     async approve(signer, reason = '') {
         if (!this.completed)
             throw new SchemaError_1.AttestationError('ATTEST_ERROR', 'Milestone is not completed');
-        const schema = GapSchema_1.GapSchema.find('MilestoneCompleted');
+        const schema = this.schema.gap.findSchema('MilestoneCompleted');
         schema.setValue('type', 'approved');
         schema.setValue('reason', reason);
         await this.attestStatus(signer, schema);
@@ -55,7 +54,7 @@ class Milestone extends Attestation_1.Attestation {
     async reject(signer, reason = '') {
         if (!this.completed)
             throw new SchemaError_1.AttestationError('ATTEST_ERROR', 'Milestone is not completed');
-        const schema = GapSchema_1.GapSchema.find('MilestoneCompleted');
+        const schema = this.schema.gap.findSchema('MilestoneCompleted');
         schema.setValue('type', 'rejected');
         schema.setValue('reason', reason);
         await this.attestStatus(signer, schema);
@@ -91,7 +90,7 @@ class Milestone extends Attestation_1.Attestation {
      * @param reason
      */
     async complete(signer, reason = '') {
-        const schema = GapSchema_1.GapSchema.find('MilestoneCompleted');
+        const schema = this.schema.gap.findSchema('MilestoneCompleted');
         schema.setValue('type', 'completed');
         schema.setValue('reason', reason);
         await this.attestStatus(signer, schema);
@@ -158,7 +157,7 @@ class Milestone extends Attestation_1.Attestation {
      * Attest the status of the milestone as approved, rejected or completed.
      */
     async attestStatus(signer, schema) {
-        const eas = GAP_1.GAP.eas.connect(signer);
+        const eas = this.schema.gap.eas.connect(signer);
         try {
             const tx = await eas.attest({
                 schema: schema.uid,
@@ -178,14 +177,15 @@ class Milestone extends Attestation_1.Attestation {
             throw new SchemaError_1.AttestationError('ATTEST_ERROR', error.message);
         }
     }
-    static from(attestations) {
+    static from(attestations, network) {
         return attestations.map((attestation) => {
             const milestone = new Milestone({
                 ...attestation,
                 data: {
                     ...attestation.data,
                 },
-                schema: GapSchema_1.GapSchema.find('Milestone'),
+                schema: GapSchema_1.GapSchema.find('Milestone', network),
+                chainID: attestation.chainID,
             });
             if (attestation.completed) {
                 milestone.completed = new attestations_1.MilestoneCompleted({
@@ -193,7 +193,8 @@ class Milestone extends Attestation_1.Attestation {
                     data: {
                         ...attestation.completed.data,
                     },
-                    schema: GapSchema_1.GapSchema.find('MilestoneCompleted'),
+                    schema: GapSchema_1.GapSchema.find('MilestoneCompleted', network),
+                    chainID: attestation.chainID,
                 });
             }
             if (attestation.approved) {
@@ -202,7 +203,8 @@ class Milestone extends Attestation_1.Attestation {
                     data: {
                         ...attestation.completed.data,
                     },
-                    schema: GapSchema_1.GapSchema.find('MilestoneCompleted'),
+                    schema: GapSchema_1.GapSchema.find('MilestoneCompleted', network),
+                    chainID: attestation.chainID,
                 });
             }
             if (attestation.rejected) {
@@ -211,7 +213,8 @@ class Milestone extends Attestation_1.Attestation {
                     data: {
                         ...attestation.completed.data,
                     },
-                    schema: GapSchema_1.GapSchema.find('MilestoneCompleted'),
+                    schema: GapSchema_1.GapSchema.find('MilestoneCompleted', network),
+                    chainID: attestation.chainID,
                 });
             }
             return milestone;
