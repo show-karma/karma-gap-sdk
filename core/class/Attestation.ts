@@ -5,6 +5,7 @@ import {
   MultiAttestData,
   MultiAttestPayload,
   SignerOrProvider,
+  TNetwork,
   TSchemaName,
 } from '../types';
 import { Schema } from './Schema';
@@ -17,7 +18,7 @@ import {
 import { getDate } from '../utils/get-date';
 import { GAP } from './GAP';
 import { GapSchema } from './GapSchema';
-import { nullRef } from '../consts';
+import { Networks, nullRef } from '../consts';
 import { GapContract } from './contract/GapContract';
 
 export interface AttestationArgs<T = unknown, S extends Schema = Schema> {
@@ -39,13 +40,13 @@ export interface AttestationArgs<T = unknown, S extends Schema = Schema> {
  *
  * ```ts
  * const grantee = new Attestation({
- *  schema: Schema.get("Grantee"), // Use GapSchema.find("SchemaName") if using default GAP schemas
+ *  schema: Schema.get("Grantee", "network-name"), // Use this.schema.gap.findSchema("SchemaName") if using default GAP schemas
  *  data: { grantee: true },
  *  uid: "0xabc123",
  * });
  *
  * const granteeDetails = new Attestation({
- *  schema: Schema.get("GranteeDetails"),
+ *  schema: Schema.get("GranteeDetails", "optimism"),
  *  data: {
  *    name: "John Doe",
  *    description: "A description",
@@ -77,7 +78,7 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
   readonly revoked?: boolean;
   readonly revocationTime?: Date;
   readonly createdAt: Date;
-  readonly chainID: number;
+  private _chainID: number;
 
   private _reference?: Attestation;
 
@@ -94,7 +95,7 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
     this.revoked = args.revoked;
     this.revocationTime = getDate(args.revocationTime);
     this.createdAt = getDate(args.createdAt || Date.now() / 1000);
-    this.chainID = args.chainID;
+    this._chainID = args.chainID || Networks[this.schema.gap.network].chainId;
   }
 
   /**
@@ -322,16 +323,18 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
    * Transform attestation interface-based into class-based.
    */
   static fromInterface<T extends Attestation = Attestation>(
-    attestations: IAttestation[]
+    attestations: IAttestation[],
+    network: TNetwork
   ) {
     const result: T[] = [];
     attestations.forEach((attestation) => {
       try {
-        const schema = Schema.get(attestation.schemaId);
+        const schema = Schema.get(attestation.schemaId, network);
         result.push(
           <T>new Attestation({
             ...attestation,
             schema,
+            chainID: Networks[network].chainId,
             data: attestation.decodedDataJson,
           })
         );
@@ -358,7 +361,11 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
       throw new SchemaError('MISSING_FIELD', 'Schema uid is required');
     }
 
-    if (strict) Schema.validate();
+    if (strict) Schema.validate(this.schema.gap.network);
+  }
+
+  get chainID() {
+    return this._chainID;
   }
 
   get data(): T {
@@ -389,6 +396,7 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
       schema,
       uid: '0x0',
       createdAt: new Date(),
+      chainID: Networks[schema.gap.network].chainId,
     });
   }
 }

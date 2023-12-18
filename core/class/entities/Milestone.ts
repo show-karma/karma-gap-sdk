@@ -1,4 +1,4 @@
-import { MultiAttestPayload, SignerOrProvider } from '../../types';
+import { MultiAttestPayload, SignerOrProvider, TNetwork } from '../../types';
 import { Attestation } from '../Attestation';
 import { GAP } from '../GAP';
 import { GapSchema } from '../GapSchema';
@@ -31,7 +31,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
     if (!this.completed)
       throw new AttestationError('ATTEST_ERROR', 'Milestone is not completed');
 
-    const schema = GapSchema.find('MilestoneCompleted');
+    const schema = this.schema.gap.findSchema('MilestoneCompleted');
     schema.setValue('type', 'approved');
     schema.setValue('reason', reason);
 
@@ -75,7 +75,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
     if (!this.completed)
       throw new AttestationError('ATTEST_ERROR', 'Milestone is not completed');
 
-    const schema = GapSchema.find('MilestoneCompleted');
+    const schema = this.schema.gap.findSchema('MilestoneCompleted');
     schema.setValue('type', 'rejected');
     schema.setValue('reason', reason);
     await this.attestStatus(signer, schema);
@@ -115,7 +115,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
    * @param reason
    */
   async complete(signer: SignerOrProvider, reason = '') {
-    const schema = GapSchema.find('MilestoneCompleted');
+    const schema = this.schema.gap.findSchema('MilestoneCompleted');
     schema.setValue('type', 'completed');
     schema.setValue('reason', reason);
 
@@ -198,7 +198,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
    * Attest the status of the milestone as approved, rejected or completed.
    */
   private async attestStatus(signer: SignerOrProvider, schema: GapSchema) {
-    const eas = GAP.eas.connect(signer);
+    const eas = this.schema.gap.eas.connect(signer);
     try {
       const tx = await eas.attest({
         schema: schema.uid,
@@ -219,14 +219,15 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
     }
   }
 
-  static from(attestations: _Milestone[]): Milestone[] {
+  static from(attestations: _Milestone[], network: TNetwork): Milestone[] {
     return attestations.map((attestation) => {
       const milestone = new Milestone({
         ...attestation,
         data: {
           ...attestation.data,
         },
-        schema: GapSchema.find('Milestone'),
+        schema: GapSchema.find('Milestone', network),
+        chainID: attestation.chainID,
       });
 
       if (attestation.completed) {
@@ -235,7 +236,8 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
           data: {
             ...attestation.completed.data,
           },
-          schema: GapSchema.find('MilestoneCompleted'),
+          schema: GapSchema.find('MilestoneCompleted', network),
+          chainID: attestation.chainID,
         });
       }
 
@@ -245,7 +247,8 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
           data: {
             ...attestation.completed.data,
           },
-          schema: GapSchema.find('MilestoneCompleted'),
+          schema: GapSchema.find('MilestoneCompleted', network),
+          chainID: attestation.chainID,
         });
       }
 
@@ -255,7 +258,8 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
           data: {
             ...attestation.completed.data,
           },
-          schema: GapSchema.find('MilestoneCompleted'),
+          schema: GapSchema.find('MilestoneCompleted', network),
+          chainID: attestation.chainID,
         });
       }
 

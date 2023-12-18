@@ -11,7 +11,7 @@ const web3 = new ethers.providers.JsonRpcProvider(
 );
 
 const wallet = new ethers.Wallet(key, web3);
-const gap = GAP.createClient({
+const gap = new GAP({
   network: "optimism-goerli",
   apiClient: new GapIndexerClient("http://localhost:3001"),
   gelatoOpts: {
@@ -60,7 +60,7 @@ const projectDetails = (projects: Project[] = []) =>
   }));
 
 async function attestation() {
-  const [projectSchema] = GapSchema.findMany(["Project", "ProjectDetails"]);
+  const [projectSchema] = GapSchema.findMany(["Project", "ProjectDetails"], gap.network);
 
   const project = new Project({
     data: { project: true },

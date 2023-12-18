@@ -14,6 +14,7 @@ import {
   SignerOrProvider,
   RawMultiAttestPayload,
   RawAttestationPayload,
+  TNetwork,
 } from '../types';
 import { AttestationError, SchemaError } from './SchemaError';
 import { ethers } from 'ethers';
@@ -90,7 +91,11 @@ import { GapContract } from './contract/GapContract';
 export abstract class Schema<T extends string = string>
   implements SchemaInterface<T>
 {
-  protected static schemas: Schema[] = [];
+  protected static schemas: Record<TNetwork, Schema[]> = {
+    'optimism-goerli': [],
+    optimism: [],
+    sepolia: [],
+  };
 
   protected encoder: SchemaEncoder;
   private _schema: SchemaItem[] = [];
@@ -101,15 +106,22 @@ export abstract class Schema<T extends string = string>
   readonly revocable?: boolean;
   readonly references?: T;
 
+  readonly gap: GAP;
+
   /**
    * Creates a new schema instance
    * @param args
    * @param strict If true, will throw an error if schema reference is not valid. With this option, user should add schemas
    * in a strict order.
    */
-  constructor(args: SchemaInterface<T>, strict = false, ignoreSchema = false) {
+  constructor(
+    args: SchemaInterface<T>,
+    gap?: GAP,
+    strict = false,
+    ignoreSchema = false
+  ) {
     this.assert(args, strict);
-
+    this.gap = gap;
     this._schema = args.schema;
     this.uid = args.uid;
     this.name = args.name;
@@ -231,7 +243,7 @@ export abstract class Schema<T extends string = string>
     //   throw new SchemaError("MISSING_FIELD", "Schema uid is required");
     // }
 
-    if (strict && references && !Schema.exists(references)) {
+    if (strict && references && !Schema.exists(references, this.gap.network)) {
       throw new SchemaError(
         'INVALID_REFERENCE',
         `Schema ${name} references ${references} but it does not exist.`
@@ -244,7 +256,7 @@ export abstract class Schema<T extends string = string>
    * @returns
    */
   async attestOffchain({ data, signer, to, refUID }: AttestArgs) {
-    const eas = await GAP.eas.getOffchain();
+    const eas = await this.gap.eas.getOffchain();
     const payload = <OffchainAttestationParams>{
       data,
       version: eas.version,
@@ -265,7 +277,7 @@ export abstract class Schema<T extends string = string>
    * @returns
    */
   async revokeOffchain(uid: Hex, signer: SignerOrProvider) {
-    const eas = GAP.eas.connect(signer);
+    const eas = this.gap.eas.connect(signer);
     return eas.revokeOffchain(uid);
   }
 
@@ -276,7 +288,7 @@ export abstract class Schema<T extends string = string>
    * @returns
    */
   async multiRevokeOffchain(uids: Hex[], signer: SignerOrProvider) {
-    const eas = GAP.eas.connect(signer);
+    const eas = this.gap.eas.connect(signer);
     return eas.multiRevokeOffchain(uids);
   }
 
@@ -295,7 +307,7 @@ export abstract class Schema<T extends string = string>
    * @returns {Object} An object containing the attestation results, including the CID if 'ipfsKey' is enabled.
    */
   async attest<T>({ data, to, signer, refUID }: AttestArgs<T>): Promise<Hex> {
-    const eas = GAP.eas.connect(signer);
+    const eas = this.gap.eas.connect(signer);
 
     if (this.references && !refUID)
       throw new AttestationError(
@@ -369,7 +381,7 @@ export abstract class Schema<T extends string = string>
         );
     });
 
-    const eas = GAP.eas.connect(signer);
+    const eas = this.gap.eas.connect(signer);
 
     const entityBySchema = entities.reduce(
       (acc, entity) => {
@@ -413,7 +425,7 @@ export abstract class Schema<T extends string = string>
       {} as Record<string, Hex[]>
     );
 
-    const eas = GAP.eas.connect(signer);
+    const eas = this.gap.eas.connect(signer);
     const payload = Object.entries(groupBySchema).map(([schema, uids]) => ({
       schema,
       data: uids.map((uid) => ({ uid })),
@@ -425,8 +437,8 @@ export abstract class Schema<T extends string = string>
     return tx.wait();
   }
 
-  static exists(name: string) {
-    return this.schemas.find((schema) => schema.name === name);
+  static exists(name: string, network: TNetwork) {
+    return this.schemas[network].find((schema) => schema.name === name);
   }
 
   /**
@@ -436,9 +448,10 @@ export abstract class Schema<T extends string = string>
    * of the class AND its data can be overriden by any changes.__
    * @param schemas
    */
-  static add<T extends Schema>(...schemas: T[]) {
+  static add<T extends Schema>(network: TNetwork, ...schemas: T[]) {
     schemas.forEach((schema) => {
-      if (!this.exists(schema.name)) this.schemas.push(schema);
+      if (!this.exists(schema.name, network))
+        this.schemas[network].push(schema);
       else
         throw new SchemaError(
           'SCHEMA_ALREADY_EXISTS',
@@ -447,19 +460,24 @@ export abstract class Schema<T extends string = string>
     });
   }
 
-  static getAll<T extends Schema>(): T[] {
-    return this.schemas as T[];
+  static getAll<T extends Schema>(network: TNetwork): T[] {
+    return this.schemas[network] as T[];
   }
 
-  static get<N extends string, T extends Schema>(name: N): T {
-    const schema = this.schemas.find(
+  static get<N extends string, T extends Schema>(
+    name: N,
+    network: TNetwork
+  ): T {
+    const schema = this.schemas[network].find(
       (schema) => schema.name === name || schema.uid === name
     );
 
     if (!schema)
       throw new SchemaError(
         'SCHEMA_NOT_FOUND',
-        `Schema ${name} not found. Available schemas: ${Schema.getNames()}`
+        `Schema ${name} not found. Available schemas: ${Schema.getNames(
+          network
+        )}`
       );
 
     return schema as T;
@@ -470,12 +488,15 @@ export abstract class Schema<T extends string = string>
    * @param names
    * @returns
    */
-  static getMany<N extends string, T extends Schema>(names: N[]) {
-    return names.map((name) => <T>this.get(name));
+  static getMany<N extends string, T extends Schema>(
+    names: N[],
+    network: TNetwork
+  ) {
+    return names.map((name) => <T>this.get(name, network));
   }
 
-  static getNames(): string[] {
-    return Schema.schemas.map((schema) => schema.name);
+  static getNames(network: TNetwork): string[] {
+    return Schema.schemas[network].map((schema) => schema.name);
   }
 
   /**
@@ -483,11 +504,12 @@ export abstract class Schema<T extends string = string>
    * @throws {SchemaError} if any reference is not valid
    * @returns {true} if references are valid
    */
-  static validate(): true {
+  static validate(network: TNetwork): true {
     const errors: SchemaError[] = [];
 
-    this.schemas.forEach((schema) => {
-      if (!schema.references || Schema.exists(schema.references)) return;
+    this.schemas[network].forEach((schema) => {
+      if (!schema.references || Schema.exists(schema.references, network))
+        return;
       else
         errors.push(
           new SchemaError(
@@ -505,16 +527,18 @@ export abstract class Schema<T extends string = string>
    * Replaces the schema list with a new list.
    * @param schemas
    */
-  static replaceAll(schemas: Schema[]) {
-    this.schemas = schemas;
+  static replaceAll(schemas: Schema[], network: TNetwork) {
+    this.schemas[network] = schemas;
   }
 
   /**
    * Replaces a schema from the schema list.
    * @throws {SchemaError} if desired schema name does not exist.
    */
-  static replaceOne(schema: Schema) {
-    const idx = this.schemas.findIndex((item) => schema.name === item.name);
+  static replaceOne(schema: Schema, network: TNetwork) {
+    const idx = this.schemas[network].findIndex(
+      (item) => schema.name === item.name
+    );
     if (!~idx)
       throw new SchemaError(
         'SCHEMA_NOT_FOUND',
@@ -567,7 +591,7 @@ export abstract class Schema<T extends string = string>
    * the changes made to it will reflect the original instance.
    */
   get children() {
-    return Schema.schemas.filter(
+    return Schema.schemas[this.gap.network].filter(
       (schema) =>
         schema.references === this.name || schema.references === this.uid
     );

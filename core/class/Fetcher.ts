@@ -3,8 +3,19 @@ import { Attestation } from './Attestation';
 import { Community, Grant, MemberOf, Milestone, Project } from './entities';
 import { Grantee } from './types/attestations';
 import { AxiosGQL } from './GraphQL/AxiosGQL';
+import { GAP } from './GAP';
 
 export abstract class Fetcher extends AxiosGQL {
+  protected gap: GAP;
+
+  constructor(url: string) {
+    super(url);
+  }
+
+  set gapInstance(gap: GAP) {
+    this.gap = gap;
+  }
+
   /**
    * Fetch a single attestation by its UID.
    * @param uid

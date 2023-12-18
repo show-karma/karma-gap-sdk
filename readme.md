@@ -115,7 +115,7 @@ const gap = GAP.createClient({
   network: 'optimism-goerli', // sepolia, optimism,
   apiClient: new MyCustomApiClient('https://my-custom-api.mydomain.com'),
   // gelatoOpts: for gasless transactions, see it on Chap. 7;
-   // ipfsKey: for cheaper attestations;
+  // ipfsKey: for cheaper attestations;
 });
 
 export default gap;
@@ -196,7 +196,7 @@ export function getDummyProject() {
   // Creating Project
   const project = new Project({
     data: { project: true },
-    schema: GapSchema.find('Project'),
+    schema: gap.findSchema('Project', 'optimism-goerli'),
     // Owner address, usually whoever is connected to the app
     recipient: '0xd7d...25f2',
   });
@@ -210,13 +210,13 @@ export function getDummyProject() {
       links: [{ type: 'github', url: 'https://github.com/my-org' }],
       tags: [{ name: 'DAO' }, { name: 'UI/UX' }],
     },
-    schema: GapSchema.find('ProjectDetails'),
+    schema: gap.findSchema('ProjectDetails'),
     recipient: project.recipient,
   });
 
   const member_1 = new MemberOf({
     data: { memberOf: true },
-    schema: GapSchema.find('MemberOf'),
+    schema: gap.findSchema('MemberOf'),
     refUID: pro.uid,
     // member 1 address
     recipient: '0x8dC...A8b4',
@@ -224,7 +224,7 @@ export function getDummyProject() {
 
   const member_2 = new MemberOf({
     data: { memberOf: true },
-    schema: GapSchema.find('MemberOf'),
+    schema: gap.findSchema('MemberOf'),
     refUID: pro.uid,
     // member 2 address
     recipient: '0xabc...A7b3',
@@ -237,7 +237,7 @@ export function getDummyProject() {
   const grant = new Grant({
     // Address of the related community
     data: { communityUID: '0xabc...def' },
-    schema: GapSchema.find('Grant'),
+    schema: gap.findSchema('Grant'),
     recipient: project.recipient,
   });
 
@@ -250,7 +250,7 @@ export function getDummyProject() {
       // cycle: grant cycle, optional
       // season: grant season, optional
     },
-    schema: GapSchema.find('GrantDetails'),
+    schema: gap.findSchema('GrantDetails'),
     recipient: pro.recipient,
   });
 
@@ -261,7 +261,7 @@ export function getDummyProject() {
       description: 'Milestone Description',
       endsAt: Date.now() + 1000000,
     },
-    schema: GapSchema.find('Milestone'),
+    schema: gap.findSchema('Milestone'),
     recipient: pro.recipient,
   });
 
@@ -644,7 +644,10 @@ When using a self-contained API to hide API keys, we offer a plug-and-play utili
 
 ```ts
 // pages/api/sponsored-handler.ts
-import { type ApiRequest, handler as sponsorTxnHandler } from '@show-karma/karma-gap-sdk';
+import {
+  type ApiRequest,
+  handler as sponsorTxnHandler,
+} from '@show-karma/karma-gap-sdk';
 import type { NextApiResponse } from 'next';
 
 const handler = (req: ApiRequest, res: NextApiResponse) =>
@@ -839,4 +842,5 @@ export default gap;
 > Note that your API service should return data that aligns with the interfaces provided by each Attestation for proper compatibility with this SDK. This ensures that the data is structured correctly to work seamlessly with the SDK.
 
 ## Contact Us
+
 If you have any questions on SDK usage, join our discord to get help: https://discord.com/invite/X4fwgzPReJ
