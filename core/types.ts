@@ -73,7 +73,7 @@ export type TNetwork =
   // | "base-goerli"
   | 'optimism'
   | 'optimism-goerli'
-  // | "arbitrum"
+  | "arbitrum"
   | 'sepolia';
 
 /**
