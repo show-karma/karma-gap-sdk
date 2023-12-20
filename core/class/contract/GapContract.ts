@@ -314,7 +314,7 @@ export class GapContract {
     projectUID: Hex,
     newOwner: Hex
   ) {
-    const contract = GAP.getProjectResolver(signer);
+    const contract = await GAP.getProjectResolver(signer);
     const tx = await contract.functions.transferProjectOwnership(
       projectUID,
       newOwner
@@ -333,7 +333,7 @@ export class GapContract {
     projectUID: Hex,
     projectChainId: number
   ): Promise<boolean> {
-    const contract = GAP.getProjectResolver(signer, projectChainId);
+    const contract = await GAP.getProjectResolver(signer, projectChainId);
     const address = await this.getSignerAddress(signer);
     const isOwner = await contract.functions.isAdmin(projectUID, address);
     return !!isOwner?.[0];
