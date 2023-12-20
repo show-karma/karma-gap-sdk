@@ -187,12 +187,11 @@ class GAP extends types_1.Facade {
      * @param signer
      */
     static async getProjectResolver(signer, chainId) {
-        chainId =
-            chainId ||
-                Number((await signer.provider.getNetwork())?.chainId ||
-                    (await signer.getChainId()));
+        const currentChainId = chainId ||
+            Number((await signer.provider.getNetwork())?.chainId ||
+                (await signer.getChainId()));
         const provider = chainId ? (0, get_web3_provider_1.getWeb3Provider)(chainId) : signer;
-        const network = Object.values(consts_1.Networks).find((n) => +n.chainId === Number(chainId));
+        const network = Object.values(consts_1.Networks).find((n) => +n.chainId === Number(currentChainId));
         const address = network.contracts.projectResolver;
         return new ethers_1.ethers.Contract(address, ProjectResolver_json_1.default, provider);
     }
