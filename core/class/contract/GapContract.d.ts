@@ -58,7 +58,7 @@ export declare class GapContract {
      * @param newOwner
      * @returns
      */
-    static transferProjectOwnership(signer: SignerOrProvider, projectUID: Hex, newOwner: Hex): Promise<any>;
+    static transferProjectOwnership(signer: SignerOrProvider, projectUID: Hex, newOwner: Hex, projectChainId: number): Promise<any>;
     /**
      * Check if the signer is the owner of the project
      * @param signer

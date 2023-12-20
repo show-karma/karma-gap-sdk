@@ -170,8 +170,8 @@ class GapContract {
      * @param newOwner
      * @returns
      */
-    static async transferProjectOwnership(signer, projectUID, newOwner) {
-        const contract = GAP_1.GAP.getProjectResolver(signer);
+    static async transferProjectOwnership(signer, projectUID, newOwner, projectChainId) {
+        const contract = GAP_1.GAP.getProjectResolver(signer, projectChainId);
         const tx = await contract.functions.transferProjectOwnership(projectUID, newOwner);
         return tx.wait?.();
     }
