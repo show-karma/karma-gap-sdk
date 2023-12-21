@@ -1,5 +1,6 @@
 import MulticallABI from '../abi/MultiAttester.json';
 import ProjectResolverABI from '../abi/ProjectResolver.json';
+import CommunityResolverABI from '../abi/CommunityResolverABI.json';
 
 import {
   AttestArgs,
@@ -358,6 +359,29 @@ export class GAP extends Facade {
     );
     const address = network.contracts.projectResolver;
     return new ethers.Contract(address, ProjectResolverABI, provider as any);
+  }
+
+  /**
+   * Get the multicall contract
+   * @param signer
+   */
+  static async getCommunityResolver( 
+    signer: SignerOrProvider & { getChainId?: () => Promise<number> },
+    chainId?: number
+    ) {
+      const currentChainId =
+        chainId ||
+        Number(
+          (await signer.provider.getNetwork())?.chainId ||
+            (await signer.getChainId())
+        );
+
+      const provider = chainId ? getWeb3Provider(chainId) : signer;
+      const network = Object.values(Networks).find(
+        (n) => +n.chainId === Number(currentChainId)
+      );
+      const address = network.contracts.communityResolver;
+      return new ethers.Contract(address, CommunityResolverABI, provider as any);
   }
 
   get schemas() {

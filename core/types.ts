@@ -121,6 +121,7 @@ export interface EASNetworkConfig {
     schema: Hex;
     multicall: Hex;
     projectResolver: Hex;
+    communityResolver: Hex;
   };
   /**
    * A tuple containing the schema name and it's UID for that network
