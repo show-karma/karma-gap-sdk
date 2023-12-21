@@ -59,34 +59,6 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
         '0x5b873b6e7a16207b526dde366e8164e95bcda2f009272306519667c5e94d2191',
     },
   },
-  arbitrum: {
-    chainId: 42161,
-    url: 'https://arbitrum.easscan.org/graphql',
-    contracts: {
-      eas: '0xbD75f629A22Dc1ceD33dDA0b68c546A1c035c458',
-      schema: '0xA310da9c5B885E7fb3fbA9D66E9Ba6Df512b78eB',
-      multicall: '0x6dC1D6b864e8BEf815806f9e4677123496e12026', //proxy,
-      projectResolver: '0x28BE0b0515be8BB8822aF1467A6613795E74717b',
-    },
-    schemas: {
-      Community:
-        '0xc604f0661cfd522583835ed2b2c644b80e068139d287f93c7f1680888894bacc',
-      Details:
-        '0x16bfe4783b7a9c743c401222c56a07ecb77ed42afc84b61ff1f62f5936c0b9d7',
-      Grant:
-        '0xea02ab33f9f4c92ba02c9bb21614b7410b98c940a0d8eb8ad3a20204d8b4bda5',
-      GrantVerified:
-        '0xd25ccdfbf87659a9081681eb90598d8b944ed28544da7d57c3ccbe6e6422cc15',
-      MemberOf:
-        '0x5f430aec9d04f0dcb3729775c5dfe10752e436469a7607f8c64ae44ef996e477',
-      MilestoneApproved:
-        '0xd25ccdfbf87659a9081681eb90598d8b944ed28544da7d57c3ccbe6e6422cc15',
-      MilestoneCompleted:
-        '0xd25ccdfbf87659a9081681eb90598d8b944ed28544da7d57c3ccbe6e6422cc15',
-      Project:
-        '0xac2a06e955a7e25e6729efe1a6532237e3435b21ccd3dc827ae3c94e624d25b3',
-    },
-  }
   'optimism-goerli': {
     chainId: 420,
     url: 'https://optimism-goerli-bedrock.easscan.org/graphql',
@@ -97,7 +69,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       schema: '0x4200000000000000000000000000000000000020',
       multicall: '0x5D5a8032b2FA06652804c33F60DcEA00e389B732', //proxy,
       projectResolver: '0xbCf8910Bc3971eA59D93256357b76E846CF2e1F8',
-      communityResolver: '0xa09369bDE7E4403a9C821AffA00E649cF85Ef09e'
+      communityResolver: '0xa09369bDE7E4403a9C821AffA00E649cF85Ef09e',
     },
     schemas: {
       Community:
@@ -122,13 +94,14 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
   arbitrum: {
     chainId: 42161,
     url: 'https://arbitrum.easscan.org/graphql',
-    rpcUrl: 'https://arb-mainnet.g.alchemy.com/v2/okcKBSKXvLuSCbas6QWGvKuh-IcHHSOr',
+    rpcUrl:
+      'https://arb-mainnet.g.alchemy.com/v2/okcKBSKXvLuSCbas6QWGvKuh-IcHHSOr',
     contracts: {
       eas: '0xbD75f629A22Dc1ceD33dDA0b68c546A1c035c458',
       schema: '0xA310da9c5B885E7fb3fbA9D66E9Ba6Df512b78eB',
       multicall: '0x6dC1D6b864e8BEf815806f9e4677123496e12026', //proxy,
       projectResolver: '0x28BE0b0515be8BB8822aF1467A6613795E74717b',
-      communityResolver: '0xD534C4704F82494aBbc901560046fB62Ac63E9C4'
+      communityResolver: '0xD534C4704F82494aBbc901560046fB62Ac63E9C4',
     },
     schemas: {
       Community:
@@ -158,7 +131,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       schema: '0x0a7E2Ff54e76B8E6659aedc9103FB21c038050D0',
       multicall: '0xec8d7BFe344790FD860920C41B46B259c005727A',
       projectResolver: '0x099787D5a5aC92779A519CfD925ACB0Dc7E8bd23',
-      communityResolver: '0xa9E55D9F52d7B47792d2Db15F6A9674c56ccc5C9'
+      communityResolver: '0xa9E55D9F52d7B47792d2Db15F6A9674c56ccc5C9',
     },
     schemas: {
       Community:
