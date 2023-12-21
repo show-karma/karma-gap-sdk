@@ -342,10 +342,20 @@ export class GAP extends Facade {
    * Get the multicall contract
    * @param signer
    */
-  static getProjectResolver(signer: SignerOrProvider, chainId?: number) {
+  static async getProjectResolver(
+    signer: SignerOrProvider & { getChainId?: () => Promise<number> },
+    chainId?: number
+  ) {
+    const currentChainId =
+      chainId ||
+      Number(
+        (await signer.provider.getNetwork())?.chainId ||
+          (await signer.getChainId())
+      );
+
     const provider = chainId ? getWeb3Provider(chainId) : signer;
     const network = Object.values(Networks).find(
-      (n) => +n.chainId === Number(chainId)
+      (n) => +n.chainId === Number(currentChainId)
     );
     const address = network.contracts.projectResolver;
     return new ethers.Contract(address, ProjectResolverABI, provider as any);
