@@ -4,6 +4,7 @@ import { GapSchema } from '../GapSchema';
 import { Fetcher } from '../Fetcher';
 import { Community, Project, Grant, Milestone, MemberOf } from '../entities';
 import { Grantee } from '../types/attestations';
+import { formatPath } from '../../utils/format-path';
 
 const Endpoints = {
   attestations: {
@@ -11,17 +12,16 @@ const Endpoints = {
     byUid: (uid: Hex) => `/attestations/${uid}`,
   },
   communities: {
-    all: () => '/communities',
+    all: (page?: number, pageLimit?: number) => formatPath(`/communities`, {page, pageLimit}),
     byUidOrSlug: (uidOrSlug: string) => `/communities/${uidOrSlug}`,
-    grants: (uidOrSlug: string) => `/communities/${uidOrSlug}/grants`,
+    grants: (uidOrSlug: string, page?: number, pageLimit?: number) => formatPath(`/communities/${uidOrSlug}/grants`, {page, pageLimit})
   },
   grantees: {
     all: () => '/grantees',
     byAddress: (address: Hex) => `/grantees/${address}`,
     grants: (address: Hex) => `/grantees/${address}/grants`,
     projects: (address: Hex) => `/grantees/${address}/projects`,
-    communities: (address: Hex, withGrants) =>
-      `/grantees/${address}/communities${withGrants ? '?withGrants=true' : ''}`,
+    communities: (address: Hex, withGrants) => `/grantees/${address}/communities${withGrants ? '?withGrants=true' : ''}`,
   },
   grants: {
     all: () => '/grants',
@@ -29,7 +29,7 @@ const Endpoints = {
     byExternalId: (id: string) => `/grants/external-id/${id}`,
   },
   project: {
-    all: () => '/projects',
+    all: (page?: number, pageLimit?: number) => formatPath(`/projects`, {page, pageLimit}),
     byUidOrSlug: (uidOrSlug: string) => `/projects/${uidOrSlug}`,
     grants: (uidOrSlug: string) => `/projects/${uidOrSlug}/grants`,
     milestones: (uidOrSlug: string) => `/projects/${uidOrSlug}/milestones`,
@@ -213,9 +213,10 @@ export class GapIndexerClient extends Fetcher {
     return Grant.from(data, this.gap.network);
   }
 
-  async grantsByCommunity(uid: `0x${string}`) {
+  async grantsByCommunity(uid: `0x${string}`, page?: number, pageLimit?: number) {
+    console.log({uid, page, pageLimit})
     const { data } = await this.client.get<Grant[]>(
-      Endpoints.communities.grants(uid)
+      Endpoints.communities.grants(uid, page, pageLimit)
     );
 
     return Grant.from(data, this.gap.network);

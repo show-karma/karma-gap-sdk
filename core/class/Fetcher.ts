@@ -170,7 +170,7 @@ export abstract class Fetcher extends AxiosGQL {
    * @param uid community uid
    * @returns
    */
-  abstract grantsByCommunity(uid: Hex);
+  abstract grantsByCommunity(uid: Hex, page?: number, pageLimit?: number);
 
   /**
    * Fetch all milestones related to an array of Grants.
