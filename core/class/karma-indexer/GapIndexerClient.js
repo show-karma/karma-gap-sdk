@@ -4,15 +4,16 @@ exports.GapIndexerClient = void 0;
 const Attestation_1 = require("../Attestation");
 const Fetcher_1 = require("../Fetcher");
 const entities_1 = require("../entities");
+const format_path_1 = require("../../utils/format-path");
 const Endpoints = {
     attestations: {
         all: () => '/attestations',
         byUid: (uid) => `/attestations/${uid}`,
     },
     communities: {
-        all: () => '/communities',
+        all: (page, pageLimit) => (0, format_path_1.formatPath)(`/communities`, { page, pageLimit }),
         byUidOrSlug: (uidOrSlug) => `/communities/${uidOrSlug}`,
-        grants: (uidOrSlug) => `/communities/${uidOrSlug}/grants`,
+        grants: (uidOrSlug, page, pageLimit) => (0, format_path_1.formatPath)(`/communities/${uidOrSlug}/grants`, { page, pageLimit })
     },
     grantees: {
         all: () => '/grantees',
@@ -27,7 +28,7 @@ const Endpoints = {
         byExternalId: (id) => `/grants/external-id/${id}`,
     },
     project: {
-        all: () => '/projects',
+        all: (page, pageLimit) => (0, format_path_1.formatPath)(`/projects`, { page, pageLimit }),
         byUidOrSlug: (uidOrSlug) => `/projects/${uidOrSlug}`,
         grants: (uidOrSlug) => `/projects/${uidOrSlug}/grants`,
         milestones: (uidOrSlug) => `/projects/${uidOrSlug}/milestones`,
@@ -130,8 +131,9 @@ class GapIndexerClient extends Fetcher_1.Fetcher {
         const { data } = await this.client.get(Endpoints.grants.byExternalId(projectExtId));
         return entities_1.Grant.from(data, this.gap.network);
     }
-    async grantsByCommunity(uid) {
-        const { data } = await this.client.get(Endpoints.communities.grants(uid));
+    async grantsByCommunity(uid, page, pageLimit) {
+        console.log({ uid, page, pageLimit });
+        const { data } = await this.client.get(Endpoints.communities.grants(uid, page, pageLimit));
         return entities_1.Grant.from(data, this.gap.network);
     }
     async milestonesOf(grants) {

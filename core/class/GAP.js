@@ -187,9 +187,12 @@ class GAP extends types_1.Facade {
      * Get the multicall contract
      * @param signer
      */
-    static getProjectResolver(signer, chainId) {
+    static async getProjectResolver(signer, chainId) {
+        const currentChainId = chainId ||
+            Number((await signer.provider.getNetwork())?.chainId ||
+                (await signer.getChainId()));
         const provider = chainId ? (0, get_web3_provider_1.getWeb3Provider)(chainId) : signer;
-        const network = Object.values(consts_1.Networks).find((n) => +n.chainId === Number(chainId));
+        const network = Object.values(consts_1.Networks).find((n) => +n.chainId === Number(currentChainId));
         const address = network.contracts.projectResolver;
         return new ethers_1.ethers.Contract(address, ProjectResolver_json_1.default, provider);
     }
@@ -197,9 +200,12 @@ class GAP extends types_1.Facade {
      * Get the multicall contract
      * @param signer
      */
-    static getCommunityResolver(signer, chainId) {
+    static async getCommunityResolver(signer, chainId) {
+        const currentChainId = chainId ||
+            Number((await signer.provider.getNetwork())?.chainId ||
+                (await signer.getChainId()));
         const provider = chainId ? (0, get_web3_provider_1.getWeb3Provider)(chainId) : signer;
-        const network = Object.values(consts_1.Networks).find((n) => +n.chainId === Number(chainId));
+        const network = Object.values(consts_1.Networks).find((n) => +n.chainId === Number(currentChainId));
         const address = network.contracts.communityResolver;
         return new ethers_1.ethers.Contract(address, CommunityResolverABI_json_1.default, provider);
     }

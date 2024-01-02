@@ -24,7 +24,7 @@ export declare class GapIndexerClient extends Fetcher {
     grantsOf(grantee: `0x${string}`, withCommunity?: boolean): Promise<Grant[]>;
     grantsFor(projects: Project[], withCommunity?: boolean): Promise<Grant[]>;
     grantsForExtProject(projectExtId: string): Promise<Grant[]>;
-    grantsByCommunity(uid: `0x${string}`): Promise<Grant[]>;
+    grantsByCommunity(uid: `0x${string}`, page?: number, pageLimit?: number): Promise<Grant[]>;
     milestonesOf(grants: Grant[]): Promise<Milestone[]>;
     membersOf(projects: Project[]): Promise<MemberOf[]>;
     slugExists(slug: string): Promise<boolean>;
