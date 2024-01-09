@@ -42,7 +42,7 @@ export declare class GrantDetails extends Attestation<IGrantDetails> implements 
     season?: string;
     cycle?: string;
     questions?: IGrantDetailsQuestion[];
-    type: string;
+    type?: string;
 }
 export interface IGrantRound {
     name: string;
