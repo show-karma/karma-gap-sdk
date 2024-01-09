@@ -76,7 +76,6 @@ class Grant extends Attestation_1.Attestation {
         const payload = [...currentPayload];
         const grantIdx = payload.push([this, await this.payloadFor(projectIdx)]) - 1;
         if (this.details) {
-            this.details.type = 'grant-details';
             payload.push([this.details, await this.details.payloadFor(grantIdx)]);
         }
         if (this.milestones.length) {
