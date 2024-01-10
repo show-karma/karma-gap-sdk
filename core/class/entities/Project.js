@@ -30,6 +30,7 @@ class Project extends Attestation_1.Attestation {
         const payload = [...currentPayload];
         const projectIdx = payload.push([this, await this.payloadFor(communityIdx)]) - 1;
         if (this.details) {
+            this.details.data.type = 'project-details';
             payload.push([this.details, await this.details.payloadFor(projectIdx)]);
         }
         if (this.members?.length) {

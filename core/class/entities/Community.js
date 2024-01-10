@@ -26,6 +26,7 @@ class Community extends Attestation_1.Attestation {
     async multiAttestPayload() {
         const payload = [[this, await this.payloadFor(0)]];
         if (this.details) {
+            this.details.data.type = 'community-details';
             payload.push([this.details, await this.details.payloadFor(0)]);
         }
         if (this.projects?.length) {
