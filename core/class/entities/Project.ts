@@ -50,6 +50,7 @@ export class Project extends Attestation<IProject> {
       payload.push([this, await this.payloadFor(communityIdx)]) - 1;
 
     if (this.details) {
+      this.details.data.type = 'project-details'
       payload.push([this.details, await this.details.payloadFor(projectIdx)]);
     }
 

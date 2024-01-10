@@ -111,6 +111,7 @@ export class Grant extends Attestation<IGrant> {
     const grantIdx =
       payload.push([this, await this.payloadFor(projectIdx)]) - 1;
     if (this.details) {
+      this.details.data.type = 'grant-details'
       payload.push([this.details, await this.details.payloadFor(grantIdx)]);
     }
 
