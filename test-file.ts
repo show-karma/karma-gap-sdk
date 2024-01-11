@@ -81,11 +81,6 @@ async function getProject(uid: Hex) {
   console.log(JSON.stringify(projectDetails([project]), null, 2));
 }
 
-
-axios.get("http://localhost:3001/grants/0x73ddffeff8b14fbea412ac79ba7814eb0dec9bae84b12a91c2c3c91f6b3580c4").then(({data}) => {
-  Grant.from([data]);
-})
-
 // attestation().then((uids) => {
 //   console.log(uids);
 //   getProject(uids[0]);
