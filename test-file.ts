@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import { Project, GAP, Grant, Hex, GapSchema } from "./core";
+import { Project, GAP, Grant, Hex, GapSchema, ProjectDetails } from "./core";
 import { GapIndexerClient } from "./core/class";
 import axios from "axios";
 
@@ -60,7 +60,7 @@ const projectDetails = (projects: Project[] = []) =>
   }));
 
 async function attestation() {
-  const [projectSchema] = GapSchema.findMany(["Project", "ProjectDetails"], gap.network);
+  const [projectSchema, projectDetailsSchema] = GapSchema.findMany(["Project", "ProjectDetails"], gap.network);
 
   const project = new Project({
     data: { project: true },
@@ -68,6 +68,16 @@ async function attestation() {
     recipient: "0x5A4830885f12438E00D8f4d98e9Fe083e707698C",
     // uid: "0x0f290f88ef6b3838f83b49bd0c1eeb4bda31502d0aa4591470fac30abb2f0111",
   });
+
+  project.details = new ProjectDetails({
+    data: { 
+      description: 'io',
+      imageURL: 'oi',
+      title: 'oi',
+    },
+    recipient: '0x5A4830885f12438E00D8f4d98e9Fe083e707698C',
+    schema: projectDetailsSchema,
+  })
 
   await project.attest(wallet as any);
 
@@ -82,11 +92,8 @@ async function getProject(uid: Hex) {
 }
 
 
-axios.get("http://localhost:3001/grants/0x73ddffeff8b14fbea412ac79ba7814eb0dec9bae84b12a91c2c3c91f6b3580c4").then(({data}) => {
-  Grant.from([data]);
-})
 
-// attestation().then((uids) => {
-//   console.log(uids);
-//   getProject(uids[0]);
-// });
+attestation().then((uids) => {
+  console.log(uids);
+  // getProject(uids[0]);
+});
