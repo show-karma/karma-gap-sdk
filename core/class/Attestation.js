@@ -190,6 +190,10 @@ class Attestation {
         this.assertPayload();
         if (this.schema.isJsonSchema()) {
             const { remoteClient } = GAP_1.GAP;
+            if (this.type) {
+                this._data.type = this.type;
+                this.schema.setValue('json', JSON.stringify(this._data));
+            }
             if (remoteClient) {
                 const cid = await remoteClient.save(this._data, this.schema.name);
                 const encodedData = remoteClient.encode(cid);
