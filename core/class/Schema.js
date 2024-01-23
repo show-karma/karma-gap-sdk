@@ -448,7 +448,8 @@ class Schema {
 }
 exports.Schema = Schema;
 Schema.schemas = {
-    'optimism-goerli': [],
+    'optimism-sepolia': [],
+    "optimism-goerli": [],
     optimism: [],
     sepolia: [],
     arbitrum: [],

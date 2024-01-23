@@ -12,7 +12,6 @@ export interface ICommunityDetails {
     imageURL: string;
     slug?: string;
     links?: ExternalLink;
-    type?: string;
 }
 export declare class CommunityDetails extends Attestation<ICommunityDetails> implements ICommunityDetails {
     name: string;
@@ -20,7 +19,6 @@ export declare class CommunityDetails extends Attestation<ICommunityDetails> imp
     imageURL: string;
     links: ExternalLink;
     slug?: string;
-    type: string;
 }
 export interface IGrantDetails {
     title: string;
@@ -32,7 +30,6 @@ export interface IGrantDetails {
     season?: string;
     cycle?: string;
     questions?: IGrantDetailsQuestion[];
-    type?: string;
 }
 export declare class GrantDetails extends Attestation<IGrantDetails> implements IGrantDetails {
     title: string;
@@ -44,7 +41,6 @@ export declare class GrantDetails extends Attestation<IGrantDetails> implements 
     season?: string;
     cycle?: string;
     questions?: IGrantDetailsQuestion[];
-    type: string;
 }
 export interface IGrantRound {
     name: string;
@@ -87,7 +83,6 @@ export interface IProjectDetails {
     links?: ExternalLink;
     tags?: ITag[];
     slug?: string;
-    type?: string;
 }
 export declare class ProjectDetails extends Attestation<IProjectDetails> implements IProjectDetails {
     title: string;
@@ -96,7 +91,6 @@ export declare class ProjectDetails extends Attestation<IProjectDetails> impleme
     links: ExternalLink;
     tags: ITag[];
     slug: string;
-    type: string;
 }
 export declare class Grantee {
     address: string;

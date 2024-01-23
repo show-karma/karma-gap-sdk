@@ -42,6 +42,32 @@ exports.Networks = {
             Project: '0x5b873b6e7a16207b526dde366e8164e95bcda2f009272306519667c5e94d2191',
         },
     },
+    'optimism-sepolia': {
+        chainId: 11155420,
+        url: 'https://optimism-sepolia.easscan.org/graphql',
+        rpcUrl: 'https://opt-sepolia.g.alchemy.com/v2/SAI_dJr86B7ttCD_b9fn61MWrrdZimmL',
+        contracts: {
+            communityResolver: '0xa5B7bbFD545A1a816aa8cBE28a1F0F2Cca58363d',
+            eas: '0x4200000000000000000000000000000000000021',
+            multicall: '0xC891F8eBA218f5034bf3a472528408BE19E1130E',
+            projectResolver: '0x832931F23ea4e3c70957DA71a7eB50F5B7efA93D',
+            schema: '0x4200000000000000000000000000000000000020',
+        },
+        schemas: {
+            Community: '0x314bb1c3c9b5311c1b813a3ad123b6ac5a03902b987795056dd2e4ff38e833ea',
+            Details: '0xd193e75f420a69910f98fa79cacdfd9d0dcbf5933edce8f8bde9a10bd204d996',
+            Grant: '0x181beb00ef05cf99caa2e4192369232f210c2764f26e238d962112bf592e9cce',
+            GrantVerified: '0xf544fbd9721ac50863d32dc0eed5992051e7fb270b38ab2ce062327cc0ae26ea',
+            MemberOf: '0x611f9655188f372e27dce116a803fa9081ca3e2907986368d54fcad538ca3853',
+            MilestoneApproved: '0xf544fbd9721ac50863d32dc0eed5992051e7fb270b38ab2ce062327cc0ae26ea',
+            MilestoneCompleted: '0xf544fbd9721ac50863d32dc0eed5992051e7fb270b38ab2ce062327cc0ae26ea',
+            Project: '0xf9bbd118dd100459a7d093403af21c6e7f847fd7f331b7a4e6bfb94a1366bd76',
+        },
+    },
+    /**
+     * Optimism goerli is going to be discontinued in favor of optimism sepolia
+     * @deprecated
+     */
     'optimism-goerli': {
         chainId: 420,
         url: 'https://optimism-goerli-bedrock.easscan.org/graphql',

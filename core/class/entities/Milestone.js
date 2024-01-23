@@ -7,10 +7,6 @@ const SchemaError_1 = require("../SchemaError");
 const GapContract_1 = require("../contract/GapContract");
 const attestations_1 = require("../types/attestations");
 class Milestone extends Attestation_1.Attestation {
-    constructor() {
-        super(...arguments);
-        this.type = 'milestone';
-    }
     /**
      * Approves this milestone. If the milestone is not completed or already approved,
      * it will throw an error.
