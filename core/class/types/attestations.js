@@ -6,10 +6,15 @@ class CommunityDetails extends Attestation_1.Attestation {
     constructor() {
         super(...arguments);
         this.links = [];
+        this.type = 'community-details';
     }
 }
 exports.CommunityDetails = CommunityDetails;
 class GrantDetails extends Attestation_1.Attestation {
+    constructor() {
+        super(...arguments);
+        this.type = 'grant-details';
+    }
 }
 exports.GrantDetails = GrantDetails;
 class GrantRound extends Attestation_1.Attestation {
@@ -32,6 +37,7 @@ class ProjectDetails extends Attestation_1.Attestation {
         super(...arguments);
         this.links = [];
         this.tags = [];
+        this.type = 'project-details';
     }
 }
 exports.ProjectDetails = ProjectDetails;
