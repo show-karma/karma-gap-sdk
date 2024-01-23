@@ -242,9 +242,15 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
     raw: MultiAttestData;
   }> {
     this.assertPayload();
-
+    
     if (this.schema.isJsonSchema()) {
       const { remoteClient } = GAP;
+
+      if((this as any).type){
+        (this._data as T & {type: string}).type = (this as any).type;
+        this.schema.setValue('json', JSON.stringify(this._data));
+      }
+  
       if (remoteClient) {
         const cid = await remoteClient.save(this._data, this.schema.name);
         const encodedData = remoteClient.encode(cid);

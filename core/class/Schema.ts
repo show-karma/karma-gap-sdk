@@ -92,7 +92,8 @@ export abstract class Schema<T extends string = string>
   implements SchemaInterface<T>
 {
   protected static schemas: Record<TNetwork, Schema[]> = {
-    'optimism-goerli': [],
+    'optimism-sepolia': [],
+    "optimism-goerli": [],
     optimism: [],
     sepolia: [],
     arbitrum: [],
@@ -453,11 +454,6 @@ export abstract class Schema<T extends string = string>
     schemas.forEach((schema) => {
       if (!this.exists(schema.name, network))
         this.schemas[network].push(schema);
-      else
-        throw new SchemaError(
-          'SCHEMA_ALREADY_EXISTS',
-          `Schema ${schema.name} already exists.`
-        );
     });
   }
 

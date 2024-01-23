@@ -12,6 +12,7 @@ export interface ICommunityDetails {
   imageURL: string;
   slug?: string;
   links?: ExternalLink;
+  type?: string;
 }
 
 export class CommunityDetails
@@ -23,6 +24,7 @@ export class CommunityDetails
   imageURL: string;
   links: ExternalLink = [];
   slug?: string;
+  type = 'community-details'
 }
 
 export interface IGrantDetails {
@@ -36,6 +38,7 @@ export interface IGrantDetails {
   season?: string;
   cycle?: string;
   questions?: IGrantDetailsQuestion[];
+  type?: string;
 }
 export class GrantDetails
   extends Attestation<IGrantDetails>
@@ -51,6 +54,7 @@ export class GrantDetails
   season?: string;
   cycle?: string;
   questions?: IGrantDetailsQuestion[];
+  type = 'grant-details'
 }
 
 export interface IGrantRound {
@@ -112,6 +116,7 @@ export interface IProjectDetails {
   links?: ExternalLink;
   tags?: ITag[];
   slug?: string;
+  type?: string;
 }
 export class ProjectDetails
   extends Attestation<IProjectDetails>
@@ -123,6 +128,7 @@ export class ProjectDetails
   links: ExternalLink = [];
   tags: ITag[] = [];
   slug: string;
+  type = 'project-details'
 }
 
 export class Grantee {
