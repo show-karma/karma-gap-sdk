@@ -13,7 +13,8 @@ import {
 } from '../../core/class';
 import {
   ProjectDetails,
-  GrantDetails
+  GrantDetails,
+  GrantUpdate
 } from '../../core/class/types/attestations';
 
 import axios from 'axios';
@@ -102,6 +103,10 @@ interface CSV {
   GrantDescription: string;
   externalId: string;
   Amount: string;
+  'Grant Link': string;
+  'Grant Objective': string;
+  'Grant Size Justification': string;
+  Updates: string;
 }
 
 const duplicatedGrants: {
@@ -157,24 +162,6 @@ type DbAttestation = {
   type: string;
   externalId?: string;
 };
-
-const toDbAttestation = (
-  attestation: Attestation,
-  externalId: string
-): DbAttestation => ({
-  attester: wallet.address,
-  chainID: ChainID[network],
-  createdAt: toUnix(attestation.createdAt || new Date())!,
-  recipient: attestation.recipient,
-  revocationTime: attestation.revocationTime?.getTime() || 0,
-  revoked: !!attestation.revoked,
-  schemaUID: attestation.schema.uid,
-  uid: attestation.uid,
-  refUID: attestation.refUID || nullRef,
-  data: attestation.data,
-  type: attestation.schema.name,
-  externalId,
-});
 
 async function sendToIndexer(attestations: DbAttestation[]) {
   await axios.post(`${gapAPI}/attestations`, attestations, {
@@ -246,15 +233,16 @@ async function bootstrap() {
 
   let count = 0;
 
-  for (const item of filtered) {
+  for (const item of data) {
     console.log(count);
     count += 1;
     await new Promise((f) => setTimeout(f, 2000));
 
-    let address = item.Owner;
-    if (isEns(item.Owner)) {
-      address = (await ens.resolveName(item.Owner)) || address;
-    }
+    //let address = item.Owner;
+    let address = "0x23B7A53ecfd93803C63b97316D7362eae59C55B6";
+    //if (isEns(item.Owner)) {
+    //  address = (await ens.resolveName(item.Owner)) || address;
+   // }
 
     const slug = await gap.generateSlug(item.Project.trim());
     const project = new Project({
@@ -299,7 +287,7 @@ async function bootstrap() {
       uid: nullRef
     });
 
-    project.members.push(member);
+    //project.members.push(member);
 
     const grant = new Grant({
       data: { communityUID },
@@ -311,13 +299,25 @@ async function bootstrap() {
       data: {
         proposalURL: item.ProposalURL,
         title: item.GrantTitle,
-        description: item.GrantDescription,
+        description: item['Project Description'],
         amount: item.Amount,
         payoutAddress: project.recipient,
       },
       recipient: project.recipient,
       schema: gap.findSchema('GrantDetails'),
     });
+
+      grant.updates.push(
+        new GrantUpdate({
+          data: {
+            text: "Updates can be found here: " + item.ProposalURL,
+            type: 'grant-update',
+            title: ""
+          },
+          recipient: project.recipient,
+          schema: gap.findSchema('GrantDetails'),
+        })
+      );
 
     project.grants.push(grant);
 
@@ -332,7 +332,7 @@ async function bootstrap() {
 
     const projectDetails: DbAttestation = {
       data: {
-        description: truncateWithEllipsis(item['Project Description']),
+        description: item['Project Description'],
         imageURL: '',
         title: item.Project.trim(),
         slug: slug,
@@ -349,7 +349,7 @@ async function bootstrap() {
 
     if (hasProject) {
       const concurrentGrant = hasProject.grants.find(
-        (g) => g.details?.data?.title === item.GrantTitle && g.externalId
+        (g) => g.details?.data?.title === item.GrantTitle
       );
 
       if (!concurrentGrant) {
