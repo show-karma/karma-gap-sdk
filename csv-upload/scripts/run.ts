@@ -1,8 +1,7 @@
 import * as fs from "fs";
 import * as csv from "fast-csv";
 import { GapSchema, Hex, Project, nullRef, toUnix } from "../../core";
-import { isAddress } from "ethers/lib/utils";
-import { ethers } from "ethers";
+import { isAddress, ethers } from "ethers";
 import {
   Attestation,
   GAP,
@@ -87,7 +86,7 @@ const gap = new GAP({
 /**
  * Ethers client to resolve ens names
  */
-const ens = new ethers.providers.JsonRpcProvider(mainnetURL);
+const ens = new ethers.JsonRpcProvider(mainnetURL);
 
 interface CSV {
   ProposalURL: string;
