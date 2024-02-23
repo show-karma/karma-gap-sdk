@@ -7,9 +7,9 @@ const send_gelato_txn_1 = require("../../utils/gelato/send-gelato-txn");
 const eas_sdk_1 = require("@ethereum-attestation-service/eas-sdk");
 const AttestationDataTypes = {
     Attest: [
-        { name: 'payloadHash', type: 'string' },
-        { name: 'nonce', type: 'uint256' },
-        { name: 'expiry', type: 'uint256' },
+        { name: "payloadHash", type: "string" },
+        { name: "nonce", type: "uint256" },
+        { name: "expiry", type: "uint256" },
     ],
 };
 class GapContract {
@@ -24,8 +24,8 @@ class GapContract {
         const { chainId } = await signer.provider.getNetwork();
         const domain = {
             chainId,
-            name: 'gap-attestation',
-            version: '1',
+            name: "gap-attestation",
+            version: "1",
             verifyingContract: (await GAP_1.GAP.getMulticall(signer)).address,
         };
         const data = { payloadHash: payload, nonce, expiry };
@@ -48,7 +48,7 @@ class GapContract {
     static async getSignerAddress(signer) {
         const address = signer.address || signer._address || (await signer.getAddress());
         if (!address)
-            throw new Error('Signer does not provider either address or getAddress().');
+            throw new Error("Signer does not provider either address or getAddress().");
         return address;
     }
     /**
@@ -60,7 +60,7 @@ class GapContract {
         const contract = await GAP_1.GAP.getMulticall(signer);
         const address = await this.getSignerAddress(signer);
         console.log({ address });
-        const nonce = await contract.functions.nonces(address);
+        const nonce = await contract.nonces(address);
         return {
             nonce: Number(nonce),
             next: Number(nonce + 1n),
@@ -77,7 +77,7 @@ class GapContract {
         if (GAP_1.GAP.gelatoOpts?.useGasless) {
             return this.attestBySig(signer, payload);
         }
-        const tx = await contract.functions.attest({
+        const tx = await contract.attest({
             schema: payload.schema,
             data: payload.data.payload,
         });
@@ -94,13 +94,14 @@ class GapContract {
             data: payload.data.raw,
         });
         const { r, s, v, nonce, chainId } = await this.signAttestation(signer, payloadHash, expiry);
-        const { data: populatedTxn } = await contract.populateTransaction.attestBySig({
+        const { data: populatedTxn } = await contract.attestBySig.populateTransaction({
             data: payload.data.payload,
             schema: payload.schema,
         }, payloadHash, address, nonce, expiry, v, r, s);
         if (!populatedTxn)
-            throw new Error('Transaction data is empty');
-        const txn = await (0, send_gelato_txn_1.sendGelatoTxn)(...send_gelato_txn_1.Gelato.buildArgs(populatedTxn, chainId, contract.address));
+            throw new Error("Transaction data is empty");
+        let contractAddress = await contract.getAddress();
+        const txn = await (0, send_gelato_txn_1.sendGelatoTxn)(...send_gelato_txn_1.Gelato.buildArgs(populatedTxn, chainId, contractAddress));
         const attestations = await this.getTransactionLogs(signer, txn);
         return attestations[0];
     }
@@ -114,7 +115,7 @@ class GapContract {
         if (GAP_1.GAP.gelatoOpts?.useGasless) {
             return this.multiAttestBySig(signer, payload);
         }
-        const tx = await contract.functions.multiSequentialAttest(payload.map((p) => p.payload));
+        const tx = await contract.multiSequentialAttest(payload.map((p) => p.payload));
         const result = await tx.wait?.();
         const attestations = (0, eas_sdk_1.getUIDsFromAttestReceipt)(result);
         return attestations;
@@ -131,10 +132,11 @@ class GapContract {
         const payloadHash = (0, serialize_bigint_1.serializeWithBigint)(payload.map((p) => p.raw));
         const { r, s, v, nonce, chainId } = await this.signAttestation(signer, payloadHash, expiry);
         console.info({ r, s, v, nonce, chainId, payloadHash, address });
-        const { data: populatedTxn } = await contract.populateTransaction.multiSequentialAttestBySig(payload.map((p) => p.payload), payloadHash, address, nonce, expiry, v, r, s);
+        const { data: populatedTxn } = await contract.multiSequentialAttestBySig.populateTransaction(payload.map((p) => p.payload), payloadHash, address, nonce, expiry, v, r, s);
         if (!populatedTxn)
-            throw new Error('Transaction data is empty');
-        const txn = await (0, send_gelato_txn_1.sendGelatoTxn)(...send_gelato_txn_1.Gelato.buildArgs(populatedTxn, chainId, contract.address));
+            throw new Error("Transaction data is empty");
+        let contractAddress = await contract.getAddress();
+        const txn = await (0, send_gelato_txn_1.sendGelatoTxn)(...send_gelato_txn_1.Gelato.buildArgs(populatedTxn, chainId, contractAddress));
         const attestations = await this.getTransactionLogs(signer, txn);
         return attestations;
     }
@@ -143,7 +145,7 @@ class GapContract {
         if (GAP_1.GAP.gelatoOpts?.useGasless) {
             return this.multiRevokeBySig(signer, payload);
         }
-        const tx = await contract.functions.multiRevoke(payload);
+        const tx = await contract.multiRevoke(payload);
         return tx.wait?.();
     }
     /**
@@ -158,10 +160,11 @@ class GapContract {
         const payloadHash = (0, serialize_bigint_1.serializeWithBigint)(payload);
         const { r, s, v, nonce, chainId } = await this.signAttestation(signer, payloadHash, expiry);
         console.info({ r, s, v, nonce, chainId, payloadHash, address });
-        const { data: populatedTxn } = await contract.populateTransaction.multiRevokeBySig(payload, payloadHash, address, nonce, expiry, v, r, s);
+        const { data: populatedTxn } = await contract.multiRevokeBySig.populateTransaction(payload, payloadHash, address, nonce, expiry, v, r, s);
         if (!populatedTxn)
-            throw new Error('Transaction data is empty');
-        await (0, send_gelato_txn_1.sendGelatoTxn)(...send_gelato_txn_1.Gelato.buildArgs(populatedTxn, chainId, contract.address));
+            throw new Error("Transaction data is empty");
+        let contractAddress = await contract.getAddress();
+        await (0, send_gelato_txn_1.sendGelatoTxn)(...send_gelato_txn_1.Gelato.buildArgs(populatedTxn, chainId, contractAddress));
     }
     /**
      * Transfer the ownership of an attestation
@@ -172,7 +175,7 @@ class GapContract {
      */
     static async transferProjectOwnership(signer, projectUID, newOwner) {
         const contract = await GAP_1.GAP.getProjectResolver(signer);
-        const tx = await contract.functions.transferProjectOwnership(projectUID, newOwner);
+        const tx = await contract.transferProjectOwnership(projectUID, newOwner);
         return tx.wait?.();
     }
     /**
@@ -184,13 +187,13 @@ class GapContract {
     static async isProjectOwner(signer, projectUID, projectChainId) {
         const contract = await GAP_1.GAP.getProjectResolver(signer, projectChainId);
         const address = await this.getSignerAddress(signer);
-        const isOwner = await contract.functions.isAdmin(projectUID, address);
+        const isOwner = await contract.isAdmin(projectUID, address);
         return !!isOwner?.[0];
     }
     static async getTransactionLogs(signer, txnHash) {
         const txn = await signer.provider.getTransactionReceipt(txnHash);
         if (!txn || !txn.logs.length)
-            throw new Error('Transaction not found');
+            throw new Error("Transaction not found");
         // Returns the txn logs with the attestation results. Tha last two logs are the
         // the ones from the GelatoRelay contract.
         return (0, eas_sdk_1.getUIDsFromAttestReceipt)(txn);
