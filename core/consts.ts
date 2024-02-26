@@ -63,7 +63,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
     chainId: 420,
     url: 'https://optimism-goerli-bedrock.easscan.org/graphql',
     rpcUrl:
-      'https://opt-goerli.g.alchemy.com/v2/94gBUTVw7SbDxxdeB8gi3KQmgQSD7SHi',
+      'https://optimism-goerli.infura.io/v3/34917361240448cda81f542681961659',
     contracts: {
       eas: '0x4200000000000000000000000000000000000021',
       schema: '0x4200000000000000000000000000000000000020',
@@ -125,7 +125,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
   sepolia: {
     chainId: 11155111,
     url: 'https://sepolia.easscan.org/graphql',
-    rpcUrl: 'https://rpc.sepolia.io',
+    rpcUrl: 'https://sepolia.infura.io/v3/34917361240448cda81f542681961659',
     contracts: {
       eas: '0xC2679fBD37d54388Ce493F1DB75320D236e1815e',
       schema: '0x0a7E2Ff54e76B8E6659aedc9103FB21c038050D0',
