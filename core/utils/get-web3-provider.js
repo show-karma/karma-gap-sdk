@@ -11,7 +11,7 @@ const getWeb3Provider = (chainId) => {
         throw new Error(`No rpcUrl found for chainId ${chainId}`);
     }
     if (!providers[chainId]) {
-        providers[chainId] = new ethers_1.ethers.providers.JsonRpcProvider(rpcUrl);
+        providers[chainId] = new ethers_1.ethers.JsonRpcProvider(rpcUrl);
     }
     return providers[chainId];
 };

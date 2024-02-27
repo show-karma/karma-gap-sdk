@@ -1,5 +1,5 @@
-import { Hex, RawAttestationPayload, RawMultiAttestPayload, SignerOrProvider } from 'core/types';
-import { MultiRevocationRequest } from '@ethereum-attestation-service/eas-sdk';
+import { Hex, RawAttestationPayload, RawMultiAttestPayload, SignerOrProvider } from "core/types";
+import { MultiRevocationRequest } from "@ethereum-attestation-service/eas-sdk";
 export declare class GapContract {
     static nonces: {
         [key: string]: number;
