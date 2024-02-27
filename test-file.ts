@@ -1,28 +1,57 @@
-import { ethers } from "ethers";
-import { Project, GAP, Grant, Hex, GapSchema, ProjectDetails } from "./core";
-import { GapIndexerClient } from "./core/class";
-import axios from "axios";
+import { ethers } from 'ethers';
+import {
+  Project,
+  GAP,
+  Grant,
+  Hex,
+  GapSchema,
+  ProjectDetails,
+  CommunityDetails,
+} from './core';
+import {
+  Community,
+  GapIndexerClient,
+  IpfsStorage,
+  RemoteStorage,
+} from './core/class';
+import axios from 'axios';
 
-const key = require("./config/keys.json").sepolia;
+const key = require('./config/keys.json').sepolia;
 
 const web3 = new ethers.providers.JsonRpcProvider(
-  "https://goerli.optimism.io"
+  'https://opt-sepolia.g.alchemy.com/v2/SAI_dJr86B7ttCD_b9fn61MWrrdZimmL'
   // "https://eth-sepolia-public.unifra.io"
 );
 
 const wallet = new ethers.Wallet(key, web3);
 const gap = new GAP({
-  network: "optimism-goerli",
-  apiClient: new GapIndexerClient("http://localhost:3001"),
+  network: 'optimism-sepolia',
+  apiClient: new GapIndexerClient('http://192.168.123.101:3001'),
   gelatoOpts: {
     // env_gelatoApiKey: "GELATO_API_KEY",
-    // sponsorUrl: "http://localhost:3000/api/sponsored-txn",
-    apiKey: "{{apikey}}",
+    sponsorUrl: 'http://192.168.123.101:3001/attestations/sponsored-txn',
+    apiKey: '{{apikey}}',
     useGasless: true,
   },
+  remoteStorage: new IpfsStorage(
+    {
+      token: '',
+    },
+    {
+      url: 'http://192.168.123.101:3001/ipfs',
+      responseParser: (response: any) => response.cid,
+    }
+  ),
 });
 
-console.time("fetchSchemas");
+console.time('fetchSchemas');
+
+const communityDetails = (community: Community) => ({
+  uid: community.uid,
+  name: community.details?.name,
+  description: community.details?.description,
+  imageURL: community.details?.imageURL,
+});
 
 const grantDetails = (grants: Grant[] = []) =>
   grants.map((g) => ({
@@ -60,28 +89,62 @@ const projectDetails = (projects: Project[] = []) =>
   }));
 
 async function attestation() {
-  const [projectSchema, projectDetailsSchema] = GapSchema.findMany(["Project", "ProjectDetails"], gap.network);
+  const [
+    projectSchema,
+    projectDetailsSchema,
+    communitySchema,
+    communityDetailsSchema,
+  ] = GapSchema.findMany(
+    ['Project', 'ProjectDetails', 'Community', 'CommunityDetails'],
+    gap.network
+  );
 
-  const project = new Project({
-    data: { project: true },
-    schema: projectSchema,
-    recipient: "0x5A4830885f12438E00D8f4d98e9Fe083e707698C",
-    // uid: "0x0f290f88ef6b3838f83b49bd0c1eeb4bda31502d0aa4591470fac30abb2f0111",
+  // const community = new Community({
+  //   data: {
+  //     community: true,
+  //   },
+  //   recipient: '0x5A4830885f12438E00D8f4d98e9Fe083e707698C',
+  //   schema: communitySchema,
+  // });
+
+  const details = new CommunityDetails({
+    data: {
+      name: 'Test Community',
+      description: 'This is a test community',
+      imageURL:
+        'https://api.thegraph.com/ipfs/api/v0/cat?arg=QmdSeSQ3APFjLktQY3aNVu3M5QXPfE9ZRK5LqgghRgB7L9',
+    },
+    schema: communityDetailsSchema,
+    recipient: '0x5A4830885f12438E00D8f4d98e9Fe083e707698C',
+    refUID:
+      '0x929de14333fe173c99cea73fe1356b0cd30041ef7b1752253105c60653fa1815',
   });
 
-  project.details = new ProjectDetails({
-    data: { 
-      description: 'io',
-      imageURL: 'oi',
-      title: 'oi',
-    },
-    recipient: '0x5A4830885f12438E00D8f4d98e9Fe083e707698C',
-    schema: projectDetailsSchema,
-  })
+  await details.attest(wallet as any);
 
-  await project.attest(wallet as any);
+  return [details.uid];
 
-  return [project.uid];
+  // const project = new Project({
+  //   data: { project: true },
+  //   schema: projectSchema,
+  //   recipient: '0x5A4830885f12438E00D8f4d98e9Fe083e707698C',
+  //   // uid: "0x0f290f88ef6b3838f83b49bd0c1eeb4bda31502d0aa4591470fac30abb2f0111",
+  // });
+
+  // project.details = new ProjectDetails({
+  //   data: {
+  //     title: 'Test Project 2',
+  //     description: 'This is a test project',
+  //     imageURL: 'https://i.imgur.com/2xX3t5B.jpeg',
+  //     tags: [{ name: 'test' }, { name: 'test2' }],
+  //   },
+  //   schema: projectDetailsSchema,
+  //   recipient: project.recipient,
+  // });
+
+  // await project.attest(wallet as any);
+
+  // return [project.uid];
 }
 
 async function getProject(uid: Hex) {
@@ -91,9 +154,14 @@ async function getProject(uid: Hex) {
   console.log(JSON.stringify(projectDetails([project]), null, 2));
 }
 
+async function getCommunity(uid: Hex) {
+  const community = await gap.fetch.communityById(uid);
 
+  // await project.grants[0].milestones[0].complete(wallet as any);
+  console.log(JSON.stringify(communityDetails(community), null, 2));
+}
 
 attestation().then((uids) => {
   console.log(uids);
-  // getProject(uids[0]);
+  getCommunity(uids[0]);
 });
