@@ -1,11 +1,9 @@
-import { Networks } from '../consts';
-import { ethers } from 'ethers';
+import { Networks } from "../consts";
+import { ethers } from "ethers";
 
-const providers: Record<number, ethers.providers.JsonRpcProvider> = {};
+const providers: Record<number, ethers.JsonRpcProvider> = {};
 
-export const getWeb3Provider = (
-  chainId: number
-): ethers.providers.JsonRpcProvider => {
+export const getWeb3Provider = (chainId: number): ethers.JsonRpcProvider => {
   const rpcUrl = Object.values(Networks).find((n) => n.chainId === chainId)
     ?.rpcUrl;
 
@@ -14,7 +12,7 @@ export const getWeb3Provider = (
   }
 
   if (!providers[chainId]) {
-    providers[chainId] = new ethers.providers.JsonRpcProvider(rpcUrl);
+    providers[chainId] = new ethers.JsonRpcProvider(rpcUrl);
   }
   return providers[chainId];
 };
