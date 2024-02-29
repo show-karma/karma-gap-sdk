@@ -33,6 +33,7 @@ export interface IGrantDetails {
     cycle?: string;
     questions?: IGrantDetailsQuestion[];
     type?: string;
+    startDate?: number;
 }
 export declare class GrantDetails extends Attestation<IGrantDetails> implements IGrantDetails {
     title: string;
@@ -45,6 +46,7 @@ export declare class GrantDetails extends Attestation<IGrantDetails> implements 
     cycle?: string;
     questions?: IGrantDetailsQuestion[];
     type: string;
+    startDate?: number;
 }
 export interface IGrantRound {
     name: string;

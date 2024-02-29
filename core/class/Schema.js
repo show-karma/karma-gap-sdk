@@ -338,8 +338,6 @@ class Schema {
         schemas.forEach((schema) => {
             if (!this.exists(schema.name, network))
                 this.schemas[network].push(schema);
-            else
-                throw new SchemaError_1.SchemaError("SCHEMA_ALREADY_EXISTS", `Schema ${schema.name} already exists.`);
         });
     }
     static getAll(network) {
@@ -448,6 +446,7 @@ class Schema {
 }
 exports.Schema = Schema;
 Schema.schemas = {
+    'optimism-sepolia': [],
     "optimism-goerli": [],
     optimism: [],
     sepolia: [],
