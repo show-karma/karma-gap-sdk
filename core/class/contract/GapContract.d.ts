@@ -17,7 +17,7 @@ export declare class GapContract {
      * @returns
      */
     private static getRSV;
-    static getSignerAddress(signer: SignerOrProvider): Promise<string>;
+    static getSignerAddress(signer: SignerOrProvider): Promise<any>;
     /**
      * Get nonce for the transaction
      * @param address

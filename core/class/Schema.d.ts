@@ -118,14 +118,14 @@ export declare abstract class Schema<T extends string = string> implements Schem
      * @param signer
      * @returns
      */
-    revokeOffchain(uid: Hex, signer: SignerOrProvider): Promise<import("@ethereum-attestation-service/eas-sdk/dist/transaction").Transaction<bigint>>;
+    revokeOffchain(uid: Hex, signer: SignerOrProvider): Promise<import("@ethereum-attestation-service/eas-sdk").Transaction<bigint>>;
     /**
      * Revokes multiple off chain attestations by their UIDs.
      * @param uids
      * @param signer
      * @returns
      */
-    multiRevokeOffchain(uids: Hex[], signer: SignerOrProvider): Promise<import("@ethereum-attestation-service/eas-sdk/dist/transaction").Transaction<bigint[]>>;
+    multiRevokeOffchain(uids: Hex[], signer: SignerOrProvider): Promise<import("@ethereum-attestation-service/eas-sdk").Transaction<bigint[]>>;
     /**
      * Validates and attests a given schema.
      *
