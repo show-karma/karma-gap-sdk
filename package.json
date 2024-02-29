@@ -3,11 +3,7 @@
   "publishConfig": {
     "access": "public"
   },
-<<<<<<< HEAD
-  "version": "0.3.7",
-=======
   "version": "0.3.8",
->>>>>>> f18047fea3ebba3b00ecf323c1a4e907b12aa655
   "description": "Simple and easy interface between EAS and Karma GAP.",
   "main": "./index.js",
   "author": "KarmaHQ",
