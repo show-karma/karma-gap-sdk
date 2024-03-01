@@ -342,7 +342,7 @@ export class GapContract {
     return !!isOwner?.[0];
   }
 
-  private static async getTransactionLogs(
+  static async getTransactionLogs(
     signer: SignerOrProvider,
     txnHash: string
   ) {
@@ -351,6 +351,6 @@ export class GapContract {
 
     // Returns the txn logs with the attestation results. Tha last two logs are the
     // the ones from the GelatoRelay contract.
-    return getUIDsFromAttestReceipt(txn) as Hex[];
+    return getUIDsFromAttestReceipt(txn as any) as Hex[];
   }
 }

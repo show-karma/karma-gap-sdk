@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import { JsonRpcProvider, ethers } from 'ethers';
 import {
   Project,
   GAP,
@@ -15,21 +15,24 @@ import {
   RemoteStorage,
 } from './core/class';
 import axios from 'axios';
+import { GapContract } from './core/class/contract/GapContract';
 
 const key = require('./config/keys.json').sepolia;
 
-const web3 = new ethers.providers.JsonRpcProvider(
-  'https://opt-sepolia.g.alchemy.com/v2/SAI_dJr86B7ttCD_b9fn61MWrrdZimmL'
+const web3 = new JsonRpcProvider(
+  'https://arb-mainnet.g.alchemy.com/v2/okcKBSKXvLuSCbas6QWGvKuh-IcHHSOr'
+  // 'https://opt-sepolia.g.alchemy.com/v2/SAI_dJr86B7ttCD_b9fn61MWrrdZimmL'
   // "https://eth-sepolia-public.unifra.io"
 );
 
 const wallet = new ethers.Wallet(key, web3);
 const gap = new GAP({
-  network: 'optimism-sepolia',
-  apiClient: new GapIndexerClient('http://192.168.123.101:3001'),
+  network: 'arbitrum',
+  // apiClient: new GapIndexerClient('http://192.168.123.101:3001'),
+  apiClient: new GapIndexerClient('https://gapstagapi.karmahq.xyz'),
   gelatoOpts: {
     // env_gelatoApiKey: "GELATO_API_KEY",
-    sponsorUrl: 'http://192.168.123.101:3001/attestations/sponsored-txn',
+    sponsorUrl: 'https://gapstagapi.karmahq.xyz/attestations/sponsored-txn',
     apiKey: '{{apikey}}',
     useGasless: true,
   },
@@ -38,7 +41,7 @@ const gap = new GAP({
       token: '',
     },
     {
-      url: 'http://192.168.123.101:3001/ipfs',
+      url: 'https://gapstagapi.karmahq.xyz/ipfs',
       responseParser: (response: any) => response.cid,
     }
   ),
@@ -161,7 +164,13 @@ async function getCommunity(uid: Hex) {
   console.log(JSON.stringify(communityDetails(community), null, 2));
 }
 
-attestation().then((uids) => {
-  console.log(uids);
-  getCommunity(uids[0]);
-});
+// attestation().then((uids) => {
+//   console.log(uids);
+//   getCommunity(uids[0]);
+// });
+
+
+(async () => {
+  const resp = await GapContract.getTransactionLogs(wallet as any,"0xb53a4073a8ca36f9940cd557eeee33f36aefe3f308eea458c18c661a86e14c71");
+  console.log(resp);
+ })()
