@@ -17,7 +17,7 @@ export declare class GapContract {
      * @returns
      */
     private static getRSV;
-    static getSignerAddress(signer: SignerOrProvider): Promise<any>;
+    static getSignerAddress(signer: SignerOrProvider): Promise<string>;
     /**
      * Get nonce for the transaction
      * @param address
@@ -66,5 +66,5 @@ export declare class GapContract {
      * @returns
      */
     static isProjectOwner(signer: SignerOrProvider, projectUID: Hex, projectChainId: number): Promise<boolean>;
-    private static getTransactionLogs;
+    static getTransactionLogs(signer: SignerOrProvider, txnHash: string): Promise<`0x${string}`[]>;
 }
