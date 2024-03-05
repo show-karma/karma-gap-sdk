@@ -1,12 +1,11 @@
-import { BytesLike, Provider } from 'ethers';
+import { BytesLike } from 'ethers';
 import { AttestationRequestData, EAS, MultiAttestationRequest, SchemaItem } from '@ethereum-attestation-service/eas-sdk';
-import { TransactionSigner as EASSigner } from '@ethereum-attestation-service/eas-sdk/dist/transaction';
+import { SignerOrProvider as EASSigner } from '@ethereum-attestation-service/eas-sdk/dist/transaction';
 import { Attestation } from './class';
 import { Fetcher } from './class/Fetcher';
 export type Hex = `0x${string}`;
 export type SignerOrProvider = EASSigner & {
     address?: Hex;
-    provider: Provider;
     _address?: Hex;
     getAddress?: () => Promise<Hex>;
 };

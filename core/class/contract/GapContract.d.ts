@@ -66,5 +66,5 @@ export declare class GapContract {
      * @returns
      */
     static isProjectOwner(signer: SignerOrProvider, projectUID: Hex, projectChainId: number): Promise<boolean>;
-    static getTransactionLogs(signer: SignerOrProvider, txnHash: string): Promise<`0x${string}`[]>;
+    private static getTransactionLogs;
 }
