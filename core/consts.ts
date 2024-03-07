@@ -63,7 +63,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
     chainId: 11155420,
     url: "https://optimism-sepolia.easscan.org/graphql",
     rpcUrl:
-      "https://opt-sepolia.g.alchemy.com/v2/9FEqTNKmgO7X7ll92ALJrEih7Jjhldf-",
+      "https://sepolia.optimism.io",
     contracts: {
       communityResolver: "0xa5B7bbFD545A1a816aa8cBE28a1F0F2Cca58363d",
       eas: "0x4200000000000000000000000000000000000021",
