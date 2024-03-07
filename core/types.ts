@@ -128,6 +128,7 @@ export interface EASNetworkConfig {
    * A tuple containing the schema name and it's UID for that network
    */
   schemas: Record<TResolvedSchemaNames, Hex>;
+  semaphores?: Record<string, Hex>;
 }
 
 export type IGapSchema = SchemaInterface<TSchemaName>;

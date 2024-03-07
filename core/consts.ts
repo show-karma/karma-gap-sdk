@@ -71,32 +71,10 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       projectResolver: '0x832931F23ea4e3c70957DA71a7eB50F5B7efA93D',
       schema: '0x4200000000000000000000000000000000000020',
     },
-    schemas: {
-      Community: '0x314bb1c3c9b5311c1b813a3ad123b6ac5a03902b987795056dd2e4ff38e833ea',
-      Details: '0xd193e75f420a69910f98fa79cacdfd9d0dcbf5933edce8f8bde9a10bd204d996',
-      Grant: '0x181beb00ef05cf99caa2e4192369232f210c2764f26e238d962112bf592e9cce',
-      GrantVerified: '0xf544fbd9721ac50863d32dc0eed5992051e7fb270b38ab2ce062327cc0ae26ea',
-      MemberOf: '0x611f9655188f372e27dce116a803fa9081ca3e2907986368d54fcad538ca3853',
-      MilestoneApproved: '0xf544fbd9721ac50863d32dc0eed5992051e7fb270b38ab2ce062327cc0ae26ea',
-      MilestoneCompleted: '0xf544fbd9721ac50863d32dc0eed5992051e7fb270b38ab2ce062327cc0ae26ea',
-      Project: '0xf9bbd118dd100459a7d093403af21c6e7f847fd7f331b7a4e6bfb94a1366bd76',
-    },
-  },
-  /**
-   * Optimism goerli is going to be discontinued in favor of optimism sepolia
-   * @deprecated
-   */
-  'optimism-goerli': {
-    chainId: 420,
-    url: 'https://optimism-goerli-bedrock.easscan.org/graphql',
-    rpcUrl:
-      'https://optimism-goerli.infura.io/v3/34917361240448cda81f542681961659',
-    contracts: {
-      eas: '0x4200000000000000000000000000000000000021',
-      schema: '0x4200000000000000000000000000000000000020',
-      multicall: '0x5D5a8032b2FA06652804c33F60DcEA00e389B732', //proxy,
-      projectResolver: '0xbCf8910Bc3971eA59D93256357b76E846CF2e1F8',
-      communityResolver: '0xa09369bDE7E4403a9C821AffA00E649cF85Ef09e',
+    semaphores: {
+      verifier_contract: "0x72cd0848139c161E66889d25da9bD623bbF7DC8b",
+      poseidon_lib: "0x7B639fc8A30ff907fe007f5C179d55D9E5730c21",
+      semaphore_contract: "0xf1250dee5faacFab59E59b20448828994BC477DE",
     },
     schemas: {
       Community:
