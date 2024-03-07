@@ -92,7 +92,8 @@ export abstract class Schema<T extends string = string>
   implements SchemaInterface<T>
 {
   protected static schemas: Record<TNetwork, Schema[]> = {
-    'optimism-sepolia': [], 
+    'optimism-sepolia': [],
+    // "optimism-goerli": [],
     optimism: [],
     sepolia: [],
     arbitrum: [],

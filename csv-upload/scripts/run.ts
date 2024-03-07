@@ -22,7 +22,7 @@ const [, , fileName, communityUID] = process.argv;
 
 const ChainID = {
   optimism: 10,
-  "optimism-goerli": 420,
+  // "optimism-goerli": 420,
   sepolia: 11155111,
   arbitrum: 42161,
 };
