@@ -39,6 +39,7 @@ export interface IGrantDetails {
   cycle?: string;
   questions?: IGrantDetailsQuestion[];
   type?: string;
+  startDate?: number;
 }
 export class GrantDetails
   extends Attestation<IGrantDetails>
@@ -54,7 +55,8 @@ export class GrantDetails
   season?: string;
   cycle?: string;
   questions?: IGrantDetailsQuestion[];
-  type = 'grant-details'
+  type = 'grant-details';
+  startDate?: number;
 }
 
 export interface IGrantRound {
