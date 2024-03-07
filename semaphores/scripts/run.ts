@@ -2,51 +2,42 @@ import "dotenv/config";
 import { isAddress, ethers, isHexString } from "ethers";
 import { Networks } from "../../core/consts";
 import axios from "axios";
-import crypto from "crypto";
 
-const [, , fileName, communityUID] = process.argv;
-
-const ChainID = {
-  "optimism-sepolia": 11155420,
-};
-
+// Configure the network and API
 const networkName = "optimism-sepolia";
 const gapAPI = "http://localhost:3002";
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
-const network: keyof typeof ChainID = networkName;
-
-/**
- * web3 provider to build wallet and sign transactions
- */
-const web3 = new ethers.JsonRpcProvider(
-  Networks[network as keyof typeof Networks].rpcUrl
-);
+const network: string = networkName;
+const chainID: number = Networks[networkName].chainId;
+const provider = new ethers.JsonRpcProvider(Networks[networkName].rpcUrl);
 
 /**
  * Wallet to sign transactions
  */
-const wallet = new ethers.Wallet(process.env.PRIVATE_KEY || "", web3);
+const wallet = new ethers.Wallet(process.env.PRIVATE_KEY || "", provider);
 
-async function createGroup() {
-  // Eg. Pokt Network
+async function main() {
   const communityUID =
-    "0xf883202155cb46d2e8fa3bae962aa65b653ca2939b87d55e22b77a9ad74ffea7";
-  const groupType = "grantees"; // Could be delegates, grantees, etc.
-  // Create a hash of the community UID and group type
-  const groupHash = crypto
-    .createHash("sha256")
-    .update(`${communityUID}-${groupType}`)
-    .digest("hex");
-
-  // Get the group members
-  const members = await axios.get(
-    `${gapAPI}/communities/pokt-network/grantees`
+    "0xf883202155cb46d2e8fa3bae962aa65b653ca2939b87d55e22b77a9ad74ffea7"; // Eg. Pokt Network
+  const scope = "grantees"; // Eg. grantees, delegates
+  // Get the group
+  const group = await axios.get(
+    `${gapAPI}/semaphores/group?chainID=${chainID}&communityUID=${communityUID}&scope=${scope}`
   );
 
-  // TODO: Create a group
+  console.log("Group", group);
 
-  // TODO: Add Members
+  // Create a new group if it doesn't exist
+  if (!group.data) {
+    const createdGroup = await axios.post(
+      `${gapAPI}/semaphores/group?chainID=${chainID}&communityUID=${communityUID}&scope=${scope}`
+    );
+    console.log("Created Group", createdGroup);
+  }
+
+  // TODO: Add members to the group
+
+  // TODO: Update root
 }
 
-createGroup();
+main();

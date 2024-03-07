@@ -26,7 +26,9 @@
     "ethers": "6.11.0",
     "nft.storage": "^7.1.1",
     "sha256": "^0.2.0",
-    "simple-ts-job-runner": "^1.0.12"
+    "simple-ts-job-runner": "^1.0.12",
+    "@semaphore-protocol/core": "4.0.0-beta.2",
+    "@semaphore-protocol/data": "4.0.0-beta.2"
   },
   "devDependencies": {
     "@types/node": "^20.5.0",
