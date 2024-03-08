@@ -16,6 +16,13 @@ export const useDefaultAttestation: TSchemaName[] = [
   "Community",
 ];
 
+export const chainIdToNetwork = {
+  11155420: 'optimism-sepolia',
+  42161: 'arbitrum',
+  10: 'optimism',
+  11155111: 'sepolia'
+};
+
 export const nullRef =
   "0x0000000000000000000000000000000000000000000000000000000000000000";
 

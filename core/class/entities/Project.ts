@@ -15,7 +15,7 @@ import { GapSchema } from '../GapSchema';
 import { AttestationError } from '../SchemaError';
 import { mapFilter } from '../../utils';
 import { Grant } from './Grant';
-import { nullRef } from '../../consts';
+import { chainIdToNetwork, nullRef } from '../../consts';
 import { MemberOf } from './MemberOf';
 import { GapContract } from '../contract/GapContract';
 import { AllGapSchemas } from '../AllGapSchemas';
@@ -25,13 +25,6 @@ interface _Project extends Project {}
 export interface IProject {
   project: true;
 }
-
-const chainIdToNetwork = {
-  11155420: 'optimism-sepolia',
-  42161: 'arbitrum',
-  10: 'optimism',
-  11155111: 'sepolia'
-};
 
 export class Project extends Attestation<IProject> {
   details?: ProjectDetails;

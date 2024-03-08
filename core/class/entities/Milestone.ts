@@ -1,3 +1,4 @@
+import { chainIdToNetwork } from 'core/consts';
 import { MultiAttestPayload, SignerOrProvider, TNetwork } from '../../types';
 import { AllGapSchemas } from '../AllGapSchemas';
 import { Attestation } from '../Attestation';
@@ -8,13 +9,6 @@ import { GapContract } from '../contract/GapContract';
 import { MilestoneCompleted } from '../types/attestations';
 
 interface _Milestone extends Milestone {}
-
-const chainIdToNetwork = {
-  11155420: 'optimism-sepolia',
-  42161: 'arbitrum',
-  10: 'optimism',
-  11155111: 'sepolia'
-};
 
 export interface IMilestone {
   title: string;

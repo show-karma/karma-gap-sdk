@@ -11,7 +11,7 @@ import { IMilestone, Milestone } from './Milestone';
 import { GapSchema } from '../GapSchema';
 import { GAP } from '../GAP';
 import { AttestationError } from '../SchemaError';
-import { nullRef } from '../../consts';
+import { chainIdToNetwork, nullRef } from '../../consts';
 import {
   Hex,
   MultiAttestPayload,
@@ -34,13 +34,6 @@ export interface ISummaryProject {
   slug?: string;
   uid: Hex;
 }
-
-const chainIdToNetwork = {
-  11155420: 'optimism-sepolia',
-  42161: 'arbitrum',
-  10: 'optimism',
-  11155111: 'sepolia'
-};
 
 export class Grant extends Attestation<IGrant> {
   details?: GrantDetails;
