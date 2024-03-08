@@ -2,6 +2,7 @@ import { mapFilter } from '../utils';
 import { IGapSchema, SchemaInterface, TNetwork, TSchemaName } from '../types';
 import { Schema } from './Schema';
 import { GAP } from './GAP';
+import { MountEntities, Networks } from 'core/consts';
 
 /**
  * Represents the GapSchema
@@ -10,7 +11,7 @@ import { GAP } from './GAP';
 export class GapSchema extends Schema implements IGapSchema {
   public readonly name: TSchemaName;
   public readonly references: TSchemaName;
-
+  
   constructor(
     args: SchemaInterface<TSchemaName>,
     gap: GAP,
@@ -87,4 +88,5 @@ export class GapSchema extends Schema implements IGapSchema {
       (s: Schema<TSchemaName>) => new GapSchema(s, s.gap, false, true)
     );
   }
+
 }

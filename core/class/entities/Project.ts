@@ -18,6 +18,7 @@ import { Grant } from './Grant';
 import { nullRef } from '../../consts';
 import { MemberOf } from './MemberOf';
 import { GapContract } from '../contract/GapContract';
+import { AllGapSchemas } from '../AllGapSchemas';
 
 interface _Project extends Project {}
 
@@ -315,7 +316,7 @@ export class Project extends Attestation<IProject> {
         data: {
           project: true,
         },
-        schema: GapSchema.find('Project', chainIdToNetwork[attestation.chainID] as TNetwork),
+        schema: new AllGapSchemas().findSchema('Project', chainIdToNetwork[attestation.chainID] as TNetwork),
         chainID: attestation.chainID,
       });
 
@@ -326,7 +327,7 @@ export class Project extends Attestation<IProject> {
           data: {
             ...details.data,
           },
-          schema: GapSchema.find('ProjectDetails', chainIdToNetwork[attestation.chainID] as TNetwork),
+          schema: new AllGapSchemas().findSchema('ProjectDetails', chainIdToNetwork[attestation.chainID] as TNetwork),
           chainID: attestation.chainID,
         });
 
@@ -349,7 +350,7 @@ export class Project extends Attestation<IProject> {
             data: {
               memberOf: true,
             },
-            schema: GapSchema.find('MemberOf', chainIdToNetwork[attestation.chainID] as TNetwork),
+            schema: new AllGapSchemas().findSchema('MemberOf', chainIdToNetwork[attestation.chainID] as TNetwork),
             chainID: attestation.chainID,
           });
 
@@ -360,7 +361,7 @@ export class Project extends Attestation<IProject> {
               data: {
                 ...details.data,
               },
-              schema: GapSchema.find('MemberDetails', chainIdToNetwork[attestation.chainID] as TNetwork),
+              schema: new AllGapSchemas().findSchema('MemberDetails', chainIdToNetwork[attestation.chainID] as TNetwork),
               chainID: attestation.chainID,
             });
           }
