@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Milestone = void 0;
+const AllGapSchemas_1 = require("../AllGapSchemas");
 const Attestation_1 = require("../Attestation");
-const GapSchema_1 = require("../GapSchema");
 const SchemaError_1 = require("../SchemaError");
 const GapContract_1 = require("../contract/GapContract");
 const attestations_1 = require("../types/attestations");
@@ -194,7 +194,7 @@ class Milestone extends Attestation_1.Attestation {
                 data: {
                     ...attestation.data,
                 },
-                schema: GapSchema_1.GapSchema.find('Milestone', chainIdToNetwork[attestation.chainID]),
+                schema: new AllGapSchemas_1.AllGapSchemas().findSchema('Milestone', chainIdToNetwork[attestation.chainID]),
                 chainID: attestation.chainID,
             });
             if (attestation.completed) {
@@ -203,7 +203,7 @@ class Milestone extends Attestation_1.Attestation {
                     data: {
                         ...attestation.completed.data,
                     },
-                    schema: GapSchema_1.GapSchema.find('MilestoneCompleted', chainIdToNetwork[attestation.chainID]),
+                    schema: new AllGapSchemas_1.AllGapSchemas().findSchema('MilestoneCompleted', chainIdToNetwork[attestation.chainID]),
                     chainID: attestation.chainID,
                 });
             }
@@ -213,7 +213,7 @@ class Milestone extends Attestation_1.Attestation {
                     data: {
                         ...attestation.completed.data,
                     },
-                    schema: GapSchema_1.GapSchema.find('MilestoneCompleted', chainIdToNetwork[attestation.chainID]),
+                    schema: new AllGapSchemas_1.AllGapSchemas().findSchema('MilestoneCompleted', chainIdToNetwork[attestation.chainID]),
                     chainID: attestation.chainID,
                 });
             }
@@ -223,7 +223,7 @@ class Milestone extends Attestation_1.Attestation {
                     data: {
                         ...attestation.completed.data,
                     },
-                    schema: GapSchema_1.GapSchema.find('MilestoneCompleted', chainIdToNetwork[attestation.chainID]),
+                    schema: new AllGapSchemas_1.AllGapSchemas().findSchema('MilestoneCompleted', chainIdToNetwork[attestation.chainID]),
                     chainID: attestation.chainID,
                 });
             }

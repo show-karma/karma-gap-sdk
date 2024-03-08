@@ -3,13 +3,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Project = void 0;
 const Attestation_1 = require("../Attestation");
 const attestations_1 = require("../types/attestations");
-const GapSchema_1 = require("../GapSchema");
 const SchemaError_1 = require("../SchemaError");
 const utils_1 = require("../../utils");
 const Grant_1 = require("./Grant");
 const consts_1 = require("../../consts");
 const MemberOf_1 = require("./MemberOf");
 const GapContract_1 = require("../contract/GapContract");
+const AllGapSchemas_1 = require("../AllGapSchemas");
 const chainIdToNetwork = {
     11155420: 'optimism-sepolia',
     42161: 'arbitrum',
@@ -199,7 +199,7 @@ class Project extends Attestation_1.Attestation {
                 data: {
                     project: true,
                 },
-                schema: GapSchema_1.GapSchema.find('Project', chainIdToNetwork[attestation.chainID]),
+                schema: new AllGapSchemas_1.AllGapSchemas().findSchema('Project', chainIdToNetwork[attestation.chainID]),
                 chainID: attestation.chainID,
             });
             if (attestation.details) {
@@ -209,7 +209,7 @@ class Project extends Attestation_1.Attestation {
                     data: {
                         ...details.data,
                     },
-                    schema: GapSchema_1.GapSchema.find('ProjectDetails', chainIdToNetwork[attestation.chainID]),
+                    schema: new AllGapSchemas_1.AllGapSchemas().findSchema('ProjectDetails', chainIdToNetwork[attestation.chainID]),
                     chainID: attestation.chainID,
                 });
                 project.details.links = details.data.links || [];
@@ -228,7 +228,7 @@ class Project extends Attestation_1.Attestation {
                         data: {
                             memberOf: true,
                         },
-                        schema: GapSchema_1.GapSchema.find('MemberOf', chainIdToNetwork[attestation.chainID]),
+                        schema: new AllGapSchemas_1.AllGapSchemas().findSchema('MemberOf', chainIdToNetwork[attestation.chainID]),
                         chainID: attestation.chainID,
                     });
                     if (m.details) {
@@ -238,7 +238,7 @@ class Project extends Attestation_1.Attestation {
                             data: {
                                 ...details.data,
                             },
-                            schema: GapSchema_1.GapSchema.find('MemberDetails', chainIdToNetwork[attestation.chainID]),
+                            schema: new AllGapSchemas_1.AllGapSchemas().findSchema('MemberDetails', chainIdToNetwork[attestation.chainID]),
                             chainID: attestation.chainID,
                         });
                     }
