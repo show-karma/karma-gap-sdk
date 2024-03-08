@@ -1,4 +1,5 @@
 import { MultiAttestPayload, SignerOrProvider, TNetwork } from '../../types';
+import { AllGapSchemas } from '../AllGapSchemas';
 import { Attestation } from '../Attestation';
 import { GAP } from '../GAP';
 import { GapSchema } from '../GapSchema';
@@ -7,6 +8,13 @@ import { GapContract } from '../contract/GapContract';
 import { MilestoneCompleted } from '../types/attestations';
 
 interface _Milestone extends Milestone {}
+
+const chainIdToNetwork = {
+  11155420: 'optimism-sepolia',
+  42161: 'arbitrum',
+  10: 'optimism',
+  11155111: 'sepolia'
+};
 
 export interface IMilestone {
   title: string;
@@ -228,7 +236,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
         data: {
           ...attestation.data,
         },
-        schema: GapSchema.find('Milestone', network),
+        schema: new AllGapSchemas().findSchema('Milestone', chainIdToNetwork[attestation.chainID] as TNetwork),
         chainID: attestation.chainID,
       });
 
@@ -238,7 +246,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
           data: {
             ...attestation.completed.data,
           },
-          schema: GapSchema.find('MilestoneCompleted', network),
+          schema: new AllGapSchemas().findSchema('MilestoneCompleted', chainIdToNetwork[attestation.chainID] as TNetwork),
           chainID: attestation.chainID,
         });
       }
@@ -249,7 +257,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
           data: {
             ...attestation.completed.data,
           },
-          schema: GapSchema.find('MilestoneCompleted', network),
+          schema: new AllGapSchemas().findSchema('MilestoneCompleted', chainIdToNetwork[attestation.chainID] as TNetwork),
           chainID: attestation.chainID,
         });
       }
@@ -260,7 +268,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
           data: {
             ...attestation.completed.data,
           },
-          schema: GapSchema.find('MilestoneCompleted', network),
+          schema: new AllGapSchemas().findSchema('MilestoneCompleted', chainIdToNetwork[attestation.chainID] as TNetwork),
           chainID: attestation.chainID,
         });
       }

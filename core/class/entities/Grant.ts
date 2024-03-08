@@ -21,6 +21,7 @@ import {
 import { GapContract } from '../contract/GapContract';
 import { Community } from './Community';
 import { Project } from './Project';
+import { AllGapSchemas } from '../AllGapSchemas';
 
 interface _Grant extends Grant {}
 
@@ -33,6 +34,13 @@ export interface ISummaryProject {
   slug?: string;
   uid: Hex;
 }
+
+const chainIdToNetwork = {
+  11155420: 'optimism-sepolia',
+  42161: 'arbitrum',
+  10: 'optimism',
+  11155111: 'sepolia'
+};
 
 export class Grant extends Attestation<IGrant> {
   details?: GrantDetails;
@@ -237,7 +245,7 @@ export class Grant extends Attestation<IGrant> {
         data: {
           communityUID: attestation.data.communityUID,
         },
-        schema: GapSchema.find('Grant', network),
+        schema: new AllGapSchemas().findSchema('Grant', chainIdToNetwork[attestation.chainID] as TNetwork),
         chainID: attestation.chainID,
       });
 
@@ -248,7 +256,7 @@ export class Grant extends Attestation<IGrant> {
           data: {
             ...details.data,
           },
-          schema: GapSchema.find('GrantDetails', network),
+          schema: new AllGapSchemas().findSchema('GrantDetails', chainIdToNetwork[attestation.chainID] as TNetwork),
           chainID: attestation.chainID,
         });
       }
@@ -267,7 +275,7 @@ export class Grant extends Attestation<IGrant> {
               data: {
                 ...u.data,
               },
-              schema: GapSchema.find('GrantDetails', network),
+              schema: new AllGapSchemas().findSchema('GrantDetails', chainIdToNetwork[attestation.chainID] as TNetwork),
               chainID: attestation.chainID,
             })
         );
@@ -280,7 +288,7 @@ export class Grant extends Attestation<IGrant> {
           data: {
             ...completed.data,
           },
-          schema: GapSchema.find('GrantDetails', network),
+          schema: new AllGapSchemas().findSchema('GrantDetails', chainIdToNetwork[attestation.chainID] as TNetwork),
           chainID: attestation.chainID,
         });
       }
