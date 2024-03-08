@@ -93,7 +93,7 @@ export abstract class Schema<T extends string = string>
 {
   protected static schemas: Record<TNetwork, Schema[]> = {
     'optimism-sepolia': [],
-    "optimism-goerli": [],
+    // "optimism-goerli": [],
     optimism: [],
     sepolia: [],
     arbitrum: [],
