@@ -1,4 +1,4 @@
-import { chainIdToNetwork } from 'core/consts';
+import { chainIdToNetwork } from '../../consts';
 import { MultiAttestPayload, SignerOrProvider, TNetwork } from '../../types';
 import { AllGapSchemas } from '../AllGapSchemas';
 import { Attestation } from '../Attestation';
