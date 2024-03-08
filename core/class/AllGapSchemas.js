@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AllGapSchemas = void 0;
-const consts_1 = require("core/consts");
+const consts_1 = require("../../core/consts");
 const GapSchema_1 = require("./GapSchema");
 const GAP_1 = require("./GAP");
 class AllGapSchemas {
