@@ -25,6 +25,13 @@ export interface IProject {
   project: true;
 }
 
+const chainIdToNetwork = {
+  11155420: 'optimism-sepolia',
+  42161: 'arbitrum',
+  10: 'optimism',
+  11155111: 'sepolia'
+};
+
 export class Project extends Attestation<IProject> {
   details?: ProjectDetails;
   members: MemberOf[] = [];
@@ -299,6 +306,8 @@ export class Project extends Attestation<IProject> {
     this.members.splice(0, this.members.length);
   }
 
+
+
   static from(attestations: _Project[], network: TNetwork): Project[] {
     return attestations.map((attestation) => {
       const project = new Project({
@@ -306,7 +315,7 @@ export class Project extends Attestation<IProject> {
         data: {
           project: true,
         },
-        schema: GapSchema.find('Project', network),
+        schema: GapSchema.find('Project', chainIdToNetwork[attestation.chainID] as TNetwork),
         chainID: attestation.chainID,
       });
 
@@ -317,7 +326,7 @@ export class Project extends Attestation<IProject> {
           data: {
             ...details.data,
           },
-          schema: GapSchema.find('ProjectDetails', network),
+          schema: GapSchema.find('ProjectDetails', chainIdToNetwork[attestation.chainID] as TNetwork),
           chainID: attestation.chainID,
         });
 
@@ -340,7 +349,7 @@ export class Project extends Attestation<IProject> {
             data: {
               memberOf: true,
             },
-            schema: GapSchema.find('MemberOf', network),
+            schema: GapSchema.find('MemberOf', chainIdToNetwork[attestation.chainID] as TNetwork),
             chainID: attestation.chainID,
           });
 
@@ -351,7 +360,7 @@ export class Project extends Attestation<IProject> {
               data: {
                 ...details.data,
               },
-              schema: GapSchema.find('MemberDetails', network),
+              schema: GapSchema.find('MemberDetails', chainIdToNetwork[attestation.chainID] as TNetwork),
               chainID: attestation.chainID,
             });
           }

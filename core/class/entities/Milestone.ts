@@ -8,6 +8,13 @@ import { MilestoneCompleted } from '../types/attestations';
 
 interface _Milestone extends Milestone {}
 
+const chainIdToNetwork = {
+  11155420: 'optimism-sepolia',
+  42161: 'arbitrum',
+  10: 'optimism',
+  11155111: 'sepolia'
+};
+
 export interface IMilestone {
   title: string;
   endsAt: number;
@@ -228,7 +235,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
         data: {
           ...attestation.data,
         },
-        schema: GapSchema.find('Milestone', network),
+        schema: GapSchema.find('Milestone', chainIdToNetwork[attestation.chainID] as TNetwork),
         chainID: attestation.chainID,
       });
 
@@ -238,7 +245,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
           data: {
             ...attestation.completed.data,
           },
-          schema: GapSchema.find('MilestoneCompleted', network),
+          schema: GapSchema.find('MilestoneCompleted', chainIdToNetwork[attestation.chainID] as TNetwork),
           chainID: attestation.chainID,
         });
       }
@@ -249,7 +256,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
           data: {
             ...attestation.completed.data,
           },
-          schema: GapSchema.find('MilestoneCompleted', network),
+          schema: GapSchema.find('MilestoneCompleted', chainIdToNetwork[attestation.chainID] as TNetwork),
           chainID: attestation.chainID,
         });
       }
@@ -260,7 +267,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
           data: {
             ...attestation.completed.data,
           },
-          schema: GapSchema.find('MilestoneCompleted', network),
+          schema: GapSchema.find('MilestoneCompleted', chainIdToNetwork[attestation.chainID] as TNetwork),
           chainID: attestation.chainID,
         });
       }
