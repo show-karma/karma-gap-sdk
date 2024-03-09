@@ -1,4 +1,6 @@
+import { chainIdToNetwork } from '../../consts';
 import { MultiAttestPayload, SignerOrProvider, TNetwork } from '../../types';
+import { AllGapSchemas } from '../AllGapSchemas';
 import { Attestation } from '../Attestation';
 import { GAP } from '../GAP';
 import { GapSchema } from '../GapSchema';
@@ -228,7 +230,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
         data: {
           ...attestation.data,
         },
-        schema: GapSchema.find('Milestone', network),
+        schema: new AllGapSchemas().findSchema('Milestone', chainIdToNetwork[attestation.chainID] as TNetwork),
         chainID: attestation.chainID,
       });
 
@@ -238,7 +240,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
           data: {
             ...attestation.completed.data,
           },
-          schema: GapSchema.find('MilestoneCompleted', network),
+          schema: new AllGapSchemas().findSchema('MilestoneCompleted', chainIdToNetwork[attestation.chainID] as TNetwork),
           chainID: attestation.chainID,
         });
       }
@@ -249,7 +251,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
           data: {
             ...attestation.completed.data,
           },
-          schema: GapSchema.find('MilestoneCompleted', network),
+          schema: new AllGapSchemas().findSchema('MilestoneCompleted', chainIdToNetwork[attestation.chainID] as TNetwork),
           chainID: attestation.chainID,
         });
       }
@@ -260,7 +262,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
           data: {
             ...attestation.completed.data,
           },
-          schema: GapSchema.find('MilestoneCompleted', network),
+          schema: new AllGapSchemas().findSchema('MilestoneCompleted', chainIdToNetwork[attestation.chainID] as TNetwork),
           chainID: attestation.chainID,
         });
       }

@@ -11,7 +11,7 @@ import { IMilestone, Milestone } from './Milestone';
 import { GapSchema } from '../GapSchema';
 import { GAP } from '../GAP';
 import { AttestationError } from '../SchemaError';
-import { nullRef } from '../../consts';
+import { chainIdToNetwork, nullRef } from '../../consts';
 import {
   Hex,
   MultiAttestPayload,
@@ -21,6 +21,7 @@ import {
 import { GapContract } from '../contract/GapContract';
 import { Community } from './Community';
 import { Project } from './Project';
+import { AllGapSchemas } from '../AllGapSchemas';
 
 interface _Grant extends Grant {}
 
@@ -237,7 +238,7 @@ export class Grant extends Attestation<IGrant> {
         data: {
           communityUID: attestation.data.communityUID,
         },
-        schema: GapSchema.find('Grant', network),
+        schema: new AllGapSchemas().findSchema('Grant', chainIdToNetwork[attestation.chainID] as TNetwork),
         chainID: attestation.chainID,
       });
 
@@ -248,7 +249,7 @@ export class Grant extends Attestation<IGrant> {
           data: {
             ...details.data,
           },
-          schema: GapSchema.find('GrantDetails', network),
+          schema: new AllGapSchemas().findSchema('GrantDetails', chainIdToNetwork[attestation.chainID] as TNetwork),
           chainID: attestation.chainID,
         });
       }
@@ -267,7 +268,7 @@ export class Grant extends Attestation<IGrant> {
               data: {
                 ...u.data,
               },
-              schema: GapSchema.find('GrantDetails', network),
+              schema: new AllGapSchemas().findSchema('GrantDetails', chainIdToNetwork[attestation.chainID] as TNetwork),
               chainID: attestation.chainID,
             })
         );
@@ -280,7 +281,7 @@ export class Grant extends Attestation<IGrant> {
           data: {
             ...completed.data,
           },
-          schema: GapSchema.find('GrantDetails', network),
+          schema: new AllGapSchemas().findSchema('GrantDetails', chainIdToNetwork[attestation.chainID] as TNetwork),
           chainID: attestation.chainID,
         });
       }
