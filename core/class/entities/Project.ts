@@ -19,6 +19,7 @@ import { chainIdToNetwork, nullRef } from '../../consts';
 import { MemberOf } from './MemberOf';
 import { GapContract } from '../contract/GapContract';
 import { AllGapSchemas } from '../AllGapSchemas';
+import { IProjectResponse } from '../karma-indexer/api/types';
 
 interface _Project extends Project {}
 
@@ -302,7 +303,7 @@ export class Project extends Attestation<IProject> {
 
 
 
-  static from(attestations: _Project[], network: TNetwork): Project[] {
+  static from(attestations: IProjectResponse[], network: TNetwork): Project[] {
     return attestations.map((attestation) => {
       const project = new Project({
         ...attestation,

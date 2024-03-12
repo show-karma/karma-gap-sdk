@@ -6,6 +6,7 @@ import { GAP } from '../GAP';
 import { GapSchema } from '../GapSchema';
 import { AttestationError } from '../SchemaError';
 import { GapContract } from '../contract/GapContract';
+import { IMilestoneResponse } from '../karma-indexer/api/types';
 import { MilestoneCompleted } from '../types/attestations';
 
 interface _Milestone extends Milestone {}
@@ -223,7 +224,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
     }
   }
 
-  static from(attestations: _Milestone[], network: TNetwork): Milestone[] {
+  static from(attestations: IMilestoneResponse[], network: TNetwork): Milestone[] {
     return attestations.map((attestation) => {
       const milestone = new Milestone({
         ...attestation,
