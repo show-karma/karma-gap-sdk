@@ -18,10 +18,12 @@ import axios from 'axios';
 
 const key = require('./config/keys.json').sepolia;
 
-const web3 = new ethers.providers.JsonRpcProvider(
-  'https://opt-sepolia.g.alchemy.com/v2/SAI_dJr86B7ttCD_b9fn61MWrrdZimmL'
-  // "https://eth-sepolia-public.unifra.io"
-);
+// const web3 = new ethers.JsonRpcProvider(
+//   'https://opt-sepolia.g.alchemy.com/v2/SAI_dJr86B7ttCD_b9fn61MWrrdZimmL'
+//   // "https://eth-sepolia-public.unifra.io"
+// );
+
+const web3 = new ethers.AlchemyProvider("sepolia", "_M6YQg_DoVKuMisaFHSVZL-EcdkTbhUi");
 
 const wallet = new ethers.Wallet(key, web3);
 const gap = new GAP({
@@ -161,7 +163,18 @@ async function getCommunity(uid: Hex) {
   console.log(JSON.stringify(communityDetails(community), null, 2));
 }
 
-attestation().then((uids) => {
-  console.log(uids);
-  getCommunity(uids[0]);
-});
+// attestation().then((uids) => {
+//   console.log(uids);
+//   getCommunity(uids[0]);
+// });
+
+
+
+(async() => {
+  const web3 = new ethers.AlchemyProvider("sepolia", "_M6YQg_DoVKuMisaFHSVZL-EcdkTbhUi");
+
+  console.log('Web3: ', web3)
+  const resolver = await GAP.getCommunityResolver((web3 as any), 11155111);
+  const response = await resolver.isAdmin('0xc85c9f504e60550bc45e87ab71986c36f046e8f8aa8085bbe07d37825bcbb10a', '0x5a4830885f12438e00d8f4d98e9fe083e707698c');
+  console.log({response})
+})()

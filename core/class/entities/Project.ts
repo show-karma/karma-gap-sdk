@@ -3,6 +3,7 @@ import {
   Grantee,
   MemberDetails,
   ProjectDetails,
+  RetroativeGrant,
   Tag,
 } from '../types/attestations';
 import {
@@ -31,6 +32,7 @@ export class Project extends Attestation<IProject> {
   members: MemberOf[] = [];
   grants: Grant[] = [];
   grantee: Grantee;
+  retroativeGrants: RetroativeGrant[] = [];
 
   /**
    * Creates the payload for a multi-attestation.
@@ -52,6 +54,14 @@ export class Project extends Attestation<IProject> {
 
     if (this.details) {
       payload.push([this.details, await this.details.payloadFor(projectIdx)]);
+    }
+
+    if (this.retroativeGrants?.length) {
+      await Promise.all(
+        this.retroativeGrants.map(async (rg) => {
+          payload.push([rg, await rg.payloadFor(projectIdx)]);
+        })
+      );
     }
 
     if (this.members?.length) {

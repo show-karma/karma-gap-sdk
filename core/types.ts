@@ -49,7 +49,8 @@ export type TSchemaName =
   | 'MilestoneApproved'
   | 'Project'
   | 'ProjectDetails'
-  | 'Details';
+  | 'Details'
+  | 'RetroativeGrant';
 
 export type TResolvedSchemaNames =
   | 'Community'

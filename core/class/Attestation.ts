@@ -405,4 +405,5 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
       chainID: Networks[schema.gap.network].chainId,
     });
   }
+
 }

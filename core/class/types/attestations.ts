@@ -164,3 +164,19 @@ export interface IGrantDetailsQuestion {
   explanation: string,
   type: string
  }
+
+ export interface IRetroativeGrant {
+  work: string;
+  impact: string;
+  proof: string;
+  type: string;
+}
+export class RetroativeGrant
+  extends Attestation<IRetroativeGrant>
+  implements IRetroativeGrant
+{
+  work: string;
+  impact: string;
+  proof: string;
+  type = 'retroative-grant'
+}

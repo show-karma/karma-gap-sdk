@@ -257,4 +257,10 @@ export const MountEntities = (
     name: "    schema",
     uid: network.schemas.Details,
   },
+  RetroativeGrant: {
+    name: "RetroativeGrant",
+    schema: DetailsSchema,
+    uid: network.schemas.Details,
+    references: "Project",
+  },
 });
