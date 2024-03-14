@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MountEntities = exports.Networks = exports.zeroAddress = exports.nullResolver = exports.nullRef = exports.useDefaultAttestation = void 0;
+exports.MountEntities = exports.Networks = exports.zeroAddress = exports.nullResolver = exports.nullRef = exports.chainIdToNetwork = exports.useDefaultAttestation = void 0;
 /**
  * Schemas that should use default EAS attestation
  * instead of the custom contract.
@@ -11,6 +11,12 @@ exports.useDefaultAttestation = [
     "GrantVerified",
     "Community",
 ];
+exports.chainIdToNetwork = {
+    11155420: 'optimism-sepolia',
+    42161: 'arbitrum',
+    10: 'optimism',
+    11155111: 'sepolia'
+};
 exports.nullRef = "0x0000000000000000000000000000000000000000000000000000000000000000";
 // TODO: Remove null resolver and change usage to zero address
 exports.nullResolver = "0x0000000000000000000000000000000000000000";

@@ -10,12 +10,6 @@ const GapContract_1 = require("../contract/GapContract");
 const Community_1 = require("./Community");
 const Project_1 = require("./Project");
 const AllGapSchemas_1 = require("../AllGapSchemas");
-const chainIdToNetwork = {
-    11155420: 'optimism-sepolia',
-    42161: 'arbitrum',
-    10: 'optimism',
-    11155111: 'sepolia'
-};
 class Grant extends Attestation_1.Attestation {
     constructor() {
         super(...arguments);
@@ -170,7 +164,7 @@ class Grant extends Attestation_1.Attestation {
                 data: {
                     communityUID: attestation.data.communityUID,
                 },
-                schema: new AllGapSchemas_1.AllGapSchemas().findSchema('Grant', chainIdToNetwork[attestation.chainID]),
+                schema: new AllGapSchemas_1.AllGapSchemas().findSchema('Grant', consts_1.chainIdToNetwork[attestation.chainID]),
                 chainID: attestation.chainID,
             });
             if (attestation.details) {
@@ -180,7 +174,7 @@ class Grant extends Attestation_1.Attestation {
                     data: {
                         ...details.data,
                     },
-                    schema: new AllGapSchemas_1.AllGapSchemas().findSchema('GrantDetails', chainIdToNetwork[attestation.chainID]),
+                    schema: new AllGapSchemas_1.AllGapSchemas().findSchema('GrantDetails', consts_1.chainIdToNetwork[attestation.chainID]),
                     chainID: attestation.chainID,
                 });
             }
@@ -195,7 +189,7 @@ class Grant extends Attestation_1.Attestation {
                     data: {
                         ...u.data,
                     },
-                    schema: new AllGapSchemas_1.AllGapSchemas().findSchema('GrantDetails', chainIdToNetwork[attestation.chainID]),
+                    schema: new AllGapSchemas_1.AllGapSchemas().findSchema('GrantDetails', consts_1.chainIdToNetwork[attestation.chainID]),
                     chainID: attestation.chainID,
                 }));
             }
@@ -206,7 +200,7 @@ class Grant extends Attestation_1.Attestation {
                     data: {
                         ...completed.data,
                     },
-                    schema: new AllGapSchemas_1.AllGapSchemas().findSchema('GrantDetails', chainIdToNetwork[attestation.chainID]),
+                    schema: new AllGapSchemas_1.AllGapSchemas().findSchema('GrantDetails', consts_1.chainIdToNetwork[attestation.chainID]),
                     chainID: attestation.chainID,
                 });
             }

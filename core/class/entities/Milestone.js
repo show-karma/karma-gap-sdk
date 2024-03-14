@@ -1,17 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Milestone = void 0;
+const consts_1 = require("../../consts");
 const AllGapSchemas_1 = require("../AllGapSchemas");
 const Attestation_1 = require("../Attestation");
 const SchemaError_1 = require("../SchemaError");
 const GapContract_1 = require("../contract/GapContract");
 const attestations_1 = require("../types/attestations");
-const chainIdToNetwork = {
-    11155420: 'optimism-sepolia',
-    42161: 'arbitrum',
-    10: 'optimism',
-    11155111: 'sepolia'
-};
 class Milestone extends Attestation_1.Attestation {
     constructor() {
         super(...arguments);
@@ -194,7 +189,7 @@ class Milestone extends Attestation_1.Attestation {
                 data: {
                     ...attestation.data,
                 },
-                schema: new AllGapSchemas_1.AllGapSchemas().findSchema('Milestone', chainIdToNetwork[attestation.chainID]),
+                schema: new AllGapSchemas_1.AllGapSchemas().findSchema('Milestone', consts_1.chainIdToNetwork[attestation.chainID]),
                 chainID: attestation.chainID,
             });
             if (attestation.completed) {
@@ -203,7 +198,7 @@ class Milestone extends Attestation_1.Attestation {
                     data: {
                         ...attestation.completed.data,
                     },
-                    schema: new AllGapSchemas_1.AllGapSchemas().findSchema('MilestoneCompleted', chainIdToNetwork[attestation.chainID]),
+                    schema: new AllGapSchemas_1.AllGapSchemas().findSchema('MilestoneCompleted', consts_1.chainIdToNetwork[attestation.chainID]),
                     chainID: attestation.chainID,
                 });
             }
@@ -213,7 +208,7 @@ class Milestone extends Attestation_1.Attestation {
                     data: {
                         ...attestation.completed.data,
                     },
-                    schema: new AllGapSchemas_1.AllGapSchemas().findSchema('MilestoneCompleted', chainIdToNetwork[attestation.chainID]),
+                    schema: new AllGapSchemas_1.AllGapSchemas().findSchema('MilestoneCompleted', consts_1.chainIdToNetwork[attestation.chainID]),
                     chainID: attestation.chainID,
                 });
             }
@@ -223,7 +218,7 @@ class Milestone extends Attestation_1.Attestation {
                     data: {
                         ...attestation.completed.data,
                     },
-                    schema: new AllGapSchemas_1.AllGapSchemas().findSchema('MilestoneCompleted', chainIdToNetwork[attestation.chainID]),
+                    schema: new AllGapSchemas_1.AllGapSchemas().findSchema('MilestoneCompleted', consts_1.chainIdToNetwork[attestation.chainID]),
                     chainID: attestation.chainID,
                 });
             }
