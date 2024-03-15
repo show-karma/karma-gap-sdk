@@ -144,6 +144,12 @@ class Milestone extends Attestation_1.Attestation {
                 await this.completed.payloadFor(milestoneIdx),
             ]);
         }
+        if (this.verified) {
+            payload.push([
+                this.verified,
+                await this.verified.payloadFor(milestoneIdx),
+            ]);
+        }
         return payload.slice(currentPayload.length, payload.length);
     }
     /**
@@ -222,8 +228,56 @@ class Milestone extends Attestation_1.Attestation {
                     chainID: attestation.chainID,
                 });
             }
+            if (attestation.verified) {
+                milestone.verified = new attestations_1.MilestoneCompleted({
+                    ...attestation.verified,
+                    data: {
+                        ...attestation.verified.data,
+                    },
+                    schema: new AllGapSchemas_1.AllGapSchemas().findSchema('MilestoneCompleted', consts_1.chainIdToNetwork[attestation.chainID]),
+                    chainID: attestation.chainID,
+                });
+            }
             return milestone;
         });
+    }
+    /**
+   * Verify this milestone. If the milestone is not completed or already verified,
+   * it will throw an error.
+   * @param signer
+   * @param reason
+   */
+    async verify(signer, reason = '') {
+        if (!this.verified)
+            throw new SchemaError_1.AttestationError('ATTEST_ERROR', 'Milestone is not completed');
+        const schema = this.schema.gap.findSchema('MilestoneCompleted');
+        schema.setValue('type', 'verified');
+        schema.setValue('reason', reason);
+        await this.attestStatus(signer, schema);
+        this.verified = new attestations_1.MilestoneCompleted({
+            data: {
+                type: 'verified',
+                reason,
+            },
+            refUID: this.uid,
+            schema: schema,
+            recipient: this.recipient,
+        });
+    }
+    /**
+     * Revokes the verify status of the milestone. If the milestone is not verified,
+     * it will throw an error.
+     * @param signer
+     */
+    async revokeVerify(signer) {
+        if (!this.approved)
+            throw new SchemaError_1.AttestationError('ATTEST_ERROR', 'Milestone is not verified');
+        await this.verified.schema.multiRevoke(signer, [
+            {
+                schemaId: this.verified.schema.uid,
+                uid: this.verified.uid,
+            },
+        ]);
     }
 }
 exports.Milestone = Milestone;

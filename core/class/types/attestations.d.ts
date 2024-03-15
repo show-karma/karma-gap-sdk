@@ -69,11 +69,11 @@ export declare class MemberDetails extends Attestation<IMemberDetails> implement
     profilePictureURL: string;
 }
 export interface IMilestoneCompleted {
-    type: 'approved' | 'rejected' | 'completed';
+    type: 'approved' | 'rejected' | 'completed' | 'verified';
     reason?: string;
 }
 export declare class MilestoneCompleted extends Attestation<IMilestoneCompleted> implements IMilestoneCompleted {
-    type: 'approved' | 'rejected' | 'completed';
+    type: 'approved' | 'rejected' | 'completed' | 'verified';
     reason?: string;
 }
 export interface ITag {

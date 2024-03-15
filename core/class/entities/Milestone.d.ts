@@ -17,6 +17,7 @@ export declare class Milestone extends Attestation<IMilestone> implements IMiles
     completed: MilestoneCompleted;
     approved: MilestoneCompleted;
     rejected: MilestoneCompleted;
+    verified: MilestoneCompleted;
     type: string;
     /**
      * Approves this milestone. If the milestone is not completed or already approved,
@@ -77,5 +78,18 @@ export declare class Milestone extends Attestation<IMilestone> implements IMiles
      */
     private attestStatus;
     static from(attestations: _Milestone[], network: TNetwork): Milestone[];
+    /**
+   * Verify this milestone. If the milestone is not completed or already verified,
+   * it will throw an error.
+   * @param signer
+   * @param reason
+   */
+    verify(signer: SignerOrProvider, reason?: string): Promise<void>;
+    /**
+     * Revokes the verify status of the milestone. If the milestone is not verified,
+     * it will throw an error.
+     * @param signer
+     */
+    revokeVerify(signer: SignerOrProvider): Promise<void>;
 }
 export {};
