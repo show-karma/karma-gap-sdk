@@ -10,6 +10,7 @@ const attestations_1 = require("../types/attestations");
 class Milestone extends Attestation_1.Attestation {
     constructor() {
         super(...arguments);
+        this.verified = [];
         this.type = 'milestone';
     }
     /**
@@ -144,11 +145,13 @@ class Milestone extends Attestation_1.Attestation {
                 await this.completed.payloadFor(milestoneIdx),
             ]);
         }
-        if (this.verified) {
-            payload.push([
-                this.verified,
-                await this.verified.payloadFor(milestoneIdx),
-            ]);
+        if (this.verified.length > 0) {
+            await Promise.all(this.verified.map(async (m) => {
+                const payloadForMilestone = await m.payloadFor(milestoneIdx);
+                if (Array.isArray(payloadForMilestone)) {
+                    payloadForMilestone.forEach((item) => payload.push(item));
+                }
+            }));
         }
         return payload.slice(currentPayload.length, payload.length);
     }
@@ -228,15 +231,15 @@ class Milestone extends Attestation_1.Attestation {
                     chainID: attestation.chainID,
                 });
             }
-            if (attestation.verified) {
-                milestone.verified = new attestations_1.MilestoneCompleted({
-                    ...attestation.verified,
+            if (attestation.verified.length > 0) {
+                milestone.verified = attestation.verified.map(m => new attestations_1.MilestoneCompleted({
+                    ...m,
                     data: {
-                        ...attestation.verified.data,
+                        ...m.data,
                     },
                     schema: new AllGapSchemas_1.AllGapSchemas().findSchema('MilestoneCompleted', consts_1.chainIdToNetwork[attestation.chainID]),
                     chainID: attestation.chainID,
-                });
+                }));
             }
             return milestone;
         });
@@ -254,7 +257,7 @@ class Milestone extends Attestation_1.Attestation {
         schema.setValue('type', 'verified');
         schema.setValue('reason', reason);
         await this.attestStatus(signer, schema);
-        this.verified = new attestations_1.MilestoneCompleted({
+        this.verified.push(new attestations_1.MilestoneCompleted({
             data: {
                 type: 'verified',
                 reason,
@@ -262,22 +265,7 @@ class Milestone extends Attestation_1.Attestation {
             refUID: this.uid,
             schema: schema,
             recipient: this.recipient,
-        });
-    }
-    /**
-     * Revokes the verify status of the milestone. If the milestone is not verified,
-     * it will throw an error.
-     * @param signer
-     */
-    async revokeVerify(signer) {
-        if (!this.approved)
-            throw new SchemaError_1.AttestationError('ATTEST_ERROR', 'Milestone is not verified');
-        await this.verified.schema.multiRevoke(signer, [
-            {
-                schemaId: this.verified.schema.uid,
-                uid: this.verified.uid,
-            },
-        ]);
+        }));
     }
 }
 exports.Milestone = Milestone;

@@ -17,7 +17,7 @@ export declare class Milestone extends Attestation<IMilestone> implements IMiles
     completed: MilestoneCompleted;
     approved: MilestoneCompleted;
     rejected: MilestoneCompleted;
-    verified: MilestoneCompleted;
+    verified: MilestoneCompleted[];
     type: string;
     /**
      * Approves this milestone. If the milestone is not completed or already approved,
@@ -85,11 +85,5 @@ export declare class Milestone extends Attestation<IMilestone> implements IMiles
    * @param reason
    */
     verify(signer: SignerOrProvider, reason?: string): Promise<void>;
-    /**
-     * Revokes the verify status of the milestone. If the milestone is not verified,
-     * it will throw an error.
-     * @param signer
-     */
-    revokeVerify(signer: SignerOrProvider): Promise<void>;
 }
 export {};
