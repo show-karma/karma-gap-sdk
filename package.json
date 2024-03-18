@@ -31,14 +31,7 @@
     "@gelatonetwork/relay-sdk": "^5.2.0",
     "@types/sha256": "^0.2.0",
     "axios": "^1.4.0",
-<<<<<<< Updated upstream
     "ethers": "6.11.0",
-=======
-    "ethers": "5.7",
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
     "nft.storage": "^7.1.1",
     "sha256": "^0.2.0",
     "simple-ts-job-runner": "^1.0.12"

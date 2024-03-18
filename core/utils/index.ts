@@ -4,12 +4,5 @@ export * from './gql-queries';
 export * from './map-filter';
 export * from './serialize-bigint';
 export * from './to-unix';
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
 export * from './ipfs-interceptor';
->>>>>>> Stashed changes
-=======
-export * from './ipfs-interceptor';
->>>>>>> Stashed changes
 export * from './get-ipfs-data';

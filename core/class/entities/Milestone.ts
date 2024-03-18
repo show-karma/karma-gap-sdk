@@ -26,7 +26,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
   verified: MilestoneCompleted[] = [];
   type = 'milestone'
 
-  /**ww
+  /**
    * Approves this milestone. If the milestone is not completed or already approved,
    * it will throw an error.
    * @param signer

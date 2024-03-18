@@ -34,7 +34,6 @@ interface EASClientProps {
   network: TNetwork;
 }
 
-
 // TODO: Split this class into small ones
 export class GapEasClient extends Fetcher {
 

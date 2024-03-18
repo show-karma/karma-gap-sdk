@@ -46,20 +46,10 @@ export class Community extends Attestation<ICommunity> {
 
     if (this.projects?.length) {
       await Promise.all(
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
         this.projects.map(async (p) =>
           payload.push(...(await p.multiAttestPayload(payload, 0)))
         )
       );
-=======
-        this.projects.map(async (p) =>  payload.push(...(await p.multiAttestPayload(payload, 0))))
-      )
->>>>>>> Stashed changes
-=======
-        this.projects.map(async (p) =>  payload.push(...(await p.multiAttestPayload(payload, 0))))
-      )
->>>>>>> Stashed changes
     }
 
     return payload;

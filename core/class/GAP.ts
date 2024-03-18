@@ -9,7 +9,6 @@ import {
   TNetwork,
   TSchemaName,
   SignerOrProvider,
-<<<<<<< Updated upstream
 } from '../types';
 import { Schema } from './Schema';
 import { GapSchema } from './GapSchema';
@@ -21,22 +20,8 @@ import { Fetcher } from './Fetcher';
 import { RemoteStorage } from './remote-storage/RemoteStorage';
 import { GapEasClient } from './GraphQL';
 import { getWeb3Provider } from '../utils/get-web3-provider';
-=======
-} from "../types";
-import { Schema } from "./Schema";
-import { GapSchema } from "./GapSchema";
-import { GapEasClient } from "./GraphQL/GapEasClient";
-import { EAS } from "@ethereum-attestation-service/eas-sdk";
-import { MountEntities, Networks } from "../consts";
-import { ethers } from "ethers";
-import MulticallABI from "../abi/MultiAttester.json";
-import { version } from "../../package.json";
-import { Fetcher } from "./Fetcher";
 import { AttestationIPFS } from "./AttestationIPFS";
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
+
 
 interface GAPArgs {
   network: TNetwork;
@@ -124,17 +109,12 @@ interface GAPArgs {
      */
     useGasless?: boolean;
   };
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
   /**
    * Defines a remote storage client to be used to store data.
    * If defined, all the details data from an attestation will
    * be stored in the remote storage, e.g. IPFS.
    */
   remoteStorage?: RemoteStorage;
-=======
-=======
->>>>>>> Stashed changes
 
   /**
    * Specifies an optional IPFS key for uploading project details and other related data.
@@ -147,10 +127,6 @@ interface GAPArgs {
    * 
    */
   ipfsKey?: string;
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
 }
 
 /**
@@ -208,15 +184,10 @@ interface GAPArgs {
  * ```
  */
 export class GAP extends Facade {
-<<<<<<< Updated upstream
   private static remoteStorage?: RemoteStorage;
-=======
   private static client: GAP;
   private static ipfsManager: AttestationIPFS;
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
+
 
   readonly fetch: Fetcher;
   readonly network: TNetwork;
@@ -240,25 +211,16 @@ export class GAP extends Facade {
         network: args.network,
       });
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
     this.fetch.gapInstance = this;
 
-=======
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
     this.assertGelatoOpts(args);
     GAP._gelatoOpts = args.gelatoOpts;
     
     if(this.assertIPFSOpts(args)){
       GAP.ipfsManager = new AttestationIPFS(args.ipfsKey)
     }
-<<<<<<< Updated upstream
 
     GAP.remoteStorage = args.remoteStorage;
-=======
->>>>>>> Stashed changes
 
     this._schemas = schemas.map(
       (schema) =>
@@ -493,17 +455,11 @@ export class GAP extends Facade {
     this._gelatoOpts.useGasless = useGasLess;
   }
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
   static get remoteClient() {
     return this.remoteStorage;
-=======
+  }
+
   static get ipfs() {
     return this.ipfsManager
->>>>>>> Stashed changes
-=======
-  static get ipfs() {
-    return this.ipfsManager
->>>>>>> Stashed changes
   }
 }
