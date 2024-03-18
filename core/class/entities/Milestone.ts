@@ -23,6 +23,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
   completed: MilestoneCompleted;
   approved: MilestoneCompleted;
   rejected: MilestoneCompleted;
+  verified: MilestoneCompleted[] = [];
   type = 'milestone'
 
   /**
@@ -176,6 +177,16 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
         await this.completed.payloadFor(milestoneIdx),
       ]);
     }
+    if (this.verified.length > 0) {
+      await Promise.all(
+        this.verified.map(async (m) => {
+          const payloadForMilestone = await m.payloadFor(milestoneIdx);
+          if (Array.isArray(payloadForMilestone)) {
+            payloadForMilestone.forEach((item) => payload.push(item));
+          }
+        })
+      );
+    }
     return payload.slice(currentPayload.length, payload.length);
   }
 
@@ -267,7 +278,49 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
         });
       }
 
+      if (attestation.verified?.length > 0) {
+        milestone.verified = attestation.verified.map(m => new MilestoneCompleted({
+          ...m,
+          data: {
+            ...m.data,
+          },
+          schema: new AllGapSchemas().findSchema('MilestoneCompleted', chainIdToNetwork[attestation.chainID] as TNetwork),
+          chainID: attestation.chainID,
+        })
+        );
+      }
+
       return milestone;
     });
   }
+
+    /**
+   * Verify this milestone. If the milestone is not completed or already verified,
+   * it will throw an error.
+   * @param signer
+   * @param reason
+   */
+    async verify(signer: SignerOrProvider, reason = '') {
+      console.log('Verifying')
+      if (!this.completed)
+        throw new AttestationError('ATTEST_ERROR', 'Milestone is not completed');
+  
+      const schema = this.schema.gap.findSchema('MilestoneCompleted');
+      schema.setValue('type', 'verified');
+      schema.setValue('reason', reason);
+  
+      console.log('Before attestStatus');
+      await this.attestStatus(signer, schema);
+      console.log('After attestStatus');
+
+      this.verified.push(new MilestoneCompleted({
+        data: {
+          type: 'verified',
+          reason,
+        },
+        refUID: this.uid,
+        schema: schema,
+        recipient: this.recipient,
+      }));
+    }
 }
