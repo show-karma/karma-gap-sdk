@@ -295,6 +295,7 @@ export abstract class Schema<T extends string = string>
   }
 
   /**
+<<<<<<< Updated upstream
    * Validates and attests a given schema.
    *
    * This function checks a schema against predefined standards or rules. If the 'ipfsKey' parameter is enabled,
@@ -307,6 +308,14 @@ export abstract class Schema<T extends string = string>
    *
    * @param {Object} param0 - An object containing the schema and other optional settings.
    * @returns {Object} An object containing the attestation results, including the CID if 'ipfsKey' is enabled.
+=======
+   * Attest for a schema.
+   * 
+   * if "ipfsKey" is enabled, the data will be upload in the IPFS and the CID will be in the Attestation Body.
+   * 
+   * @param param0
+   * @returns
+>>>>>>> Stashed changes
    */
   async attest<T>({ data, to, signer, refUID }: AttestArgs<T>): Promise<Hex> {
     const eas = this.gap.eas.connect(signer);
@@ -318,10 +327,17 @@ export abstract class Schema<T extends string = string>
       );
 
     if (this.isJsonSchema()) {
+<<<<<<< Updated upstream
       const { remoteClient } = GAP;
       if (remoteClient) {
         const cid = await remoteClient.save(data, this.name);
         const encodedData = remoteClient.encode(cid);
+=======
+      const ipfsManager = GAP.ipfs;
+      if(ipfsManager){
+        const ipfsHash = await ipfsManager.save(data);
+        const encodedData = ipfsManager.encode(ipfsHash, 0);
+>>>>>>> Stashed changes
         data = encodedData as T;
       }
 

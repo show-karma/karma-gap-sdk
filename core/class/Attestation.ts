@@ -242,6 +242,7 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
     raw: MultiAttestData;
   }> {
     this.assertPayload();
+<<<<<<< Updated upstream
     
     if (this.schema.isJsonSchema()) {
       const { remoteClient } = GAP;
@@ -255,6 +256,15 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
         const cid = await remoteClient.save(this._data, this.schema.name);
         const encodedData = remoteClient.encode(cid);
         this.schema.setValue('json', JSON.stringify(encodedData));
+=======
+
+    if (this.schema.isJsonSchema()) {
+      const ipfsManager = GAP.ipfs;
+      if(ipfsManager){
+        const ipfsHash = await ipfsManager.save(this._data);
+        const encodedData = ipfsManager.encode(ipfsHash, 0);
+        this.schema.setValue("json", JSON.stringify(encodedData));
+>>>>>>> Stashed changes
       }
     }
 

@@ -8,4 +8,7 @@ csv-upload/*.csv
 !csv-upload/example.csv
 config/keys-csv.json
 config/keys.json
+<<<<<<< Updated upstream
 .env
+=======
+>>>>>>> Stashed changes

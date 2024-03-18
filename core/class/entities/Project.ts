@@ -47,8 +47,12 @@ export class Project extends Attestation<IProject> {
     communityIdx = 0
   ): Promise<MultiAttestPayload> {
     const payload = [...currentPayload];
+<<<<<<< Updated upstream
     const projectIdx =
       payload.push([this, await this.payloadFor(communityIdx)]) - 1;
+=======
+    const projectIdx = payload.push([this, await this.payloadFor(communityIdx)]) - 1;
+>>>>>>> Stashed changes
 
     if (this.details) {
       payload.push([this.details, await this.details.payloadFor(projectIdx)]);
@@ -56,18 +60,29 @@ export class Project extends Attestation<IProject> {
 
     if (this.members?.length) {
       await Promise.all(
+<<<<<<< Updated upstream
         this.members.map(async (m) =>
           payload.push(...(await m.multiAttestPayload(payload, projectIdx)))
         )
+=======
+        this.members.map(async (m) => payload.push(...(await m.multiAttestPayload(payload, projectIdx))))
+>>>>>>> Stashed changes
       );
     }
 
     if (this.grants?.length) {
       await Promise.all(
+<<<<<<< Updated upstream
         this.grants.map(async (g) =>
           payload.push(...(await g.multiAttestPayload(payload, projectIdx)))
         )
       );
+=======
+        this.grants.map(async (g) => payload.push(...(await g.multiAttestPayload(payload, projectIdx))))
+      );
+
+ 
+>>>>>>> Stashed changes
     }
 
     return payload.slice(currentPayload.length, payload.length);

@@ -116,6 +116,10 @@ const gap = GAP.createClient({
   apiClient: new MyCustomApiClient('https://my-custom-api.mydomain.com'),
   // gelatoOpts: for gasless transactions, see it on Chap. 7;
   // ipfsKey: for cheaper attestations;
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 });
 
 export default gap;
@@ -125,6 +129,10 @@ The `gelatoOpts` option is used when developers aim to provide gasless transacti
 
 The `ipfsKey` is utilized to upload a project's data to the InterPlanetary File System (IPFS) and then include the resulting IPFS hash in the body of the Attestation. This approach is advantageous because it significantly reduces the size of the Attestation body. By storing the bulk of data on IPFS—a decentralized storage solution—and referencing it via a hash, the overall cost of creating and sending Attestations is reduced, making the process more efficient and cost-effective.
 
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 ## 4. Fetching Entities
 
 After initializing the GAP client, you are now able to fetch entities available including:
@@ -842,5 +850,8 @@ export default gap;
 > Note that your API service should return data that aligns with the interfaces provided by each Attestation for proper compatibility with this SDK. This ensures that the data is structured correctly to work seamlessly with the SDK.
 
 ## Contact Us
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 If you have any questions on SDK usage, join our discord to get help: https://discord.com/invite/X4fwgzPReJ
