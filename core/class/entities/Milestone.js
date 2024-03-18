@@ -231,7 +231,7 @@ class Milestone extends Attestation_1.Attestation {
                     chainID: attestation.chainID,
                 });
             }
-            if (attestation.verified.length > 0) {
+            if (attestation.verified?.length > 0) {
                 milestone.verified = attestation.verified.map(m => new attestations_1.MilestoneCompleted({
                     ...m,
                     data: {
