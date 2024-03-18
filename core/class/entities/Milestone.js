@@ -13,7 +13,7 @@ class Milestone extends Attestation_1.Attestation {
         this.verified = [];
         this.type = 'milestone';
     }
-    /**
+    /**ww
      * Approves this milestone. If the milestone is not completed or already approved,
      * it will throw an error.
      * @param signer
@@ -251,12 +251,15 @@ class Milestone extends Attestation_1.Attestation {
    * @param reason
    */
     async verify(signer, reason = '') {
-        if (!this.verified)
+        console.log('Verifying');
+        if (!this.completed)
             throw new SchemaError_1.AttestationError('ATTEST_ERROR', 'Milestone is not completed');
         const schema = this.schema.gap.findSchema('MilestoneCompleted');
         schema.setValue('type', 'verified');
         schema.setValue('reason', reason);
+        console.log('Before attestStatus');
         await this.attestStatus(signer, schema);
+        console.log('After attestStatus');
         this.verified.push(new attestations_1.MilestoneCompleted({
             data: {
                 type: 'verified',
