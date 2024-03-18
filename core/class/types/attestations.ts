@@ -93,14 +93,14 @@ export class MemberDetails
 }
 
 export interface IMilestoneCompleted {
-  type: 'approved' | 'rejected' | 'completed';
+  type: 'approved' | 'rejected' | 'completed' | 'verified';
   reason?: string;
 }
 export class MilestoneCompleted
   extends Attestation<IMilestoneCompleted>
   implements IMilestoneCompleted
 {
-  type: 'approved' | 'rejected' | 'completed';
+  type: 'approved' | 'rejected' | 'completed' | 'verified';
   reason?: string;
 }
 
