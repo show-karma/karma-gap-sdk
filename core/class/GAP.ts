@@ -20,8 +20,6 @@ import { Fetcher } from './Fetcher';
 import { RemoteStorage } from './remote-storage/RemoteStorage';
 import { GapEasClient } from './GraphQL';
 import { getWeb3Provider } from '../utils/get-web3-provider';
-import { AttestationIPFS } from "./AttestationIPFS";
-
 
 interface GAPArgs {
   network: TNetwork;
@@ -115,18 +113,6 @@ interface GAPArgs {
    * be stored in the remote storage, e.g. IPFS.
    */
   remoteStorage?: RemoteStorage;
-
-  /**
-   * Specifies an optional IPFS key for uploading project details and other related data.
-   * 
-   * This key is used to authenticate with the IPFS storage service, specifically designed for use with "NFT.STORAGE".
-   * Utilizing IPFS (InterPlanetary File System) offers a decentralized solution for storing data, ensuring better
-   * scalability and efficiency compared to sending large amounts of data directly in the attestation body.
-   * 
-   * If an IPFS key is not provided, the default storage method will be used.
-   * 
-   */
-  ipfsKey?: string;
 }
 
 /**
@@ -185,9 +171,6 @@ interface GAPArgs {
  */
 export class GAP extends Facade {
   private static remoteStorage?: RemoteStorage;
-  private static client: GAP;
-  private static ipfsManager: AttestationIPFS;
-
 
   readonly fetch: Fetcher;
   readonly network: TNetwork;
@@ -215,10 +198,6 @@ export class GAP extends Facade {
 
     this.assertGelatoOpts(args);
     GAP._gelatoOpts = args.gelatoOpts;
-    
-    if(this.assertIPFSOpts(args)){
-      GAP.ipfsManager = new AttestationIPFS(args.ipfsKey)
-    }
 
     GAP.remoteStorage = args.remoteStorage;
 
@@ -265,14 +244,6 @@ export class GAP extends Facade {
         'GAP::You are using gelatoOpts but not setting useGasless to true. This will send transactions through the normal provider.'
       );
     }
-  }
-
-  private assertIPFSOpts(args: GAPArgs): boolean {
-    if(!args.ipfsKey) {
-      return false;
-    }
-
-    return true;
   }
 
   /**
@@ -457,9 +428,5 @@ export class GAP extends Facade {
 
   static get remoteClient() {
     return this.remoteStorage;
-  }
-
-  static get ipfs() {
-    return this.ipfsManager
   }
 }

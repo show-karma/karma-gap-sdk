@@ -3,15 +3,7 @@
   "publishConfig": {
     "access": "public"
   },
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
   "version": "0.3.11",
-=======
-  "version": "0.1.42",
->>>>>>> Stashed changes
-=======
-  "version": "0.1.42",
->>>>>>> Stashed changes
   "description": "Simple and easy interface between EAS and Karma GAP.",
   "main": "./index.js",
   "author": "KarmaHQ",
