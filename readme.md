@@ -117,6 +117,10 @@ const gap = GAP.createClient({
   // gelatoOpts: for gasless transactions, see it on Chap. 7;
   // ipfsKey: for cheaper attestations;
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 =======
 
 >>>>>>> Stashed changes
@@ -130,6 +134,10 @@ The `gelatoOpts` option is used when developers aim to provide gasless transacti
 The `ipfsKey` is utilized to upload a project's data to the InterPlanetary File System (IPFS) and then include the resulting IPFS hash in the body of the Attestation. This approach is advantageous because it significantly reduces the size of the Attestation body. By storing the bulk of data on IPFS—a decentralized storage solution—and referencing it via a hash, the overall cost of creating and sending Attestations is reduced, making the process more efficient and cost-effective.
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 =======
 
 >>>>>>> Stashed changes
@@ -851,7 +859,10 @@ export default gap;
 
 ## Contact Us
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 If you have any questions on SDK usage, join our discord to get help: https://discord.com/invite/X4fwgzPReJ

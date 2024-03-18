@@ -104,6 +104,7 @@ export class Grant extends Attestation<IGrant> {
    * @param projectIdx
    */
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   async multiAttestPayload(
     currentPayload: MultiAttestPayload = [],
     projectIdx = 0
@@ -118,12 +119,19 @@ export class Grant extends Attestation<IGrant> {
     const payload = [...currentPayload];
     const grantIdx = payload.push([this, await this.payloadFor(projectIdx)]) - 1;
 >>>>>>> Stashed changes
+=======
+  async multiAttestPayload(currentPayload: MultiAttestPayload = [], projectIdx = 0) {
+    this.assertPayload();
+    const payload = [...currentPayload];
+    const grantIdx = payload.push([this, await this.payloadFor(projectIdx)]) - 1;
+>>>>>>> Stashed changes
     if (this.details) {
       payload.push([this.details, await this.details.payloadFor(grantIdx)]);
     }
 
     if (this.milestones.length) {
       await Promise.all(
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
         this.milestones.map(async (m) =>
           payload.push(
@@ -133,14 +141,21 @@ export class Grant extends Attestation<IGrant> {
 =======
         this.milestones.map(async (m) =>  payload.push([m, await m.payloadFor(grantIdx)]))
 >>>>>>> Stashed changes
+=======
+        this.milestones.map(async (m) =>  payload.push([m, await m.payloadFor(grantIdx)]))
+>>>>>>> Stashed changes
       );
     }
     if (this.updates.length) {
       await Promise.all(
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
         this.updates.map(async (u) =>
           payload.push([u, await u.payloadFor(grantIdx)])
         )
+=======
+        this.updates.map(async (u) =>  payload.push([u, await u.payloadFor(grantIdx)]))
+>>>>>>> Stashed changes
 =======
         this.updates.map(async (u) =>  payload.push([u, await u.payloadFor(grantIdx)]))
 >>>>>>> Stashed changes

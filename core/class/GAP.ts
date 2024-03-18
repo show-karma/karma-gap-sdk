@@ -33,6 +33,9 @@ import MulticallABI from "../abi/MultiAttester.json";
 import { version } from "../../package.json";
 import { Fetcher } from "./Fetcher";
 import { AttestationIPFS } from "./AttestationIPFS";
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 
 interface GAPArgs {
@@ -122,6 +125,7 @@ interface GAPArgs {
     useGasless?: boolean;
   };
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   /**
    * Defines a remote storage client to be used to store data.
    * If defined, all the details data from an attestation will
@@ -129,6 +133,8 @@ interface GAPArgs {
    */
   remoteStorage?: RemoteStorage;
 =======
+=======
+>>>>>>> Stashed changes
 
   /**
    * Specifies an optional IPFS key for uploading project details and other related data.
@@ -141,6 +147,9 @@ interface GAPArgs {
    * 
    */
   ipfsKey?: string;
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 }
 
@@ -204,6 +213,9 @@ export class GAP extends Facade {
 =======
   private static client: GAP;
   private static ipfsManager: AttestationIPFS;
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 
   readonly fetch: Fetcher;
@@ -229,8 +241,11 @@ export class GAP extends Facade {
       });
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     this.fetch.gapInstance = this;
 
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
     this.assertGelatoOpts(args);
@@ -239,8 +254,11 @@ export class GAP extends Facade {
     if(this.assertIPFSOpts(args)){
       GAP.ipfsManager = new AttestationIPFS(args.ipfsKey)
     }
+<<<<<<< Updated upstream
 
     GAP.remoteStorage = args.remoteStorage;
+=======
+>>>>>>> Stashed changes
 
     this._schemas = schemas.map(
       (schema) =>
@@ -476,8 +494,13 @@ export class GAP extends Facade {
   }
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
   static get remoteClient() {
     return this.remoteStorage;
+=======
+  static get ipfs() {
+    return this.ipfsManager
+>>>>>>> Stashed changes
 =======
   static get ipfs() {
     return this.ipfsManager

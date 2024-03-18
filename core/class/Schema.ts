@@ -328,15 +328,21 @@ export abstract class Schema<T extends string = string>
 
     if (this.isJsonSchema()) {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
       const { remoteClient } = GAP;
       if (remoteClient) {
         const cid = await remoteClient.save(data, this.name);
         const encodedData = remoteClient.encode(cid);
 =======
+=======
+>>>>>>> Stashed changes
       const ipfsManager = GAP.ipfs;
       if(ipfsManager){
         const ipfsHash = await ipfsManager.save(data);
         const encodedData = ipfsManager.encode(ipfsHash, 0);
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
         data = encodedData as T;
       }
