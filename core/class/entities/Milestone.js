@@ -13,7 +13,7 @@ class Milestone extends Attestation_1.Attestation {
         this.verified = [];
         this.type = 'milestone';
     }
-    /**ww
+    /**
      * Approves this milestone. If the milestone is not completed or already approved,
      * it will throw an error.
      * @param signer
@@ -135,19 +135,19 @@ class Milestone extends Attestation_1.Attestation {
      * @param payload
      * @param grantIdx
      */
-    async multiAttestPayload(currentPayload = [], grantIdx = 0) {
+    async multiAttestPayload(currentPayload = [], grantIdx = 0, milestoneHardIdx) {
         this.assertPayload();
         const payload = [...currentPayload];
         const milestoneIdx = payload.push([this, await this.payloadFor(grantIdx)]) - 1;
         if (this.completed) {
             payload.push([
                 this.completed,
-                await this.completed.payloadFor(milestoneIdx),
+                await this.completed.payloadFor(milestoneHardIdx || milestoneIdx),
             ]);
         }
         if (this.verified.length > 0) {
             await Promise.all(this.verified.map(async (m) => {
-                const payloadForMilestone = await m.payloadFor(milestoneIdx);
+                const payloadForMilestone = await m.payloadFor(milestoneHardIdx || milestoneIdx);
                 if (Array.isArray(payloadForMilestone)) {
                     payloadForMilestone.forEach((item) => payload.push(item));
                 }

@@ -19,7 +19,7 @@ export declare class Milestone extends Attestation<IMilestone> implements IMiles
     rejected: MilestoneCompleted;
     verified: MilestoneCompleted[];
     type: string;
-    /**ww
+    /**
      * Approves this milestone. If the milestone is not completed or already approved,
      * it will throw an error.
      * @param signer
@@ -68,7 +68,7 @@ export declare class Milestone extends Attestation<IMilestone> implements IMiles
      * @param payload
      * @param grantIdx
      */
-    multiAttestPayload(currentPayload?: MultiAttestPayload, grantIdx?: number): Promise<[Attestation<unknown, GapSchema>, import("../../types").RawMultiAttestPayload][]>;
+    multiAttestPayload(currentPayload?: MultiAttestPayload, grantIdx?: number, milestoneHardIdx?: number): Promise<[Attestation<unknown, GapSchema>, import("../../types").RawMultiAttestPayload][]>;
     /**
      * @inheritdoc
      */

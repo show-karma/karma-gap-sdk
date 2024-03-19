@@ -207,17 +207,7 @@ class GAP extends types_1.Facade {
         const provider = chainId ? (0, get_web3_provider_1.getWeb3Provider)(chainId) : signer;
         const network = Object.values(consts_1.Networks).find((n) => +n.chainId === Number(currentChainId));
         const address = network.contracts.communityResolver;
-        console.log('Resolver: ', address);
         return new ethers_1.ethers.Contract(address, CommunityResolverABI_json_1.default, provider);
-    }
-    /**
-    * Get the multicall contract
-    * @param chainId
-    */
-    static async getCommunityResolverInfo(chainId) {
-        const network = Object.values(consts_1.Networks).find((n) => +n.chainId === Number(chainId));
-        const address = network.contracts.communityResolver;
-        return { address, abi: CommunityResolverABI_json_1.default };
     }
     get schemas() {
         return this._schemas;
