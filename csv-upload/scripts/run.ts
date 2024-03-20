@@ -40,17 +40,18 @@ const { arbitrum: keys, gapAccessToken } = require(__dirname +
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 const privateKey = keys.privateKey;
-const gelatoApiKey = keys.gelatoApiKey;
+// const gelatoApiKey = keys.gelatoApiKey;
 const rpcURL = keys.rpcURL;
 const gapAPI = keys.gapAPI;
-const ipfsURL = keys.ipfsURL;
+const ipfsKey = keys.ipfsKey;
+const ipfsURL = `${gapAPI}/ipfs`;
 const mainnetURL =
   "https://eth-mainnet.g.alchemy.com/v2/dRC43zHg8eyn83eR5GOiO7sfFYW8sl6t";
 
 /**
  * web3 provider to build wallet and sign transactions
  */
-const web3 = new ethers.providers.JsonRpcProvider(rpcURL);
+const web3 = new ethers.JsonRpcProvider(rpcURL);
 
 /**
  * Wallet to sign transactions
@@ -63,10 +64,10 @@ const wallet = new ethers.Wallet(privateKey, web3);
 
 const ipfsClient = new IpfsStorage(
   {
-    token: "",
+    token: ipfsKey,
   },
   {
-    url: ipfsURL || "",
+    url: ipfsURL,
     responseParser: (res) => res.cid,
   }
 );
@@ -75,11 +76,6 @@ const gap = new GAP({
   globalSchemas: false,
   network: networkName,
   apiClient: new GapIndexerClient(gapAPI),
-  gelatoOpts: {
-    sponsorUrl: "https://gapapi.karmahq.xyz/attestations/sponsored-txn",
-    // apiKey: gelatoApiKey,
-    useGasless: false,
-  },
   remoteStorage: ipfsClient,
 });
 
