@@ -119,7 +119,7 @@ export class Grant extends Attestation<IGrant> {
       await Promise.all(
         this.milestones.map(async (m) =>
           payload.push(
-            ...(await m.multiAttestPayload(currentPayload, grantIdx))
+            ...(await m.multiAttestPayload(payload, grantIdx))
           )
         )
       );
