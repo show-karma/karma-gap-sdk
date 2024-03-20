@@ -79,7 +79,7 @@ class Grant extends Attestation_1.Attestation {
             payload.push([this.details, await this.details.payloadFor(grantIdx)]);
         }
         if (this.milestones.length) {
-            await Promise.all(this.milestones.map(async (m) => payload.push(...(await m.multiAttestPayload(currentPayload, grantIdx)))));
+            await Promise.all(this.milestones.map(async (m) => payload.push(...(await m.multiAttestPayload(payload, grantIdx)))));
         }
         if (this.updates.length) {
             await Promise.all(this.updates.map(async (u) => payload.push([u, await u.payloadFor(grantIdx)])));
