@@ -9,3 +9,4 @@ csv-upload/*.csv
 config/keys-csv.json
 config/keys.json
 .env
+.test-file.ts
