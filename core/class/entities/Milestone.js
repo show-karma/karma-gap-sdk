@@ -135,19 +135,19 @@ class Milestone extends Attestation_1.Attestation {
      * @param payload
      * @param grantIdx
      */
-    async multiAttestPayload(currentPayload = [], grantIdx = 0, milestoneHardIdx) {
+    async multiAttestPayload(currentPayload = [], grantIdx = 0) {
         this.assertPayload();
         const payload = [...currentPayload];
         const milestoneIdx = payload.push([this, await this.payloadFor(grantIdx)]) - 1;
         if (this.completed) {
             payload.push([
                 this.completed,
-                await this.completed.payloadFor(milestoneHardIdx || milestoneIdx),
+                await this.completed.payloadFor(milestoneIdx),
             ]);
         }
         if (this.verified.length > 0) {
             await Promise.all(this.verified.map(async (m) => {
-                const payloadForMilestone = await m.payloadFor(milestoneHardIdx || milestoneIdx);
+                const payloadForMilestone = await m.payloadFor(milestoneIdx);
                 if (Array.isArray(payloadForMilestone)) {
                     payloadForMilestone.forEach((item) => payload.push(item));
                 }

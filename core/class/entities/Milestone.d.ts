@@ -68,7 +68,7 @@ export declare class Milestone extends Attestation<IMilestone> implements IMiles
      * @param payload
      * @param grantIdx
      */
-    multiAttestPayload(currentPayload?: MultiAttestPayload, grantIdx?: number, milestoneHardIdx?: number): Promise<[Attestation<unknown, GapSchema>, import("../../types").RawMultiAttestPayload][]>;
+    multiAttestPayload(currentPayload?: MultiAttestPayload, grantIdx?: number): Promise<[Attestation<unknown, GapSchema>, import("../../types").RawMultiAttestPayload][]>;
     /**
      * @inheritdoc
      */
