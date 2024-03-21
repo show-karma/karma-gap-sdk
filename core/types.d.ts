@@ -21,7 +21,7 @@ export interface AttestArgs<T = unknown> {
     refUID?: Hex;
     signer: SignerOrProvider;
 }
-export type TSchemaName = 'Community' | 'CommunityDetails' | 'Grant' | 'GrantDetails' | 'GrantVerified' | 'MemberOf' | 'MemberDetails' | 'Milestone' | 'MilestoneCompleted' | 'MilestoneApproved' | 'Project' | 'ProjectDetails' | 'Details';
+export type TSchemaName = 'Community' | 'CommunityDetails' | 'Grant' | 'GrantDetails' | 'GrantVerified' | 'MemberOf' | 'MemberDetails' | 'Milestone' | 'MilestoneCompleted' | 'MilestoneApproved' | 'Project' | 'ProjectDetails' | 'Details' | 'ProjectImpact';
 export type TResolvedSchemaNames = 'Community' | 'Grant' | 'GrantVerified' | 'MemberOf' | 'MilestoneCompleted' | 'MilestoneApproved' | 'Project' | 'Details';
 export type TExternalLink = 'twitter' | 'github' | 'website' | 'linkedin' | 'discord';
 export type TNetwork = 'optimism' | 'optimism-sepolia' | "arbitrum" | 'sepolia';

@@ -1,5 +1,5 @@
 import { Attestation } from '../Attestation';
-import { Grantee, MemberDetails, ProjectDetails } from '../types/attestations';
+import { Grantee, MemberDetails, ProjectDetails, ProjectImpact } from '../types/attestations';
 import { Hex, MultiAttestPayload, SignerOrProvider, TNetwork } from 'core/types';
 import { Grant } from './Grant';
 import { MemberOf } from './MemberOf';
@@ -13,6 +13,7 @@ export declare class Project extends Attestation<IProject> {
     members: MemberOf[];
     grants: Grant[];
     grantee: Grantee;
+    impact: ProjectImpact[];
     /**
      * Creates the payload for a multi-attestation.
      *
@@ -71,5 +72,6 @@ export declare class Project extends Attestation<IProject> {
      */
     removeAllMembers(signer: SignerOrProvider): Promise<void>;
     static from(attestations: _Project[], network: TNetwork): Project[];
+    attestImpact(signer: SignerOrProvider, data: ProjectImpact): Promise<void>;
 }
 export {};

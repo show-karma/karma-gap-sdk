@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GrantCompleted = exports.GrantUpdate = exports.Grantee = exports.ProjectDetails = exports.Tag = exports.MilestoneCompleted = exports.MemberDetails = exports.GrantVerified = exports.GrantRound = exports.GrantDetails = exports.CommunityDetails = void 0;
+exports.ProjectImpact = exports.GrantCompleted = exports.GrantUpdate = exports.Grantee = exports.ProjectDetails = exports.Tag = exports.MilestoneCompleted = exports.MemberDetails = exports.GrantVerified = exports.GrantRound = exports.GrantDetails = exports.CommunityDetails = void 0;
 const Attestation_1 = require("../Attestation");
 class CommunityDetails extends Attestation_1.Attestation {
     constructor() {
@@ -55,3 +55,10 @@ exports.GrantUpdate = GrantUpdate;
 class GrantCompleted extends GrantUpdate {
 }
 exports.GrantCompleted = GrantCompleted;
+class ProjectImpact extends Attestation_1.Attestation {
+    constructor(data) {
+        data.data.type = 'project-impact';
+        super(data);
+    }
+}
+exports.ProjectImpact = ProjectImpact;
