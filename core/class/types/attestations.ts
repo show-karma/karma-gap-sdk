@@ -170,6 +170,7 @@ export interface IGrantDetailsQuestion {
   work: string;
   impact: string;
   proof: string;
+  completedAt: number;
   type?: string;
 }
 
@@ -180,6 +181,7 @@ export class ProjectImpact
   work: string;
   impact: string;
   proof: string;
+  completedAt: number;
   type?: string;
 
   constructor(data: AttestationArgs<IProjectImpact, GapSchema>) {
