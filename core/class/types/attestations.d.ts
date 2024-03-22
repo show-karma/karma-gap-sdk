@@ -126,14 +126,14 @@ export interface IProjectImpact {
     work: string;
     impact: string;
     proof: string;
-    endsAt: number;
+    completedAt: number;
     type?: string;
 }
 export declare class ProjectImpact extends Attestation<IProjectImpact> implements IProjectImpact {
     work: string;
     impact: string;
     proof: string;
-    endsAt: number;
+    completedAt: number;
     type?: string;
     constructor(data: AttestationArgs<IProjectImpact, GapSchema>);
 }
