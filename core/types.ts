@@ -50,7 +50,8 @@ export type TSchemaName =
   | 'MilestoneApproved'
   | 'Project'
   | 'ProjectDetails'
-  | 'Details';
+  | 'Details'
+  | 'ProjectImpact';
 
 export type TResolvedSchemaNames =
   | 'Community'

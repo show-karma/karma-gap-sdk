@@ -257,4 +257,10 @@ export const MountEntities = (
     name: "    schema",
     uid: network.schemas.Details,
   },
+  ProjectImpact: {
+    name: "ProjectImpact",
+    schema: DetailsSchema,
+    uid: network.schemas.Details,
+    references: "Project",
+  },
 });
