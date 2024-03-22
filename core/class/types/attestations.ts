@@ -1,6 +1,7 @@
-import { Attestation } from '../Attestation';
+import { Attestation, AttestationArgs } from '../Attestation';
 import { Hex, TExternalLink } from 'core/types';
 import { Project } from '../entities/Project';
+import { GapSchema } from '../GapSchema';
 
 /** Attestation interfaces */
 
@@ -164,3 +165,25 @@ export interface IGrantDetailsQuestion {
   explanation: string,
   type: string
  }
+
+ export interface IProjectImpact {
+  work: string;
+  impact: string;
+  proof: string;
+  type?: string;
+}
+
+export class ProjectImpact
+  extends Attestation<IProjectImpact>
+  implements IProjectImpact
+{
+  work: string;
+  impact: string;
+  proof: string;
+  type?: string;
+
+  constructor(data: AttestationArgs<IProjectImpact, GapSchema>) {
+    (data.data as any).type = 'project-impact'; 
+    super(data);
+  }
+}

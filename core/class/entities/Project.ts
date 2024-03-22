@@ -3,6 +3,7 @@ import {
   Grantee,
   MemberDetails,
   ProjectDetails,
+  ProjectImpact,
   Tag,
 } from '../types/attestations';
 import {
@@ -31,6 +32,7 @@ export class Project extends Attestation<IProject> {
   members: MemberOf[] = [];
   grants: Grant[] = [];
   grantee: Grantee;
+  impacts: ProjectImpact[] = [];
 
   /**
    * Creates the payload for a multi-attestation.
@@ -367,7 +369,38 @@ export class Project extends Attestation<IProject> {
         project.grants = Grant.from(attestation.grants, network);
       }
 
+
+      if (attestation.impacts) {
+        project.impacts = attestation.impacts.map((pi) => {
+          const impact = new ProjectImpact({
+            ...pi,
+            data: {
+              ...pi.data,
+            },
+            schema: new AllGapSchemas().findSchema('ProjectDetails', chainIdToNetwork[attestation.chainID] as TNetwork),
+            chainID: attestation.chainID,
+          });
+
+          return impact;
+        });
+      }
+
       return project;
     });
+  }
+
+  async attestImpact(signer: SignerOrProvider, data: ProjectImpact) {
+    const projectImpact = new ProjectImpact({
+      data: {
+        ...data,
+        type: 'project-impact',
+      },
+      recipient: this.recipient,
+      refUID: this.uid,
+      schema: this.schema.gap.findSchema('ProjectDetails'),
+    });
+
+    await projectImpact.attest(signer);
+    this.impacts.push(projectImpact);
   }
 }
