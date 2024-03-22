@@ -15,7 +15,7 @@ class Project extends Attestation_1.Attestation {
         super(...arguments);
         this.members = [];
         this.grants = [];
-        this.impact = [];
+        this.impacts = [];
     }
     /**
      * Creates the payload for a multi-attestation.
@@ -243,8 +243,8 @@ class Project extends Attestation_1.Attestation {
             if (attestation.grants) {
                 project.grants = Grant_1.Grant.from(attestation.grants, network);
             }
-            if (attestation.impact) {
-                project.impact = attestation.impact.map((pi) => {
+            if (attestation.impacts) {
+                project.impacts = attestation.impacts.map((pi) => {
                     const impact = new attestations_1.ProjectImpact({
                         ...pi,
                         data: {
@@ -270,7 +270,7 @@ class Project extends Attestation_1.Attestation {
             schema: this.schema.gap.findSchema('ProjectDetails'),
         });
         await projectImpact.attest(signer);
-        this.impact.push(projectImpact);
+        this.impacts.push(projectImpact);
     }
 }
 exports.Project = Project;

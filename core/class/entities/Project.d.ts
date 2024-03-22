@@ -13,7 +13,7 @@ export declare class Project extends Attestation<IProject> {
     members: MemberOf[];
     grants: Grant[];
     grantee: Grantee;
-    impact: ProjectImpact[];
+    impacts: ProjectImpact[];
     /**
      * Creates the payload for a multi-attestation.
      *
