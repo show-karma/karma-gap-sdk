@@ -132,6 +132,6 @@ export declare class ProjectImpact extends Attestation<IProjectImpact> implement
     work: string;
     impact: string;
     proof: string;
-    type: string;
+    type?: string;
     constructor(data: AttestationArgs<IProjectImpact, GapSchema>);
 }
