@@ -51,7 +51,10 @@ export type TSchemaName =
   | 'Project'
   | 'ProjectDetails'
   | 'Details'
-  | 'ProjectImpact';
+  | 'ProjectImpact'
+  | 'GrantUpdate'
+  | 'GrantUpdateVerified'
+  ;
 
 export type TResolvedSchemaNames =
   | 'Community'

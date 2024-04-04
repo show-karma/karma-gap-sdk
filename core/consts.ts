@@ -263,4 +263,19 @@ export const MountEntities = (
     uid: network.schemas.Details,
     references: "Project",
   },
+  GrantUpdate: {
+    name: "GrantUpdate",
+    schema: DetailsSchema,
+    uid: network.schemas.Details,
+    references: "Grant",
+  },
+  GrantUpdateVerified: {
+    name: "GrantUpdateVerified",
+    schema: [
+      { type: "string", name: "type", value: null },
+      { type: "string", name: "reason", value: "" },
+    ],
+    uid: network.schemas.MilestoneCompleted,
+    references: "GrantUpdate",
+  },
 });
