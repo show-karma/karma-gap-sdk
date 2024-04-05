@@ -14,6 +14,7 @@ export interface ICommunityDetails {
   slug?: string;
   links?: ExternalLink;
   type?: string;
+  externalId?: string;
 }
 
 export class CommunityDetails
@@ -26,6 +27,7 @@ export class CommunityDetails
   links: ExternalLink = [];
   slug?: string;
   type = 'community-details'
+  externalId?: string;
 }
 
 export interface IGrantDetails {
