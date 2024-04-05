@@ -208,13 +208,13 @@ const communities = [
     
     const gap = new GAP({
       network: networks[chain].name,
-      apiClient: new GapIndexerClient('https://gapstagapi.karmahq.xyz'),
+      apiClient: new GapIndexerClient('https://gapapi.karmahq.xyz'),
       remoteStorage: new IpfsStorage(
         {
           token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweGVkMjAzYTRFODc3ZjFlQTk2MzkzY2M5YjhDNUU4NUUxM2U5OWI5NzEiLCJpc3MiOiJuZnQtc3RvcmFnZSIsImlhdCI6MTcwMDUxNTIzOTg5MSwibmFtZSI6IkdBUF9URVNUIn0.QwVmWPOXeDKCtWGFaLxGdllv-te1pKc4Jrj7rYlMdFk',
         },
         {
-          url: 'https://gapstagapi.karmahq.xyz/ipfs',
+          url: 'https://gapapi.karmahq.xyz/ipfs',
           responseParser: (response: any) => response.cid,
         }
       ),
