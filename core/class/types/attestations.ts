@@ -1,7 +1,7 @@
-import { Attestation, AttestationArgs } from '../Attestation';
-import { Hex, TExternalLink } from 'core/types';
-import { Project } from '../entities/Project';
-import { GapSchema } from '../GapSchema';
+import { Attestation, AttestationArgs } from "../Attestation";
+import { Hex, TExternalLink } from "core/types";
+import { Project } from "../entities/Project";
+import { GapSchema } from "../GapSchema";
 
 /** Attestation interfaces */
 
@@ -26,7 +26,7 @@ export class CommunityDetails
   imageURL: string;
   links: ExternalLink = [];
   slug?: string;
-  type = 'community-details'
+  type = "community-details";
   externalId?: string;
 }
 
@@ -58,7 +58,7 @@ export class GrantDetails
   season?: string;
   cycle?: string;
   questions?: IGrantDetailsQuestion[];
-  type = 'grant-details';
+  type = "grant-details";
   startDate?: number;
 }
 
@@ -96,14 +96,14 @@ export class MemberDetails
 }
 
 export interface IMilestoneCompleted {
-  type: 'approved' | 'rejected' | 'completed' | 'verified';
+  type: "approved" | "rejected" | "completed" | "verified";
   reason?: string;
 }
 export class MilestoneCompleted
   extends Attestation<IMilestoneCompleted>
   implements IMilestoneCompleted
 {
-  type: 'approved' | 'rejected' | 'completed' | 'verified';
+  type: "approved" | "rejected" | "completed" | "verified";
   reason?: string;
 }
 
@@ -120,6 +120,7 @@ export interface IProjectDetails {
   imageURL: string;
   links?: ExternalLink;
   tags?: ITag[];
+  externalIds?: string[];
   slug?: string;
   type?: string;
 }
@@ -133,7 +134,8 @@ export class ProjectDetails
   links: ExternalLink = [];
   tags: ITag[] = [];
   slug: string;
-  type = 'project-details'
+  type = "project-details";
+  externalIds: string[] = [];
 }
 
 export class Grantee {
@@ -163,12 +165,12 @@ export class GrantUpdate
 export class GrantCompleted extends GrantUpdate {}
 
 export interface IGrantDetailsQuestion {
-  query: string,
-  explanation: string,
-  type: string
- }
+  query: string;
+  explanation: string;
+  type: string;
+}
 
- export interface IProjectImpact {
+export interface IProjectImpact {
   work: string;
   impact: string;
   proof: string;
@@ -187,7 +189,7 @@ export class ProjectImpact
   type?: string;
 
   constructor(data: AttestationArgs<IProjectImpact, GapSchema>) {
-    (data.data as any).type = 'project-impact'; 
+    (data.data as any).type = "project-impact";
     super(data);
   }
 }
