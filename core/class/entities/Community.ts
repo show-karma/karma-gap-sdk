@@ -75,6 +75,16 @@ export class Community extends Attestation<ICommunity> {
         data: this.data,
       });
       console.log(this.uid);
+      if(details){
+          const communityDetails = new CommunityDetails({
+            data: details,
+            recipient: this.recipient,
+            refUID: this.uid,
+            schema: this.schema.gap.findSchema('CommunityDetails'),
+          });
+      
+          await communityDetails.attest(signer);
+      }
     } catch (error) {
       console.error(error);
       throw new AttestationError('ATTEST_ERROR', 'Error during attestation.');
