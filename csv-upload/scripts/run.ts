@@ -19,20 +19,20 @@ const [, , fileName, communityUID] = process.argv;
 
 const ChainID = {
   optimism: 10,
-  // "optimism-goerli": 420,
+  "optimism-sepolia": 11155420,
   sepolia: 11155111,
   arbitrum: 42161,
 };
 
-const networkName = "arbitrum";
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
+const networkName = "optimism";
 const network: keyof typeof ChainID = networkName;
 
 /**
  * Secret keys
  */
-const { arbitrum: keys, gapAccessToken } = require(__dirname +
+const { "optimism": keys, gapAccessToken } = require(__dirname +
   "/../../config/keys.json");
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -169,7 +169,7 @@ async function checkProjectExists(projectDetails: DbAttestation) {
     );
 
     return data;
-  } catch {
+  } catch (e) {
     return undefined;
   }
 }
@@ -210,6 +210,7 @@ async function updateExternalIds(
 }
 
 async function bootstrap() {
+  let missedGrants = [];
   let uids: Hex[] = [];
 
   if (!fileName || !fileName.endsWith(".csv"))
@@ -226,12 +227,11 @@ async function bootstrap() {
   let count = 0;
 
   for (const item of data) {
-    console.log(count);
+    console.log(`${count} - ${item.Project.trim()}`);
     count += 1;
     await new Promise((f) => setTimeout(f, 2000));
 
-    //let address = item.Owner;
-    let address = "0x23B7A53ecfd93803C63b97316D7362eae59C55B6";
+    let address = item.Owner.trim() || "0x23B7A53ecfd93803C63b97316D7362eae59C55B6";
     //if (isEns(item.Owner)) {
     //  address = (await ens.resolveName(item.Owner)) || address;
     // }
@@ -291,7 +291,7 @@ async function bootstrap() {
       data: {
         proposalURL: item.ProposalURL,
         title: item.GrantTitle,
-        description: item["Project Description"],
+        description: item.GrantDescription,
         amount: item.Amount,
         payoutAddress: project.recipient,
       },
@@ -339,6 +339,8 @@ async function bootstrap() {
     // avoid duplicate attestations
     const hasProject = await checkProjectExists(projectDetails);
 
+    console.log(hasProject);
+
     if (hasProject) {
       const concurrentGrant = hasProject.grants.find(
         (g) => g.details?.data?.title === item.GrantTitle
@@ -347,6 +349,7 @@ async function bootstrap() {
       if (!concurrentGrant) {
         console.log(`Didn't find grant for project ${item.Project}`);
         Object.assign(grant, { refUID: hasProject.uid });
+        missedGrants.push(item.Project);
         await grant.attest(wallet as any, ChainID[network]);
         /*grantDetails.refUID = grant.uid;
         grantDetails.uid = `ref_${grant.uid}`;
@@ -381,10 +384,12 @@ async function bootstrap() {
       continue;
     }
 
-    console.log("Attesting project ");
-    console.log(item.Project);
+    try {
     await project.attest(wallet as any);
     uids.push(project.uid);
+    } catch (e) {
+      console.log(`Failed to save for ${item.Project}`);
+    }
   }
 
   console.log("Attesting...");
@@ -401,6 +406,8 @@ async function bootstrap() {
   console.log(
     `\xb1[36mConcurrent grants saved to ${concurrentGrantFile}\x1b[0m`
   );
+
+  console.log(missedGrants);
 }
 
 bootstrap();
