@@ -16,7 +16,6 @@ import {
 import axios from "axios";
 import { GapIndexerClient, IpfsStorage } from "../../core/class";
 
-
 const [, , fileName, communityUID] = process.argv;
 
 const ChainID = {
