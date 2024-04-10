@@ -1,24 +1,29 @@
-import { SignerOrProvider } from 'core/types';
+import { SignerOrProvider, TNetwork } from '../../../core/types';
 import { Attestation } from '../Attestation';
 import { GapSchema } from '../GapSchema';
 import { AttestationError } from '../SchemaError';
+import { AllGapSchemas } from '../AllGapSchemas';
+import { chainIdToNetwork } from '../../../core/consts';
 
+interface _IGrantUpdate extends GrantUpdate {}
 export interface IGrantUpdate {
   title: string;
   text: string;
   type?: string;
 }
 
-export interface IGrantUpdateVerified {
-  type: 'verified';
+type IStatus = 'verified';
+
+export interface IGrantUpdateStatus {
+  type: `grant-update-${IStatus}`;
   reason?: string;
 }
 
-export class GrantUpdateVerified
-  extends Attestation<IGrantUpdateVerified>
-  implements IGrantUpdateVerified
+export class GrantUpdateStatus
+  extends Attestation<IGrantUpdateStatus>
+  implements IGrantUpdateStatus
 {
-  type: 'verified';
+  type: `grant-update-${IStatus}`;
   reason?: string;
 }
 
@@ -28,7 +33,7 @@ export class GrantUpdate
 {
   title: string;
   text: string;
-  verified: GrantUpdateVerified[] = [];
+  verified: GrantUpdateStatus[] = [];
 
   /**
    * Attest the status of the milestone as approved, rejected or completed.
@@ -64,8 +69,8 @@ export class GrantUpdate
   async verify(signer: SignerOrProvider, reason = '') {
     console.log('Verifying');
 
-    const schema = this.schema.gap.findSchema('GrantUpdateVerified');
-    schema.setValue('type', 'verified');
+    const schema = this.schema.gap.findSchema('GrantUpdateStatus');
+    schema.setValue('type', 'grant-update-verified');
     schema.setValue('reason', reason);
 
     console.log('Before attest grant update verified');
@@ -73,9 +78,9 @@ export class GrantUpdate
     console.log('After attest grant update verified');
 
     this.verified.push(
-      new GrantUpdateVerified({
+      new GrantUpdateStatus({
         data: {
-          type: 'verified',
+          type: 'grant-update-verified',
           reason,
         },
         refUID: this.uid,
@@ -83,5 +88,32 @@ export class GrantUpdate
         recipient: this.recipient,
       })
     );
+  }
+
+  static from(attestations: _IGrantUpdate[], network: TNetwork): GrantUpdate[] {
+    return attestations.map((attestation) => {
+      const grantUpdate =  new GrantUpdate({
+            ...attestation,
+            data: {
+              ...attestation.data,
+            },
+            schema: new AllGapSchemas().findSchema('GrantUpdate', chainIdToNetwork[attestation.chainID] as TNetwork),
+            chainID: attestation.chainID,
+      });
+
+      if (attestation.verified?.length > 0) {
+        grantUpdate.verified = attestation.verified.map(m => new GrantUpdateStatus({
+          ...m,
+          data: {
+            ...m.data,
+          },
+          schema: new AllGapSchemas().findSchema('GrantUpdateStatus', chainIdToNetwork[attestation.chainID] as TNetwork),
+          chainID: attestation.chainID,
+        })
+        );
+      }
+
+      return grantUpdate;
+    });
   }
 }

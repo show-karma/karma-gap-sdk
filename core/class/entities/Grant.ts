@@ -259,17 +259,7 @@ export class Grant extends Attestation<IGrant> {
 
       if (attestation.updates) {
         const { updates } = attestation;
-        grant.updates = updates.map(
-          (u) =>
-            new GrantUpdate({
-              ...u,
-              data: {
-                ...u.data,
-              },
-              schema: new AllGapSchemas().findSchema('GrantDetails', chainIdToNetwork[attestation.chainID] as TNetwork),
-              chainID: attestation.chainID,
-            })
-        );
+        grant.updates = GrantUpdate.from(updates, network);
       }
 
       if (attestation.completed) {

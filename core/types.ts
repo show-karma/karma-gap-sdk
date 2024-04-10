@@ -53,7 +53,7 @@ export type TSchemaName =
   | 'Details'
   | 'ProjectImpact'
   | 'GrantUpdate'
-  | 'GrantUpdateVerified'
+  | 'GrantUpdateStatus'
   ;
 
 export type TResolvedSchemaNames =
@@ -64,7 +64,8 @@ export type TResolvedSchemaNames =
   | 'MilestoneCompleted'
   | 'MilestoneApproved'
   | 'Project'
-  | 'Details';
+  | 'Details'
+  | 'GrantUpdateStatus';
 
 export type TExternalLink =
   | 'twitter'
