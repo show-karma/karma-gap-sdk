@@ -52,15 +52,6 @@ export declare abstract class Fetcher extends AxiosGQL {
      */
     abstract communitiesOf(address: Hex, withGrants?: boolean): Promise<Community[]>;
     /**
-     * Fetch all available communities (admin) with details for a grantee;
-     *
-     * If search is defined, will try to find communities by the search string.
-     * @param address grantee address
-     * @param withGrants if true, will get community grants.
-     * @returns
-     */
-    abstract communitiesAdminOf(address: Hex, withGrants?: boolean): Promise<Community[]>;
-    /**
      * Fetch a set of communities by their ids.
      * @param uids
      * @returns

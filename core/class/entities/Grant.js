@@ -10,6 +10,7 @@ const GapContract_1 = require("../contract/GapContract");
 const Community_1 = require("./Community");
 const Project_1 = require("./Project");
 const AllGapSchemas_1 = require("../AllGapSchemas");
+const GrantUpdate_1 = require("./GrantUpdate");
 class Grant extends Attestation_1.Attestation {
     constructor() {
         super(...arguments);
@@ -123,7 +124,7 @@ class Grant extends Attestation_1.Attestation {
         console.log(uids);
     }
     async attestUpdate(signer, data) {
-        const grantUpdate = new attestations_1.GrantUpdate({
+        const grantUpdate = new GrantUpdate_1.GrantUpdate({
             data: {
                 ...data,
                 type: 'grant-update',
@@ -184,14 +185,7 @@ class Grant extends Attestation_1.Attestation {
             }
             if (attestation.updates) {
                 const { updates } = attestation;
-                grant.updates = updates.map((u) => new attestations_1.GrantUpdate({
-                    ...u,
-                    data: {
-                        ...u.data,
-                    },
-                    schema: new AllGapSchemas_1.AllGapSchemas().findSchema('GrantDetails', consts_1.chainIdToNetwork[attestation.chainID]),
-                    chainID: attestation.chainID,
-                }));
+                grant.updates = GrantUpdate_1.GrantUpdate.from(updates, network);
             }
             if (attestation.completed) {
                 const { completed } = attestation;

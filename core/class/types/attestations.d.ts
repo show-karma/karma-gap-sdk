@@ -2,6 +2,7 @@ import { Attestation, AttestationArgs } from '../Attestation';
 import { Hex } from 'core/types';
 import { Project } from '../entities/Project';
 import { GapSchema } from '../GapSchema';
+import { GrantUpdate } from '../entities/GrantUpdate';
 /** Attestation interfaces */
 export type ExternalLink = {
     type: string;
@@ -105,15 +106,6 @@ export declare class Grantee {
     address: string;
     projects: Project[];
     constructor(address: Hex, projects?: Project[]);
-}
-export interface IGrantUpdate {
-    title: string;
-    text: string;
-    type?: string;
-}
-export declare class GrantUpdate extends Attestation<IGrantUpdate> implements IGrantUpdate {
-    title: string;
-    text: string;
 }
 export declare class GrantCompleted extends GrantUpdate {
 }

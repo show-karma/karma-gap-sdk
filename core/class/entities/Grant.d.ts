@@ -1,9 +1,10 @@
 import { Attestation } from '../Attestation';
-import { GrantDetails, GrantRound, GrantUpdate, IGrantUpdate, GrantCompleted } from '../types/attestations';
+import { GrantDetails, GrantRound, GrantCompleted } from '../types/attestations';
 import { IMilestone, Milestone } from './Milestone';
 import { GapSchema } from '../GapSchema';
 import { Hex, MultiAttestPayload, SignerOrProvider, TNetwork } from 'core/types';
 import { Community } from './Community';
+import { GrantUpdate, IGrantUpdate } from './GrantUpdate';
 interface _Grant extends Grant {
 }
 export interface IGrant {
