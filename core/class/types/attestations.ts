@@ -1,7 +1,8 @@
-import { Attestation, AttestationArgs } from "../Attestation";
-import { Hex, TExternalLink } from "core/types";
-import { Project } from "../entities/Project";
-import { GapSchema } from "../GapSchema";
+import { Attestation, AttestationArgs } from '../Attestation';
+import { Hex, TExternalLink } from 'core/types';
+import { Project } from '../entities/Project';
+import { GapSchema } from '../GapSchema';
+import { GrantUpdate } from '../entities/GrantUpdate';
 
 /** Attestation interfaces */
 
@@ -146,20 +147,6 @@ export class Grantee {
     this.address = address;
     this.projects = projects;
   }
-}
-
-export interface IGrantUpdate {
-  title: string;
-  text: string;
-  type?: string;
-}
-
-export class GrantUpdate
-  extends Attestation<IGrantUpdate>
-  implements IGrantUpdate
-{
-  title: string;
-  text: string;
 }
 
 export class GrantCompleted extends GrantUpdate {}

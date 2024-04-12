@@ -2,10 +2,7 @@ import { Attestation } from '../Attestation';
 import {
   GrantDetails,
   GrantRound,
-  GrantUpdate,
-  IGrantUpdate,
   GrantCompleted,
-  ProjectDetails,
 } from '../types/attestations';
 import { IMilestone, Milestone } from './Milestone';
 import { GapSchema } from '../GapSchema';
@@ -22,6 +19,7 @@ import { GapContract } from '../contract/GapContract';
 import { Community } from './Community';
 import { Project } from './Project';
 import { AllGapSchemas } from '../AllGapSchemas';
+import { GrantUpdate, IGrantUpdate } from './GrantUpdate';
 
 interface _Grant extends Grant {}
 
@@ -261,17 +259,7 @@ export class Grant extends Attestation<IGrant> {
 
       if (attestation.updates) {
         const { updates } = attestation;
-        grant.updates = updates.map(
-          (u) =>
-            new GrantUpdate({
-              ...u,
-              data: {
-                ...u.data,
-              },
-              schema: new AllGapSchemas().findSchema('GrantDetails', chainIdToNetwork[attestation.chainID] as TNetwork),
-              chainID: attestation.chainID,
-            })
-        );
+        grant.updates = GrantUpdate.from(updates, network);
       }
 
       if (attestation.completed) {

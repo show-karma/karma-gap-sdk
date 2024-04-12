@@ -369,7 +369,6 @@ export class Project extends Attestation<IProject> {
         project.grants = Grant.from(attestation.grants, network);
       }
 
-
       if (attestation.impacts) {
         project.impacts = attestation.impacts.map((pi) => {
           const impact = new ProjectImpact({
