@@ -3,13 +3,10 @@ import * as csv from "fast-csv";
 import { GapSchema, Hex, Project, nullRef, toUnix } from "../../core";
 import { isAddress, ethers } from "ethers";
 import {
-  Attestation,
   GAP,
-  GapIndexerClient,
   Grant,
   MemberOf,
-  IpfsStorage,
-} from "../../core/class";
+} from "../../core";
 import {
   ProjectDetails,
   GrantDetails,
@@ -17,6 +14,7 @@ import {
 } from "../../core/class/types/attestations";
 
 import axios from "axios";
+import { GapIndexerClient, IpfsStorage } from "../../core/class";
 
 const [, , fileName, communityUID] = process.argv;
 
