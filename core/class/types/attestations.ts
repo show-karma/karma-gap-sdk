@@ -1,15 +1,8 @@
-<<<<<<< HEAD
 import { Attestation, AttestationArgs } from '../Attestation';
 import { Hex, TExternalLink } from 'core/types';
 import { Project } from '../entities/Project';
 import { GapSchema } from '../GapSchema';
 import { GrantUpdate } from '../entities/GrantUpdate';
-=======
-import { Attestation, AttestationArgs } from "../Attestation";
-import { Hex, TExternalLink } from "core/types";
-import { Project } from "../entities/Project";
-import { GapSchema } from "../GapSchema";
->>>>>>> 799031685d4f6e25c11dcd6165b4a4742a8b1608
 
 /** Attestation interfaces */
 
