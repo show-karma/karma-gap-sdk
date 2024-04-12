@@ -50,6 +50,15 @@ class Community extends Attestation_1.Attestation {
                 data: this.data,
             });
             console.log(this.uid);
+            if (details) {
+                const communityDetails = new attestations_1.CommunityDetails({
+                    data: details,
+                    recipient: this.recipient,
+                    refUID: this.uid,
+                    schema: this.schema.gap.findSchema('CommunityDetails'),
+                });
+                await communityDetails.attest(signer);
+            }
         }
         catch (error) {
             console.error(error);

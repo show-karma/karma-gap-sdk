@@ -91,6 +91,15 @@ class GapEasClient extends Fetcher_1.Fetcher {
             return [];
         return this.communitiesDetails(communities);
     }
+    async communitiesAdminOf(address) {
+        const [community] = this.gap.findManySchemas(['Community']);
+        const query = gql_queries_1.gqlQueries.attestationsTo(community.uid, address);
+        const { schema: { attestations }, } = await this.query(query);
+        const communities = Attestation_1.Attestation.fromInterface(attestations, this.network.name);
+        if (!communities.length)
+            return [];
+        return this.communitiesDetails(communities);
+    }
     async communitiesByIds(uids) {
         if (!uids.length)
             return [];

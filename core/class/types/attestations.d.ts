@@ -15,6 +15,7 @@ export interface ICommunityDetails {
     slug?: string;
     links?: ExternalLink;
     type?: string;
+    externalId?: string;
 }
 export declare class CommunityDetails extends Attestation<ICommunityDetails> implements ICommunityDetails {
     name: string;
@@ -23,6 +24,7 @@ export declare class CommunityDetails extends Attestation<ICommunityDetails> imp
     links: ExternalLink;
     slug?: string;
     type: string;
+    externalId?: string;
 }
 export interface IGrantDetails {
     title: string;
@@ -71,11 +73,11 @@ export declare class MemberDetails extends Attestation<IMemberDetails> implement
     profilePictureURL: string;
 }
 export interface IMilestoneCompleted {
-    type: 'approved' | 'rejected' | 'completed' | 'verified';
+    type: "approved" | "rejected" | "completed" | "verified";
     reason?: string;
 }
 export declare class MilestoneCompleted extends Attestation<IMilestoneCompleted> implements IMilestoneCompleted {
-    type: 'approved' | 'rejected' | 'completed' | 'verified';
+    type: "approved" | "rejected" | "completed" | "verified";
     reason?: string;
 }
 export interface ITag {
@@ -90,6 +92,7 @@ export interface IProjectDetails {
     imageURL: string;
     links?: ExternalLink;
     tags?: ITag[];
+    externalIds?: string[];
     slug?: string;
     type?: string;
 }
@@ -101,6 +104,7 @@ export declare class ProjectDetails extends Attestation<IProjectDetails> impleme
     tags: ITag[];
     slug: string;
     type: string;
+    externalIds: string[];
 }
 export declare class Grantee {
     address: string;

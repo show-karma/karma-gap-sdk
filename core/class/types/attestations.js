@@ -7,14 +7,14 @@ class CommunityDetails extends Attestation_1.Attestation {
     constructor() {
         super(...arguments);
         this.links = [];
-        this.type = 'community-details';
+        this.type = "community-details";
     }
 }
 exports.CommunityDetails = CommunityDetails;
 class GrantDetails extends Attestation_1.Attestation {
     constructor() {
         super(...arguments);
-        this.type = 'grant-details';
+        this.type = "grant-details";
     }
 }
 exports.GrantDetails = GrantDetails;
@@ -38,7 +38,8 @@ class ProjectDetails extends Attestation_1.Attestation {
         super(...arguments);
         this.links = [];
         this.tags = [];
-        this.type = 'project-details';
+        this.type = "project-details";
+        this.externalIds = [];
     }
 }
 exports.ProjectDetails = ProjectDetails;
@@ -55,7 +56,7 @@ class GrantCompleted extends GrantUpdate_1.GrantUpdate {
 exports.GrantCompleted = GrantCompleted;
 class ProjectImpact extends Attestation_1.Attestation {
     constructor(data) {
-        data.data.type = 'project-impact';
+        data.data.type = "project-impact";
         super(data);
     }
 }
