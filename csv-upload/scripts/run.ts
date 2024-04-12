@@ -10,11 +10,10 @@ import {
 import {
   ProjectDetails,
   GrantDetails,
-  GrantUpdate,
 } from "../../core/class/types/attestations";
 
 import axios from "axios";
-import { GapIndexerClient, IpfsStorage } from "../../core/class";
+import { GapIndexerClient, GrantUpdate, IpfsStorage } from "../../core/class";
 
 const [, , fileName, communityUID] = process.argv;
 
