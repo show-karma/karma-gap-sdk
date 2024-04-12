@@ -12,12 +12,14 @@ interface _Milestone extends Milestone {}
 
 export interface IMilestone {
   title: string;
+  startsAt?: number;
   endsAt: number;
   description: string;
   type?: string;
 }
 export class Milestone extends Attestation<IMilestone> implements IMilestone {
   title: string;
+  startsAt?: number;
   endsAt: number;
   description: string;
   completed: MilestoneCompleted;
