@@ -386,6 +386,21 @@ export class Project extends Attestation<IProject> {
         });
       }
 
+      if (attestation.endorsements) {
+        project.endorsements = attestation.endorsements.map((pi) => {
+          const endorsement = new ProjectEndorsement({
+            ...pi,
+            data: {
+              ...pi.data,
+            },
+            schema: new AllGapSchemas().findSchema('ProjectDetails', chainIdToNetwork[attestation.chainID] as TNetwork),
+            chainID: attestation.chainID,
+          });
+
+          return endorsement;
+        });
+      }
+
       return project;
     });
   }
