@@ -3,6 +3,7 @@ import {
   Grantee,
   MemberDetails,
   ProjectDetails,
+  ProjectEndorsement,
   ProjectImpact,
   Tag,
 } from '../types/attestations';
@@ -33,6 +34,7 @@ export class Project extends Attestation<IProject> {
   grants: Grant[] = [];
   grantee: Grantee;
   impacts: ProjectImpact[] = [];
+  endorsements: ProjectEndorsement[] = [];
 
   /**
    * Creates the payload for a multi-attestation.
@@ -401,5 +403,20 @@ export class Project extends Attestation<IProject> {
 
     await projectImpact.attest(signer);
     this.impacts.push(projectImpact);
+  }
+
+  async attestEndorsement(signer: SignerOrProvider, data?: ProjectEndorsement) {
+    const projectEndorsement = new ProjectEndorsement({
+      data: {
+        ...data,
+        type: 'project-endorsement',
+      },
+      recipient: this.recipient,
+      refUID: this.uid,
+      schema: this.schema.gap.findSchema('ProjectDetails'),
+    });
+
+    await projectEndorsement.attest(signer);
+    this.endorsements.push(projectEndorsement);
   }
 }

@@ -10,6 +10,7 @@ import {
   MilestoneCompleted,
   GrantDetails,
   nullRef,
+  ProjectEndorsement,
 } from './core';
 import {
   Community,
@@ -27,7 +28,7 @@ const web3 = new ethers.AlchemyProvider(
   '9FEqTNKmgO7X7ll92ALJrEih7Jjhldf-'
 );
 const wallet = new ethers.Wallet(
-  '98f6ff7002240e302cee6665286079adb4dba0d49a8f927c1b9f5d622bae9939',
+  '',
   web3 as any
 );
 
@@ -136,9 +137,10 @@ async function attestation() {
 (async () => {
   try {
     const project = await gap.fetch.projectBySlug('project-zomboid');
-    const update = project.grants[0].updates[0];
-    const response = await update.verify(wallet as any);
-    console.log(response);
+    const response = await project.attestEndorsement(wallet, {
+      comment: 'This is my first endorsement with comment!'
+    } as ProjectEndorsement)
+    console.log(project);
   } catch (err) {
     console.log(err);
   }
