@@ -27,7 +27,7 @@ const web3 = new ethers.AlchemyProvider(
   '9FEqTNKmgO7X7ll92ALJrEih7Jjhldf-'
 );
 const wallet = new ethers.Wallet(
-  '98f6ff7002240e302cee6665286079adb4dba0d49a8f927c1b9f5d622bae9939',
+  '',
   web3 as any
 );
 
