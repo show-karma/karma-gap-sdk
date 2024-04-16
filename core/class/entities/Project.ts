@@ -3,6 +3,7 @@ import {
   Grantee,
   MemberDetails,
   ProjectDetails,
+  ProjectEndorsement,
   ProjectImpact,
   Tag,
 } from '../types/attestations';
@@ -33,6 +34,7 @@ export class Project extends Attestation<IProject> {
   grants: Grant[] = [];
   grantee: Grantee;
   impacts: ProjectImpact[] = [];
+  endorsements: ProjectEndorsement[] = [];
 
   /**
    * Creates the payload for a multi-attestation.
@@ -384,6 +386,21 @@ export class Project extends Attestation<IProject> {
         });
       }
 
+      if (attestation.endorsements) {
+        project.endorsements = attestation.endorsements.map((pi) => {
+          const endorsement = new ProjectEndorsement({
+            ...pi,
+            data: {
+              ...pi.data,
+            },
+            schema: new AllGapSchemas().findSchema('ProjectDetails', chainIdToNetwork[attestation.chainID] as TNetwork),
+            chainID: attestation.chainID,
+          });
+
+          return endorsement;
+        });
+      }
+
       return project;
     });
   }
@@ -401,5 +418,20 @@ export class Project extends Attestation<IProject> {
 
     await projectImpact.attest(signer);
     this.impacts.push(projectImpact);
+  }
+
+  async attestEndorsement(signer: SignerOrProvider, data?: ProjectEndorsement) {
+    const projectEndorsement = new ProjectEndorsement({
+      data: {
+        ...data,
+        type: 'project-endorsement',
+      },
+      recipient: this.recipient,
+      refUID: this.uid,
+      schema: this.schema.gap.findSchema('ProjectDetails'),
+    });
+
+    await projectEndorsement.attest(signer);
+    this.endorsements.push(projectEndorsement);
   }
 }
