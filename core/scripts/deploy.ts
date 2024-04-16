@@ -1,17 +1,15 @@
-import { EASNetworkConfig, TNetwork } from '../types';
-import { MountEntities, Networks, zeroAddress } from '../consts';
+import { EASNetworkConfig, TNetwork } from "../types";
+import { MountEntities, Networks, zeroAddress } from "../consts";
 
-import SchemaRegistry from '../abi/SchemaRegistry.json';
+import SchemaRegistry from "../abi/SchemaRegistry.json";
 
-import { ethers } from 'ethers';
+import { ethers } from "ethers";
 
-import keys from '../../config/keys.json';
-import { GapSchema } from '../class/GapSchema';
-import { writeFileSync } from 'fs';
+import keys from "../../config/keys.json";
+import { GapSchema } from "../class/GapSchema";
+import { writeFileSync } from "fs";
 
-const web3 = new ethers.providers.JsonRpcProvider(
-  'https://eth-sepolia-public.unifra.io'
-);
+const web3 = new ethers.JsonRpcProvider("https://eth-sepolia-public.unifra.io");
 const wallet = new ethers.Wallet(keys.privateKey, web3);
 
 const contract = new ethers.Contract(
@@ -25,22 +23,22 @@ async function deploy(networkName?: TNetwork) {
   const network = Networks[networkName || $3] as EASNetworkConfig;
   const key = keys[networkName || $3];
 
-  if (!(networkName || $3)) throw new Error('Network name is required');
+  if (!(networkName || $3)) throw new Error("Network name is required");
   if (!network) {
     throw new Error(
       `Invalid network name. Supported networks are: ${Object.keys(
         Networks
-      ).join(', ')}`
+      ).join(", ")}`
     );
   }
-  if (!key) throw new Error('No keys found for this network');
+  if (!key) throw new Error("No keys found for this network");
 
   const revocable = true;
 
   const promises = Object.values(MountEntities(Networks.sepolia))
     .slice(0, 1)
     .map((entity) => {
-      return contract.functions.register(
+      return contract.register(
         new GapSchema(entity, {} as any).raw,
         zeroAddress,
         revocable,
@@ -62,6 +60,6 @@ async function deploy(networkName?: TNetwork) {
   );
 }
 
-if (process.argv[1].includes('core/scripts/deploy.ts')) deploy();
+if (process.argv[1].includes("core/scripts/deploy.ts")) deploy();
 
 export { deploy };
