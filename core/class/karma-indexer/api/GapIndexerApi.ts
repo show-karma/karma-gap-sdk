@@ -7,31 +7,34 @@ import {
   IProjectResponse,
 } from "./types";
 
+
 const Endpoints = {
   attestations: {
-    all: () => "/attestations",
+    all: () => '/attestations',
     byUid: (uid: Hex) => `/attestations/${uid}`,
   },
   communities: {
-    all: () => "/communities",
+    all: () => '/communities',
     byUidOrSlug: (uidOrSlug: string) => `/communities/${uidOrSlug}`,
     grants: (uidOrSlug: string) => `/communities/${uidOrSlug}/grants`,
   },
   grantees: {
-    all: () => "/grantees",
+    all: () => '/grantees',
     byAddress: (address: Hex) => `/grantees/${address}`,
     grants: (address: Hex) => `/grantees/${address}/grants`,
     projects: (address: Hex) => `/grantees/${address}/projects`,
     communities: (address: Hex, withGrants) =>
-      `/grantees/${address}/communities${withGrants ? "?withGrants=true" : ""}`,
+      `/grantees/${address}/communities${withGrants ? '?withGrants=true' : ''}`,
+    communitiesAdmin: (address: Hex, withGrants) =>
+      `/grantees/${address}/communities/admin${withGrants ? '?withGrants=true' : ''}`,
   },
   grants: {
-    all: () => "/grants",
+    all: () => '/grants',
     byUid: (uid: Hex) => `/grants/${uid}`,
     byExternalId: (id: string) => `/grants/external-id/${id}`,
   },
   project: {
-    all: () => "/projects",
+    all: () => '/projects',
     byUidOrSlug: (uidOrSlug: string) => `/projects/${uidOrSlug}`,
     grants: (uidOrSlug: string) => `/projects/${uidOrSlug}/grants`,
     milestones: (uidOrSlug: string) => `/projects/${uidOrSlug}/milestones`,
@@ -97,6 +100,13 @@ export class GapIndexerApi extends AxiosGQL {
   }
 
   async communitiesOf(address: Hex, withGrants: boolean) {
+    const response = await this.client.get<ICommunityResponse[]>(
+      Endpoints.grantees.communities(address, withGrants)
+    );
+    return response;
+  }
+
+  async communitiesAdminOf(address: Hex, withGrants: boolean) {
     const response = await this.client.get<ICommunityResponse[]>(
       Endpoints.grantees.communities(address, withGrants)
     );

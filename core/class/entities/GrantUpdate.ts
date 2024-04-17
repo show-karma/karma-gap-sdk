@@ -5,7 +5,7 @@ import { AttestationError } from '../SchemaError';
 import { AllGapSchemas } from '../AllGapSchemas';
 import { chainIdToNetwork } from '../../../core/consts';
 
-interface _IGrantUpdate extends GrantUpdate {}
+export interface _IGrantUpdate extends GrantUpdate {}
 export interface IGrantUpdate {
   title: string;
   text: string;
