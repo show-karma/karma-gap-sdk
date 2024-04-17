@@ -237,85 +237,10 @@ async function bootstrap() {
     // }
 
     const slug = await gap.generateSlug(item.Project.trim());
-    const project = new Project({
-      data: { project: true },
-      recipient: address as Hex,
-      schema: gap.findSchema("Project"),
-      uid: nullRef,
-    });
-
-    project.details = new ProjectDetails({
-      data: {
-        description: item["Project Description"],
-        imageURL: "",
-        title: item.Project.trim(),
-        links: [
-          {
-            type: "website",
-            url: item.Website,
-          },
-          {
-            type: "twitter",
-            url: item.Twitter,
-          },
-          {
-            type: "github",
-            url: item.Github,
-          },
-        ],
-        slug: slug,
-      },
-      refUID: project.uid,
-      recipient: project.recipient,
-      schema: gap.findSchema("ProjectDetails"),
-      uid: nullRef,
-    });
-
-    const member = new MemberOf({
-      data: { memberOf: true },
-      recipient: project.recipient,
-      schema: gap.findSchema("MemberOf"),
-      refUID: project.uid,
-      uid: nullRef,
-    });
-
-    //project.members.push(member);
-
-    const grant = new Grant({
-      data: { communityUID },
-      recipient: project.recipient,
-      schema: gap.findSchema("Grant"),
-    });
-
-    grant.details = new GrantDetails({
-      data: {
-        proposalURL: item.ProposalURL,
-        title: item.GrantTitle,
-        description: item["Project Description"],
-        amount: item.Amount,
-        payoutAddress: project.recipient,
-      },
-      recipient: project.recipient,
-      schema: gap.findSchema("GrantDetails"),
-    });
-
-    grant.updates.push(
-      new GrantUpdate({
-        data: {
-          text: "Updates can be found here: " + item.ProposalURL,
-          type: "grant-update",
-          title: "",
-        },
-        recipient: project.recipient,
-        schema: gap.findSchema("GrantDetails"),
-      })
-    );
-
-    project.grants.push(grant);
 
     const defaultValues = {
-      recipient: project.recipient,
-      attester: project.recipient,
+      recipient: address as Hex,
+      attester: address as Hex,
       chainID: ChainID[network],
       createdAt: new Date(),
       revocationTime: 0,
@@ -330,31 +255,121 @@ async function bootstrap() {
         slug: slug,
       },
       type: "ProjectDetails",
-      refUID: project.uid,
+      refUID: nullRef,
       schemaUID: gap.findSchema("ProjectDetails").uid,
       uid: nullRef,
       ...defaultValues,
     };
 
-    // avoid duplicate attestations
+      // avoid duplicate attestations
     const hasProject = await checkProjectExists(projectDetails);
 
-    if (hasProject) {
-      const concurrentGrant = hasProject.grants.find(
-        (g) => g.details?.data?.title === item.GrantTitle
-      );
+    let project;
 
+    if(hasProject) {
+      project = await gap.fetch.projectById(hasProject.uid);
+    }
+
+    if(!project){
+      project = new Project({
+        data: { project: true },
+        recipient: address as Hex,
+        schema: gap.findSchema("Project"),
+        uid: nullRef,
+      });
+  
+      project.details = new ProjectDetails({
+        data: {
+          description: item["Project Description"],
+          imageURL: "",
+          title: item.Project.trim(),
+          links: [
+            {
+              type: "website",
+              url: item.Website,
+            },
+            {
+              type: "twitter",
+              url: item.Twitter,
+            },
+            {
+              type: "github",
+              url: item.Github,
+            },
+          ],
+          slug: slug,
+        },
+        refUID: project.uid,
+        recipient: project.recipient,
+        schema: gap.findSchema("ProjectDetails"),
+        uid: nullRef,
+      });
+  
+      const member = new MemberOf({
+        data: { memberOf: true },
+        recipient: project.recipient,
+        schema: gap.findSchema("MemberOf"),
+        refUID: project.uid,
+        uid: nullRef,
+      });
+  
+      //project.members.push(member);
+  
+    }
+
+    const grant = new Grant({
+      data: { communityUID },
+      recipient: project.recipient,
+      schema: gap.findSchema("Grant"),
+      refUID: project.uid,
+    });
+
+    grant.details = new GrantDetails({
+      data: {
+        proposalURL: item.ProposalURL,
+        title: item.GrantTitle,
+        description: item["Project Description"],
+        amount: item.Amount,
+        payoutAddress: project.recipient,
+      },
+      recipient: project.recipient,
+      schema: gap.findSchema("GrantDetails"),
+      refUID: grant.uid,
+    });
+
+    grant.updates.push(
+      new GrantUpdate({
+        data: {
+          text: "Updates can be found here: " + item.ProposalURL,
+          type: "grant-update",
+          title: "",
+        },
+        recipient: project.recipient,
+        schema: gap.findSchema("GrantDetails"),
+        refUID: grant.uid,
+      })
+    );
+
+    const concurrentGrant = project.grants.find(
+      (g) => g.details?.data?.title === item.GrantTitle
+    );
+
+    // avoiding duplicated grants;
+    if(!concurrentGrant){
+      project.grants.push(grant);
+    }
+
+    if (hasProject) {
       if (!concurrentGrant) {
         console.log(`Didn't find grant for project ${item.Project}`);
-        Object.assign(grant, { refUID: hasProject.uid });
         await grant.attest(wallet as any, ChainID[network]);
-        /*grantDetails.refUID = grant.uid;
-        grantDetails.uid = `ref_${grant.uid}`;
-        await sendToIndexer([
-          toDbAttestation(grant, item.externalId),
-          grantDetails,
-        ]);
-       */
+        //   /*grantDetails.refUID = grant.uid;
+        //   grantDetails.uid = `ref_${grant.uid}`;
+        //   await sendToIndexer([
+        //     toDbAttestation(grant, item.externalId),
+        //     grantDetails,
+        //   ]);
+        //  */
       }
 
       if (
