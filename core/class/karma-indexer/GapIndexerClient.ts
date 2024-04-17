@@ -6,6 +6,39 @@ import { Community, Project, Grant, Milestone, MemberOf } from '../entities';
 import { Grantee } from '../types/attestations';
 import { GapIndexerApi } from './api/GapIndexerApi';
 
+const Endpoints = {
+  attestations: {
+    all: () => '/attestations',
+    byUid: (uid: Hex) => `/attestations/${uid}`,
+  },
+  communities: {
+    all: () => '/communities',
+    byUidOrSlug: (uidOrSlug: string) => `/communities/${uidOrSlug}`,
+    grants: (uidOrSlug: string) => `/communities/${uidOrSlug}/grants`,
+  },
+  grantees: {
+    all: () => '/grantees',
+    byAddress: (address: Hex) => `/grantees/${address}`,
+    grants: (address: Hex) => `/grantees/${address}/grants`,
+    projects: (address: Hex) => `/grantees/${address}/projects`,
+    communities: (address: Hex, withGrants) =>
+      `/grantees/${address}/communities${withGrants ? '?withGrants=true' : ''}`,
+    communitiesAdmin: (address: Hex, withGrants) =>
+      `/grantees/${address}/communities/admin${withGrants ? '?withGrants=true' : ''}`,
+  },
+  grants: {
+    all: () => '/grants',
+    byUid: (uid: Hex) => `/grants/${uid}`,
+    byExternalId: (id: string) => `/grants/external-id/${id}`,
+  },
+  project: {
+    all: () => '/projects',
+    byUidOrSlug: (uidOrSlug: string) => `/projects/${uidOrSlug}`,
+    grants: (uidOrSlug: string) => `/projects/${uidOrSlug}/grants`,
+    milestones: (uidOrSlug: string) => `/projects/${uidOrSlug}/milestones`,
+  },
+};
+
 export class GapIndexerClient extends Fetcher {
   private apiClient: GapIndexerApi;
   constructor(params) {
@@ -60,6 +93,14 @@ export class GapIndexerClient extends Fetcher {
 
   async communitiesOf(address: Hex, withGrants: boolean): Promise<Community[]> {
     const {data} = await this.apiClient.communitiesOf(address, withGrants)
+
+    return Community.from(data, this.gap.network);
+  }
+
+  async communitiesAdminOf(address: Hex, withGrants: boolean): Promise<Community[]> {
+    const { data } = await this.client.get<Community[]>(
+      Endpoints.grantees.communitiesAdmin(address, withGrants)
+    );
 
     return Community.from(data, this.gap.network);
   }

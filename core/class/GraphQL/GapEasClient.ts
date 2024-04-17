@@ -15,7 +15,6 @@ import {
 import {
   CommunityDetails,
   GrantDetails,
-  GrantUpdate,
   Grantee,
   MemberDetails,
   MilestoneCompleted,
@@ -29,6 +28,7 @@ import { Community } from '../entities/Community';
 import { mapFilter } from '../../utils';
 import { Fetcher } from '../Fetcher';
 import { Networks } from '../../consts';
+import { GrantUpdate } from '../entities/GrantUpdate';
 
 interface EASClientProps {
   network: TNetwork;
@@ -36,7 +36,6 @@ interface EASClientProps {
 
 // TODO: Split this class into small ones
 export class GapEasClient extends Fetcher {
-
   network: EASNetworkConfig & { name: TNetwork };
 
   constructor(args: EASClientProps) {
@@ -163,6 +162,24 @@ export class GapEasClient extends Fetcher {
   }
 
   async communitiesOf(address?: Hex) {
+    const [community] = this.gap.findManySchemas(['Community']);
+
+    const query = gqlQueries.attestationsTo(community.uid, address);
+    const {
+      schema: { attestations },
+    } = await this.query<SchemaRes>(query);
+
+    const communities = Attestation.fromInterface<Community>(
+      attestations,
+      this.network.name
+    );
+
+    if (!communities.length) return [];
+
+    return this.communitiesDetails(communities);
+  }
+
+  async communitiesAdminOf(address?: Hex) {
     const [community] = this.gap.findManySchemas(['Community']);
 
     const query = gqlQueries.attestationsTo(community.uid, address);

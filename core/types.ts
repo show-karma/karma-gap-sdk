@@ -5,16 +5,17 @@ import {
   MultiAttestationRequest,
   SchemaItem,
 } from '@ethereum-attestation-service/eas-sdk';
-import { SignerOrProvider as EASSigner } from '@ethereum-attestation-service/eas-sdk/dist/transaction';
+// import { SignerOrProvider as EASSigner } from '@ethereum-attestation-service/eas-sdk/dist/transaction';
 import { Attestation, GAP } from './class';
 import { Fetcher } from './class/Fetcher';
 export type Hex = `0x${string}`;
 
-export type SignerOrProvider = EASSigner & {
-  address?: Hex;
-  _address?: Hex;
-  getAddress?: () => Promise<Hex>;
-};
+export type SignerOrProvider = any;
+// EASSigner & {
+//   address?: Hex;
+//   _address?: Hex;
+//   getAddress?: () => Promise<Hex>;
+// };
 
 export interface SchemaInterface<T extends string = string> {
   name: string;
@@ -49,7 +50,12 @@ export type TSchemaName =
   | 'MilestoneApproved'
   | 'Project'
   | 'ProjectDetails'
-  | 'Details';
+  | 'Details'
+  | 'ProjectImpact'
+  | 'GrantUpdate'
+  | 'GrantUpdateStatus'
+  | 'ProjectEndorsement'
+  ;
 
 export type TResolvedSchemaNames =
   | 'Community'
@@ -59,7 +65,8 @@ export type TResolvedSchemaNames =
   | 'MilestoneCompleted'
   | 'MilestoneApproved'
   | 'Project'
-  | 'Details';
+  | 'Details'
+  | 'GrantUpdateStatus';
 
 export type TExternalLink =
   | 'twitter'
