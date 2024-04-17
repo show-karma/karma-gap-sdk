@@ -16,6 +16,7 @@ import {
 } from 'core/types';
 import { GapContract } from '../contract/GapContract';
 import { Grant, IGrant } from './Grant';
+import { ICommunityResponse } from '../karma-indexer/api/types';
 
 interface _Community extends Community {}
 export interface ICommunity {
@@ -91,7 +92,7 @@ export class Community extends Attestation<ICommunity> {
     }
   }
 
-  static from(attestations: _Community[], network: TNetwork): Community[] {
+  static from(attestations: ICommunityResponse[], network: TNetwork): Community[] {
     return attestations.map((attestation) => {
       const community = new Community({
         ...attestation,
@@ -115,7 +116,7 @@ export class Community extends Attestation<ICommunity> {
       }
 
       if (attestation.grants) {
-        const { grants } = attestation as Community;
+        const { grants } = attestation;
         community.grants = Grant.from(grants, network);
       }
 

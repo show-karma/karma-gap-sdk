@@ -19,6 +19,7 @@ import { GapContract } from '../contract/GapContract';
 import { Community } from './Community';
 import { Project } from './Project';
 import { AllGapSchemas } from '../AllGapSchemas';
+import { IGrantResponse } from '../karma-indexer/api/types';
 import { GrantUpdate, IGrantUpdate } from './GrantUpdate';
 
 interface _Grant extends Grant {}
@@ -229,7 +230,7 @@ export class Grant extends Attestation<IGrant> {
     return true;
   }
 
-  static from(attestations: _Grant[], network: TNetwork): Grant[] {
+  static from(attestations: IGrantResponse[], network: TNetwork): Grant[] {
     return attestations.map((attestation) => {
       const grant = new Grant({
         ...attestation,
