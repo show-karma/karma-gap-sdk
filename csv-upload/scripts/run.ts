@@ -37,15 +37,16 @@ const { arbitrum: keys, gapAccessToken } = require(__dirname +
   "/../../config/keys.json");
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-const privateKey = '98f6ff7002240e302cee6665286079adb4dba0d49a8f927c1b9f5d622bae9939';
+const privateKey = keys.privateKey;
 // const gelatoApiKey = keys.gelatoApiKey;
-const rpcURL = 'https://sepolia.optimism.io';
-const gapAPI = 'https://gapstagapi.karmahq.xyz';
-const ipfsKey = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweGVkMjAzYTRFODc3ZjFlQTk2MzkzY2M5YjhDNUU4NUUxM2U5OWI5NzEiLCJpc3MiOiJuZnQtc3RvcmFnZSIsImlhdCI6MTcwMDUxNTIzOTg5MSwibmFtZSI6IkdBUF9URVNUIn0.QwVmWPOXeDKCtWGFaLxGdllv-te1pKc4Jrj7rYlMdFk`;
+const rpcURL = keys.rpcURL;
+const gapAPI = keys.gapAPI;
+const ipfsKey = keys.ipfsKey;
 const ipfsURL = `${gapAPI}/ipfs`;
 const mainnetURL =
   "https://eth-mainnet.g.alchemy.com/v2/dRC43zHg8eyn83eR5GOiO7sfFYW8sl6t";
 
+/**
 /**
  * web3 provider to build wallet and sign transactions
  */
@@ -238,84 +239,6 @@ async function bootstrap() {
     // }
 
     const slug = await gap.generateSlug(item.Project.trim());
-<<<<<<< Updated upstream
-=======
-    const project = new Project({
-      data: { project: true },
-      recipient: address as Hex,
-      schema: gap.findSchema("Project"),
-      uid: nullRef,
-    });
-
-    project.details = new ProjectDetails({
-      data: {
-        description: item["Project Description"],
-        imageURL: "",
-        title: item.Project.trim(),
-        links: [
-          {
-            type: "website",
-            url: item.Website,
-          },
-          {
-            type: "twitter",
-            url: item.Twitter,
-          },
-          {
-            type: "github",
-            url: item.Github,
-          },
-        ],
-        slug: slug,
-      },
-      refUID: project.uid,
-      recipient: project.recipient,
-      schema: gap.findSchema("ProjectDetails"),
-      uid: nullRef,
-    });
-
-    const member = new MemberOf({
-      data: { memberOf: true },
-      recipient: project.recipient,
-      schema: gap.findSchema("MemberOf"),
-      refUID: project.uid,
-      uid: nullRef,
-    });
-
-    //project.members.push(member);
-
-    let grant = new Grant({
-      data: { communityUID },
-      recipient: project.recipient,
-      schema: gap.findSchema("Grant"),
-    });
-
-    grant.details = new GrantDetails({
-      data: {
-        proposalURL: item.ProposalURL,
-        title: item.GrantTitle,
-        description: item["Project Description"],
-        amount: item.Amount,
-        payoutAddress: project.recipient,
-      },
-      recipient: project.recipient,
-      schema: gap.findSchema("GrantDetails"),
-    });
-
-    grant.updates.push(
-      new GrantUpdate({
-        data: {
-          text: "Updates can be found here: " + item.ProposalURL,
-          type: "grant-update",
-          title: "",
-        },
-        recipient: project.recipient,
-        schema: gap.findSchema("GrantDetails"),
-      })
-    );
-
-    project.grants.push(grant);
->>>>>>> Stashed changes
 
     const defaultValues = {
       recipient: address as Hex,
@@ -441,17 +364,6 @@ async function bootstrap() {
     if (hasProject) {
       if (!concurrentGrant) {
         console.log(`Didn't find grant for project ${item.Project}`);
-<<<<<<< Updated upstream
-        await grant.attest(wallet as any, ChainID[network]);
-        //   /*grantDetails.refUID = grant.uid;
-        //   grantDetails.uid = `ref_${grant.uid}`;
-        //   await sendToIndexer([
-        //     toDbAttestation(grant, item.externalId),
-        //     grantDetails,
-        //   ]);
-        //  */
-=======
-        grant.refUID = hasProject.uid;
         await grant.attest(wallet as any, project.chainID);
         /*grantDetails.refUID = grant.uid;
         grantDetails.uid = `ref_${grant.uid}`;
@@ -460,7 +372,6 @@ async function bootstrap() {
           grantDetails,
         ]);
        */
->>>>>>> Stashed changes
       }
 
       if (
