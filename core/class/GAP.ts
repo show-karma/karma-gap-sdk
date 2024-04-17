@@ -212,7 +212,6 @@ export class GAP extends Facade {
     );
 
     Schema.validate(this.network);
-
     console.info(`Loaded GAP SDK v${version} for network ${this.network}`);
   }
 
