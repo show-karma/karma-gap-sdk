@@ -5,6 +5,8 @@ import { Fetcher } from '../Fetcher';
 import { Community, Project, Grant, Milestone, MemberOf } from '../entities';
 import { Grantee } from '../types/attestations';
 export declare class GapIndexerClient extends Fetcher {
+    private apiClient;
+    constructor(params: any);
     attestation<T = unknown>(uid: `0x${string}`): Promise<Attestation<T, GapSchema>>;
     attestations(schemaName: TSchemaName, search?: string): Promise<IAttestation[]>;
     attestationsOf(schemaName: TSchemaName, attester: `0x${string}`): Promise<IAttestation[]>;

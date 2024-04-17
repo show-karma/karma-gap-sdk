@@ -1,6 +1,6 @@
 import { SignerOrProvider, TNetwork } from '../../../core/types';
 import { Attestation } from '../Attestation';
-interface _IGrantUpdate extends GrantUpdate {
+export interface _IGrantUpdate extends GrantUpdate {
 }
 export interface IGrantUpdate {
     title: string;

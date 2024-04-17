@@ -4,9 +4,8 @@ import { IMilestone, Milestone } from './Milestone';
 import { GapSchema } from '../GapSchema';
 import { Hex, MultiAttestPayload, SignerOrProvider, TNetwork } from 'core/types';
 import { Community } from './Community';
+import { IGrantResponse } from '../karma-indexer/api/types';
 import { GrantUpdate, IGrantUpdate } from './GrantUpdate';
-interface _Grant extends Grant {
-}
 export interface IGrant {
     communityUID: Hex;
 }
@@ -56,6 +55,5 @@ export declare class Grant extends Attestation<IGrant> {
      * Validate if the grant has a valid reference to a community.
      */
     protected assertPayload(): boolean;
-    static from(attestations: _Grant[], network: TNetwork): Grant[];
+    static from(attestations: IGrantResponse[], network: TNetwork): Grant[];
 }
-export {};

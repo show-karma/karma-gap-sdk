@@ -3,8 +3,7 @@ import { Grantee, MemberDetails, ProjectDetails, ProjectEndorsement, ProjectImpa
 import { Hex, MultiAttestPayload, SignerOrProvider, TNetwork } from 'core/types';
 import { Grant } from './Grant';
 import { MemberOf } from './MemberOf';
-interface _Project extends Project {
-}
+import { IProjectResponse } from '../karma-indexer/api/types';
 export interface IProject {
     project: true;
 }
@@ -72,8 +71,7 @@ export declare class Project extends Attestation<IProject> {
      * @param signer
      */
     removeAllMembers(signer: SignerOrProvider): Promise<void>;
-    static from(attestations: _Project[], network: TNetwork): Project[];
+    static from(attestations: IProjectResponse[], network: TNetwork): Project[];
     attestImpact(signer: SignerOrProvider, data: ProjectImpact): Promise<void>;
     attestEndorsement(signer: SignerOrProvider, data?: ProjectEndorsement): Promise<void>;
 }
-export {};
