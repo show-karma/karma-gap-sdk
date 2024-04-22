@@ -28,7 +28,7 @@ const web3 = new ethers.AlchemyProvider(
   '9FEqTNKmgO7X7ll92ALJrEih7Jjhldf-'
 );
 const wallet = new ethers.Wallet(
-  '98f6ff7002240e302cee6665286079adb4dba0d49a8f927c1b9f5d622bae9939',
+  '',
   web3 as any
 );
 
@@ -154,20 +154,20 @@ async function attestation() {
 //   console.log(response)
 // })()
 
-(async () => {
+// (async () => {
 
-  const created = new Milestone({
-    data: {
-      title: 'This is my milestone script #condition with IPFS (USE IT)',
-      description: 'This is my milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc  milestone desc  milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc',
-      endsAt: Date.now(),
-    },
-    refUID: '0x5a5932c9b3fee18e31b631bc55ad670f3a4e8e25bff11fcd144474d9f6571881',
-    schema: gap.findSchema('Milestone'),
-    recipient: '0x5A4830885f12438E00D8f4d98e9Fe083e707698C',
-    uid: nullRef,
-  });
+//   const created = new Milestone({
+//     data: {
+//       title: 'This is my milestone script #condition with IPFS (USE IT)',
+//       description: 'This is my milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc  milestone desc  milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc',
+//       endsAt: Date.now(),
+//     },
+//     refUID: '0x5a5932c9b3fee18e31b631bc55ad670f3a4e8e25bff11fcd144474d9f6571881',
+//     schema: gap.findSchema('Milestone'),
+//     recipient: '0x5A4830885f12438E00D8f4d98e9Fe083e707698C',
+//     uid: nullRef,
+//   });
 
-  await created.attest(wallet as any);
-  console.log('Finish Attest: ', created);
-})();
+//   await created.attest(wallet as any);
+//   console.log('Finish Attest: ', created);
+// })();
