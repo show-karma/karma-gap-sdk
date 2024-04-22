@@ -5,6 +5,7 @@ import { Fetcher } from '../Fetcher';
 import { Community, Project, Grant, Milestone, MemberOf } from '../entities';
 import { Grantee } from '../types/attestations';
 import { GapIndexerApi } from './api/GapIndexerApi';
+import { ICommunityResponse } from './api/types';
 
 const Endpoints = {
   attestations: {
@@ -102,7 +103,7 @@ export class GapIndexerClient extends Fetcher {
       Endpoints.grantees.communitiesAdmin(address, withGrants)
     );
 
-    return Community.from(data, this.gap.network);
+    return Community.from((data as any) as ICommunityResponse[], this.gap.network);
   }
 
   communitiesByIds(uids: `0x${string}`[]): Promise<Community[]> {
