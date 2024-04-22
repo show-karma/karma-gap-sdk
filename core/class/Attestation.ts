@@ -251,8 +251,8 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
         this.schema.setValue('json', JSON.stringify(this._data));
       }
   
-      if (remoteClient) {
-        const cid = await remoteClient.save(this._data, this.schema.name);
+      if (remoteClient && JSON.stringify(this._data)?.length > 1500) {
+      const cid = await remoteClient.save(this._data, this.schema.name);
         const encodedData = remoteClient.encode(cid);
         this.schema.setValue('json', JSON.stringify(encodedData));
       }
