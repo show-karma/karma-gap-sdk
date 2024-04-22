@@ -134,17 +134,17 @@ async function attestation() {
 //   console.log('Finish Attest');
 // });
 
-// (async () => {
-//   try {
-//     const project = await gap.fetch.projectBySlug('project-zomboid');
-//     const response = await project.attestEndorsement(wallet, {
-//       comment: 'This is my first endorsement with comment!'
-//     } as ProjectEndorsement)
-//     console.log(project);
-//   } catch (err) {
-//     console.log(err);
-//   }
-// })();
+(async () => {
+  try {
+    const project = await gap.fetch.projectBySlug('project-zomboid');
+    const response = await project.attestEndorsement(wallet, {
+      comment: 'This is my first endorsement with comment!'
+    } as ProjectEndorsement)
+    console.log(project);
+  } catch (err) {
+    console.log(err);
+  }
+})();
 
 // (async () => {
 //   const resolver = new ethers.Contract('0xa5B7bbFD545A1a816aa8cBE28a1F0F2Cca58363d', CommunityResolverABI, wallet as any);
@@ -155,19 +155,19 @@ async function attestation() {
 // })()
 
 // (async () => {
+//   const web3 = new ethers.AlchemyProvider('optimism', 'fx2SlVDrPbXwPMQT4v0lRT1PABA16Myl');
+//   const localWallet = new ethers.Wallet('98f6ff7002240e302cee6665286079adb4dba0d49a8f927c1b9f5d622bae9939', web3 as any);
 
-//   const created = new Milestone({
+//   const completed = new MilestoneCompleted({
 //     data: {
-//       title: 'This is my milestone script #condition with IPFS (USE IT)',
-//       description: 'This is my milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc  milestone desc  milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc milestone desc',
-//       endsAt: Date.now(),
+//       type: 'verified',
+//       reason: 'a',
 //     },
-//     refUID: '0x5a5932c9b3fee18e31b631bc55ad670f3a4e8e25bff11fcd144474d9f6571881',
-//     schema: gap.findSchema('Milestone'),
-//     recipient: '0x5A4830885f12438E00D8f4d98e9Fe083e707698C',
-//     uid: nullRef,
+//     schema: gap.findSchema('MilestoneCompleted'),
+//     refUID: '0x5da26f12eb078b150a225df91088f28d366c7210e9ef7e1b0448ea5f2dd92b1b',
+//     recipient: "0x23B7A53ecfd93803C63b97316D7362eae59C55B6"
 //   });
 
-//   await created.attest(wallet as any);
-//   console.log('Finish Attest: ', created);
+//   await completed.attest(localWallet as any);
+//   console.log('Finish Attest: ', completed);
 // })();
