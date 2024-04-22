@@ -339,8 +339,6 @@ async function bootstrap() {
     // avoid duplicate attestations
     const hasProject = await checkProjectExists(projectDetails);
 
-    console.log(hasProject);
-
     if (hasProject) {
       const concurrentGrant = hasProject.grants.find(
         (g) => g.details?.data?.title === item.GrantTitle
@@ -350,7 +348,7 @@ async function bootstrap() {
         console.log(`Didn't find grant for project ${item.Project}`);
         Object.assign(grant, { refUID: hasProject.uid });
         missedGrants.push(item.Project);
-        await grant.attest(wallet as any, ChainID[network]);
+        await grant.attest(wallet as any, hasProject.chainID);
         /*grantDetails.refUID = grant.uid;
         grantDetails.uid = `ref_${grant.uid}`;
         await sendToIndexer([
@@ -358,6 +356,8 @@ async function bootstrap() {
           grantDetails,
         ]);
        */
+      } else {
+        console.log(`Found grant for project ${item.Project}`);
       }
 
       if (
