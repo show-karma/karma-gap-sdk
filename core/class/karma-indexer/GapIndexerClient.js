@@ -5,6 +5,36 @@ const Attestation_1 = require("../Attestation");
 const Fetcher_1 = require("../Fetcher");
 const entities_1 = require("../entities");
 const GapIndexerApi_1 = require("./api/GapIndexerApi");
+const Endpoints = {
+    attestations: {
+        all: () => '/attestations',
+        byUid: (uid) => `/attestations/${uid}`,
+    },
+    communities: {
+        all: () => '/communities',
+        byUidOrSlug: (uidOrSlug) => `/communities/${uidOrSlug}`,
+        grants: (uidOrSlug) => `/communities/${uidOrSlug}/grants`,
+    },
+    grantees: {
+        all: () => '/grantees',
+        byAddress: (address) => `/grantees/${address}`,
+        grants: (address) => `/grantees/${address}/grants`,
+        projects: (address) => `/grantees/${address}/projects`,
+        communities: (address, withGrants) => `/grantees/${address}/communities${withGrants ? '?withGrants=true' : ''}`,
+        communitiesAdmin: (address, withGrants) => `/grantees/${address}/communities/admin${withGrants ? '?withGrants=true' : ''}`,
+    },
+    grants: {
+        all: () => '/grants',
+        byUid: (uid) => `/grants/${uid}`,
+        byExternalId: (id) => `/grants/external-id/${id}`,
+    },
+    project: {
+        all: () => '/projects',
+        byUidOrSlug: (uidOrSlug) => `/projects/${uidOrSlug}`,
+        grants: (uidOrSlug) => `/projects/${uidOrSlug}/grants`,
+        milestones: (uidOrSlug) => `/projects/${uidOrSlug}/milestones`,
+    },
+};
 class GapIndexerClient extends Fetcher_1.Fetcher {
     constructor(params) {
         super(params);
@@ -38,10 +68,7 @@ class GapIndexerClient extends Fetcher_1.Fetcher {
         return entities_1.Community.from(data, this.gap.network);
     }
     async communitiesAdminOf(address, withGrants) {
-        const { data } = await this.apiClient.communitiesAdminOf(address, withGrants);
-        // const { data } = await this.client.get<Community[]>(
-        //   Endpoints.grantees.communitiesAdmin(address, withGrants)
-        // );
+        const { data } = await this.client.get(Endpoints.grantees.communitiesAdmin(address, withGrants));
         return entities_1.Community.from(data, this.gap.network);
     }
     communitiesByIds(uids) {

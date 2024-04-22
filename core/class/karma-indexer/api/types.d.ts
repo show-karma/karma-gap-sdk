@@ -1,4 +1,3 @@
-import { MilestoneCompleted, ProjectEndorsement, ProjectImpact } from "core/class/types/attestations";
 export type Hex = `0x${string}`;
 export type JSONStr = string;
 export type ExternalLink = {
@@ -41,7 +40,7 @@ export interface IMilestoneResponse extends IAttestationResponse {
     completed?: IMilestoneCompleted;
     approved?: IMilestoneCompleted;
     rejected?: IMilestoneCompleted;
-    verified?: MilestoneCompleted[];
+    verified?: IMilestoneCompleted[];
     data: {
         title: string;
         description: string;
@@ -111,6 +110,23 @@ export interface IProjectDetails extends IAttestationResponse {
         type: "project-details";
     };
 }
+export interface IProjectImpact extends IAttestationResponse {
+    type: "ProjectImpact";
+    data: {
+        work: string;
+        impact: string;
+        proof: string;
+        completedAt: number;
+        type: "project-impact";
+    };
+}
+export interface IProjectEndorsement extends IAttestationResponse {
+    type: "ProjectEndorsement";
+    data: {
+        comment?: string;
+        type?: 'project-endorsement';
+    };
+}
 export interface IProjectResponse extends IAttestationResponse {
     type: "Project";
     data: {
@@ -120,8 +136,8 @@ export interface IProjectResponse extends IAttestationResponse {
     members: IMemberOf[];
     grants: any[];
     grantee: any;
-    impacts?: ProjectImpact[];
-    endorsements?: ProjectEndorsement[];
+    impacts: IProjectImpact[];
+    endorsements: IProjectEndorsement[];
 }
 export interface ICommunityDetails extends IAttestationResponse {
     type: "CommunityDetails";

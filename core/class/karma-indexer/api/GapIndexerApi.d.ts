@@ -10,7 +10,6 @@ export declare class GapIndexerApi extends AxiosGQL {
      */
     communities(search?: string): Promise<import("axios").AxiosResponse<ICommunityResponse[], any>>;
     communitiesOf(address: Hex, withGrants: boolean): Promise<import("axios").AxiosResponse<ICommunityResponse[], any>>;
-    communitiesAdminOf(address: Hex, withGrants: boolean): Promise<import("axios").AxiosResponse<ICommunityResponse[], any>>;
     communityBySlug(slug: string): Promise<import("axios").AxiosResponse<ICommunityResponse, any>>;
     /**
      * Project

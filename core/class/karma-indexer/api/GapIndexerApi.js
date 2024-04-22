@@ -4,29 +4,28 @@ exports.GapIndexerApi = void 0;
 const AxiosGQL_1 = require("../../GraphQL/AxiosGQL");
 const Endpoints = {
     attestations: {
-        all: () => '/attestations',
+        all: () => "/attestations",
         byUid: (uid) => `/attestations/${uid}`,
     },
     communities: {
-        all: () => '/communities',
+        all: () => "/communities",
         byUidOrSlug: (uidOrSlug) => `/communities/${uidOrSlug}`,
         grants: (uidOrSlug) => `/communities/${uidOrSlug}/grants`,
     },
     grantees: {
-        all: () => '/grantees',
+        all: () => "/grantees",
         byAddress: (address) => `/grantees/${address}`,
         grants: (address) => `/grantees/${address}/grants`,
         projects: (address) => `/grantees/${address}/projects`,
-        communities: (address, withGrants) => `/grantees/${address}/communities${withGrants ? '?withGrants=true' : ''}`,
-        communitiesAdmin: (address, withGrants) => `/grantees/${address}/communities/admin${withGrants ? '?withGrants=true' : ''}`,
+        communities: (address, withGrants) => `/grantees/${address}/communities${withGrants ? "?withGrants=true" : ""}`,
     },
     grants: {
-        all: () => '/grants',
+        all: () => "/grants",
         byUid: (uid) => `/grants/${uid}`,
         byExternalId: (id) => `/grants/external-id/${id}`,
     },
     project: {
-        all: () => '/projects',
+        all: () => "/projects",
         byUidOrSlug: (uidOrSlug) => `/projects/${uidOrSlug}`,
         grants: (uidOrSlug) => `/projects/${uidOrSlug}/grants`,
         milestones: (uidOrSlug) => `/projects/${uidOrSlug}/milestones`,
@@ -70,10 +69,6 @@ class GapIndexerApi extends AxiosGQL_1.AxiosGQL {
         return response;
     }
     async communitiesOf(address, withGrants) {
-        const response = await this.client.get(Endpoints.grantees.communities(address, withGrants));
-        return response;
-    }
-    async communitiesAdminOf(address, withGrants) {
         const response = await this.client.get(Endpoints.grantees.communities(address, withGrants));
         return response;
     }
