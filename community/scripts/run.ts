@@ -28,22 +28,33 @@ async function bootstrap() {
     throw new Error("Please provide a metadataJson");
   }
 
+  const { arbitrum: arbitrum_key } = require(
+    __dirname + "/../../config/rpcKeys.json"
+  );
+  const { optimism: optimism_key } = require(
+    __dirname + "/../../config/rpcKeys.json"
+  );
+  const { optimismsepolia: optimismsepolia_key } = require(
+    __dirname + "/../../config/rpcKeys.json"
+  );
+
   const networks = {
     42161: {
       name: "arbitrum",
-      key: "okcKBSKXvLuSCbas6QWGvKuh-IcHHSOr",
+      key: arbitrum_key,
     },
     10: {
       name: "optimism",
-      key: "fx2SlVDrPbXwPMQT4v0lRT1PABA16Myl",
+      key: optimism_key,
     },
     11155420: {
       name: "optimism-sepolia",
-      key: "9FEqTNKmgO7X7ll92ALJrEih7Jjhldf-",
+      key: optimismsepolia_key,
     },
     // other networks
   };
 
+  // const { networks } = require(__dirname + "/../../config/rpcKeys.json");
   const web3 = new ethers.AlchemyProvider(
     networks[chainId].name,
     networks[chainId].key
