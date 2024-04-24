@@ -16,7 +16,6 @@
   { "inputs": [], "name": "NONCE_NOT_AVAILABLE", "type": "error" },
   { "inputs": [], "name": "NOT_APPROVED_STRATEGY", "type": "error" },
   { "inputs": [], "name": "NOT_ENOUGH_FUNDS", "type": "error" },
-  { "inputs": [], "name": "NOT_IMPLEMENTED", "type": "error" },
   { "inputs": [], "name": "NOT_INITIALIZED", "type": "error" },
   { "inputs": [], "name": "NOT_PENDING_OWNER", "type": "error" },
   { "inputs": [], "name": "NewOwnerIsZeroAddress", "type": "error" },
@@ -32,7 +31,6 @@
     "type": "error"
   },
   { "inputs": [], "name": "RECIPIENT_NOT_ACCEPTED", "type": "error" },
-  { "inputs": [], "name": "REGISTRATION_ACTIVE", "type": "error" },
   { "inputs": [], "name": "REGISTRATION_NOT_ACTIVE", "type": "error" },
   { "inputs": [], "name": "UNAUTHORIZED", "type": "error" },
   { "inputs": [], "name": "Unauthorized", "type": "error" },
