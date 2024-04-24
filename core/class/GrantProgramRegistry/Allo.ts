@@ -1,52 +1,103 @@
 import { ethers } from "ethers";
 import AlloContractABI from "../../abi/Allo.json";
-import { AlloContracts } from "core/consts";
+import { AlloContracts } from "../../consts";
+import { GrantArgs } from "../types/allo";
+import { NFTStorage } from "nft.storage";
+import { AbiCoder } from "ethers";
 
 export class Allo {
   private contract: ethers.Contract;
+  private static ipfsClient: NFTStorage;
 
-  constructor(provider: ethers.Provider) {
+  constructor(signer: ethers.Signer, ipfsStorage: NFTStorage) {
     this.contract = new ethers.Contract(
       AlloContracts.alloProxy,
       AlloContractABI,
-      provider
+      signer
     );
+
+    Allo.ipfsClient = ipfsStorage;
   }
 
-  async createPool(
-    profileId: string,
-    initStrategyData: string = "0x", // Null data
-    token: string = "0x5fd84259d66Cd46123540766Be93DFE6D43130D7", // USDC
-    amount: number,
-    metadata: any,
-    managers: string[] = []
-  ) {
+  async saveAndGetCID(data: any) {
     try {
-      // TODO: Change this according to the strategy
-      const strategy = AlloContracts.strategy.DirectGrantsSimpleStrategy;
+      const blob = new Blob([JSON.stringify(data)], {
+        type: "application/json",
+      });
+      const cid = await Allo.ipfsClient.storeBlob(blob);
+      return cid;
+    } catch (error) {
+      throw new Error(`Error adding data to IPFS: ${error}`);
+    }
+  }
+
+  async encodeStrategyInitData(
+    applicationStart: number,
+    applicationEnd: number,
+    roundStart: number,
+    roundEnd: number,
+    payoutToken: string
+  ) {
+    const encoder = new AbiCoder();
+    const initStrategyData = encoder.encode(
+      ["bool", "bool", "uint256", "uint256", "uint256", "uint256", "address[]"],
+      [
+        true, // useRegistryAnchor
+        true, // metadataRequired
+        applicationStart, // Eg. Curr + 1 hour later   registrationStartTime
+        applicationEnd, // Eg. Curr +  5 days later   registrationEndTime
+        roundStart, // Eg. Curr + 2 hours later  allocationStartTime
+        roundEnd, // Eg. Curr + 10 days later  allocaitonEndTime
+        [
+          // "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+          payoutToken,
+        ], // allowed token
+      ]
+    );
+
+    return initStrategyData;
+  }
+
+  async createGrant(args: GrantArgs) {
+    console.log("Creating grant...");
+    try {
+      const metadata_cid = await this.saveAndGetCID({
+        round: args.roundMetadata,
+        application: args.applicationMetadata,
+      });
+
+      const metadata = {
+        protocol: 1,
+        pointer: metadata_cid,
+      };
+
+      const initStrategyData = await this.encodeStrategyInitData(
+        args.applicationStart,
+        args.applicationEnd,
+        args.roundStart,
+        args.roundEnd,
+        args.payoutToken
+      );
 
       const tx = await this.contract.createPool(
-        profileId,
-        strategy,
+        args.profileId,
+        args.strategy,
         initStrategyData,
-        token,
-        amount,
+        args.payoutToken,
+        args.matchingFundAmt,
         metadata,
-        managers
+        args.managers
       );
       const receipt = await tx.wait();
 
-      // Get PoolCreated event
-      const events = receipt.events;
-      const poolCreatedEvent = events.find(
-        (event: any) => event.event === "PoolCreated"
+      // Get ProfileCreated event
+      const poolCreatedEvent = receipt.logs.find(
+        (event) => event.eventName === "PoolCreated"
       );
 
-      const poolId = poolCreatedEvent.args.poolId;
-
       return {
-        poolId,
-        receipt,
+        poolId: poolCreatedEvent.args[0],
+        txHash: receipt.hash,
       };
     } catch (error) {
       console.error(`Failed to create pool: ${error}`);
