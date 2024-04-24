@@ -1,28 +1,52 @@
 import { ethers } from "ethers";
 import AlloRegistryABI from "../../abi/AlloRegistry.json";
-import { AlloContracts } from "core/consts";
+import { AlloContracts } from "../../consts";
+import { ProfileMetadata } from "../types/allo";
+import { NFTStorage } from "nft.storage";
 
 export class AlloRegistry {
   private contract: ethers.Contract;
+  private static ipfsClient: NFTStorage;
 
-  constructor(provider: ethers.Provider) {
+  constructor(signer: ethers.Signer, ipfsStorage: NFTStorage) {
     this.contract = new ethers.Contract(
       AlloContracts.registry,
       AlloRegistryABI,
-      provider
+      signer
     );
+
+    AlloRegistry.ipfsClient = ipfsStorage;
   }
 
-  async createProfile(
-    none: number,
+  async saveAndGetCID(data: any) {
+    try {
+      const blob = new Blob([JSON.stringify(data)], {
+        type: "application/json",
+      });
+      const cid = await AlloRegistry.ipfsClient.storeBlob(blob);
+      return cid;
+    } catch (error) {
+      throw new Error(`Error adding data to IPFS: ${error}`);
+    }
+  }
+
+  async createProgram(
+    nonce: number,
     name: string,
-    metadata: any,
+    profileMetadata: ProfileMetadata,
     owner: string,
     members: string[]
   ) {
+    console.log("Creating program...");
     try {
+      const metadata_cid = await this.saveAndGetCID(profileMetadata);
+      const metadata = {
+        protocol: 1,
+        pointer: metadata_cid,
+      };
+
       const tx = await this.contract.createProfile(
-        none,
+        nonce,
         name,
         metadata,
         owner,
@@ -31,24 +55,30 @@ export class AlloRegistry {
       const receipt = await tx.wait();
 
       // Get ProfileCreated event
-      const events = receipt.events;
-      const profileCreatedEvent = events.find(
-        (event: any) => event.event === "ProfileCreated"
+      const profileCreatedEvent = receipt.logs.find(
+        (event) => event.eventName === "ProfileCreated"
       );
 
-      const profileId = profileCreatedEvent.args.profileId;
-
       return {
-        profileId,
-        receipt,
+        profileId: profileCreatedEvent.args[0],
+        txHash: receipt.hash,
       };
     } catch (error) {
-      console.error(`Failed to register grant: ${error}`);
+      console.error(`Failed to register program: ${error}`);
     }
   }
 
-  async updateProfileMetadata(profileId: string, metadata: any) {
+  async updateProgramMetadata(
+    profileId: string,
+    profileMetadata: ProfileMetadata
+  ) {
     try {
+      const metadata_cid = await this.saveAndGetCID(profileMetadata);
+      const metadata = {
+        protocol: 1,
+        pointer: metadata_cid,
+      };
+
       const tx = await this.contract.updateProfileMetadata(profileId, metadata);
       const receipt = await tx.wait();
       return receipt;
