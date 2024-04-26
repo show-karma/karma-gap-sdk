@@ -1,4 +1,4 @@
-import { Allo } from "../class/GrantProgramRegistry/Allo";
+import { AlloBase } from "../class/GrantProgramRegistry/Allo";
 import { ethers } from "ethers";
 import { Networks } from "../consts";
 import { NFTStorage } from "nft.storage";
@@ -7,7 +7,9 @@ import keys from "../../config/keys.json";
 import { AlloContracts } from "../consts";
 import { GrantArgs, Address } from "../class/types/allo";
 
-const web3 = new ethers.JsonRpcProvider(Networks["sepolia"].rpcUrl);
+const networkName = "sepolia";
+const chainId = Networks[networkName].chainId;
+const web3 = new ethers.JsonRpcProvider(Networks[networkName].rpcUrl);
 const wallet = new ethers.Wallet(keys.privateKey, web3);
 const signer = wallet.connect(web3);
 
@@ -16,7 +18,7 @@ export async function main() {
     token: keys.ipfsToken,
   });
 
-  const allo = new Allo(signer, ipfsStorage);
+  const allo = new AlloBase(signer, ipfsStorage, chainId);
 
   const _currentTimestamp = (await signer?.provider?.getBlock(
     await signer?.provider?.getBlockNumber()
@@ -85,7 +87,8 @@ export async function main() {
     matchingFundAmt: matchinFundAmount,
     applicationMetadata,
     managers: [owner as Address], // managers
-    strategy: AlloContracts.strategy.DirectGrantsSimpleStrategy as Address, // strategy
+    strategy: AlloContracts.strategy
+      .DonationVotingMerkleDistributionDirectTransferStrategy as Address, // strategy
     payoutToken: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE", // Eg. ETH
   };
 

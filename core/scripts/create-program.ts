@@ -4,7 +4,8 @@ import { Networks } from "../consts";
 import { NFTStorage } from "nft.storage";
 import keys from "../../config/keys.json";
 
-const web3 = new ethers.JsonRpcProvider(Networks["sepolia"].rpcUrl);
+const networkName = "optimism-sepolia"; // Only supported on testnet sepolia (indexer setup)
+const web3 = new ethers.JsonRpcProvider(Networks[networkName].rpcUrl);
 const wallet = new ethers.Wallet(keys.privateKey, web3);
 const signer = wallet.connect(web3);
 
