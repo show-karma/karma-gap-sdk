@@ -194,7 +194,7 @@ class Attestation {
                 this._data.type = this.type;
                 this.schema.setValue('json', JSON.stringify(this._data));
             }
-            if (remoteClient) {
+            if (remoteClient && JSON.stringify(this._data)?.length > 1500) {
                 const cid = await remoteClient.save(this._data, this.schema.name);
                 const encodedData = remoteClient.encode(cid);
                 this.schema.setValue('json', JSON.stringify(encodedData));
