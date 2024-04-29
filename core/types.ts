@@ -1,13 +1,13 @@
-import { BytesLike } from 'ethers';
+import { BytesLike } from "ethers";
 import {
   AttestationRequestData,
   EAS,
   MultiAttestationRequest,
   SchemaItem,
-} from '@ethereum-attestation-service/eas-sdk';
+} from "@ethereum-attestation-service/eas-sdk";
 // import { SignerOrProvider as EASSigner } from '@ethereum-attestation-service/eas-sdk/dist/transaction';
-import { Attestation, GAP } from './class';
-import { Fetcher } from './class/Fetcher';
+import { Attestation, GAP } from "./class";
+import { Fetcher } from "./class/Fetcher";
 export type Hex = `0x${string}`;
 
 export type SignerOrProvider = any;
@@ -38,51 +38,50 @@ export interface AttestArgs<T = unknown> {
 }
 
 export type TSchemaName =
-  | 'Community'
-  | 'CommunityDetails'
-  | 'Grant'
-  | 'GrantDetails'
-  | 'GrantVerified'
-  | 'MemberOf'
-  | 'MemberDetails'
-  | 'Milestone'
-  | 'MilestoneCompleted'
-  | 'MilestoneApproved'
-  | 'Project'
-  | 'ProjectDetails'
-  | 'Details'
-  | 'ProjectImpact'
-  | 'GrantUpdate'
-  | 'GrantUpdateStatus'
-  | 'ProjectEndorsement'
-  ;
+  | "Community"
+  | "CommunityDetails"
+  | "Grant"
+  | "GrantDetails"
+  | "GrantVerified"
+  | "MemberOf"
+  | "MemberDetails"
+  | "Milestone"
+  | "MilestoneCompleted"
+  | "MilestoneApproved"
+  | "Project"
+  | "ProjectDetails"
+  | "Details"
+  | "ProjectImpact"
+  | "GrantUpdate"
+  | "GrantUpdateStatus"
+  | "ProjectEndorsement";
 
 export type TResolvedSchemaNames =
-  | 'Community'
-  | 'Grant'
-  | 'GrantVerified'
-  | 'MemberOf'
-  | 'MilestoneCompleted'
-  | 'MilestoneApproved'
-  | 'Project'
-  | 'Details'
-  | 'GrantUpdateStatus';
+  | "Community"
+  | "Grant"
+  | "GrantVerified"
+  | "MemberOf"
+  | "MilestoneCompleted"
+  | "MilestoneApproved"
+  | "Project"
+  | "Details"
+  | "GrantUpdateStatus";
 
 export type TExternalLink =
-  | 'twitter'
-  | 'github'
-  | 'website'
-  | 'linkedin'
-  | 'discord';
+  | "twitter"
+  | "github"
+  | "website"
+  | "linkedin"
+  | "discord";
 
 export type TNetwork =
   // | "mainnet"
   // | "base-goerli"
-  | 'optimism'
+  | "optimism"
   // | 'optimism-goerli'
-  | 'optimism-sepolia'
+  | "optimism-sepolia"
   | "arbitrum"
-  | 'sepolia';
+  | "sepolia";
 
 /**
  * Generic GAP Facade interface.
