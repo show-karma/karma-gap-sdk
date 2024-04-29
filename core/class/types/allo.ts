@@ -22,6 +22,8 @@ export type RoundMetadata = {
     matchingFundsAvailable: number;
     minDonationThresholdAmount: number;
   };
+  category: string;
+  source: string;
 };
 
 export type Address = `0x${string}`;

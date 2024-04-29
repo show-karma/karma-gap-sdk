@@ -4,7 +4,8 @@ import { Networks } from "../consts";
 import { NFTStorage } from "nft.storage";
 import keys from "../../config/keys.json";
 
-const web3 = new ethers.JsonRpcProvider(Networks["sepolia"].rpcUrl);
+const networkName = "sepolia"; // Only supported on testnet sepolia (indexer setup)
+const web3 = new ethers.JsonRpcProvider(Networks[networkName].rpcUrl);
 const wallet = new ethers.Wallet(keys.privateKey, web3);
 const signer = wallet.connect(web3);
 
@@ -15,11 +16,11 @@ export async function main() {
 
   const alloRegistry = new AlloRegistry(signer, ipfsStorage);
 
-  const nonce = 2;
-  const name = "Karma Test Program 2";
+  const nonce = 3;
+  const name = "Karma Test Program 3";
   const metadata = {
     title: name,
-    description: `Karma Test Program: This is a test program to test the functionality of the Karma platform.`,
+    description: `Karma Test Program 3: This is a test program 3 to test the functionality of the Karma platform.`,
     website: "https://karma.fund",
     projectTwitter: "karma_fund",
     logoImg: "bafkreigf5egjxs3zbafr4d24kj5tf7idktfjc737xolx5h6dj7hnf77nde",
@@ -30,8 +31,8 @@ export async function main() {
     createdAt: new Date().getTime(),
 
     // TODO: Additional metadata
-    categories: ["dapps", "infra"],
-    tags: ["grant-program-registry"],
+    category: "dapps",
+    source: "grant-program-registry",
   };
   const owner = wallet.address;
 

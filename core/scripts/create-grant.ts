@@ -1,4 +1,4 @@
-import { Allo } from "../class/GrantProgramRegistry/Allo";
+import { AlloBase } from "../class/GrantProgramRegistry/Allo";
 import { ethers } from "ethers";
 import { Networks } from "../consts";
 import { NFTStorage } from "nft.storage";
@@ -7,7 +7,9 @@ import keys from "../../config/keys.json";
 import { AlloContracts } from "../consts";
 import { GrantArgs, Address } from "../class/types/allo";
 
-const web3 = new ethers.JsonRpcProvider(Networks["sepolia"].rpcUrl);
+const networkName = "sepolia";
+const chainId = Networks[networkName].chainId;
+const web3 = new ethers.JsonRpcProvider(Networks[networkName].rpcUrl);
 const wallet = new ethers.Wallet(keys.privateKey, web3);
 const signer = wallet.connect(web3);
 
@@ -16,7 +18,7 @@ export async function main() {
     token: keys.ipfsToken,
   });
 
-  const allo = new Allo(signer, ipfsStorage);
+  const allo = new AlloBase(signer, ipfsStorage, chainId);
 
   const _currentTimestamp = (await signer?.provider?.getBlock(
     await signer?.provider?.getBlockNumber()
@@ -24,10 +26,10 @@ export async function main() {
   const owner = wallet.address;
 
   const profileId =
-    "0x3d31867b85ca316e0e0b129f8b4d545c4926aac7e4745ce584de923e7e5e4116"; // Karma Test Program 2
+    "0x812f0ae5dc7dd0a3a66e52f71f2da56c61a23bb06f1a149975424d6f73519ed1"; // Karma Test Program 3
   const matchinFundAmount = 0;
   const roundMetadata: RoundMetadata = {
-    name: "Test Round 1",
+    name: "Sepolia Test Round 2",
     support: {
       info: "Email",
       type: "mahesh@karmahq.xyz",
@@ -45,6 +47,10 @@ export async function main() {
     feesAddress: "",
     feesPercentage: 0,
     programContractAddress: "0x0613fc8c28ca79d110a104c274b2d1eacef52355", // Some Contract Address
+
+    // TODO: Additional metadata
+    category: "zk-rollups",
+    source: "grant-program-registry",
   };
   const applicationMetadata: ApplicationMetadata = {
     version: "1.0.0",
@@ -85,7 +91,8 @@ export async function main() {
     matchingFundAmt: matchinFundAmount,
     applicationMetadata,
     managers: [owner as Address], // managers
-    strategy: AlloContracts.strategy.DirectGrantsSimpleStrategy as Address, // strategy
+    strategy: AlloContracts.strategy
+      .DonationVotingMerkleDistributionDirectTransferStrategy as Address, // strategy
     payoutToken: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE", // Eg. ETH
   };
 
