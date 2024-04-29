@@ -128,7 +128,7 @@ exports.Networks = {
         contracts: {
             eas: "0x4200000000000000000000000000000000000021",
             schema: "0x4200000000000000000000000000000000000020",
-            multicall: "0xcA11bde05977b3631167028862bE2a173976CA11",
+            multicall: "0x4Ca7230fB6b78875bdd1B1e4F665B7B7f1891239",
             projectResolver: "0xC891F8eBA218f5034bf3a472528408BE19E1130E",
             communityResolver: "0x009dC7dF3Ea3b23CE80Fd3Ba811d5bA5675934A1",
         },
