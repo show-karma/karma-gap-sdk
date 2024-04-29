@@ -180,3 +180,21 @@ export class ProjectImpact
     super(data);
   }
 }
+
+export interface IProjectEndorsement {
+  comment?: string;
+  type?: string;
+}
+
+export class ProjectEndorsement
+  extends Attestation<IProjectEndorsement>
+  implements IProjectEndorsement
+{
+  comment?: string;
+  type?: string;
+
+  constructor(data: AttestationArgs<IProjectEndorsement, GapSchema>) {
+    (data.data as any).type = "project-endorsement";
+    super(data);
+  }
+}

@@ -287,6 +287,12 @@ export const MountEntities = (
     uid: network.schemas.GrantUpdateStatus,
     references: "GrantUpdate",
   },
+  ProjectEndorsement: {
+    name: "ProjectEndorsement",
+    schema: DetailsSchema,
+    uid: network.schemas.Details,
+    references: "Project",
+  },
 });
 
 export const alloSupportedNetworks = {

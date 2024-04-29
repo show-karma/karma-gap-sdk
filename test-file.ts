@@ -10,6 +10,7 @@ import {
   MilestoneCompleted,
   GrantDetails,
   nullRef,
+  ProjectEndorsement,
 } from './core';
 import {
   Community,
@@ -136,9 +137,10 @@ async function attestation() {
 (async () => {
   try {
     const project = await gap.fetch.projectBySlug('project-zomboid');
-    const update = project.grants[0].updates[0];
-    const response = await update.verify(wallet as any);
-    console.log(response);
+    const response = await project.attestEndorsement(wallet, {
+      comment: 'This is my first endorsement with comment!'
+    } as ProjectEndorsement)
+    console.log(project);
   } catch (err) {
     console.log(err);
   }

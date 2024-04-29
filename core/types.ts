@@ -54,6 +54,7 @@ export type TSchemaName =
   | 'ProjectImpact'
   | 'GrantUpdate'
   | 'GrantUpdateStatus'
+  | 'ProjectEndorsement'
   ;
 
 export type TResolvedSchemaNames =
