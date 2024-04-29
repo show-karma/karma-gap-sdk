@@ -16,7 +16,8 @@ exports.chainIdToNetwork = {
     11155420: 'optimism-sepolia',
     42161: 'arbitrum',
     10: 'optimism',
-    11155111: 'sepolia'
+    11155111: 'sepolia',
+    84532: 'base-sepolia'
 };
 exports.nullRef = "0x0000000000000000000000000000000000000000000000000000000000000000";
 // TODO: Remove null resolver and change usage to zero address
@@ -118,6 +119,29 @@ exports.Networks = {
             MilestoneCompleted: "0xcdef0e492d2e7ad25d0b0fdb868f6dcd1f5e5c30e42fd5fa0debdc12f7618322",
             GrantUpdateStatus: "0xcdef0e492d2e7ad25d0b0fdb868f6dcd1f5e5c30e42fd5fa0debdc12f7618322",
             Project: "0xec77990a252b54b17673955c774b9712766de5eecb22ca5aa2c440e0e93257fb",
+        },
+    },
+    "base-sepolia": {
+        chainId: 84532,
+        url: "https://base-sepolia.easscan.org/graphql",
+        rpcUrl: "https://sepolia.base.org",
+        contracts: {
+            eas: "0x4200000000000000000000000000000000000021",
+            schema: "0x4200000000000000000000000000000000000020",
+            multicall: "0xcA11bde05977b3631167028862bE2a173976CA11",
+            projectResolver: "0xC891F8eBA218f5034bf3a472528408BE19E1130E",
+            communityResolver: "0x009dC7dF3Ea3b23CE80Fd3Ba811d5bA5675934A1",
+        },
+        schemas: {
+            Community: "0xe130107659909d20cbd75a2c82e1988b09b1c08fd39ad6f4397ce27c089e0e95",
+            Details: "0x9b06f811608d135f913c18295486693fe626f35e213a7d132be87b1f952e508c",
+            Grant: "0x2fb93aac9ef8450a5f615ac6916684d50978ea2a405ac5f918d6d9f367366a78",
+            GrantVerified: "0xe9cce07bd9295aafc78faa7afdd88a6fad6fd61834a048fb8c3dbc86cb471f81",
+            MemberOf: "0x857398d86e2d31bec5af882b950ee7b00d1fefefba2432737ab28b68ee041eb8",
+            MilestoneApproved: "0xe9cce07bd9295aafc78faa7afdd88a6fad6fd61834a048fb8c3dbc86cb471f81",
+            MilestoneCompleted: "0xe9cce07bd9295aafc78faa7afdd88a6fad6fd61834a048fb8c3dbc86cb471f81",
+            GrantUpdateStatus: "0xe9cce07bd9295aafc78faa7afdd88a6fad6fd61834a048fb8c3dbc86cb471f81",
+            Project: "0x5ddd6b7a11406771308431ca9bd146cc717848b74b52993a532dc1aad0ccc83f",
         },
     },
 };

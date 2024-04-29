@@ -451,4 +451,5 @@ Schema.schemas = {
     optimism: [],
     sepolia: [],
     arbitrum: [],
+    'base-sepolia': [],
 };
