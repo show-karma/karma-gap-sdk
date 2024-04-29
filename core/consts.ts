@@ -172,9 +172,9 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
   },
   "base-sepolia": {
     chainId: 84532,
-    url: "",
+    url: "https://base-sepolia.easscan.org/graphql",
     rpcUrl:
-      "",
+      "https://sepolia.base.org",
     contracts: {
       eas: "0x4200000000000000000000000000000000000021",
       schema: "0x4200000000000000000000000000000000000020",
