@@ -1,14 +1,16 @@
 import { ethers } from "ethers";
 import { GrantArgs } from "../types/allo";
 import { NFTStorage } from "nft.storage";
-export declare class Allo {
+export declare class AlloBase {
+    private signer;
     private contract;
     private static ipfsClient;
-    constructor(signer: ethers.Signer, ipfsStorage: NFTStorage);
+    private allo;
+    constructor(signer: ethers.Signer, ipfsStorage: NFTStorage, chainId: number);
     saveAndGetCID(data: any): Promise<import("nft.storage").CIDString>;
     encodeStrategyInitData(applicationStart: number, applicationEnd: number, roundStart: number, roundEnd: number, payoutToken: string): Promise<string>;
     createGrant(args: GrantArgs): Promise<{
-        poolId: any;
-        txHash: any;
+        poolId: string;
+        txHash: string;
     }>;
 }

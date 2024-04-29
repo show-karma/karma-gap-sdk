@@ -1,9 +1,8 @@
 import { MultiAttestPayload, SignerOrProvider, TNetwork } from '../../types';
 import { Attestation } from '../Attestation';
 import { GapSchema } from '../GapSchema';
+import { IMilestoneResponse } from '../karma-indexer/api/types';
 import { MilestoneCompleted } from '../types/attestations';
-interface _Milestone extends Milestone {
-}
 export interface IMilestone {
     title: string;
     startsAt?: number;
@@ -79,7 +78,7 @@ export declare class Milestone extends Attestation<IMilestone> implements IMiles
      * Attest the status of the milestone as approved, rejected or completed.
      */
     private attestStatus;
-    static from(attestations: _Milestone[], network: TNetwork): Milestone[];
+    static from(attestations: IMilestoneResponse[], network: TNetwork): Milestone[];
     /**
    * Verify this milestone. If the milestone is not completed or already verified,
    * it will throw an error.
@@ -88,4 +87,3 @@ export declare class Milestone extends Attestation<IMilestone> implements IMiles
    */
     verify(signer: SignerOrProvider, reason?: string): Promise<void>;
 }
-export {};

@@ -1,10 +1,9 @@
 import { Attestation } from '../Attestation';
-import { Grantee, MemberDetails, ProjectDetails, ProjectImpact } from '../types/attestations';
+import { Grantee, MemberDetails, ProjectDetails, ProjectEndorsement, ProjectImpact } from '../types/attestations';
 import { Hex, MultiAttestPayload, SignerOrProvider, TNetwork } from 'core/types';
 import { Grant } from './Grant';
 import { MemberOf } from './MemberOf';
-interface _Project extends Project {
-}
+import { IProjectResponse } from '../karma-indexer/api/types';
 export interface IProject {
     project: true;
 }
@@ -14,6 +13,7 @@ export declare class Project extends Attestation<IProject> {
     grants: Grant[];
     grantee: Grantee;
     impacts: ProjectImpact[];
+    endorsements: ProjectEndorsement[];
     /**
      * Creates the payload for a multi-attestation.
      *
@@ -71,7 +71,7 @@ export declare class Project extends Attestation<IProject> {
      * @param signer
      */
     removeAllMembers(signer: SignerOrProvider): Promise<void>;
-    static from(attestations: _Project[], network: TNetwork): Project[];
+    static from(attestations: IProjectResponse[], network: TNetwork): Project[];
     attestImpact(signer: SignerOrProvider, data: ProjectImpact): Promise<void>;
+    attestEndorsement(signer: SignerOrProvider, data?: ProjectEndorsement): Promise<void>;
 }
-export {};

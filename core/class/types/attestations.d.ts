@@ -133,3 +133,12 @@ export declare class ProjectImpact extends Attestation<IProjectImpact> implement
     type?: string;
     constructor(data: AttestationArgs<IProjectImpact, GapSchema>);
 }
+export interface IProjectEndorsement {
+    comment?: string;
+    type?: string;
+}
+export declare class ProjectEndorsement extends Attestation<IProjectEndorsement> implements IProjectEndorsement {
+    comment?: string;
+    type?: string;
+    constructor(data: AttestationArgs<IProjectEndorsement, GapSchema>);
+}

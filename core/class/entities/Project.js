@@ -16,6 +16,7 @@ class Project extends Attestation_1.Attestation {
         this.members = [];
         this.grants = [];
         this.impacts = [];
+        this.endorsements = [];
     }
     /**
      * Creates the payload for a multi-attestation.
@@ -256,6 +257,19 @@ class Project extends Attestation_1.Attestation {
                     return impact;
                 });
             }
+            if (attestation.endorsements) {
+                project.endorsements = attestation.endorsements.map((pi) => {
+                    const endorsement = new attestations_1.ProjectEndorsement({
+                        ...pi,
+                        data: {
+                            ...pi.data,
+                        },
+                        schema: new AllGapSchemas_1.AllGapSchemas().findSchema('ProjectDetails', consts_1.chainIdToNetwork[attestation.chainID]),
+                        chainID: attestation.chainID,
+                    });
+                    return endorsement;
+                });
+            }
             return project;
         });
     }
@@ -271,6 +285,19 @@ class Project extends Attestation_1.Attestation {
         });
         await projectImpact.attest(signer);
         this.impacts.push(projectImpact);
+    }
+    async attestEndorsement(signer, data) {
+        const projectEndorsement = new attestations_1.ProjectEndorsement({
+            data: {
+                ...data,
+                type: 'project-endorsement',
+            },
+            recipient: this.recipient,
+            refUID: this.uid,
+            schema: this.schema.gap.findSchema('ProjectDetails'),
+        });
+        await projectEndorsement.attest(signer);
+        this.endorsements.push(projectEndorsement);
     }
 }
 exports.Project = Project;
