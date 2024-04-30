@@ -1,9 +1,10 @@
 import { Attestation } from '../Attestation';
-import { Grantee, MemberDetails, ProjectDetails, ProjectEndorsement, ProjectImpact } from '../types/attestations';
+import { Grantee, MemberDetails, ProjectDetails, ProjectEndorsement } from '../types/attestations';
 import { Hex, MultiAttestPayload, SignerOrProvider, TNetwork } from 'core/types';
 import { Grant } from './Grant';
 import { MemberOf } from './MemberOf';
 import { IProjectResponse } from '../karma-indexer/api/types';
+import { ProjectImpact } from './ProjectImpact';
 export interface IProject {
     project: true;
 }
