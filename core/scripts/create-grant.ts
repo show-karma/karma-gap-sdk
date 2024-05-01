@@ -29,7 +29,7 @@ export async function main() {
     "0x812f0ae5dc7dd0a3a66e52f71f2da56c61a23bb06f1a149975424d6f73519ed1"; // Karma Test Program 3
   const matchinFundAmount = 0;
   const roundMetadata: RoundMetadata = {
-    name: "Sepolia Test Round 2",
+    name: "Sepolia Test Round #3",
     support: {
       info: "Email",
       type: "mahesh@karmahq.xyz",
@@ -37,7 +37,7 @@ export async function main() {
     roundType: "public",
     eligibility: {
       description:
-        "This is a test round using Karma Test Program 2 on allo-v2 for grant-program-registry.",
+        "This is a test round using Karma Test Program on allo-v2 for grant-program-registry.",
       requirements: [
         {
           requirement: "Be awesome!",
@@ -51,6 +51,10 @@ export async function main() {
     // TODO: Additional metadata
     category: "zk-rollups",
     source: "grant-program-registry",
+    // type: 'Proactive',
+    // ecosystem: 'EMV',
+    // status: 'Active',
+    // size: 3000,
   };
   const applicationMetadata: ApplicationMetadata = {
     version: "1.0.0",
