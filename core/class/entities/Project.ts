@@ -373,18 +373,7 @@ export class Project extends Attestation<IProject> {
       }
 
       if (attestation.impacts) {
-        project.impacts = attestation.impacts.map((pi) => {
-          const impact = new ProjectImpact({
-            ...pi,
-            data: {
-              ...pi.data,
-            },
-            schema: new AllGapSchemas().findSchema('ProjectDetails', chainIdToNetwork[attestation.chainID] as TNetwork),
-            chainID: attestation.chainID,
-          });
-
-          return impact;
-        });
+        project.impacts = ProjectImpact.from(attestation.impacts as unknown as ProjectImpact[], network); 
       }
 
       if (attestation.endorsements) {

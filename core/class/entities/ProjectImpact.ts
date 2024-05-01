@@ -102,9 +102,9 @@ export class ProjectImpact
     );
   }
 
-  static from(attestations: _IProjectImpact[], network: TNetwork): ProjectImpact[] {
+  static from(attestations: ProjectImpact[], network: TNetwork): ProjectImpact[] {
     return attestations.map((attestation) => {
-      const grantUpdate =  new ProjectImpact({
+      const projectImpact =  new ProjectImpact({
             ...attestation,
             data: {
               ...attestation.data,
@@ -114,7 +114,7 @@ export class ProjectImpact
       });
 
       if (attestation.verified?.length > 0) {
-        grantUpdate.verified = attestation.verified.map(m => new ProjectImpactStatus({
+        projectImpact.verified = attestation.verified.map(m => new ProjectImpactStatus({
           ...m,
           data: {
             ...m.data,
@@ -125,7 +125,7 @@ export class ProjectImpact
         );
       }
 
-      return grantUpdate;
+      return projectImpact;
     });
   }
 }
