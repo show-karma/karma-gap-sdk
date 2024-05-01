@@ -78,7 +78,7 @@ export type TNetwork =
   // | "mainnet"
   // | "base-goerli"
   | "optimism"
-  // | 'optimism-goerli'
+  | 'celo'
   | "optimism-sepolia"
   | "arbitrum"
   | 'sepolia'

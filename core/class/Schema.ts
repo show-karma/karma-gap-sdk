@@ -97,6 +97,7 @@ export abstract class Schema<T extends string = string>
     optimism: [],
     sepolia: [],
     arbitrum: [],
+    celo: [],
     'base-sepolia': [],
   };
 
