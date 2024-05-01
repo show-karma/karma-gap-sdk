@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MountEntities = exports.Networks = exports.zeroAddress = exports.nullResolver = exports.nullRef = exports.chainIdToNetwork = exports.useDefaultAttestation = void 0;
+exports.AlloContracts = exports.alloSupportedNetworks = exports.MountEntities = exports.Networks = exports.zeroAddress = exports.nullResolver = exports.nullRef = exports.chainIdToNetwork = exports.useDefaultAttestation = void 0;
 /**
  * Schemas that should use default EAS attestation
  * instead of the custom contract.
@@ -10,7 +10,7 @@ exports.useDefaultAttestation = [
     "MilestoneCompleted",
     "GrantVerified",
     "Community",
-    "GrantUpdateStatus"
+    "GrantUpdateStatus",
 ];
 exports.chainIdToNetwork = {
     11155420: 'optimism-sepolia',
@@ -266,3 +266,20 @@ const MountEntities = (network) => ({
     },
 });
 exports.MountEntities = MountEntities;
+exports.alloSupportedNetworks = {
+    mainnet: [1, 10, 250, 42220, 42161, 8453, 137, 43114, 534352],
+    testnet: [11155111, 11155420, 4002, 44787, 421614, 80001, 43113],
+};
+exports.AlloContracts = {
+    registry: "0x4AAcca72145e1dF2aeC137E1f3C5E3D75DB8b5f3",
+    alloProxy: "0x1133eA7Af70876e64665ecD07C0A0476d09465a1",
+    alloImplementation: "0xB087535DB0df98fC4327136e897A5985E5Cfbd66",
+    strategy: {
+        DonationVotingMerkleDistributionDirectTransferStrategy: "0x787eC93Dd71a90563979417879F5a3298389227f",
+        DirectGrantsSimpleStrategy: "0x8564d522b19836b7f5b4324e7ee8cb41810e9f9e",
+        RFPSimpleStrategy: "0xc0379c3e6e3140cae35588c09e081f2d8529c7e3",
+        RFPCommitteeStrategy: "0x8def91f220f3d1c16d406097ffb0daee0732772f",
+        QVSimple: "0xa9e9110fe3b4b169b2ca0e8825c7ce76eb0b9438",
+    },
+    factory: "0xE195743480D1591B79106FF9B296A0cD38aDa807",
+};
