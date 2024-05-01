@@ -246,17 +246,7 @@ class Project extends Attestation_1.Attestation {
                 project.grants = Grant_1.Grant.from(attestation.grants, network);
             }
             if (attestation.impacts) {
-                project.impacts = attestation.impacts.map((pi) => {
-                    const impact = new ProjectImpact_1.ProjectImpact({
-                        ...pi,
-                        data: {
-                            ...pi.data,
-                        },
-                        schema: new AllGapSchemas_1.AllGapSchemas().findSchema('ProjectDetails', consts_1.chainIdToNetwork[attestation.chainID]),
-                        chainID: attestation.chainID,
-                    });
-                    return impact;
-                });
+                project.impacts = ProjectImpact_1.ProjectImpact.from(attestation.impacts, network);
             }
             if (attestation.endorsements) {
                 project.endorsements = attestation.endorsements.map((pi) => {

@@ -64,7 +64,7 @@ class ProjectImpact extends Attestation_1.Attestation {
     }
     static from(attestations, network) {
         return attestations.map((attestation) => {
-            const grantUpdate = new ProjectImpact({
+            const projectImpact = new ProjectImpact({
                 ...attestation,
                 data: {
                     ...attestation.data,
@@ -73,7 +73,7 @@ class ProjectImpact extends Attestation_1.Attestation {
                 chainID: attestation.chainID,
             });
             if (attestation.verified?.length > 0) {
-                grantUpdate.verified = attestation.verified.map(m => new ProjectImpactStatus({
+                projectImpact.verified = attestation.verified.map(m => new ProjectImpactStatus({
                     ...m,
                     data: {
                         ...m.data,
@@ -82,7 +82,7 @@ class ProjectImpact extends Attestation_1.Attestation {
                     chainID: attestation.chainID,
                 }));
             }
-            return grantUpdate;
+            return projectImpact;
         });
     }
 }

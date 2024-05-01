@@ -38,6 +38,6 @@ export declare class ProjectImpact extends Attestation<IProjectImpact> implement
      * @param reason
      */
     verify(signer: SignerOrProvider, reason?: string): Promise<void>;
-    static from(attestations: _IProjectImpact[], network: TNetwork): ProjectImpact[];
+    static from(attestations: ProjectImpact[], network: TNetwork): ProjectImpact[];
 }
 export {};
