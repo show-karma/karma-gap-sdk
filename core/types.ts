@@ -81,7 +81,9 @@ export type TNetwork =
   // | 'optimism-goerli'
   | "optimism-sepolia"
   | "arbitrum"
-  | "sepolia";
+  | 'sepolia'
+  | 'base-sepolia';
+
 
 /**
  * Generic GAP Facade interface.

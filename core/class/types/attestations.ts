@@ -157,30 +157,6 @@ export interface IGrantDetailsQuestion {
   type: string;
 }
 
-export interface IProjectImpact {
-  work: string;
-  impact: string;
-  proof: string;
-  completedAt: number;
-  type?: string;
-}
-
-export class ProjectImpact
-  extends Attestation<IProjectImpact>
-  implements IProjectImpact
-{
-  work: string;
-  impact: string;
-  proof: string;
-  completedAt: number;
-  type?: string;
-
-  constructor(data: AttestationArgs<IProjectImpact, GapSchema>) {
-    (data.data as any).type = "project-impact";
-    super(data);
-  }
-}
-
 export interface IProjectEndorsement {
   comment?: string;
   type?: string;

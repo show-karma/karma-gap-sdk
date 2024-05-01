@@ -4,7 +4,6 @@ import {
   MemberDetails,
   ProjectDetails,
   ProjectEndorsement,
-  ProjectImpact,
   Tag,
 } from '../types/attestations';
 import {
@@ -22,6 +21,7 @@ import { MemberOf } from './MemberOf';
 import { GapContract } from '../contract/GapContract';
 import { AllGapSchemas } from '../AllGapSchemas';
 import { IProjectResponse } from '../karma-indexer/api/types';
+import { ProjectImpact } from './ProjectImpact';
 
 interface _Project extends Project {}
 
