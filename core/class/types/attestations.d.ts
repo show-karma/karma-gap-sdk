@@ -118,21 +118,6 @@ export interface IGrantDetailsQuestion {
     explanation: string;
     type: string;
 }
-export interface IProjectImpact {
-    work: string;
-    impact: string;
-    proof: string;
-    completedAt: number;
-    type?: string;
-}
-export declare class ProjectImpact extends Attestation<IProjectImpact> implements IProjectImpact {
-    work: string;
-    impact: string;
-    proof: string;
-    completedAt: number;
-    type?: string;
-    constructor(data: AttestationArgs<IProjectImpact, GapSchema>);
-}
 export interface IProjectEndorsement {
     comment?: string;
     type?: string;

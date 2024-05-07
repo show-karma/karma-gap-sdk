@@ -13,10 +13,11 @@ exports.useDefaultAttestation = [
     "GrantUpdateStatus",
 ];
 exports.chainIdToNetwork = {
-    11155420: "optimism-sepolia",
-    42161: "arbitrum",
-    10: "optimism",
-    11155111: "sepolia",
+    11155420: 'optimism-sepolia',
+    42161: 'arbitrum',
+    10: 'optimism',
+    11155111: 'sepolia',
+    84532: 'base-sepolia'
 };
 exports.nullRef = "0x0000000000000000000000000000000000000000000000000000000000000000";
 // TODO: Remove null resolver and change usage to zero address
@@ -120,6 +121,52 @@ exports.Networks = {
             Project: "0xec77990a252b54b17673955c774b9712766de5eecb22ca5aa2c440e0e93257fb",
         },
     },
+    "base-sepolia": {
+        chainId: 84532,
+        url: "https://base-sepolia.easscan.org/graphql",
+        rpcUrl: "https://sepolia.base.org",
+        contracts: {
+            eas: "0x4200000000000000000000000000000000000021",
+            schema: "0x4200000000000000000000000000000000000020",
+            multicall: "0x4Ca7230fB6b78875bdd1B1e4F665B7B7f1891239",
+            projectResolver: "0xC891F8eBA218f5034bf3a472528408BE19E1130E",
+            communityResolver: "0x009dC7dF3Ea3b23CE80Fd3Ba811d5bA5675934A1",
+        },
+        schemas: {
+            Community: "0xe130107659909d20cbd75a2c82e1988b09b1c08fd39ad6f4397ce27c089e0e95",
+            Details: "0x9b06f811608d135f913c18295486693fe626f35e213a7d132be87b1f952e508c",
+            Grant: "0x2fb93aac9ef8450a5f615ac6916684d50978ea2a405ac5f918d6d9f367366a78",
+            GrantVerified: "0xe9cce07bd9295aafc78faa7afdd88a6fad6fd61834a048fb8c3dbc86cb471f81",
+            MemberOf: "0x857398d86e2d31bec5af882b950ee7b00d1fefefba2432737ab28b68ee041eb8",
+            MilestoneApproved: "0xe9cce07bd9295aafc78faa7afdd88a6fad6fd61834a048fb8c3dbc86cb471f81",
+            MilestoneCompleted: "0xe9cce07bd9295aafc78faa7afdd88a6fad6fd61834a048fb8c3dbc86cb471f81",
+            GrantUpdateStatus: "0xe9cce07bd9295aafc78faa7afdd88a6fad6fd61834a048fb8c3dbc86cb471f81",
+            Project: "0x5ddd6b7a11406771308431ca9bd146cc717848b74b52993a532dc1aad0ccc83f",
+        },
+    },
+    "celo": {
+        chainId: 42220,
+        url: "https://celo.easscan.org/graphql",
+        rpcUrl: "https://forno.celo.org",
+        contracts: {
+            eas: "0x72E1d8ccf5299fb36fEfD8CC4394B8ef7e98Af92",
+            schema: "0x5ece93bE4BDCF293Ed61FA78698B594F2135AF34",
+            multicall: "0x8791Ac8c099314bB1D1514D76de13a1E80275950",
+            projectResolver: "0x6dC1D6b864e8BEf815806f9e4677123496e12026",
+            communityResolver: "0xfddb660F2F1C27d219372210745BB9f73431856E",
+        },
+        schemas: {
+            Community: "0x3c2231024f4f17f3718b5bd9ed9ff29cc323dea5449f9ceba11a9888bfbdd0e1",
+            Details: "0x9895e82115987d8e3e02b35ced92e6a0509293890333f58f50ec291b34853dac",
+            Grant: "0x7afa603a89cee2d8f93d30007e2c64efddc6509fd76aa95d2ccd97b6e34acc71",
+            GrantVerified: "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
+            MemberOf: "0xb4186a2401f40a4c78768941ef9140e1fbe5fe595053a65d44f31d6df180b712",
+            MilestoneApproved: "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
+            MilestoneCompleted: "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
+            GrantUpdateStatus: "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
+            Project: "0xf3f753b41e04d1052b5a5ec7624d1dfdb6c2da288a985120e477ddbcac071022",
+        },
+    }
 };
 const DetailsSchema = [{ type: "string", name: "json", value: null }];
 /**

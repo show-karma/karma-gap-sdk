@@ -42,7 +42,7 @@ class AlloRegistry {
             };
         }
         catch (error) {
-            throw new Error(`Failed to register program: ${error}`);
+            console.error(`Failed to register program: ${error}`);
         }
     }
     async updateProgramMetadata(profileId, profileMetadata) {

@@ -10,6 +10,7 @@ const consts_1 = require("../../consts");
 const MemberOf_1 = require("./MemberOf");
 const GapContract_1 = require("../contract/GapContract");
 const AllGapSchemas_1 = require("../AllGapSchemas");
+const ProjectImpact_1 = require("./ProjectImpact");
 class Project extends Attestation_1.Attestation {
     constructor() {
         super(...arguments);
@@ -245,17 +246,7 @@ class Project extends Attestation_1.Attestation {
                 project.grants = Grant_1.Grant.from(attestation.grants, network);
             }
             if (attestation.impacts) {
-                project.impacts = attestation.impacts.map((pi) => {
-                    const impact = new attestations_1.ProjectImpact({
-                        ...pi,
-                        data: {
-                            ...pi.data,
-                        },
-                        schema: new AllGapSchemas_1.AllGapSchemas().findSchema('ProjectDetails', consts_1.chainIdToNetwork[attestation.chainID]),
-                        chainID: attestation.chainID,
-                    });
-                    return impact;
-                });
+                project.impacts = ProjectImpact_1.ProjectImpact.from(attestation.impacts, network);
             }
             if (attestation.endorsements) {
                 project.endorsements = attestation.endorsements.map((pi) => {
@@ -274,7 +265,7 @@ class Project extends Attestation_1.Attestation {
         });
     }
     async attestImpact(signer, data) {
-        const projectImpact = new attestations_1.ProjectImpact({
+        const projectImpact = new ProjectImpact_1.ProjectImpact({
             data: {
                 ...data,
                 type: 'project-impact',
