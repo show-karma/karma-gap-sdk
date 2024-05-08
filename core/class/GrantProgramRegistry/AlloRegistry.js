@@ -33,7 +33,7 @@ class AlloRegistry {
                 pointer: metadata_cid,
             };
             const tx = await this.contract.createProfile({
-                gasPrice: ethers_1.ethers.parseUnits("4", "gwei"),
+                gasPrice: 4000000000,
             }, nonce, name, metadata, owner, members);
             const receipt = await tx.wait();
             // Get ProfileCreated event
