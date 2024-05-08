@@ -17,6 +17,8 @@ import {
 import { GapContract } from '../contract/GapContract';
 import { Grant, IGrant } from './Grant';
 import { ICommunityResponse } from '../karma-indexer/api/types';
+import { GAP } from '../GAP';
+import { getWeb3Provider } from '../../utils/get-web3-provider';
 
 interface _Community extends Community {}
 export interface ICommunity {
@@ -122,5 +124,13 @@ export class Community extends Attestation<ICommunity> {
 
       return community;
     });
+  }
+
+  async isAdmin(address: string){
+    const provider = getWeb3Provider(this.chainID);
+    console.log(this.uid, this.chainID)
+    const resolver = await GAP.getCommunityResolver(provider, this.chainID); 
+    const response = await resolver.isAdmin(this.uid, address);
+    return response;
   }
 }
