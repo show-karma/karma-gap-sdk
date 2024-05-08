@@ -7,6 +7,8 @@ const consts_1 = require("../../consts");
 const SchemaError_1 = require("../SchemaError");
 const GapSchema_1 = require("../GapSchema");
 const Grant_1 = require("./Grant");
+const GAP_1 = require("../GAP");
+const get_web3_provider_1 = require("../../utils/get-web3-provider");
 class Community extends Attestation_1.Attestation {
     constructor() {
         super(...arguments);
@@ -92,6 +94,13 @@ class Community extends Attestation_1.Attestation {
             }
             return community;
         });
+    }
+    async isAdmin(address) {
+        const provider = (0, get_web3_provider_1.getWeb3Provider)(this.chainID);
+        console.log(this.uid, this.chainID);
+        const resolver = await GAP_1.GAP.getCommunityResolver(provider, this.chainID);
+        const response = await resolver.isAdmin(this.uid, address);
+        return response;
     }
 }
 exports.Community = Community;

@@ -31,4 +31,5 @@ export declare class Community extends Attestation<ICommunity> {
      */
     attest(signer: SignerOrProvider, details?: ICommunityDetails): Promise<void>;
     static from(attestations: ICommunityResponse[], network: TNetwork): Community[];
+    isAdmin(address: string): Promise<any>;
 }
