@@ -1,7 +1,7 @@
-import { BytesLike } from 'ethers';
-import { AttestationRequestData, EAS, MultiAttestationRequest, SchemaItem } from '@ethereum-attestation-service/eas-sdk';
-import { Attestation } from './class';
-import { Fetcher } from './class/Fetcher';
+import { BytesLike } from "ethers";
+import { AttestationRequestData, EAS, MultiAttestationRequest, SchemaItem } from "@ethereum-attestation-service/eas-sdk";
+import { Attestation } from "./class";
+import { Fetcher } from "./class/Fetcher";
 export type Hex = `0x${string}`;
 export type SignerOrProvider = any;
 export interface SchemaInterface<T extends string = string> {
@@ -21,10 +21,10 @@ export interface AttestArgs<T = unknown> {
     refUID?: Hex;
     signer: SignerOrProvider;
 }
-export type TSchemaName = 'Community' | 'CommunityDetails' | 'Grant' | 'GrantDetails' | 'GrantVerified' | 'MemberOf' | 'MemberDetails' | 'Milestone' | 'MilestoneCompleted' | 'MilestoneApproved' | 'Project' | 'ProjectDetails' | 'Details' | 'ProjectImpact' | 'GrantUpdate' | 'GrantUpdateStatus' | 'ProjectEndorsement';
-export type TResolvedSchemaNames = 'Community' | 'Grant' | 'GrantVerified' | 'MemberOf' | 'MilestoneCompleted' | 'MilestoneApproved' | 'Project' | 'Details' | 'GrantUpdateStatus';
-export type TExternalLink = 'twitter' | 'github' | 'website' | 'linkedin' | 'discord';
-export type TNetwork = 'optimism' | 'optimism-sepolia' | "arbitrum" | 'sepolia' | 'base-sepolia';
+export type TSchemaName = "Community" | "CommunityDetails" | "Grant" | "GrantDetails" | "GrantVerified" | "MemberOf" | "MemberDetails" | "Milestone" | "MilestoneCompleted" | "MilestoneApproved" | "Project" | "ProjectDetails" | "Details" | "ProjectImpact" | "GrantUpdate" | "GrantUpdateStatus" | "ProjectEndorsement";
+export type TResolvedSchemaNames = "Community" | "Grant" | "GrantVerified" | "MemberOf" | "MilestoneCompleted" | "MilestoneApproved" | "Project" | "Details" | "GrantUpdateStatus";
+export type TExternalLink = "twitter" | "github" | "website" | "linkedin" | "discord";
+export type TNetwork = "optimism" | 'celo' | "optimism-sepolia" | "arbitrum" | 'sepolia' | 'base-sepolia';
 /**
  * Generic GAP Facade interface.
  * This supplies the GAP class with the necessary properties.

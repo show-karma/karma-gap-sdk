@@ -10,6 +10,7 @@ export declare const chainIdToNetwork: {
     10: string;
     11155111: string;
     84532: string;
+    42220: string;
 };
 export declare const nullRef = "0x0000000000000000000000000000000000000000000000000000000000000000";
 export declare const nullResolver = "0x0000000000000000000000000000000000000000";
@@ -24,3 +25,20 @@ export declare const Networks: Record<TNetwork, EASNetworkConfig>;
  * @returns
  */
 export declare const MountEntities: (network: EASNetworkConfig) => Record<TSchemaName, SchemaInterface<TSchemaName>>;
+export declare const alloSupportedNetworks: {
+    mainnet: number[];
+    testnet: number[];
+};
+export declare const AlloContracts: {
+    registry: string;
+    alloProxy: string;
+    alloImplementation: string;
+    strategy: {
+        DonationVotingMerkleDistributionDirectTransferStrategy: string;
+        DirectGrantsSimpleStrategy: string;
+        RFPSimpleStrategy: string;
+        RFPCommitteeStrategy: string;
+        QVSimple: string;
+    };
+    factory: string;
+};

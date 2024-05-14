@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.MountEntities = exports.Networks = exports.zeroAddress = exports.nullResolver = exports.nullRef = exports.chainIdToNetwork = exports.useDefaultAttestation = void 0;
+exports.AlloContracts = exports.alloSupportedNetworks = exports.MountEntities = exports.Networks = exports.zeroAddress = exports.nullResolver = exports.nullRef = exports.chainIdToNetwork = exports.useDefaultAttestation = void 0;
 /**
  * Schemas that should use default EAS attestation
  * instead of the custom contract.
@@ -10,14 +10,15 @@ exports.useDefaultAttestation = [
     "MilestoneCompleted",
     "GrantVerified",
     "Community",
-    "GrantUpdateStatus"
+    "GrantUpdateStatus",
 ];
 exports.chainIdToNetwork = {
     11155420: 'optimism-sepolia',
     42161: 'arbitrum',
     10: 'optimism',
     11155111: 'sepolia',
-    84532: 'base-sepolia'
+    84532: 'base-sepolia',
+    42220: 'celo'
 };
 exports.nullRef = "0x0000000000000000000000000000000000000000000000000000000000000000";
 // TODO: Remove null resolver and change usage to zero address
@@ -144,6 +145,29 @@ exports.Networks = {
             Project: "0x5ddd6b7a11406771308431ca9bd146cc717848b74b52993a532dc1aad0ccc83f",
         },
     },
+    "celo": {
+        chainId: 42220,
+        url: "https://celo.easscan.org/graphql",
+        rpcUrl: "https://forno.celo.org",
+        contracts: {
+            eas: "0x72E1d8ccf5299fb36fEfD8CC4394B8ef7e98Af92",
+            schema: "0x5ece93bE4BDCF293Ed61FA78698B594F2135AF34",
+            multicall: "0x8791Ac8c099314bB1D1514D76de13a1E80275950",
+            projectResolver: "0x6dC1D6b864e8BEf815806f9e4677123496e12026",
+            communityResolver: "0xfddb660F2F1C27d219372210745BB9f73431856E",
+        },
+        schemas: {
+            Community: "0x3c2231024f4f17f3718b5bd9ed9ff29cc323dea5449f9ceba11a9888bfbdd0e1",
+            Details: "0x9895e82115987d8e3e02b35ced92e6a0509293890333f58f50ec291b34853dac",
+            Grant: "0x7afa603a89cee2d8f93d30007e2c64efddc6509fd76aa95d2ccd97b6e34acc71",
+            GrantVerified: "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
+            MemberOf: "0xb4186a2401f40a4c78768941ef9140e1fbe5fe595053a65d44f31d6df180b712",
+            MilestoneApproved: "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
+            MilestoneCompleted: "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
+            GrantUpdateStatus: "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
+            Project: "0xf3f753b41e04d1052b5a5ec7624d1dfdb6c2da288a985120e477ddbcac071022",
+        },
+    }
 };
 const DetailsSchema = [{ type: "string", name: "json", value: null }];
 /**
@@ -266,3 +290,20 @@ const MountEntities = (network) => ({
     },
 });
 exports.MountEntities = MountEntities;
+exports.alloSupportedNetworks = {
+    mainnet: [1, 10, 250, 42220, 42161, 8453, 137, 43114, 534352],
+    testnet: [11155111, 11155420, 4002, 44787, 421614, 80001, 43113],
+};
+exports.AlloContracts = {
+    registry: "0x4AAcca72145e1dF2aeC137E1f3C5E3D75DB8b5f3",
+    alloProxy: "0x1133eA7Af70876e64665ecD07C0A0476d09465a1",
+    alloImplementation: "0xB087535DB0df98fC4327136e897A5985E5Cfbd66",
+    strategy: {
+        DonationVotingMerkleDistributionDirectTransferStrategy: "0x787eC93Dd71a90563979417879F5a3298389227f",
+        DirectGrantsSimpleStrategy: "0x8564d522b19836b7f5b4324e7ee8cb41810e9f9e",
+        RFPSimpleStrategy: "0xc0379c3e6e3140cae35588c09e081f2d8529c7e3",
+        RFPCommitteeStrategy: "0x8def91f220f3d1c16d406097ffb0daee0732772f",
+        QVSimple: "0xa9e9110fe3b4b169b2ca0e8825c7ce76eb0b9438",
+    },
+    factory: "0xE195743480D1591B79106FF9B296A0cD38aDa807",
+};
