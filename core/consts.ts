@@ -22,7 +22,8 @@ export const chainIdToNetwork = {
   42161: 'arbitrum',
   10: 'optimism',
   11155111: 'sepolia',
-  84532: 'base-sepolia'
+  84532: 'base-sepolia',
+  42220: 'celo'
 };
 
 export const nullRef =
