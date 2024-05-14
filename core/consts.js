@@ -17,7 +17,8 @@ exports.chainIdToNetwork = {
     42161: 'arbitrum',
     10: 'optimism',
     11155111: 'sepolia',
-    84532: 'base-sepolia'
+    84532: 'base-sepolia',
+    42220: 'celo'
 };
 exports.nullRef = "0x0000000000000000000000000000000000000000000000000000000000000000";
 // TODO: Remove null resolver and change usage to zero address

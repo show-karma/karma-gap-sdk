@@ -32,9 +32,7 @@ class AlloRegistry {
                 protocol: 1,
                 pointer: metadata_cid,
             };
-            const tx = await this.contract.createProfile({
-                gasPrice: 4000000000,
-            }, nonce, name, metadata, owner, members);
+            const tx = await this.contract.createProfile(nonce, name, metadata, owner, members);
             const receipt = await tx.wait();
             // Get ProfileCreated event
             const profileCreatedEvent = receipt.logs.find((event) => event.eventName === "ProfileCreated");
