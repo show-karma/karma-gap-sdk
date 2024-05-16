@@ -98,6 +98,12 @@ export class GapIndexerClient extends Fetcher {
     return Community.from(data, this.gap.network);
   }
 
+  async adminOf(address: Hex): Promise<Community[]> {
+    const {data} = await this.apiClient.adminOf(address)
+
+    return Community.from(data, this.gap.network);
+  }
+
   async communitiesAdminOf(address: Hex, withGrants: boolean): Promise<Community[]> {
     const { data } = await this.client.get<Community[]>(
       Endpoints.grantees.communitiesAdmin(address, withGrants)
