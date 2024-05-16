@@ -67,6 +67,10 @@ class GapIndexerClient extends Fetcher_1.Fetcher {
         const { data } = await this.apiClient.communitiesOf(address, withGrants);
         return entities_1.Community.from(data, this.gap.network);
     }
+    async adminOf(address) {
+        const { data } = await this.apiClient.adminOf(address);
+        return entities_1.Community.from(data, this.gap.network);
+    }
     async communitiesAdminOf(address, withGrants) {
         const { data } = await this.client.get(Endpoints.grantees.communitiesAdmin(address, withGrants));
         return entities_1.Community.from(data, this.gap.network);

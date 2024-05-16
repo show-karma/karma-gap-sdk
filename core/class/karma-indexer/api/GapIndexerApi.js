@@ -18,6 +18,7 @@ const Endpoints = {
         grants: (address) => `/grantees/${address}/grants`,
         projects: (address) => `/grantees/${address}/projects`,
         communities: (address, withGrants) => `/grantees/${address}/communities${withGrants ? "?withGrants=true" : ""}`,
+        adminOf: (address) => `/grantees/${address}/communities/admin`,
     },
     grants: {
         all: () => "/grants",
@@ -70,6 +71,10 @@ class GapIndexerApi extends AxiosGQL_1.AxiosGQL {
     }
     async communitiesOf(address, withGrants) {
         const response = await this.client.get(Endpoints.grantees.communities(address, withGrants));
+        return response;
+    }
+    async adminOf(address) {
+        const response = await this.client.get(Endpoints.grantees.adminOf(address));
         return response;
     }
     async communityBySlug(slug) {

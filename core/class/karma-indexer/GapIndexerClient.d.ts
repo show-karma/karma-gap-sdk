@@ -13,6 +13,7 @@ export declare class GapIndexerClient extends Fetcher {
     attestationsTo(schemaName: TSchemaName, recipient: `0x${string}`): Promise<IAttestation[]>;
     communities(search?: string): Promise<Community[]>;
     communitiesOf(address: Hex, withGrants: boolean): Promise<Community[]>;
+    adminOf(address: Hex): Promise<Community[]>;
     communitiesAdminOf(address: Hex, withGrants: boolean): Promise<Community[]>;
     communitiesByIds(uids: `0x${string}`[]): Promise<Community[]>;
     communityBySlug(slug: string): Promise<Community>;
