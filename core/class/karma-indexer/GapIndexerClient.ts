@@ -120,6 +120,10 @@ export class GapIndexerClient extends Fetcher {
     return this.communityBySlug(uid);
   }
 
+  async communityAdmins(uid: `0x${string}`): Promise<Community> {
+    return this.apiClient.communityAdmins(uid);
+  }
+
   async projectBySlug(slug: string): Promise<Project> {
     const { data } = await this.apiClient.projectBySlug(slug);
 
