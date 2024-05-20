@@ -3,6 +3,7 @@ import {
   Hex,
   IAttestationResponse,
   ICommunityResponse,
+  ICommunityAdminsResponse,
   IGrantResponse,
   IProjectResponse,
   ISearchResponse,
@@ -15,6 +16,7 @@ const Endpoints = {
   },
   communities: {
     all: () => "/communities",
+    admins: (uid: string) => `/communities/${uid}/admins`,
     byUidOrSlug: (uidOrSlug: string) => `/communities/${uidOrSlug}`,
     grants: (uidOrSlug: string) => `/communities/${uidOrSlug}/grants`,
   },
@@ -118,6 +120,14 @@ export class GapIndexerApi extends AxiosGQL {
   async communityBySlug(slug: string) {
     const response = await this.client.get<ICommunityResponse>(
       Endpoints.communities.byUidOrSlug(slug)
+    );
+
+    return response;
+  }
+
+  async communityAdmins(uid: Hex) {
+    const response = await this.client.get<ICommunityAdminsResponse>(
+      Endpoints.communities.admins(uid)
     );
 
     return response;

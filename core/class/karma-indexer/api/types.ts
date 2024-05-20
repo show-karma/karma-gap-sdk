@@ -157,6 +157,11 @@ export interface ICommunityResponse extends IAttestationResponse {
   grants: IGrantResponse[];
 }
 
+export interface ICommunityAdminsResponse {
+  id: string;
+  admins: { user: { id: string } }[];
+}
+
 export interface ISearchResponse {
   projects: IProjectResponse[];
   communities: ICommunityResponse[];
