@@ -98,6 +98,12 @@ export class GapIndexerClient extends Fetcher {
     return Community.from(data, this.gap.network);
   }
 
+  async adminOf(address: Hex): Promise<Community[]> {
+    const {data} = await this.apiClient.adminOf(address)
+
+    return Community.from(data, this.gap.network);
+  }
+
   async communitiesAdminOf(address: Hex, withGrants: boolean): Promise<Community[]> {
     const { data } = await this.client.get<Community[]>(
       Endpoints.grantees.communitiesAdmin(address, withGrants)
@@ -133,6 +139,12 @@ export class GapIndexerClient extends Fetcher {
 
   projectById(uid: `0x${string}`): Promise<Project> {
     return this.projectBySlug(uid);
+  }
+
+  async search(query: string): Promise<{projects: Project[]; communities: Community[]}> {
+    const { data } = await this.apiClient.search(query);
+
+    return {data} as unknown as { projects: Project[]; communities: Community[] };
   }
 
   async searchProjects(query: string): Promise<Project[]> {
