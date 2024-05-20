@@ -111,19 +111,19 @@ class Grant extends Attestation_1.Attestation {
     /**
      * @inheritdoc
      */
-    async attest(signer, projectChainId) {
+    async attest(signer, projectChainId, callback) {
         if (projectChainId !== this.chainID) {
             return this.attestProject(signer, projectChainId);
         }
         this.assertPayload();
         const payload = await this.multiAttestPayload();
-        const uids = await GapContract_1.GapContract.multiAttest(signer, payload.map((p) => p[1]));
+        const uids = await GapContract_1.GapContract.multiAttest(signer, payload.map((p) => p[1]), callback);
         uids.forEach((uid, index) => {
             payload[index][0].uid = uid;
         });
         console.log(uids);
     }
-    async attestUpdate(signer, data) {
+    async attestUpdate(signer, data, callback) {
         const grantUpdate = new GrantUpdate_1.GrantUpdate({
             data: {
                 ...data,
@@ -133,10 +133,10 @@ class Grant extends Attestation_1.Attestation {
             refUID: this.uid,
             schema: this.schema.gap.findSchema('GrantDetails'),
         });
-        await grantUpdate.attest(signer);
+        await grantUpdate.attest(signer, callback);
         this.updates.push(grantUpdate);
     }
-    async complete(signer, data) {
+    async complete(signer, data, callback) {
         const completed = new attestations_1.GrantCompleted({
             data: {
                 ...data,
@@ -146,7 +146,7 @@ class Grant extends Attestation_1.Attestation {
             refUID: this.uid,
             schema: this.schema.gap.findSchema('GrantDetails'),
         });
-        await completed.attest(signer);
+        await completed.attest(signer, callback);
         this.completed = completed;
     }
     /**

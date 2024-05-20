@@ -43,9 +43,9 @@ class Project extends Attestation_1.Attestation {
         }
         return payload.slice(currentPayload.length, payload.length);
     }
-    async attest(signer) {
+    async attest(signer, callback) {
         const payload = await this.multiAttestPayload();
-        const uids = await GapContract_1.GapContract.multiAttest(signer, payload.map((p) => p[1]));
+        const uids = await GapContract_1.GapContract.multiAttest(signer, payload.map((p) => p[1]), callback);
         uids.forEach((uid, index) => {
             payload[index][0].uid = uid;
         });
@@ -80,7 +80,7 @@ class Project extends Attestation_1.Attestation {
      * @param signer
      * @param members
      */
-    async attestMembers(signer, members) {
+    async attestMembers(signer, members, callback) {
         const newMembers = (0, utils_1.mapFilter)(members, (member) => !this.members.find((m) => m.recipient === member.recipient), 
         // (member) => !!member,
         (details) => {
@@ -98,7 +98,7 @@ class Project extends Attestation_1.Attestation {
             throw new SchemaError_1.AttestationError('ATTEST_ERROR', 'No new members to add.');
         }
         console.log(`Creating ${newMembers.length} new members`);
-        const attestedMembers = await this.schema.multiAttest(signer, newMembers.map((m) => m.member));
+        const attestedMembers = await this.schema.multiAttest(signer, newMembers.map((m) => m.member), callback);
         console.log('attested-members', attestedMembers);
         newMembers.forEach(({ member, details }, idx) => {
             Object.assign(member, { uid: attestedMembers[idx] });
@@ -116,7 +116,7 @@ class Project extends Attestation_1.Attestation {
      * @param signer
      * @param entities
      */
-    async addMemberDetails(signer, entities) {
+    async addMemberDetails(signer, entities, callback) {
         // Check if any of members should be revoked (details modified)
         const toRevoke = (0, utils_1.mapFilter)(this.members, (member) => !!entities.find((entity) => member.uid === entity.refUID &&
             member.details &&
@@ -126,7 +126,7 @@ class Project extends Attestation_1.Attestation {
             await this.cleanDetails(signer, toRevoke);
         }
         console.log(`Creating ${entities.length} new member details`);
-        const attestedEntities = (await this.schema.multiAttest(signer, entities));
+        const attestedEntities = (await this.schema.multiAttest(signer, entities, callback));
         console.log('attested-entities', attestedEntities);
         entities.forEach((entity, idx) => {
             const member = this.members.find((member) => member.uid === entity.refUID);

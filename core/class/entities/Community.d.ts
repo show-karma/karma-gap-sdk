@@ -29,6 +29,6 @@ export declare class Community extends Attestation<ICommunity> {
      * @param signer
      * @param details
      */
-    attest(signer: SignerOrProvider, details?: ICommunityDetails): Promise<void>;
+    attest(signer: SignerOrProvider, details?: ICommunityDetails, callback?: Function): Promise<void>;
     static from(attestations: ICommunityResponse[], network: TNetwork): Community[];
 }

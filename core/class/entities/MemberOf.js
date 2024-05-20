@@ -13,10 +13,10 @@ class MemberOf extends Attestation_1.Attestation {
         }
         return payload.slice(currentPayload.length, payload.length);
     }
-    async attest(signer) {
+    async attest(signer, callback) {
         const payload = await this.multiAttestPayload();
         try {
-            const [memberUID, detailsUID] = await GapContract_1.GapContract.multiAttest(signer, payload.map((p) => p[1]));
+            const [memberUID, detailsUID] = await GapContract_1.GapContract.multiAttest(signer, payload.map((p) => p[1]), callback);
             this.uid = memberUID;
             if (this.details && detailsUID) {
                 this.details.uid = detailsUID;

@@ -40,7 +40,7 @@ class Community extends Attestation_1.Attestation {
      * @param signer
      * @param details
      */
-    async attest(signer, details) {
+    async attest(signer, details, callback) {
         console.log('Attesting community');
         try {
             this._uid = await this.schema.attest({
@@ -50,6 +50,8 @@ class Community extends Attestation_1.Attestation {
                 data: this.data,
             });
             console.log(this.uid);
+            if (callback)
+                callback('pending');
             if (details) {
                 const communityDetails = new attestations_1.CommunityDetails({
                     data: details,
@@ -59,6 +61,8 @@ class Community extends Attestation_1.Attestation {
                 });
                 await communityDetails.attest(signer);
             }
+            if (callback)
+                callback('completed');
         }
         catch (error) {
             console.error(error);

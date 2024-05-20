@@ -149,7 +149,7 @@ export declare abstract class Schema<T extends string = string> implements Schem
      * @param entities
      * @returns
      */
-    multiAttest(signer: SignerOrProvider, entities?: Attestation[]): Promise<string[]>;
+    multiAttest(signer: SignerOrProvider, entities?: Attestation[], callback?: Function): Promise<string[]>;
     /**
      * Revokes a set of attestations by their UIDs.
      * @param signer
