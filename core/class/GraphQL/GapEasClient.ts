@@ -437,6 +437,10 @@ export class GapEasClient extends Fetcher {
     return attestations.some((a) => a.decodedDataJson.includes(slug));
   }
 
+  search(query: string): Promise<{projects: Project[], communities: Community[]}> {
+    throw new Error('Method not implemented.');
+  }
+
   searchProjects(query: string): Promise<Project[]> {
     throw new Error('Method not implemented.');
   }

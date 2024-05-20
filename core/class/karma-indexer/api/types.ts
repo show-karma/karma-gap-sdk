@@ -156,3 +156,8 @@ export interface ICommunityResponse extends IAttestationResponse {
   details?: ICommunityDetails;
   grants: IGrantResponse[];
 }
+
+export interface ISearchResponse {
+  projects: IProjectResponse[];
+  communities: ICommunityResponse[];
+}
