@@ -279,7 +279,7 @@ class Schema {
      * @param entities
      * @returns
      */
-    async multiAttest(signer, entities = []) {
+    async multiAttest(signer, entities = [], callback) {
         entities.forEach((entity) => {
             if (this.references && !entity.refUID)
                 throw new SchemaError_1.SchemaError("INVALID_REF_UID", `Entity ${entity.schema.name} references another schema but no reference UID was provided.`);
@@ -304,7 +304,11 @@ class Schema {
         const tx = await eas.multiAttest(payload, {
             gasLimit: 5000000n,
         });
+        if (callback)
+            callback('pending');
         return tx.wait();
+        if (callback)
+            callback('completed');
     }
     /**
      * Revokes a set of attestations by their UIDs.

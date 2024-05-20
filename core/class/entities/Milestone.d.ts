@@ -26,7 +26,7 @@ export declare class Milestone extends Attestation<IMilestone> implements IMiles
      * @param signer
      * @param reason
      */
-    approve(signer: SignerOrProvider, reason?: string): Promise<void>;
+    approve(signer: SignerOrProvider, reason?: string, callback?: Function): Promise<void>;
     /**
      * Revokes the approved status of the milestone. If the milestone is not approved,
      * it will throw an error.
@@ -73,7 +73,7 @@ export declare class Milestone extends Attestation<IMilestone> implements IMiles
     /**
      * @inheritdoc
      */
-    attest(signer: SignerOrProvider): Promise<void>;
+    attest(signer: SignerOrProvider, callback?: Function): Promise<void>;
     /**
      * Attest the status of the milestone as approved, rejected or completed.
      */
@@ -85,5 +85,5 @@ export declare class Milestone extends Attestation<IMilestone> implements IMiles
    * @param signer
    * @param reason
    */
-    verify(signer: SignerOrProvider, reason?: string): Promise<void>;
+    verify(signer: SignerOrProvider, reason?: string, callback?: Function): Promise<void>;
 }

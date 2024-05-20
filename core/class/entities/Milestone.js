@@ -19,7 +19,7 @@ class Milestone extends Attestation_1.Attestation {
      * @param signer
      * @param reason
      */
-    async approve(signer, reason = '') {
+    async approve(signer, reason = '', callback) {
         if (!this.completed)
             throw new SchemaError_1.AttestationError('ATTEST_ERROR', 'Milestone is not completed');
         const schema = this.schema.gap.findSchema('MilestoneCompleted');
@@ -158,10 +158,10 @@ class Milestone extends Attestation_1.Attestation {
     /**
      * @inheritdoc
      */
-    async attest(signer) {
+    async attest(signer, callback) {
         this.assertPayload();
         const payload = await this.multiAttestPayload();
-        const uids = await GapContract_1.GapContract.multiAttest(signer, payload.map((p) => p[1]));
+        const uids = await GapContract_1.GapContract.multiAttest(signer, payload.map((p) => p[1]), callback);
         uids.forEach((uid, index) => {
             payload[index][0].uid = uid;
         });
@@ -170,7 +170,7 @@ class Milestone extends Attestation_1.Attestation {
     /**
      * Attest the status of the milestone as approved, rejected or completed.
      */
-    async attestStatus(signer, schema) {
+    async attestStatus(signer, schema, callback) {
         const eas = this.schema.gap.eas.connect(signer);
         try {
             const tx = await eas.attest({
@@ -183,7 +183,11 @@ class Milestone extends Attestation_1.Attestation {
                     revocable: schema.revocable,
                 },
             });
+            if (callback)
+                callback('pending');
             const uid = await tx.wait();
+            if (callback)
+                callback('completed');
             console.log(uid);
         }
         catch (error) {
@@ -250,7 +254,7 @@ class Milestone extends Attestation_1.Attestation {
    * @param signer
    * @param reason
    */
-    async verify(signer, reason = '') {
+    async verify(signer, reason = '', callback) {
         console.log('Verifying');
         if (!this.completed)
             throw new SchemaError_1.AttestationError('ATTEST_ERROR', 'Milestone is not completed');
@@ -258,7 +262,7 @@ class Milestone extends Attestation_1.Attestation {
         schema.setValue('type', 'verified');
         schema.setValue('reason', reason);
         console.log('Before attestStatus');
-        await this.attestStatus(signer, schema);
+        await this.attestStatus(signer, schema, callback);
         console.log('After attestStatus');
         this.verified.push(new attestations_1.MilestoneCompleted({
             data: {

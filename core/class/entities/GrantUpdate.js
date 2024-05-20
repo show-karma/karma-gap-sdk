@@ -16,7 +16,7 @@ class GrantUpdate extends Attestation_1.Attestation {
     /**
      * Attest the status of the milestone as approved, rejected or completed.
      */
-    async attestStatus(signer, schema) {
+    async attestStatus(signer, schema, callback) {
         const eas = this.schema.gap.eas.connect(signer);
         try {
             const tx = await eas.attest({
@@ -29,7 +29,11 @@ class GrantUpdate extends Attestation_1.Attestation {
                     revocable: schema.revocable,
                 },
             });
+            if (callback)
+                callback('pending');
             const uid = await tx.wait();
+            if (callback)
+                callback('completed');
             console.log(uid);
         }
         catch (error) {
@@ -43,13 +47,13 @@ class GrantUpdate extends Attestation_1.Attestation {
      * @param signer
      * @param reason
      */
-    async verify(signer, reason = '') {
+    async verify(signer, reason = '', callback) {
         console.log('Verifying');
         const schema = this.schema.gap.findSchema('GrantUpdateStatus');
         schema.setValue('type', 'grant-update-verified');
         schema.setValue('reason', reason);
         console.log('Before attest grant update verified');
-        await this.attestStatus(signer, schema);
+        await this.attestStatus(signer, schema, callback);
         console.log('After attest grant update verified');
         this.verified.push(new GrantUpdateStatus({
             data: {

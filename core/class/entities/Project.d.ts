@@ -26,7 +26,7 @@ export declare class Project extends Attestation<IProject> {
      * @param communityIdx
      */
     multiAttestPayload(currentPayload?: MultiAttestPayload, communityIdx?: number): Promise<MultiAttestPayload>;
-    attest(signer: SignerOrProvider): Promise<void>;
+    attest(signer: SignerOrProvider, callback?: Function): Promise<void>;
     transferOwnership(signer: SignerOrProvider, newOwner: Hex): Promise<void>;
     isOwner(signer: SignerOrProvider): Promise<boolean>;
     /**
@@ -45,7 +45,7 @@ export declare class Project extends Attestation<IProject> {
      * @param signer
      * @param members
      */
-    attestMembers(signer: SignerOrProvider, members: MemberDetails[]): Promise<void>;
+    attestMembers(signer: SignerOrProvider, members: MemberDetails[], callback?: Function): Promise<void>;
     /**
      * Add new details to the members of a project. Note that it will overwrite
      * any existing details.
