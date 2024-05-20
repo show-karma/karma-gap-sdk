@@ -133,7 +133,7 @@ export class GapIndexerClient extends Fetcher {
   async search(query: string): Promise<{projects: Project[]; communities: Community[]}> {
     const { data } = await this.apiClient.search(query);
 
-    return data as { projects: Project[]; communities: Community[] };
+    return {data} as unknown as { projects: Project[]; communities: Community[] };
   }
 
   async searchProjects(query: string): Promise<Project[]> {
