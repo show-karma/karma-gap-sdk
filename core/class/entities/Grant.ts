@@ -167,7 +167,8 @@ export class Grant extends Attestation<IGrant> {
    */
   async attest(
     signer: SignerOrProvider,
-    projectChainId: number
+    projectChainId: number,
+    callback?: Function
   ): Promise<void> {
     if (projectChainId !== this.chainID) {
       return this.attestProject(signer, projectChainId);
@@ -177,7 +178,8 @@ export class Grant extends Attestation<IGrant> {
 
     const uids = await GapContract.multiAttest(
       signer,
-      payload.map((p) => p[1])
+      payload.map((p) => p[1]),
+      callback
     );
 
     uids.forEach((uid, index) => {
@@ -187,7 +189,7 @@ export class Grant extends Attestation<IGrant> {
     console.log(uids);
   }
 
-  async attestUpdate(signer: SignerOrProvider, data: IGrantUpdate) {
+  async attestUpdate(signer: SignerOrProvider, data: IGrantUpdate, callback?: Function) {
     const grantUpdate = new GrantUpdate({
       data: {
         ...data,
@@ -198,11 +200,11 @@ export class Grant extends Attestation<IGrant> {
       schema: this.schema.gap.findSchema('GrantDetails'),
     });
 
-    await grantUpdate.attest(signer);
+    await grantUpdate.attest(signer, callback);
     this.updates.push(grantUpdate);
   }
 
-  async complete(signer: SignerOrProvider, data: IGrantUpdate) {
+  async complete(signer: SignerOrProvider, data: IGrantUpdate, callback?: Function) {
     const completed = new GrantCompleted({
       data: {
         ...data,
@@ -213,7 +215,7 @@ export class Grant extends Attestation<IGrant> {
       schema: this.schema.gap.findSchema('GrantDetails'),
     });
 
-    await completed.attest(signer);
+    await completed.attest(signer, callback);
     this.completed = completed;
   }
 

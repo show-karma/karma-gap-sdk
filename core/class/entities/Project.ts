@@ -78,11 +78,12 @@ export class Project extends Attestation<IProject> {
     return payload.slice(currentPayload.length, payload.length);
   }
 
-  async attest(signer: SignerOrProvider): Promise<void> {
+  async attest(signer: SignerOrProvider, callback?: Function): Promise<void> {
     const payload = await this.multiAttestPayload();
     const uids = await GapContract.multiAttest(
       signer,
-      payload.map((p) => p[1])
+      payload.map((p) => p[1]),
+      callback
     );
 
     uids.forEach((uid, index) => {
@@ -130,7 +131,7 @@ export class Project extends Attestation<IProject> {
    * @param signer
    * @param members
    */
-  async attestMembers(signer: SignerOrProvider, members: MemberDetails[]) {
+  async attestMembers(signer: SignerOrProvider, members: MemberDetails[],callback?: Function) {
     const newMembers = mapFilter(
       members,
       (member) => !this.members.find((m) => m.recipient === member.recipient),
@@ -156,7 +157,8 @@ export class Project extends Attestation<IProject> {
 
     const attestedMembers = <Hex[]>await this.schema.multiAttest(
       signer,
-      newMembers.map((m) => m.member)
+      newMembers.map((m) => m.member),
+      callback
     );
 
     console.log('attested-members', attestedMembers);
@@ -185,7 +187,8 @@ export class Project extends Attestation<IProject> {
    */
   private async addMemberDetails(
     signer: SignerOrProvider,
-    entities: MemberDetails[]
+    entities: MemberDetails[],
+    callback?: Function
   ) {
     // Check if any of members should be revoked (details modified)
     const toRevoke = mapFilter(
@@ -208,7 +211,7 @@ export class Project extends Attestation<IProject> {
     console.log(`Creating ${entities.length} new member details`);
 
     const attestedEntities = <Hex[]>(
-      await this.schema.multiAttest(signer, entities)
+      await this.schema.multiAttest(signer, entities, callback)
     );
     console.log('attested-entities', attestedEntities);
 

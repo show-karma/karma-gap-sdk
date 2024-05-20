@@ -35,6 +35,7 @@ export interface AttestArgs<T = unknown> {
   data: T;
   refUID?: Hex;
   signer: SignerOrProvider;
+  callback?: SignerOrProvider;
 }
 
 export type TSchemaName =

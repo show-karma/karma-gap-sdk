@@ -65,7 +65,8 @@ export class Community extends Attestation<ICommunity> {
    */
   async attest(
     signer: SignerOrProvider,
-    details?: ICommunityDetails
+    details?: ICommunityDetails,
+    callback?: Function
   ): Promise<void> {
     console.log('Attesting community');
     try {
@@ -76,6 +77,8 @@ export class Community extends Attestation<ICommunity> {
         data: this.data,
       });
       console.log(this.uid);
+    if (callback) callback('pending');
+
       if(details){
           const communityDetails = new CommunityDetails({
             data: details,
@@ -86,6 +89,7 @@ export class Community extends Attestation<ICommunity> {
       
           await communityDetails.attest(signer);
       }
+      if (callback) callback('completed');
     } catch (error) {
       console.error(error);
       throw new AttestationError('ATTEST_ERROR', 'Error during attestation.');

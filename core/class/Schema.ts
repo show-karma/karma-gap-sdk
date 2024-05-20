@@ -310,15 +310,15 @@ export abstract class Schema<T extends string = string>
    * @param {Object} param0 - An object containing the schema and other optional settings.
    * @returns {Object} An object containing the attestation results, including the CID if 'ipfsKey' is enabled.
    */
-  async attest<T>({ data, to, signer, refUID }: AttestArgs<T>): Promise<Hex> {
+  async attest<T>({ data, to, signer, refUID, callback }: AttestArgs<T> & { callback?: (status: string) => void }): Promise<Hex> {
     const eas = this.gap.eas.connect(signer);
-
+  
     if (this.references && !refUID)
       throw new AttestationError(
         "INVALID_REFERENCE",
         "Attestation schema references another schema but no reference UID was provided."
       );
-
+  
     if (this.isJsonSchema()) {
       const { remoteClient } = GAP;
       if (remoteClient) {
@@ -326,14 +326,14 @@ export abstract class Schema<T extends string = string>
         const encodedData = remoteClient.encode(cid);
         data = encodedData as T;
       }
-
+  
       this.setValue("json", JSON.stringify(data));
     } else {
       Object.entries(data).forEach(([key, value]) => {
         this.setValue(key, value);
       });
     }
-
+  
     const payload: RawAttestationPayload = {
       schema: this.uid,
       data: {
@@ -355,20 +355,26 @@ export abstract class Schema<T extends string = string>
         },
       },
     };
-
+  
     if (useDefaultAttestation.includes(this.name as TSchemaName)) {
       const tx = await eas.attest({
         schema: this.uid,
         data: payload.data.payload,
       });
-
-      return tx.wait() as Promise<Hex>;
+  
+      if (callback) callback('pending');
+  
+      const txResult = await tx.wait();
+  
+      if (callback) callback('completed');
+  
+      return txResult as Hex;
     }
-
+  
     const uid = await GapContract.attest(signer, payload);
-
     return uid;
   }
+  
 
   /**
    * Bulk attest a set of attestations.
@@ -376,7 +382,7 @@ export abstract class Schema<T extends string = string>
    * @param entities
    * @returns
    */
-  async multiAttest(signer: SignerOrProvider, entities: Attestation[] = []) {
+  async multiAttest(signer: SignerOrProvider, entities: Attestation[] = [],callback?: Function) {
     entities.forEach((entity) => {
       if (this.references && !entity.refUID)
         throw new SchemaError(
@@ -410,7 +416,9 @@ export abstract class Schema<T extends string = string>
     const tx = await eas.multiAttest(payload, {
       gasLimit: 5000000n,
     });
+    if (callback) callback('pending');
     return tx.wait();
+    if (callback) callback('completed');
   }
 
   /**

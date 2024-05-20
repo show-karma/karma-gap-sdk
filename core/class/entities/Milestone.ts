@@ -35,7 +35,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
    * @param signer
    * @param reason
    */
-  async approve(signer: SignerOrProvider, reason = '') {
+  async approve(signer: SignerOrProvider, reason = '', callback?: Function) {
     if (!this.completed)
       throw new AttestationError('ATTEST_ERROR', 'Milestone is not completed');
 
@@ -196,13 +196,14 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
   /**
    * @inheritdoc
    */
-  async attest(signer: SignerOrProvider): Promise<void> {
+  async attest(signer: SignerOrProvider, callback?: Function): Promise<void> {
     this.assertPayload();
     const payload = await this.multiAttestPayload();
 
     const uids = await GapContract.multiAttest(
       signer,
-      payload.map((p) => p[1])
+      payload.map((p) => p[1]),
+      callback
     );
 
     uids.forEach((uid, index) => {
@@ -215,7 +216,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
   /**
    * Attest the status of the milestone as approved, rejected or completed.
    */
-  private async attestStatus(signer: SignerOrProvider, schema: GapSchema) {
+  private async attestStatus(signer: SignerOrProvider, schema: GapSchema, callback?: Function) {
     const eas = this.schema.gap.eas.connect(signer);
     try {
       const tx = await eas.attest({
@@ -229,7 +230,9 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
         },
       });
 
+      if (callback) callback('pending');
       const uid = await tx.wait();
+      if (callback) callback('completed');
       console.log(uid);
     } catch (error: any) {
       console.error(error);
@@ -303,7 +306,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
    * @param signer
    * @param reason
    */
-    async verify(signer: SignerOrProvider, reason = '') {
+    async verify(signer: SignerOrProvider, reason = '', callback?: Function) {
       console.log('Verifying')
       if (!this.completed)
         throw new AttestationError('ATTEST_ERROR', 'Milestone is not completed');
@@ -313,7 +316,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
       schema.setValue('reason', reason);
   
       console.log('Before attestStatus');
-      await this.attestStatus(signer, schema);
+      await this.attestStatus(signer, schema, callback);
       console.log('After attestStatus');
 
       this.verified.push(new MilestoneCompleted({

@@ -38,7 +38,7 @@ export class GrantUpdate
   /**
    * Attest the status of the milestone as approved, rejected or completed.
    */
-  private async attestStatus(signer: SignerOrProvider, schema: GapSchema) {
+  private async attestStatus(signer: SignerOrProvider, schema: GapSchema, callback?: Function) {
     const eas = this.schema.gap.eas.connect(signer);
     try {
       const tx = await eas.attest({
@@ -51,8 +51,11 @@ export class GrantUpdate
           revocable: schema.revocable,
         },
       });
-
+      
+      if (callback) callback('pending');
       const uid = await tx.wait();
+      if (callback) callback('completed')
+
       console.log(uid);
     } catch (error: any) {
       console.error(error);
@@ -66,7 +69,7 @@ export class GrantUpdate
    * @param signer
    * @param reason
    */
-  async verify(signer: SignerOrProvider, reason = '') {
+  async verify(signer: SignerOrProvider, reason = '', callback?: Function) {
     console.log('Verifying');
 
     const schema = this.schema.gap.findSchema('GrantUpdateStatus');
@@ -74,7 +77,7 @@ export class GrantUpdate
     schema.setValue('reason', reason);
 
     console.log('Before attest grant update verified');
-    await this.attestStatus(signer, schema);
+    await this.attestStatus(signer, schema, callback);
     console.log('After attest grant update verified');
 
     this.verified.push(
