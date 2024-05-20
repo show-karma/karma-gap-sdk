@@ -22,12 +22,13 @@ export class MemberOf extends Attestation<IMemberOf> {
     return payload.slice(currentPayload.length, payload.length);
   }
 
-  async attest(signer: SignerOrProvider) {
+  async attest(signer: SignerOrProvider, callback?: Function) {
     const payload = await this.multiAttestPayload();
     try {
       const [memberUID, detailsUID] = await GapContract.multiAttest(
         signer,
-        payload.map((p) => p[1])
+        payload.map((p) => p[1]),
+        callback
       );
 
       this.uid = memberUID;

@@ -184,7 +184,8 @@ export class GapContract {
    */
   static async multiAttest(
     signer: SignerOrProvider,
-    payload: RawMultiAttestPayload[]
+    payload: RawMultiAttestPayload[],
+    callback?: Function
   ): Promise<Hex[]> {
     const contract = await GAP.getMulticall(signer);
 
@@ -194,9 +195,11 @@ export class GapContract {
 
     const tx = await contract.multiSequentialAttest(
       payload.map((p) => p.payload)
-    );
-
+      );
+      
+    if (callback) callback('pending');
     const result = await tx.wait?.();
+    if (callback) callback('completed');
     const attestations = getUIDsFromAttestReceipt(result);
 
     return attestations as Hex[];

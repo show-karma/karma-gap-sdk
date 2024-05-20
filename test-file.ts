@@ -22,8 +22,8 @@ import {
 import axios from 'axios';
 import CommunityResolverABI from './core/abi/CommunityResolverABI.json';
 import { GapIndexerApi } from './core/class/karma-indexer/api/GapIndexerApi';
-
-// const walletAddress = '0x5A4830885f12438E00D8f4d98e9Fe083e707698C';
+// 
+const walletAddress = '0x5A4830885f12438E00D8f4d98e9Fe083e707698C';
 // const web3 = new ethers.AlchemyProvider(
 //   'optimism-sepolia',
 //   '9FEqTNKmgO7X7ll92ALJrEih7Jjhldf-'
@@ -33,20 +33,20 @@ import { GapIndexerApi } from './core/class/karma-indexer/api/GapIndexerApi';
 //   web3 as any
 // );
 
-// const gap = new GAP({
-//   network: 'optimism-sepolia',
-//   apiClient: new GapIndexerClient('https://gapstagapi.karmahq.xyz'),
-//   remoteStorage: new IpfsStorage(
-//     {
-//       token:
-//         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweGVkMjAzYTRFODc3ZjFlQTk2MzkzY2M5YjhDNUU4NUUxM2U5OWI5NzEiLCJpc3MiOiJuZnQtc3RvcmFnZSIsImlhdCI6MTcwMDUxNTIzOTg5MSwibmFtZSI6IkdBUF9URVNUIn0.QwVmWPOXeDKCtWGFaLxGdllv-te1pKc4Jrj7rYlMdFk',
-//     },
-//     {
-//       url: 'https://gapstagapi.karmahq.xyz/ipfs',
-//       responseParser: (response: any) => response.cid,
-//     }
-//   ),
-// });
+const gap = new GAP({
+  network: 'optimism-sepolia',
+  apiClient: new GapIndexerClient('https://gapstagapi.karmahq.xyz'),
+  remoteStorage: new IpfsStorage(
+    {
+      token:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweGVkMjAzYTRFODc3ZjFlQTk2MzkzY2M5YjhDNUU4NUUxM2U5OWI5NzEiLCJpc3MiOiJuZnQtc3RvcmFnZSIsImlhdCI6MTcwMDUxNTIzOTg5MSwibmFtZSI6IkdBUF9URVNUIn0.QwVmWPOXeDKCtWGFaLxGdllv-te1pKc4Jrj7rYlMdFk',
+    },
+    {
+      url: 'https://gapstagapi.karmahq.xyz/ipfs',
+      responseParser: (response: any) => response.cid,
+    }
+  ),
+});
 
 // async function attestation() {
 //   const grant = new Grant({
@@ -155,28 +155,25 @@ import { GapIndexerApi } from './core/class/karma-indexer/api/GapIndexerApi';
 // //   console.log(response)
 // // })()
 
-// // (async () => {
-// //   const web3 = new ethers.AlchemyProvider('optimism', 'fx2SlVDrPbXwPMQT4v0lRT1PABA16Myl');
-// //   const localWallet = new ethers.Wallet('98f6ff7002240e302cee6665286079adb4dba0d49a8f927c1b9f5d622bae9939', web3 as any);
-
-// //   const completed = new MilestoneCompleted({
-// //     data: {
-// //       type: 'verified',
-// //       reason: 'a',
-// //     },
-// //     schema: gap.findSchema('MilestoneCompleted'),
-// //     refUID: '0x5da26f12eb078b150a225df91088f28d366c7210e9ef7e1b0448ea5f2dd92b1b',
-// //     recipient: "0x23B7A53ecfd93803C63b97316D7362eae59C55B6"
-// //   });
-
-// //   await completed.attest(localWallet as any);
-// //   console.log('Finish Attest: ', completed);
-// // })();
-
-
 (async () => {
-  const gap = new GapIndexerApi('http://0.0.0.0:3002');
-  console.log('here')
-  const response = await gap.adminOf("0x56D579a23C2D37D1E42923858Ce33856dF0Ae5dB");
-  console.log(response);
-})()
+  const web3 = new ethers.AlchemyProvider('optimism-sepolia', '9FEqTNKmgO7X7ll92ALJrEih7Jjhldf-');
+  const localWallet = new ethers.Wallet('98f6ff7002240e302cee6665286079adb4dba0d49a8f927c1b9f5d622bae9939', web3 as any);
+
+  const completed = new Milestone({
+    data: {
+      description: 'desc',
+      title: 'title',
+      endsAt: 111554200
+    },
+    schema: gap.findSchema('Milestone'),
+    refUID: '0x36da1d4a4e5965b88f35724baf6ca2f6610455f4df50012546ad5b13d45a6a6f',
+    recipient: walletAddress
+  });
+
+  await completed.attest(localWallet as any, (status) => {
+    console.log("tx status: ", status);
+  });
+  console.log('Finish Attest: ', completed);
+})();
+
+

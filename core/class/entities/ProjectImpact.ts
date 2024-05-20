@@ -50,7 +50,7 @@ export class ProjectImpact
   /**
    * Attest Project Impact.
    */
-  private async attestStatus(signer: SignerOrProvider, schema: GapSchema) {
+  private async attestStatus(signer: SignerOrProvider, schema: GapSchema, callback?: Function) {
     const eas = this.schema.gap.eas.connect(signer);
     try {
       const tx = await eas.attest({
@@ -64,7 +64,10 @@ export class ProjectImpact
         },
       });
 
+      if (callback) callback('pending');
       const uid = await tx.wait();
+      if (callback) callback('completed');
+
       console.log(uid);
     } catch (error: any) {
       console.error(error);
@@ -78,7 +81,7 @@ export class ProjectImpact
    * @param signer
    * @param reason
    */
-  async verify(signer: SignerOrProvider, reason = '') {
+  async verify(signer: SignerOrProvider, reason = '', callback?: Function) {
     console.log('Verifying ProjectImpact');
 
     const schema = this.schema.gap.findSchema('GrantUpdateStatus');
@@ -86,7 +89,7 @@ export class ProjectImpact
     schema.setValue('reason', reason);
 
     console.log('Before attest project impact verified');
-    await this.attestStatus(signer, schema);
+    await this.attestStatus(signer, schema, callback);
     console.log('After attest project impact verified');
 
     this.verified.push(
