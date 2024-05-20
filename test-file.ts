@@ -174,11 +174,9 @@ import { GapIndexerApi } from './core/class/karma-indexer/api/GapIndexerApi';
 // // })();
 
 
-(async() =>{
-  (async () => {
-    const gap = new GapIndexerApi('https://gapstagapi.karmahq.xyz');
-    console.log('here')
-    const response = await gap.communityAdmins("0x929de14333fe173c99cea73fe1356b0cd30041ef7b1752253105c60653fa1815");
-    console.log(response);
-  })()
-} )()
+(async () => {
+  const gap = new GapIndexerApi('http://0.0.0.0:3002');
+  console.log('here')
+  const response = await gap.adminOf("0x56D579a23C2D37D1E42923858Ce33856dF0Ae5dB");
+  console.log(response);
+})()
