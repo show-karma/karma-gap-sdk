@@ -20,6 +20,7 @@ export interface AttestArgs<T = unknown> {
     data: T;
     refUID?: Hex;
     signer: SignerOrProvider;
+    callback?: SignerOrProvider;
 }
 export type TSchemaName = "Community" | "CommunityDetails" | "Grant" | "GrantDetails" | "GrantVerified" | "MemberOf" | "MemberDetails" | "Milestone" | "MilestoneCompleted" | "MilestoneApproved" | "Project" | "ProjectDetails" | "Details" | "ProjectImpact" | "GrantUpdate" | "GrantUpdateStatus" | "ProjectEndorsement";
 export type TResolvedSchemaNames = "Community" | "Grant" | "GrantVerified" | "MemberOf" | "MilestoneCompleted" | "MilestoneApproved" | "Project" | "Details" | "GrantUpdateStatus";

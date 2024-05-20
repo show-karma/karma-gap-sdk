@@ -1,5 +1,5 @@
 import { AxiosGQL } from "../../GraphQL/AxiosGQL";
-import { Hex, IAttestationResponse, ICommunityResponse, IGrantResponse, IProjectResponse } from "./types";
+import { Hex, IAttestationResponse, ICommunityResponse, ICommunityAdminsResponse, IGrantResponse, IProjectResponse, ISearchResponse } from "./types";
 export declare class GapIndexerApi extends AxiosGQL {
     constructor(url: string);
     attestation(uid: Hex): Promise<import("axios").AxiosResponse<IAttestationResponse, any>>;
@@ -10,11 +10,14 @@ export declare class GapIndexerApi extends AxiosGQL {
      */
     communities(search?: string): Promise<import("axios").AxiosResponse<ICommunityResponse[], any>>;
     communitiesOf(address: Hex, withGrants: boolean): Promise<import("axios").AxiosResponse<ICommunityResponse[], any>>;
+    adminOf(address: Hex): Promise<import("axios").AxiosResponse<ICommunityResponse[], any>>;
     communityBySlug(slug: string): Promise<import("axios").AxiosResponse<ICommunityResponse, any>>;
+    communityAdmins(uid: Hex): Promise<import("axios").AxiosResponse<ICommunityAdminsResponse, any>>;
     /**
      * Project
      */
     projectBySlug(slug: string): Promise<import("axios").AxiosResponse<IProjectResponse, any>>;
+    search(query: string): Promise<import("axios").AxiosResponse<ISearchResponse, any>>;
     searchProjects(query: string): Promise<import("axios").AxiosResponse<IProjectResponse[], any>>;
     projects(name?: string): Promise<import("axios").AxiosResponse<IProjectResponse[], any>>;
     projectsOf(grantee: Hex): Promise<import("axios").AxiosResponse<IProjectResponse[], any>>;

@@ -140,7 +140,9 @@ export declare abstract class Schema<T extends string = string> implements Schem
      * @param {Object} param0 - An object containing the schema and other optional settings.
      * @returns {Object} An object containing the attestation results, including the CID if 'ipfsKey' is enabled.
      */
-    attest<T>({ data, to, signer, refUID }: AttestArgs<T>): Promise<Hex>;
+    attest<T>({ data, to, signer, refUID, callback }: AttestArgs<T> & {
+        callback?: (status: string) => void;
+    }): Promise<Hex>;
     /**
      * Bulk attest a set of attestations.
      * @param signer

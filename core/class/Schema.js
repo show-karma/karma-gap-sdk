@@ -219,7 +219,7 @@ class Schema {
      * @param {Object} param0 - An object containing the schema and other optional settings.
      * @returns {Object} An object containing the attestation results, including the CID if 'ipfsKey' is enabled.
      */
-    async attest({ data, to, signer, refUID }) {
+    async attest({ data, to, signer, refUID, callback }) {
         const eas = this.gap.eas.connect(signer);
         if (this.references && !refUID)
             throw new SchemaError_1.AttestationError("INVALID_REFERENCE", "Attestation schema references another schema but no reference UID was provided.");
@@ -263,7 +263,12 @@ class Schema {
                 schema: this.uid,
                 data: payload.data.payload,
             });
-            return tx.wait();
+            if (callback)
+                callback('pending');
+            const txResult = await tx.wait();
+            if (callback)
+                callback('completed');
+            return txResult;
         }
         const uid = await GapContract_1.GapContract.attest(signer, payload);
         return uid;

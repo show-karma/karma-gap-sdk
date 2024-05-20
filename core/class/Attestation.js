@@ -129,6 +129,7 @@ class Attestation {
      * @throws An `AttestationError` if an error occurs during attestation.
      */
     async attest(signer, ...args) {
+        const callback = typeof args[args.length - 1] === 'function' ? args.pop() : null;
         console.log(`Attesting ${this.schema.name}`);
         try {
             const uid = await this.schema.attest({
@@ -136,6 +137,7 @@ class Attestation {
                 to: this.recipient,
                 refUID: this.refUID,
                 signer,
+                callback: callback
             });
             this._uid = uid;
             console.log(`Attested ${this.schema.name} with UID ${uid}`);
