@@ -5,7 +5,7 @@ import { Fetcher } from '../Fetcher';
 import { Community, Project, Grant, Milestone, MemberOf } from '../entities';
 import { Grantee } from '../types/attestations';
 import { GapIndexerApi } from './api/GapIndexerApi';
-import { ICommunityResponse } from './api/types';
+import { ICommunityAdminsResponse, ICommunityResponse } from './api/types';
 
 const Endpoints = {
   attestations: {
@@ -126,6 +126,11 @@ export class GapIndexerClient extends Fetcher {
     return this.communityBySlug(uid);
   }
 
+  async communityAdmins(uid: `0x${string}`): Promise<ICommunityAdminsResponse> {
+    const { data } = await this.apiClient.communityAdmins(uid);
+    return data;
+  }
+
   async projectBySlug(slug: string): Promise<Project> {
     const { data } = await this.apiClient.projectBySlug(slug);
 
@@ -134,6 +139,12 @@ export class GapIndexerClient extends Fetcher {
 
   projectById(uid: `0x${string}`): Promise<Project> {
     return this.projectBySlug(uid);
+  }
+
+  async search(query: string): Promise<{projects: Project[]; communities: Community[]}> {
+    const { data } = await this.apiClient.search(query);
+
+    return {data} as unknown as { projects: Project[]; communities: Community[] };
   }
 
   async searchProjects(query: string): Promise<Project[]> {

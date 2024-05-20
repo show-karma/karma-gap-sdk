@@ -3,8 +3,10 @@ import {
   Hex,
   IAttestationResponse,
   ICommunityResponse,
+  ICommunityAdminsResponse,
   IGrantResponse,
   IProjectResponse,
+  ISearchResponse,
 } from "./types";
 
 const Endpoints = {
@@ -14,6 +16,7 @@ const Endpoints = {
   },
   communities: {
     all: () => "/communities",
+    admins: (uid: string) => `/communities/${uid}/admins`,
     byUidOrSlug: (uidOrSlug: string) => `/communities/${uidOrSlug}`,
     grants: (uidOrSlug: string) => `/communities/${uidOrSlug}/grants`,
   },
@@ -36,6 +39,9 @@ const Endpoints = {
     byUidOrSlug: (uidOrSlug: string) => `/projects/${uidOrSlug}`,
     grants: (uidOrSlug: string) => `/projects/${uidOrSlug}/grants`,
     milestones: (uidOrSlug: string) => `/projects/${uidOrSlug}/milestones`,
+  },
+  search: {
+    all: () => "/search",
   },
 };
 
@@ -119,6 +125,14 @@ export class GapIndexerApi extends AxiosGQL {
     return response;
   }
 
+  async communityAdmins(uid: Hex) {
+    const response = await this.client.get<ICommunityAdminsResponse>(
+      Endpoints.communities.admins(uid)
+    );
+
+    return response;
+  }
+
   /**
    * Project
    */
@@ -126,6 +140,19 @@ export class GapIndexerApi extends AxiosGQL {
   async projectBySlug(slug: string) {
     const response = await this.client.get<IProjectResponse>(
       Endpoints.project.byUidOrSlug(slug)
+    );
+
+    return response;
+  }
+
+  async search(query: string) {
+    const response = await this.client.get<ISearchResponse>(
+      Endpoints.search.all(),
+      {
+        params: {
+          q: query,
+        },
+      }
     );
 
     return response;
