@@ -115,7 +115,7 @@ export interface IProjectImpact extends IAttestationResponse {
     work: string;
     impact: string;
     proof: string;
-    startedAt: number;
+    startedAt?: number;
     completedAt: number;
     type: "project-impact";
   };

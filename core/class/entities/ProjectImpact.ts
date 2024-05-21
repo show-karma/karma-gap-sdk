@@ -26,7 +26,7 @@ export interface IProjectImpact {
   work: string;
   impact: string;
   proof: string;
-  startedAt: number;
+  startedAt?: number;
   completedAt: number;
   type?: string;
 }
@@ -38,7 +38,7 @@ export class ProjectImpact
   work: string;
   impact: string;
   proof: string;
-  startedAt: number;
+  startedAt?: number;
   completedAt: number;
   type?: string;
   verified: ProjectImpactStatus[] = [];
