@@ -192,14 +192,15 @@ export class GapContract {
     if (GAP.gelatoOpts?.useGasless) {
       return this.multiAttestBySig(signer, payload);
     }
+    if (callback) callback("preparing");
 
     const tx = await contract.multiSequentialAttest(
       payload.map((p) => p.payload)
-      );
-      
-    if (callback) callback('pending');
+    );
+
+    if (callback) callback("pending");
     const result = await tx.wait?.();
-    if (callback) callback('completed');
+    if (callback) callback("confirmed");
     const attestations = getUIDsFromAttestReceipt(result);
 
     return attestations as Hex[];

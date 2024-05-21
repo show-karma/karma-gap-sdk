@@ -58,6 +58,7 @@ export class ProjectImpact
   ) {
     const eas = this.schema.gap.eas.connect(signer);
     try {
+      if (callback) callback("preparing");
       const tx = await eas.attest({
         schema: schema.uid,
         data: {
@@ -71,7 +72,7 @@ export class ProjectImpact
 
       if (callback) callback("pending");
       const uid = await tx.wait();
-      if (callback) callback("completed");
+      if (callback) callback("confirmed");
 
       console.log(uid);
     } catch (error: any) {
