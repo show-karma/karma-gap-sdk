@@ -1,14 +1,13 @@
-import { SignerOrProvider, TNetwork } from '../../types';
-import { Attestation, AttestationArgs } from '../Attestation';
-import { GapSchema } from '../GapSchema';
-import { AttestationError } from '../SchemaError';
-import { AllGapSchemas } from '../AllGapSchemas';
-import { chainIdToNetwork } from '../../consts';
-
+import { SignerOrProvider, TNetwork } from "../../types";
+import { Attestation, AttestationArgs } from "../Attestation";
+import { GapSchema } from "../GapSchema";
+import { AttestationError } from "../SchemaError";
+import { AllGapSchemas } from "../AllGapSchemas";
+import { chainIdToNetwork } from "../../consts";
 
 export interface _IProjectImpact extends ProjectImpact {}
 
-type IStatus = 'verified';
+type IStatus = "verified";
 
 export interface IProjectImpactStatus {
   type: `project-impact-${IStatus}`;
@@ -27,6 +26,7 @@ export interface IProjectImpact {
   work: string;
   impact: string;
   proof: string;
+  startedAt?: number;
   completedAt: number;
   type?: string;
 }
@@ -38,6 +38,7 @@ export class ProjectImpact
   work: string;
   impact: string;
   proof: string;
+  startedAt?: number;
   completedAt: number;
   type?: string;
   verified: ProjectImpactStatus[] = [];
@@ -50,7 +51,11 @@ export class ProjectImpact
   /**
    * Attest Project Impact.
    */
-  private async attestStatus(signer: SignerOrProvider, schema: GapSchema, callback?: Function) {
+  private async attestStatus(
+    signer: SignerOrProvider,
+    schema: GapSchema,
+    callback?: Function
+  ) {
     const eas = this.schema.gap.eas.connect(signer);
     try {
       const tx = await eas.attest({
@@ -64,14 +69,14 @@ export class ProjectImpact
         },
       });
 
-      if (callback) callback('pending');
+      if (callback) callback("pending");
       const uid = await tx.wait();
-      if (callback) callback('completed');
+      if (callback) callback("completed");
 
       console.log(uid);
     } catch (error: any) {
       console.error(error);
-      throw new AttestationError('ATTEST_ERROR', error.message);
+      throw new AttestationError("ATTEST_ERROR", error.message);
     }
   }
 
@@ -81,21 +86,21 @@ export class ProjectImpact
    * @param signer
    * @param reason
    */
-  async verify(signer: SignerOrProvider, reason = '', callback?: Function) {
-    console.log('Verifying ProjectImpact');
+  async verify(signer: SignerOrProvider, reason = "", callback?: Function) {
+    console.log("Verifying ProjectImpact");
 
-    const schema = this.schema.gap.findSchema('GrantUpdateStatus');
-    schema.setValue('type', 'project-impact-verified');
-    schema.setValue('reason', reason);
+    const schema = this.schema.gap.findSchema("GrantUpdateStatus");
+    schema.setValue("type", "project-impact-verified");
+    schema.setValue("reason", reason);
 
-    console.log('Before attest project impact verified');
+    console.log("Before attest project impact verified");
     await this.attestStatus(signer, schema, callback);
-    console.log('After attest project impact verified');
+    console.log("After attest project impact verified");
 
     this.verified.push(
       new ProjectImpactStatus({
         data: {
-          type: 'project-impact-verified',
+          type: "project-impact-verified",
           reason,
         },
         refUID: this.uid,
@@ -105,26 +110,37 @@ export class ProjectImpact
     );
   }
 
-  static from(attestations: ProjectImpact[], network: TNetwork): ProjectImpact[] {
+  static from(
+    attestations: ProjectImpact[],
+    network: TNetwork
+  ): ProjectImpact[] {
     return attestations.map((attestation) => {
-      const projectImpact =  new ProjectImpact({
-            ...attestation,
-            data: {
-              ...attestation.data,
-            },
-            schema: new AllGapSchemas().findSchema('ProjectImpact', chainIdToNetwork[attestation.chainID] as TNetwork),
-            chainID: attestation.chainID,
+      const projectImpact = new ProjectImpact({
+        ...attestation,
+        data: {
+          ...attestation.data,
+        },
+        schema: new AllGapSchemas().findSchema(
+          "ProjectImpact",
+          chainIdToNetwork[attestation.chainID] as TNetwork
+        ),
+        chainID: attestation.chainID,
       });
 
       if (attestation.verified?.length > 0) {
-        projectImpact.verified = attestation.verified.map(m => new ProjectImpactStatus({
-          ...m,
-          data: {
-            ...m.data,
-          },
-          schema: new AllGapSchemas().findSchema('GrantUpdateStatus', chainIdToNetwork[attestation.chainID] as TNetwork),
-          chainID: attestation.chainID,
-        })
+        projectImpact.verified = attestation.verified.map(
+          (m) =>
+            new ProjectImpactStatus({
+              ...m,
+              data: {
+                ...m.data,
+              },
+              schema: new AllGapSchemas().findSchema(
+                "GrantUpdateStatus",
+                chainIdToNetwork[attestation.chainID] as TNetwork
+              ),
+              chainID: attestation.chainID,
+            })
         );
       }
 
