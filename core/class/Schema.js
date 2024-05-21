@@ -219,7 +219,7 @@ class Schema {
      * @param {Object} param0 - An object containing the schema and other optional settings.
      * @returns {Object} An object containing the attestation results, including the CID if 'ipfsKey' is enabled.
      */
-    async attest({ data, to, signer, refUID }) {
+    async attest({ data, to, signer, refUID, callback, }) {
         const eas = this.gap.eas.connect(signer);
         if (this.references && !refUID)
             throw new SchemaError_1.AttestationError("INVALID_REFERENCE", "Attestation schema references another schema but no reference UID was provided.");
@@ -259,11 +259,18 @@ class Schema {
             },
         };
         if (consts_1.useDefaultAttestation.includes(this.name)) {
+            if (callback)
+                callback("preparing");
             const tx = await eas.attest({
                 schema: this.uid,
                 data: payload.data.payload,
             });
-            return tx.wait();
+            if (callback)
+                callback("pending");
+            const txResult = await tx.wait();
+            if (callback)
+                callback("confirmed");
+            return txResult;
         }
         const uid = await GapContract_1.GapContract.attest(signer, payload);
         return uid;
@@ -274,7 +281,7 @@ class Schema {
      * @param entities
      * @returns
      */
-    async multiAttest(signer, entities = []) {
+    async multiAttest(signer, entities = [], callback) {
         entities.forEach((entity) => {
             if (this.references && !entity.refUID)
                 throw new SchemaError_1.SchemaError("INVALID_REF_UID", `Entity ${entity.schema.name} references another schema but no reference UID was provided.`);
@@ -296,10 +303,17 @@ class Schema {
                 expirationTime: 0n,
             })),
         }));
+        if (callback)
+            callback("preparing");
         const tx = await eas.multiAttest(payload, {
             gasLimit: 5000000n,
         });
-        return tx.wait();
+        if (callback)
+            callback("pending");
+        return tx.wait().then(() => {
+            if (callback)
+                callback("confirmed");
+        });
     }
     /**
      * Revokes a set of attestations by their UIDs.
@@ -446,11 +460,11 @@ class Schema {
 }
 exports.Schema = Schema;
 Schema.schemas = {
-    'optimism-sepolia': [],
+    "optimism-sepolia": [],
     // "optimism-goerli": [],
     optimism: [],
     sepolia: [],
     arbitrum: [],
     celo: [],
-    'base-sepolia': [],
+    "base-sepolia": [],
 };

@@ -48,9 +48,9 @@ export declare class Grant extends Attestation<IGrant> {
     /**
      * @inheritdoc
      */
-    attest(signer: SignerOrProvider, projectChainId: number): Promise<void>;
-    attestUpdate(signer: SignerOrProvider, data: IGrantUpdate): Promise<void>;
-    complete(signer: SignerOrProvider, data: IGrantUpdate): Promise<void>;
+    attest(signer: SignerOrProvider, projectChainId: number, callback?: Function): Promise<void>;
+    attestUpdate(signer: SignerOrProvider, data: IGrantUpdate, callback?: Function): Promise<void>;
+    complete(signer: SignerOrProvider, data: IGrantUpdate, callback?: Function): Promise<void>;
     /**
      * Validate if the grant has a valid reference to a community.
      */

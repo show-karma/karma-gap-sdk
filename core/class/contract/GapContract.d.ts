@@ -37,7 +37,7 @@ export declare class GapContract {
      *
      * @returns an array with the attestation UIDs.
      */
-    static multiAttest(signer: SignerOrProvider, payload: RawMultiAttestPayload[]): Promise<Hex[]>;
+    static multiAttest(signer: SignerOrProvider, payload: RawMultiAttestPayload[], callback?: Function): Promise<Hex[]>;
     /**
      * Performs a referenced multi attestation.
      *

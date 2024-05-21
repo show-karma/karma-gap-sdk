@@ -110,13 +110,19 @@ class GapContract {
      *
      * @returns an array with the attestation UIDs.
      */
-    static async multiAttest(signer, payload) {
+    static async multiAttest(signer, payload, callback) {
         const contract = await GAP_1.GAP.getMulticall(signer);
         if (GAP_1.GAP.gelatoOpts?.useGasless) {
             return this.multiAttestBySig(signer, payload);
         }
+        if (callback)
+            callback("preparing");
         const tx = await contract.multiSequentialAttest(payload.map((p) => p.payload));
+        if (callback)
+            callback("pending");
         const result = await tx.wait?.();
+        if (callback)
+            callback("confirmed");
         const attestations = (0, eas_sdk_1.getUIDsFromAttestReceipt)(result);
         return attestations;
     }

@@ -67,6 +67,10 @@ class GapIndexerClient extends Fetcher_1.Fetcher {
         const { data } = await this.apiClient.communitiesOf(address, withGrants);
         return entities_1.Community.from(data, this.gap.network);
     }
+    async adminOf(address) {
+        const { data } = await this.apiClient.adminOf(address);
+        return entities_1.Community.from(data, this.gap.network);
+    }
     async communitiesAdminOf(address, withGrants) {
         const { data } = await this.client.get(Endpoints.grantees.communitiesAdmin(address, withGrants));
         return entities_1.Community.from(data, this.gap.network);
@@ -81,12 +85,20 @@ class GapIndexerClient extends Fetcher_1.Fetcher {
     communityById(uid) {
         return this.communityBySlug(uid);
     }
+    async communityAdmins(uid) {
+        const { data } = await this.apiClient.communityAdmins(uid);
+        return data;
+    }
     async projectBySlug(slug) {
         const { data } = await this.apiClient.projectBySlug(slug);
         return entities_1.Project.from([data], this.gap.network)[0];
     }
     projectById(uid) {
         return this.projectBySlug(uid);
+    }
+    async search(query) {
+        const { data } = await this.apiClient.search(query);
+        return { data };
     }
     async searchProjects(query) {
         const { data } = await this.apiClient.searchProjects(query);

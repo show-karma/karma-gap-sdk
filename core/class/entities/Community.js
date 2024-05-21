@@ -40,9 +40,11 @@ class Community extends Attestation_1.Attestation {
      * @param signer
      * @param details
      */
-    async attest(signer, details) {
-        console.log('Attesting community');
+    async attest(signer, details, callback) {
+        console.log("Attesting community");
         try {
+            if (callback)
+                callback("preparing");
             this._uid = await this.schema.attest({
                 signer,
                 to: this.recipient,
@@ -50,19 +52,23 @@ class Community extends Attestation_1.Attestation {
                 data: this.data,
             });
             console.log(this.uid);
+            if (callback)
+                callback("pending");
             if (details) {
                 const communityDetails = new attestations_1.CommunityDetails({
                     data: details,
                     recipient: this.recipient,
                     refUID: this.uid,
-                    schema: this.schema.gap.findSchema('CommunityDetails'),
+                    schema: this.schema.gap.findSchema("CommunityDetails"),
                 });
                 await communityDetails.attest(signer);
             }
+            if (callback)
+                callback("confirmed");
         }
         catch (error) {
             console.error(error);
-            throw new SchemaError_1.AttestationError('ATTEST_ERROR', 'Error during attestation.');
+            throw new SchemaError_1.AttestationError("ATTEST_ERROR", "Error during attestation.");
         }
     }
     static from(attestations, network) {
@@ -72,7 +78,7 @@ class Community extends Attestation_1.Attestation {
                 data: {
                     community: true,
                 },
-                schema: GapSchema_1.GapSchema.find('Community', network),
+                schema: GapSchema_1.GapSchema.find("Community", network),
                 chainID: attestation.chainID,
             });
             if (attestation.details) {
@@ -82,7 +88,7 @@ class Community extends Attestation_1.Attestation {
                     data: {
                         ...details.data,
                     },
-                    schema: GapSchema_1.GapSchema.find('CommunityDetails', network),
+                    schema: GapSchema_1.GapSchema.find("CommunityDetails", network),
                     chainID: attestation.chainID,
                 });
             }

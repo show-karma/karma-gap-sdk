@@ -1,9 +1,9 @@
-import { Attestation } from '../Attestation';
-import { CommunityDetails, ICommunityDetails } from '../types/attestations';
-import { Project } from './Project';
-import { MultiAttestPayload, SignerOrProvider, TNetwork } from 'core/types';
-import { Grant } from './Grant';
-import { ICommunityResponse } from '../karma-indexer/api/types';
+import { Attestation } from "../Attestation";
+import { CommunityDetails, ICommunityDetails } from "../types/attestations";
+import { Project } from "./Project";
+import { MultiAttestPayload, SignerOrProvider, TNetwork } from "core/types";
+import { Grant } from "./Grant";
+import { ICommunityResponse } from "../karma-indexer/api/types";
 export interface ICommunity {
     community: true;
 }
@@ -29,6 +29,6 @@ export declare class Community extends Attestation<ICommunity> {
      * @param signer
      * @param details
      */
-    attest(signer: SignerOrProvider, details?: ICommunityDetails): Promise<void>;
+    attest(signer: SignerOrProvider, details?: ICommunityDetails, callback?: Function): Promise<void>;
     static from(attestations: ICommunityResponse[], network: TNetwork): Community[];
 }

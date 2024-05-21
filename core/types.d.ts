@@ -15,16 +15,18 @@ export interface MultiRevokeArgs {
     uid: Hex;
     schemaId: Hex;
 }
+type CallbackStatus = "pending" | "confirmed" | "preparing";
 export interface AttestArgs<T = unknown> {
     to: Hex;
     data: T;
     refUID?: Hex;
     signer: SignerOrProvider;
+    callback?: (status: CallbackStatus) => void;
 }
 export type TSchemaName = "Community" | "CommunityDetails" | "Grant" | "GrantDetails" | "GrantVerified" | "MemberOf" | "MemberDetails" | "Milestone" | "MilestoneCompleted" | "MilestoneApproved" | "Project" | "ProjectDetails" | "Details" | "ProjectImpact" | "GrantUpdate" | "GrantUpdateStatus" | "ProjectEndorsement";
 export type TResolvedSchemaNames = "Community" | "Grant" | "GrantVerified" | "MemberOf" | "MilestoneCompleted" | "MilestoneApproved" | "Project" | "Details" | "GrantUpdateStatus";
 export type TExternalLink = "twitter" | "github" | "website" | "linkedin" | "discord";
-export type TNetwork = "optimism" | 'celo' | "optimism-sepolia" | "arbitrum" | 'sepolia' | 'base-sepolia';
+export type TNetwork = "optimism" | "celo" | "optimism-sepolia" | "arbitrum" | "sepolia" | "base-sepolia";
 /**
  * Generic GAP Facade interface.
  * This supplies the GAP class with the necessary properties.
@@ -116,3 +118,4 @@ export type TRemoteStorageOutput<T = unknown> = {
     hash: T;
     storageType: number;
 };
+export {};

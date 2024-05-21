@@ -45,6 +45,10 @@ export declare class GapEasClient extends Fetcher {
     projectById(uid: Hex): Promise<Project>;
     projectBySlug(slug: string): Promise<Project>;
     slugExists(slug: string): Promise<boolean>;
+    search(query: string): Promise<{
+        projects: Project[];
+        communities: Community[];
+    }>;
     searchProjects(query: string): Promise<Project[]>;
     projects(name?: string): Promise<Project[]>;
     projectsOf(grantee: Hex): Promise<Project[]>;

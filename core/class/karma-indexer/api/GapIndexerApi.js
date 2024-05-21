@@ -9,6 +9,7 @@ const Endpoints = {
     },
     communities: {
         all: () => "/communities",
+        admins: (uid) => `/communities/${uid}/admins`,
         byUidOrSlug: (uidOrSlug) => `/communities/${uidOrSlug}`,
         grants: (uidOrSlug) => `/communities/${uidOrSlug}/grants`,
     },
@@ -18,6 +19,7 @@ const Endpoints = {
         grants: (address) => `/grantees/${address}/grants`,
         projects: (address) => `/grantees/${address}/projects`,
         communities: (address, withGrants) => `/grantees/${address}/communities${withGrants ? "?withGrants=true" : ""}`,
+        adminOf: (address) => `/grantees/${address}/communities/admin`,
     },
     grants: {
         all: () => "/grants",
@@ -29,6 +31,9 @@ const Endpoints = {
         byUidOrSlug: (uidOrSlug) => `/projects/${uidOrSlug}`,
         grants: (uidOrSlug) => `/projects/${uidOrSlug}/grants`,
         milestones: (uidOrSlug) => `/projects/${uidOrSlug}/milestones`,
+    },
+    search: {
+        all: () => "/search",
     },
 };
 class GapIndexerApi extends AxiosGQL_1.AxiosGQL {
@@ -72,8 +77,16 @@ class GapIndexerApi extends AxiosGQL_1.AxiosGQL {
         const response = await this.client.get(Endpoints.grantees.communities(address, withGrants));
         return response;
     }
+    async adminOf(address) {
+        const response = await this.client.get(Endpoints.grantees.adminOf(address));
+        return response;
+    }
     async communityBySlug(slug) {
         const response = await this.client.get(Endpoints.communities.byUidOrSlug(slug));
+        return response;
+    }
+    async communityAdmins(uid) {
+        const response = await this.client.get(Endpoints.communities.admins(uid));
         return response;
     }
     /**
@@ -81,6 +94,14 @@ class GapIndexerApi extends AxiosGQL_1.AxiosGQL {
      */
     async projectBySlug(slug) {
         const response = await this.client.get(Endpoints.project.byUidOrSlug(slug));
+        return response;
+    }
+    async search(query) {
+        const response = await this.client.get(Endpoints.search.all(), {
+            params: {
+                q: query,
+            },
+        });
         return response;
     }
     async searchProjects(query) {

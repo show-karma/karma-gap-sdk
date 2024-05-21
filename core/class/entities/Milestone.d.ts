@@ -1,8 +1,8 @@
-import { MultiAttestPayload, SignerOrProvider, TNetwork } from '../../types';
-import { Attestation } from '../Attestation';
-import { GapSchema } from '../GapSchema';
-import { IMilestoneResponse } from '../karma-indexer/api/types';
-import { MilestoneCompleted } from '../types/attestations';
+import { MultiAttestPayload, SignerOrProvider, TNetwork } from "../../types";
+import { Attestation } from "../Attestation";
+import { GapSchema } from "../GapSchema";
+import { IMilestoneResponse } from "../karma-indexer/api/types";
+import { MilestoneCompleted } from "../types/attestations";
 export interface IMilestone {
     title: string;
     startsAt?: number;
@@ -26,7 +26,7 @@ export declare class Milestone extends Attestation<IMilestone> implements IMiles
      * @param signer
      * @param reason
      */
-    approve(signer: SignerOrProvider, reason?: string): Promise<void>;
+    approve(signer: SignerOrProvider, reason?: string, callback?: Function): Promise<void>;
     /**
      * Revokes the approved status of the milestone. If the milestone is not approved,
      * it will throw an error.
@@ -73,17 +73,17 @@ export declare class Milestone extends Attestation<IMilestone> implements IMiles
     /**
      * @inheritdoc
      */
-    attest(signer: SignerOrProvider): Promise<void>;
+    attest(signer: SignerOrProvider, callback?: Function): Promise<void>;
     /**
      * Attest the status of the milestone as approved, rejected or completed.
      */
     private attestStatus;
     static from(attestations: IMilestoneResponse[], network: TNetwork): Milestone[];
     /**
-   * Verify this milestone. If the milestone is not completed or already verified,
-   * it will throw an error.
-   * @param signer
-   * @param reason
-   */
-    verify(signer: SignerOrProvider, reason?: string): Promise<void>;
+     * Verify this milestone. If the milestone is not completed or already verified,
+     * it will throw an error.
+     * @param signer
+     * @param reason
+     */
+    verify(signer: SignerOrProvider, reason?: string, callback?: Function): Promise<void>;
 }

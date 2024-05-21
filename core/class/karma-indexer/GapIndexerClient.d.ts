@@ -4,6 +4,7 @@ import { GapSchema } from '../GapSchema';
 import { Fetcher } from '../Fetcher';
 import { Community, Project, Grant, Milestone, MemberOf } from '../entities';
 import { Grantee } from '../types/attestations';
+import { ICommunityAdminsResponse } from './api/types';
 export declare class GapIndexerClient extends Fetcher {
     private apiClient;
     constructor(params: any);
@@ -13,12 +14,18 @@ export declare class GapIndexerClient extends Fetcher {
     attestationsTo(schemaName: TSchemaName, recipient: `0x${string}`): Promise<IAttestation[]>;
     communities(search?: string): Promise<Community[]>;
     communitiesOf(address: Hex, withGrants: boolean): Promise<Community[]>;
+    adminOf(address: Hex): Promise<Community[]>;
     communitiesAdminOf(address: Hex, withGrants: boolean): Promise<Community[]>;
     communitiesByIds(uids: `0x${string}`[]): Promise<Community[]>;
     communityBySlug(slug: string): Promise<Community>;
     communityById(uid: `0x${string}`): Promise<Community>;
+    communityAdmins(uid: `0x${string}`): Promise<ICommunityAdminsResponse>;
     projectBySlug(slug: string): Promise<Project>;
     projectById(uid: `0x${string}`): Promise<Project>;
+    search(query: string): Promise<{
+        projects: Project[];
+        communities: Community[];
+    }>;
     searchProjects(query: string): Promise<Project[]>;
     projects(name?: string): Promise<Project[]>;
     projectsOf(grantee: `0x${string}`): Promise<Project[]>;
