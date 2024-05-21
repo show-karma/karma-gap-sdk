@@ -116,6 +116,7 @@ export interface IProjectImpact extends IAttestationResponse {
         work: string;
         impact: string;
         proof: string;
+        startedAt?: number;
         completedAt: number;
         type: "project-impact";
     };
@@ -124,7 +125,7 @@ export interface IProjectEndorsement extends IAttestationResponse {
     type: "ProjectEndorsement";
     data: {
         comment?: string;
-        type?: 'project-endorsement';
+        type?: "project-endorsement";
     };
 }
 export interface IProjectResponse extends IAttestationResponse {

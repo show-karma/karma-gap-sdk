@@ -31,15 +31,15 @@ class ProjectImpact extends Attestation_1.Attestation {
                 },
             });
             if (callback)
-                callback('pending');
+                callback("pending");
             const uid = await tx.wait();
             if (callback)
-                callback('completed');
+                callback("completed");
             console.log(uid);
         }
         catch (error) {
             console.error(error);
-            throw new SchemaError_1.AttestationError('ATTEST_ERROR', error.message);
+            throw new SchemaError_1.AttestationError("ATTEST_ERROR", error.message);
         }
     }
     /**
@@ -48,17 +48,17 @@ class ProjectImpact extends Attestation_1.Attestation {
      * @param signer
      * @param reason
      */
-    async verify(signer, reason = '', callback) {
-        console.log('Verifying ProjectImpact');
-        const schema = this.schema.gap.findSchema('GrantUpdateStatus');
-        schema.setValue('type', 'project-impact-verified');
-        schema.setValue('reason', reason);
-        console.log('Before attest project impact verified');
+    async verify(signer, reason = "", callback) {
+        console.log("Verifying ProjectImpact");
+        const schema = this.schema.gap.findSchema("GrantUpdateStatus");
+        schema.setValue("type", "project-impact-verified");
+        schema.setValue("reason", reason);
+        console.log("Before attest project impact verified");
         await this.attestStatus(signer, schema, callback);
-        console.log('After attest project impact verified');
+        console.log("After attest project impact verified");
         this.verified.push(new ProjectImpactStatus({
             data: {
-                type: 'project-impact-verified',
+                type: "project-impact-verified",
                 reason,
             },
             refUID: this.uid,
@@ -73,16 +73,16 @@ class ProjectImpact extends Attestation_1.Attestation {
                 data: {
                     ...attestation.data,
                 },
-                schema: new AllGapSchemas_1.AllGapSchemas().findSchema('ProjectImpact', consts_1.chainIdToNetwork[attestation.chainID]),
+                schema: new AllGapSchemas_1.AllGapSchemas().findSchema("ProjectImpact", consts_1.chainIdToNetwork[attestation.chainID]),
                 chainID: attestation.chainID,
             });
             if (attestation.verified?.length > 0) {
-                projectImpact.verified = attestation.verified.map(m => new ProjectImpactStatus({
+                projectImpact.verified = attestation.verified.map((m) => new ProjectImpactStatus({
                     ...m,
                     data: {
                         ...m.data,
                     },
-                    schema: new AllGapSchemas_1.AllGapSchemas().findSchema('GrantUpdateStatus', consts_1.chainIdToNetwork[attestation.chainID]),
+                    schema: new AllGapSchemas_1.AllGapSchemas().findSchema("GrantUpdateStatus", consts_1.chainIdToNetwork[attestation.chainID]),
                     chainID: attestation.chainID,
                 }));
             }
