@@ -97,13 +97,7 @@ export class Project extends Attestation<IProject> {
     callback?: Function
   ) {
     callback?.("preparing");
-    const tx = await GapContract.transferProjectOwnership(
-      signer,
-      this.uid,
-      newOwner
-    );
-    callback?.("pending");
-    await tx.wait?.();
+    await GapContract.transferProjectOwnership(signer, this.uid, newOwner);
     callback?.("confirmed");
   }
 
