@@ -1,8 +1,8 @@
-import { Attestation, AttestationArgs } from '../Attestation';
-import { Hex } from 'core/types';
-import { Project } from '../entities/Project';
-import { GapSchema } from '../GapSchema';
-import { GrantUpdate } from '../entities/GrantUpdate';
+import { Attestation, AttestationArgs } from "../Attestation";
+import { Hex, SignerOrProvider } from "core/types";
+import { Project } from "../entities/Project";
+import { GapSchema } from "../GapSchema";
+import { GrantUpdate } from "../entities/GrantUpdate";
 /** Attestation interfaces */
 export type ExternalLink = {
     type: string;
@@ -105,6 +105,7 @@ export declare class ProjectDetails extends Attestation<IProjectDetails> impleme
     slug: string;
     type: string;
     externalIds: string[];
+    attest(signer: SignerOrProvider, callback?: Function): Promise<void>;
 }
 export declare class Grantee {
     address: string;

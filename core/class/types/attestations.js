@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProjectEndorsement = exports.GrantCompleted = exports.Grantee = exports.ProjectDetails = exports.Tag = exports.MilestoneCompleted = exports.MemberDetails = exports.GrantVerified = exports.GrantRound = exports.GrantDetails = exports.CommunityDetails = void 0;
 const Attestation_1 = require("../Attestation");
 const GrantUpdate_1 = require("../entities/GrantUpdate");
+const SchemaError_1 = require("../SchemaError");
 class CommunityDetails extends Attestation_1.Attestation {
     constructor() {
         super(...arguments);
@@ -40,6 +41,24 @@ class ProjectDetails extends Attestation_1.Attestation {
         this.tags = [];
         this.type = "project-details";
         this.externalIds = [];
+    }
+    async attest(signer, callback) {
+        console.log("Attesting community");
+        try {
+            callback?.("preparing");
+            this._uid = await this.schema.attest({
+                data: this.data,
+                to: this.recipient,
+                refUID: this.refUID,
+                signer,
+            });
+            callback?.("pending");
+            callback?.("confirmed");
+        }
+        catch (error) {
+            console.error(error);
+            throw new SchemaError_1.AttestationError("ATTEST_ERROR", "Error during attestation.");
+        }
     }
 }
 exports.ProjectDetails = ProjectDetails;
