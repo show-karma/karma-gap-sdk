@@ -91,8 +91,20 @@ export class Project extends Attestation<IProject> {
     });
   }
 
-  async transferOwnership(signer: SignerOrProvider, newOwner: Hex) {
-    await GapContract.transferProjectOwnership(signer, this.uid, newOwner);
+  async transferOwnership(
+    signer: SignerOrProvider,
+    newOwner: Hex,
+    callback?: Function
+  ) {
+    callback?.("preparing");
+    const tx = await GapContract.transferProjectOwnership(
+      signer,
+      this.uid,
+      newOwner
+    );
+    callback?.("pending");
+    await tx.wait?.();
+    callback?.("confirmed");
   }
 
   isOwner(signer: SignerOrProvider): Promise<boolean> {
