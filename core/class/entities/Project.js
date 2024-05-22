@@ -50,8 +50,12 @@ class Project extends Attestation_1.Attestation {
             payload[index][0].uid = uid;
         });
     }
-    async transferOwnership(signer, newOwner) {
-        await GapContract_1.GapContract.transferProjectOwnership(signer, this.uid, newOwner);
+    async transferOwnership(signer, newOwner, callback) {
+        callback?.("preparing");
+        const tx = await GapContract_1.GapContract.transferProjectOwnership(signer, this.uid, newOwner);
+        callback?.("pending");
+        await tx.wait?.();
+        callback?.("confirmed");
     }
     isOwner(signer) {
         return GapContract_1.GapContract.isProjectOwner(signer, this.uid, this.chainID);
