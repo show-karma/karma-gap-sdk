@@ -78,5 +78,22 @@ class ProjectEndorsement extends Attestation_1.Attestation {
         data.data.type = "project-endorsement";
         super(data);
     }
+    async attest(signer, callback) {
+        console.log("Attesting project endorsement");
+        try {
+            callback?.("preparing");
+            this._uid = await this.schema.attest({
+                data: this.data,
+                to: this.recipient,
+                refUID: this.refUID,
+                signer,
+            });
+            callback?.("confirmed");
+        }
+        catch (error) {
+            console.error(error);
+            throw new SchemaError_1.AttestationError("ATTEST_ERROR", "Error during attestation.");
+        }
+    }
 }
 exports.ProjectEndorsement = ProjectEndorsement;

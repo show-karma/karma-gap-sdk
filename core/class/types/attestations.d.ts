@@ -127,4 +127,5 @@ export declare class ProjectEndorsement extends Attestation<IProjectEndorsement>
     comment?: string;
     type?: string;
     constructor(data: AttestationArgs<IProjectEndorsement, GapSchema>);
+    attest(signer: SignerOrProvider, callback?: Function): Promise<void>;
 }
