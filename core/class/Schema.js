@@ -269,9 +269,7 @@ class Schema {
             callback?.("confirmed");
             return txResult;
         }
-        callback?.("pending");
         const uid = await GapContract_1.GapContract.attest(signer, payload, callback);
-        callback?.("confirmed");
         return uid;
     }
     /**

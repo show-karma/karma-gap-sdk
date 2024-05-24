@@ -78,12 +78,19 @@ class GapContract {
             return this.attestBySig(signer, payload);
         }
         callback?.("preparing");
-        const tx = await contract.attest({
+        console.log("preparing");
+        const tx = await contract
+            .attest({
             schema: payload.schema,
             data: payload.data.payload,
+        })
+            .then((res) => {
+            callback?.("pending");
+            console.log("pending");
+            return res;
         });
-        callback?.("pending");
         const result = await tx.wait?.();
+        console.log("confirmed");
         callback?.("confirmed");
         const attestations = (0, eas_sdk_1.getUIDsFromAttestReceipt)(result)[0];
         return attestations;
