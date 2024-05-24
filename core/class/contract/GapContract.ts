@@ -1,4 +1,5 @@
 import {
+  CallbackStatus,
   Hex,
   RawAttestationPayload,
   RawMultiAttestPayload,
@@ -113,20 +114,26 @@ export class GapContract {
    */
   static async attest(
     signer: SignerOrProvider,
-    payload: RawAttestationPayload
+    payload: RawAttestationPayload,
+    callback?: ((status: CallbackStatus) => void) & ((status: string) => void)
   ) {
     const contract = await GAP.getMulticall(signer);
 
     if (GAP.gelatoOpts?.useGasless) {
       return this.attestBySig(signer, payload);
     }
-
-    const tx = await contract.attest({
-      schema: payload.schema,
-      data: payload.data.payload,
-    });
-
+    callback?.("preparing");
+    const tx = await contract
+      .attest({
+        schema: payload.schema,
+        data: payload.data.payload,
+      })
+      .then((res) => {
+        callback?.("pending");
+        return res;
+      });
     const result = await tx.wait?.();
+    callback?.("confirmed");
     const attestations = getUIDsFromAttestReceipt(result)[0];
 
     return attestations as Hex;

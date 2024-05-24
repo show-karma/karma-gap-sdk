@@ -316,7 +316,7 @@ export abstract class Schema<T extends string = string>
     signer,
     refUID,
     callback,
-  }: AttestArgs<T> & { callback?: (status: string) => void }): Promise<Hex> {
+  }: AttestArgs<T>): Promise<Hex> {
     const eas = this.gap.eas.connect(signer);
 
     if (this.references && !refUID)
@@ -362,23 +362,23 @@ export abstract class Schema<T extends string = string>
       },
     };
 
+    callback?.("preparing");
     if (useDefaultAttestation.includes(this.name as TSchemaName)) {
-      if (callback) callback("preparing");
       const tx = await eas.attest({
         schema: this.uid,
         data: payload.data.payload,
       });
 
-      if (callback) callback("pending");
+      callback?.("pending");
 
       const txResult = await tx.wait();
 
-      if (callback) callback("confirmed");
+      callback?.("confirmed");
 
       return txResult as Hex;
     }
 
-    const uid = await GapContract.attest(signer, payload);
+    const uid = await GapContract.attest(signer, payload, callback);
     return uid;
   }
 

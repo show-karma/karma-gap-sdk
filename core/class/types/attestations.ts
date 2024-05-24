@@ -139,25 +139,6 @@ export class ProjectDetails
   slug: string;
   type = "project-details";
   externalIds: string[] = [];
-
-  async attest(signer: SignerOrProvider, callback?: Function): Promise<void> {
-    console.log("Attesting community");
-    try {
-      callback?.("preparing");
-      this._uid = await this.schema.attest({
-        data: this.data,
-        to: this.recipient,
-        refUID: this.refUID,
-        signer,
-      });
-      callback?.("pending");
-
-      callback?.("confirmed");
-    } catch (error) {
-      console.error(error);
-      throw new AttestationError("ATTEST_ERROR", "Error during attestation.");
-    }
-  }
 }
 
 export class Grantee {

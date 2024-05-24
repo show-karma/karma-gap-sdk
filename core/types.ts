@@ -30,7 +30,7 @@ export interface MultiRevokeArgs {
   schemaId: Hex;
 }
 
-type CallbackStatus = "pending" | "confirmed" | "preparing";
+export type CallbackStatus = "pending" | "confirmed" | "preparing";
 
 export interface AttestArgs<T = unknown> {
   to: Hex;
