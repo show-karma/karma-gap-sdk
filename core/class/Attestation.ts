@@ -188,6 +188,7 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
         : null;
     console.log(`Attesting ${this.schema.name}`);
     try {
+      callback?.("preparing");
       const uid = await this.schema.attest<T>({
         data: this.data,
         to: this.recipient,
@@ -196,6 +197,7 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
         callback: callback,
       });
       this._uid = uid;
+      callback?.("confirmed");
       console.log(`Attested ${this.schema.name} with UID ${uid}`);
     } catch (error) {
       console.error(error);
