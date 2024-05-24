@@ -137,7 +137,6 @@ class Attestation {
             : null;
         console.log(`Attesting ${this.schema.name}`);
         try {
-            callback?.("preparing");
             const uid = await this.schema.attest({
                 data: this.data,
                 to: this.recipient,
@@ -146,7 +145,6 @@ class Attestation {
                 callback: callback,
             });
             this._uid = uid;
-            callback?.("confirmed");
             console.log(`Attested ${this.schema.name} with UID ${uid}`);
         }
         catch (error) {

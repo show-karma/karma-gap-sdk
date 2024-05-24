@@ -1,5 +1,5 @@
 import { Attestation, AttestationArgs } from "../Attestation";
-import { Hex, SignerOrProvider } from "core/types";
+import { Hex } from "core/types";
 import { Project } from "../entities/Project";
 import { GapSchema } from "../GapSchema";
 import { GrantUpdate } from "../entities/GrantUpdate";
@@ -105,7 +105,6 @@ export declare class ProjectDetails extends Attestation<IProjectDetails> impleme
     slug: string;
     type: string;
     externalIds: string[];
-    attest(signer: SignerOrProvider, callback?: Function): Promise<void>;
 }
 export declare class Grantee {
     address: string;
@@ -127,5 +126,4 @@ export declare class ProjectEndorsement extends Attestation<IProjectEndorsement>
     comment?: string;
     type?: string;
     constructor(data: AttestationArgs<IProjectEndorsement, GapSchema>);
-    attest(signer: SignerOrProvider, callback?: Function): Promise<void>;
 }

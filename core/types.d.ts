@@ -15,7 +15,7 @@ export interface MultiRevokeArgs {
     uid: Hex;
     schemaId: Hex;
 }
-type CallbackStatus = "pending" | "confirmed" | "preparing";
+export type CallbackStatus = "pending" | "confirmed" | "preparing";
 export interface AttestArgs<T = unknown> {
     to: Hex;
     data: T;
@@ -118,4 +118,3 @@ export type TRemoteStorageOutput<T = unknown> = {
     hash: T;
     storageType: number;
 };
-export {};

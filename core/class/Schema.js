@@ -258,21 +258,20 @@ class Schema {
                 },
             },
         };
+        callback?.("preparing");
         if (consts_1.useDefaultAttestation.includes(this.name)) {
-            if (callback)
-                callback("preparing");
             const tx = await eas.attest({
                 schema: this.uid,
                 data: payload.data.payload,
             });
-            if (callback)
-                callback("pending");
+            callback?.("pending");
             const txResult = await tx.wait();
-            if (callback)
-                callback("confirmed");
+            callback?.("confirmed");
             return txResult;
         }
-        const uid = await GapContract_1.GapContract.attest(signer, payload);
+        callback?.("pending");
+        const uid = await GapContract_1.GapContract.attest(signer, payload, callback);
+        callback?.("confirmed");
         return uid;
     }
     /**
