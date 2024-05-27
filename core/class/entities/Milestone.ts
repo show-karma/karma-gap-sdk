@@ -122,7 +122,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
    * @param signer
    * @param reason
    */
-  async complete(signer: SignerOrProvider, reason = "", callback) {
+  async complete(signer: SignerOrProvider, reason = "", callback?: Function) {
     const schema = this.schema.gap.findSchema("MilestoneCompleted");
     schema.setValue("type", "completed");
     schema.setValue("reason", reason);
