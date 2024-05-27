@@ -95,11 +95,11 @@ class Milestone extends Attestation_1.Attestation {
      * @param signer
      * @param reason
      */
-    async complete(signer, reason = "") {
+    async complete(signer, reason = "", callback) {
         const schema = this.schema.gap.findSchema("MilestoneCompleted");
         schema.setValue("type", "completed");
         schema.setValue("reason", reason);
-        await this.attestStatus(signer, schema);
+        await this.attestStatus(signer, schema, callback);
         this.completed = new attestations_1.MilestoneCompleted({
             data: {
                 type: "completed",
