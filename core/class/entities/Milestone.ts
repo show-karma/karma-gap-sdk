@@ -43,7 +43,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
     schema.setValue("type", "approved");
     schema.setValue("reason", reason);
 
-    await this.attestStatus(signer, schema);
+    await this.attestStatus(signer, schema, callback);
 
     this.approved = new MilestoneCompleted({
       data: {
