@@ -58,7 +58,7 @@ export declare class Milestone extends Attestation<IMilestone> implements IMiles
      * it will throw an error.
      * @param signer
      */
-    revokeCompletion(signer: SignerOrProvider): Promise<void>;
+    revokeCompletion(signer: SignerOrProvider, callback?: Function): Promise<void>;
     /**
      * Creates the payload for a multi-attestation.
      *

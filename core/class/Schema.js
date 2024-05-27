@@ -318,7 +318,8 @@ class Schema {
      * @param uids
      * @returns
      */
-    async multiRevoke(signer, toRevoke) {
+    async multiRevoke(signer, toRevoke, callback) {
+        callback?.("preparing");
         const groupBySchema = toRevoke.reduce((acc, { uid, schemaId }) => {
             if (!acc[schemaId])
                 acc[schemaId] = [];
@@ -333,7 +334,10 @@ class Schema {
         const tx = await eas.multiRevoke(payload, {
             gasLimit: 5000000n,
         });
-        return tx.wait();
+        callback?.("pending");
+        return tx.wait().then(() => {
+            callback?.("confirmed");
+        });
     }
     static exists(name, network) {
         return this.schemas[network].find((schema) => schema.name === name);

@@ -115,7 +115,7 @@ class Milestone extends Attestation_1.Attestation {
      * it will throw an error.
      * @param signer
      */
-    async revokeCompletion(signer) {
+    async revokeCompletion(signer, callback) {
         if (!this.completed)
             throw new SchemaError_1.AttestationError("ATTEST_ERROR", "Milestone is not completed");
         await this.completed.schema.multiRevoke(signer, [
@@ -123,7 +123,7 @@ class Milestone extends Attestation_1.Attestation {
                 schemaId: this.completed.schema.uid,
                 uid: this.completed.uid,
             },
-        ]);
+        ], callback);
     }
     /**
      * Creates the payload for a multi-attestation.

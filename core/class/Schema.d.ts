@@ -154,7 +154,7 @@ export declare abstract class Schema<T extends string = string> implements Schem
      * @param uids
      * @returns
      */
-    multiRevoke(signer: SignerOrProvider, toRevoke: MultiRevokeArgs[]): Promise<void>;
+    multiRevoke(signer: SignerOrProvider, toRevoke: MultiRevokeArgs[], callback?: Function): Promise<void>;
     static exists(name: string, network: TNetwork): Schema<string>;
     /**
      * Adds the schema signature to a shares list. Use Schema.get("SchemaName") to get the schema.
