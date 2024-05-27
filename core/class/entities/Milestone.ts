@@ -144,16 +144,20 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
    * it will throw an error.
    * @param signer
    */
-  async revokeCompletion(signer: SignerOrProvider) {
+  async revokeCompletion(signer: SignerOrProvider, callback?: Function) {
     if (!this.completed)
       throw new AttestationError("ATTEST_ERROR", "Milestone is not completed");
 
-    await this.completed.schema.multiRevoke(signer, [
-      {
-        schemaId: this.completed.schema.uid,
-        uid: this.completed.uid,
-      },
-    ]);
+    await this.completed.schema.multiRevoke(
+      signer,
+      [
+        {
+          schemaId: this.completed.schema.uid,
+          uid: this.completed.uid,
+        },
+      ],
+      callback
+    );
   }
 
   /**

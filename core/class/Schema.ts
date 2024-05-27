@@ -438,7 +438,12 @@ export abstract class Schema<T extends string = string>
    * @param uids
    * @returns
    */
-  async multiRevoke(signer: SignerOrProvider, toRevoke: MultiRevokeArgs[]) {
+  async multiRevoke(
+    signer: SignerOrProvider,
+    toRevoke: MultiRevokeArgs[],
+    callback?: Function
+  ) {
+    callback?.("preparing");
     const groupBySchema = toRevoke.reduce(
       (acc, { uid, schemaId }) => {
         if (!acc[schemaId]) acc[schemaId] = [];
@@ -457,7 +462,10 @@ export abstract class Schema<T extends string = string>
     const tx = await eas.multiRevoke(payload, {
       gasLimit: 5000000n,
     });
-    return tx.wait();
+    callback?.("pending");
+    return tx.wait().then(() => {
+      callback?.("confirmed");
+    });
   }
 
   static exists(name: string, network: TNetwork) {
