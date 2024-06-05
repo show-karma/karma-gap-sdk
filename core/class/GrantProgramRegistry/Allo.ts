@@ -62,7 +62,7 @@ export class AlloBase {
     return initStrategyData;
   }
 
-  async createGrant(args: GrantArgs) {
+  async createGrant(args: any) {
     console.log("Creating grant...");
     const walletBalance = await this.signer.provider.getBalance(
       await this.signer.getAddress()
@@ -121,6 +121,25 @@ export class AlloBase {
       };
     } catch (error) {
       console.error(`Failed to create pool: ${error}`);
+    }
+  }
+
+  async updatePoolMetadata(
+    poolId: string,
+    poolMetadata: any
+  ) {
+    try {
+      const metadata_cid = await this.saveAndGetCID(poolMetadata);
+      const metadata = {
+        protocol: 1,
+        pointer: metadata_cid,
+      };
+
+      const tx = await this.contract.updatePoolMetadata(poolId, metadata);
+      const receipt = await tx.wait();
+      return receipt;
+    } catch (error) {
+      console.error(`Failed to update pool metadata: ${error}`);
     }
   }
 }
