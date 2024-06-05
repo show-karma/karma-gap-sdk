@@ -73,6 +73,7 @@ class AlloBase {
             const receipt = await tx.wait();
             // Get ProfileCreated event
             const poolId = receipt.logs[receipt.logs.length - 1].topics[0];
+            console.log(receipt);
             return {
                 poolId: poolId,
                 txHash: tx.hash,
