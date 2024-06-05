@@ -12,4 +12,5 @@ export declare class AlloBase {
         poolId: string;
         txHash: string;
     }>;
+    updatePoolMetadata(poolId: string, poolMetadata: any): Promise<any>;
 }

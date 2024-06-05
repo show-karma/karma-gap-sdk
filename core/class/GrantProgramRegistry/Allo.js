@@ -73,7 +73,6 @@ class AlloBase {
             const receipt = await tx.wait();
             // Get ProfileCreated event
             const poolId = receipt.logs[receipt.logs.length - 1].topics[0];
-            console.log(receipt);
             return {
                 poolId: poolId,
                 txHash: tx.hash,
@@ -81,6 +80,21 @@ class AlloBase {
         }
         catch (error) {
             console.error(`Failed to create pool: ${error}`);
+        }
+    }
+    async updatePoolMetadata(poolId, poolMetadata) {
+        try {
+            const metadata_cid = await this.saveAndGetCID(poolMetadata);
+            const metadata = {
+                protocol: 1,
+                pointer: metadata_cid,
+            };
+            const tx = await this.contract.updatePoolMetadata(poolId, metadata);
+            const receipt = await tx.wait();
+            return receipt;
+        }
+        catch (error) {
+            console.error(`Failed to update pool metadata: ${error}`);
         }
     }
 }
