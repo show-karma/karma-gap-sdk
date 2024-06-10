@@ -1,8 +1,10 @@
-import { Attestation, AttestationArgs } from '../Attestation';
-import { Hex, TExternalLink } from 'core/types';
-import { Project } from '../entities/Project';
-import { GapSchema } from '../GapSchema';
-import { GrantUpdate } from '../entities/GrantUpdate';
+import { Attestation, AttestationArgs } from "../Attestation";
+import { Hex, SignerOrProvider, TExternalLink } from "core/types";
+import { Project } from "../entities/Project";
+import { GapSchema } from "../GapSchema";
+import { GrantUpdate } from "../entities/GrantUpdate";
+import { nullRef } from "core/consts";
+import { AttestationError } from "../SchemaError";
 
 /** Attestation interfaces */
 
