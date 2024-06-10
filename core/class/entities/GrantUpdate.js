@@ -19,6 +19,8 @@ class GrantUpdate extends Attestation_1.Attestation {
     async attestStatus(signer, schema, callback) {
         const eas = this.schema.gap.eas.connect(signer);
         try {
+            if (callback)
+                callback("preparing");
             const tx = await eas.attest({
                 schema: schema.uid,
                 data: {
@@ -30,15 +32,15 @@ class GrantUpdate extends Attestation_1.Attestation {
                 },
             });
             if (callback)
-                callback('pending');
+                callback("pending");
             const uid = await tx.wait();
             if (callback)
-                callback('completed');
+                callback("confirmed");
             console.log(uid);
         }
         catch (error) {
             console.error(error);
-            throw new SchemaError_1.AttestationError('ATTEST_ERROR', error.message);
+            throw new SchemaError_1.AttestationError("ATTEST_ERROR", error.message);
         }
     }
     /**
@@ -47,17 +49,17 @@ class GrantUpdate extends Attestation_1.Attestation {
      * @param signer
      * @param reason
      */
-    async verify(signer, reason = '', callback) {
-        console.log('Verifying');
-        const schema = this.schema.gap.findSchema('GrantUpdateStatus');
-        schema.setValue('type', 'grant-update-verified');
-        schema.setValue('reason', reason);
-        console.log('Before attest grant update verified');
+    async verify(signer, reason = "", callback) {
+        console.log("Verifying");
+        const schema = this.schema.gap.findSchema("GrantUpdateStatus");
+        schema.setValue("type", "grant-update-verified");
+        schema.setValue("reason", reason);
+        console.log("Before attest grant update verified");
         await this.attestStatus(signer, schema, callback);
-        console.log('After attest grant update verified');
+        console.log("After attest grant update verified");
         this.verified.push(new GrantUpdateStatus({
             data: {
-                type: 'grant-update-verified',
+                type: "grant-update-verified",
                 reason,
             },
             refUID: this.uid,
@@ -72,16 +74,16 @@ class GrantUpdate extends Attestation_1.Attestation {
                 data: {
                     ...attestation.data,
                 },
-                schema: new AllGapSchemas_1.AllGapSchemas().findSchema('GrantUpdate', consts_1.chainIdToNetwork[attestation.chainID]),
+                schema: new AllGapSchemas_1.AllGapSchemas().findSchema("GrantUpdate", consts_1.chainIdToNetwork[attestation.chainID]),
                 chainID: attestation.chainID,
             });
             if (attestation.verified?.length > 0) {
-                grantUpdate.verified = attestation.verified.map(m => new GrantUpdateStatus({
+                grantUpdate.verified = attestation.verified.map((m) => new GrantUpdateStatus({
                     ...m,
                     data: {
                         ...m.data,
                     },
-                    schema: new AllGapSchemas_1.AllGapSchemas().findSchema('GrantUpdateStatus', consts_1.chainIdToNetwork[attestation.chainID]),
+                    schema: new AllGapSchemas_1.AllGapSchemas().findSchema("GrantUpdateStatus", consts_1.chainIdToNetwork[attestation.chainID]),
                     chainID: attestation.chainID,
                 }));
             }

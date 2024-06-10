@@ -140,23 +140,21 @@ export declare abstract class Schema<T extends string = string> implements Schem
      * @param {Object} param0 - An object containing the schema and other optional settings.
      * @returns {Object} An object containing the attestation results, including the CID if 'ipfsKey' is enabled.
      */
-    attest<T>({ data, to, signer, refUID, callback }: AttestArgs<T> & {
-        callback?: (status: string) => void;
-    }): Promise<Hex>;
+    attest<T>({ data, to, signer, refUID, callback, }: AttestArgs<T>): Promise<Hex>;
     /**
      * Bulk attest a set of attestations.
      * @param signer
      * @param entities
      * @returns
      */
-    multiAttest(signer: SignerOrProvider, entities?: Attestation[], callback?: Function): Promise<string[]>;
+    multiAttest(signer: SignerOrProvider, entities?: Attestation[], callback?: Function): Promise<void>;
     /**
      * Revokes a set of attestations by their UIDs.
      * @param signer
      * @param uids
      * @returns
      */
-    multiRevoke(signer: SignerOrProvider, toRevoke: MultiRevokeArgs[]): Promise<void>;
+    multiRevoke(signer: SignerOrProvider, toRevoke: MultiRevokeArgs[], callback?: Function): Promise<void>;
     static exists(name: string, network: TNetwork): Schema<string>;
     /**
      * Adds the schema signature to a shares list. Use Schema.get("SchemaName") to get the schema.

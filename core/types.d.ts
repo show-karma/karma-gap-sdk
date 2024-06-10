@@ -15,12 +15,13 @@ export interface MultiRevokeArgs {
     uid: Hex;
     schemaId: Hex;
 }
+export type CallbackStatus = "pending" | "confirmed" | "preparing";
 export interface AttestArgs<T = unknown> {
     to: Hex;
     data: T;
     refUID?: Hex;
     signer: SignerOrProvider;
-    callback?: SignerOrProvider;
+    callback?: (status: CallbackStatus) => void;
 }
 export type TSchemaName = "Community" | "CommunityDetails" | "Grant" | "GrantDetails" | "GrantVerified" | "MemberOf" | "MemberDetails" | "Milestone" | "MilestoneCompleted" | "MilestoneApproved" | "Project" | "ProjectDetails" | "Details" | "ProjectImpact" | "GrantUpdate" | "GrantUpdateStatus" | "ProjectEndorsement";
 export type TResolvedSchemaNames = "Community" | "Grant" | "GrantVerified" | "MemberOf" | "MilestoneCompleted" | "MilestoneApproved" | "Project" | "Details" | "GrantUpdateStatus";

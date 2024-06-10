@@ -1,10 +1,10 @@
-import { Attestation } from '../Attestation';
-import { Grantee, MemberDetails, ProjectDetails, ProjectEndorsement } from '../types/attestations';
-import { Hex, MultiAttestPayload, SignerOrProvider, TNetwork } from 'core/types';
-import { Grant } from './Grant';
-import { MemberOf } from './MemberOf';
-import { IProjectResponse } from '../karma-indexer/api/types';
-import { ProjectImpact } from './ProjectImpact';
+import { Attestation } from "../Attestation";
+import { Grantee, MemberDetails, ProjectDetails, ProjectEndorsement } from "../types/attestations";
+import { Hex, MultiAttestPayload, SignerOrProvider, TNetwork } from "core/types";
+import { Grant } from "./Grant";
+import { MemberOf } from "./MemberOf";
+import { IProjectResponse } from "../karma-indexer/api/types";
+import { ProjectImpact } from "./ProjectImpact";
 export interface IProject {
     project: true;
 }
@@ -27,7 +27,7 @@ export declare class Project extends Attestation<IProject> {
      */
     multiAttestPayload(currentPayload?: MultiAttestPayload, communityIdx?: number): Promise<MultiAttestPayload>;
     attest(signer: SignerOrProvider, callback?: Function): Promise<void>;
-    transferOwnership(signer: SignerOrProvider, newOwner: Hex): Promise<void>;
+    transferOwnership(signer: SignerOrProvider, newOwner: Hex, callback?: Function): Promise<void>;
     isOwner(signer: SignerOrProvider): Promise<boolean>;
     /**
      * Add new members to the project.

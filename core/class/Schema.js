@@ -219,7 +219,7 @@ class Schema {
      * @param {Object} param0 - An object containing the schema and other optional settings.
      * @returns {Object} An object containing the attestation results, including the CID if 'ipfsKey' is enabled.
      */
-    async attest({ data, to, signer, refUID, callback }) {
+    async attest({ data, to, signer, refUID, callback, }) {
         const eas = this.gap.eas.connect(signer);
         if (this.references && !refUID)
             throw new SchemaError_1.AttestationError("INVALID_REFERENCE", "Attestation schema references another schema but no reference UID was provided.");
@@ -258,19 +258,18 @@ class Schema {
                 },
             },
         };
+        callback?.("preparing");
         if (consts_1.useDefaultAttestation.includes(this.name)) {
             const tx = await eas.attest({
                 schema: this.uid,
                 data: payload.data.payload,
             });
-            if (callback)
-                callback('pending');
+            callback?.("pending");
             const txResult = await tx.wait();
-            if (callback)
-                callback('completed');
+            callback?.("confirmed");
             return txResult;
         }
-        const uid = await GapContract_1.GapContract.attest(signer, payload);
+        const uid = await GapContract_1.GapContract.attest(signer, payload, callback);
         return uid;
     }
     /**
@@ -301,14 +300,17 @@ class Schema {
                 expirationTime: 0n,
             })),
         }));
+        if (callback)
+            callback("preparing");
         const tx = await eas.multiAttest(payload, {
             gasLimit: 5000000n,
         });
         if (callback)
-            callback('pending');
-        return tx.wait();
-        if (callback)
-            callback('completed');
+            callback("pending");
+        return tx.wait().then(() => {
+            if (callback)
+                callback("confirmed");
+        });
     }
     /**
      * Revokes a set of attestations by their UIDs.
@@ -316,7 +318,8 @@ class Schema {
      * @param uids
      * @returns
      */
-    async multiRevoke(signer, toRevoke) {
+    async multiRevoke(signer, toRevoke, callback) {
+        callback?.("preparing");
         const groupBySchema = toRevoke.reduce((acc, { uid, schemaId }) => {
             if (!acc[schemaId])
                 acc[schemaId] = [];
@@ -331,7 +334,10 @@ class Schema {
         const tx = await eas.multiRevoke(payload, {
             gasLimit: 5000000n,
         });
-        return tx.wait();
+        callback?.("pending");
+        return tx.wait().then(() => {
+            callback?.("confirmed");
+        });
     }
     static exists(name, network) {
         return this.schemas[network].find((schema) => schema.name === name);
@@ -455,11 +461,11 @@ class Schema {
 }
 exports.Schema = Schema;
 Schema.schemas = {
-    'optimism-sepolia': [],
+    "optimism-sepolia": [],
     // "optimism-goerli": [],
     optimism: [],
     sepolia: [],
     arbitrum: [],
     celo: [],
-    'base-sepolia': [],
+    "base-sepolia": [],
 };

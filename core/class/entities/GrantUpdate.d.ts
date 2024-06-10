@@ -1,5 +1,5 @@
-import { SignerOrProvider, TNetwork } from '../../../core/types';
-import { Attestation } from '../Attestation';
+import { SignerOrProvider, TNetwork } from "../../../core/types";
+import { Attestation } from "../Attestation";
 export interface _IGrantUpdate extends GrantUpdate {
 }
 export interface IGrantUpdate {
@@ -7,7 +7,7 @@ export interface IGrantUpdate {
     text: string;
     type?: string;
 }
-type IStatus = 'verified';
+type IStatus = "verified";
 export interface IGrantUpdateStatus {
     type: `grant-update-${IStatus}`;
     reason?: string;

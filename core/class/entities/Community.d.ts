@@ -1,9 +1,9 @@
-import { Attestation } from '../Attestation';
-import { CommunityDetails, ICommunityDetails } from '../types/attestations';
-import { Project } from './Project';
-import { MultiAttestPayload, SignerOrProvider, TNetwork } from 'core/types';
-import { Grant } from './Grant';
-import { ICommunityResponse } from '../karma-indexer/api/types';
+import { Attestation } from "../Attestation";
+import { CommunityDetails, ICommunityDetails } from "../types/attestations";
+import { Project } from "./Project";
+import { MultiAttestPayload, SignerOrProvider, TNetwork } from "core/types";
+import { Grant } from "./Grant";
+import { ICommunityResponse } from "../karma-indexer/api/types";
 export interface ICommunity {
     community: true;
 }

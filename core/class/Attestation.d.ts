@@ -1,7 +1,7 @@
-import { Hex, IAttestation, JSONStr, MultiAttestData, SignerOrProvider, TNetwork } from '../types';
-import { Schema } from './Schema';
-import { SchemaItem, SchemaValue } from '@ethereum-attestation-service/eas-sdk';
-import { GapSchema } from './GapSchema';
+import { Hex, IAttestation, JSONStr, MultiAttestData, SignerOrProvider, TNetwork } from "../types";
+import { Schema } from "./Schema";
+import { SchemaItem, SchemaValue } from "@ethereum-attestation-service/eas-sdk";
+import { GapSchema } from "./GapSchema";
 export interface AttestationArgs<T = unknown, S extends Schema = Schema> {
     data: T | string;
     schema: S;
@@ -88,7 +88,7 @@ export declare class Attestation<T = unknown, S extends Schema = GapSchema> impl
      * @param signer
      * @returns
      */
-    revoke(signer: SignerOrProvider): Promise<any>;
+    revoke(signer: SignerOrProvider, callback?: Function): Promise<void>;
     /**
      * Attests the data using the specified signer and schema.
      * @param signer - The signer or provider to use for attestation.

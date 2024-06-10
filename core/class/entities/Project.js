@@ -50,8 +50,10 @@ class Project extends Attestation_1.Attestation {
             payload[index][0].uid = uid;
         });
     }
-    async transferOwnership(signer, newOwner) {
+    async transferOwnership(signer, newOwner, callback) {
+        callback?.("preparing");
         await GapContract_1.GapContract.transferProjectOwnership(signer, this.uid, newOwner);
+        callback?.("confirmed");
     }
     isOwner(signer) {
         return GapContract_1.GapContract.isProjectOwner(signer, this.uid, this.chainID);
@@ -66,7 +68,7 @@ class Project extends Attestation_1.Attestation {
         this.members.push(...(0, utils_1.mapFilter)(members, (member) => !!this.members.find((m) => m.recipient === member), (member) => new MemberOf_1.MemberOf({
             data: { memberOf: true },
             refUID: this.uid,
-            schema: this.schema.gap.findSchema('MemberOf'),
+            schema: this.schema.gap.findSchema("MemberOf"),
             recipient: member,
             uid: consts_1.nullRef,
         })));
@@ -87,7 +89,7 @@ class Project extends Attestation_1.Attestation {
             const member = new MemberOf_1.MemberOf({
                 data: { memberOf: true },
                 refUID: this.uid,
-                schema: this.schema.gap.findSchema('MemberOf'),
+                schema: this.schema.gap.findSchema("MemberOf"),
                 createdAt: Date.now(),
                 recipient: details.recipient,
                 uid: consts_1.nullRef,
@@ -95,11 +97,11 @@ class Project extends Attestation_1.Attestation {
             return { member, details };
         });
         if (!newMembers.length) {
-            throw new SchemaError_1.AttestationError('ATTEST_ERROR', 'No new members to add.');
+            throw new SchemaError_1.AttestationError("ATTEST_ERROR", "No new members to add.");
         }
         console.log(`Creating ${newMembers.length} new members`);
         const attestedMembers = await this.schema.multiAttest(signer, newMembers.map((m) => m.member), callback);
-        console.log('attested-members', attestedMembers);
+        console.log("attested-members", attestedMembers);
         newMembers.forEach(({ member, details }, idx) => {
             Object.assign(member, { uid: attestedMembers[idx] });
             if (!details)
@@ -122,12 +124,12 @@ class Project extends Attestation_1.Attestation {
             member.details &&
             member.details?.refUID !== entity.refUID), (member) => member.uid);
         if (toRevoke.length) {
-            console.log('Revoking details');
+            console.log("Revoking details");
             await this.cleanDetails(signer, toRevoke);
         }
         console.log(`Creating ${entities.length} new member details`);
-        const attestedEntities = (await this.schema.multiAttest(signer, entities, callback));
-        console.log('attested-entities', attestedEntities);
+        const attestedEntities = await this.schema.multiAttest(signer, entities, callback);
+        console.log("attested-entities", attestedEntities);
         entities.forEach((entity, idx) => {
             const member = this.members.find((member) => member.uid === entity.refUID);
             if (!member)
@@ -143,9 +145,9 @@ class Project extends Attestation_1.Attestation {
      */
     async cleanDetails(signer, uids) {
         if (!uids.length) {
-            throw new SchemaError_1.AttestationError('ATTEST_ERROR', 'No details to clean.');
+            throw new SchemaError_1.AttestationError("ATTEST_ERROR", "No details to clean.");
         }
-        const memberDetails = this.schema.gap.findSchema('MemberDetails');
+        const memberDetails = this.schema.gap.findSchema("MemberDetails");
         await this.schema.multiRevoke(signer, uids.map((uid) => ({ schemaId: memberDetails.uid, uid })));
         this.members.forEach((member) => {
             if (!member.details)
@@ -163,9 +165,9 @@ class Project extends Attestation_1.Attestation {
      */
     async removeMembers(signer, uids) {
         if (!uids.length) {
-            throw new SchemaError_1.AttestationError('ATTEST_ERROR', 'No members to remove.');
+            throw new SchemaError_1.AttestationError("ATTEST_ERROR", "No members to remove.");
         }
-        const memberOf = this.schema.gap.findSchema('MemberOf');
+        const memberOf = this.schema.gap.findSchema("MemberOf");
         const details = (0, utils_1.mapFilter)(this.members, (m) => uids.includes(m.uid) && !!m.details, (m) => m.details?.uid);
         if (details.length) {
             await this.cleanDetails(signer, details);
@@ -180,7 +182,7 @@ class Project extends Attestation_1.Attestation {
     async removeAllMembers(signer) {
         const members = (0, utils_1.mapFilter)(this.members, (m) => !!m.uid, (m) => m.uid);
         if (!members.length) {
-            throw new SchemaError_1.AttestationError('REVOKATION_ERROR', 'No members to revoke.');
+            throw new SchemaError_1.AttestationError("REVOKATION_ERROR", "No members to revoke.");
         }
         const details = (0, utils_1.mapFilter)(this.members, (m) => !!m.details, (m) => m.details?.uid);
         if (details.length) {
@@ -196,7 +198,7 @@ class Project extends Attestation_1.Attestation {
                 data: {
                     project: true,
                 },
-                schema: new AllGapSchemas_1.AllGapSchemas().findSchema('Project', consts_1.chainIdToNetwork[attestation.chainID]),
+                schema: new AllGapSchemas_1.AllGapSchemas().findSchema("Project", consts_1.chainIdToNetwork[attestation.chainID]),
                 chainID: attestation.chainID,
             });
             if (attestation.details) {
@@ -206,7 +208,7 @@ class Project extends Attestation_1.Attestation {
                     data: {
                         ...details.data,
                     },
-                    schema: new AllGapSchemas_1.AllGapSchemas().findSchema('ProjectDetails', consts_1.chainIdToNetwork[attestation.chainID]),
+                    schema: new AllGapSchemas_1.AllGapSchemas().findSchema("ProjectDetails", consts_1.chainIdToNetwork[attestation.chainID]),
                     chainID: attestation.chainID,
                 });
                 project.details.links = details.data.links || [];
@@ -225,7 +227,7 @@ class Project extends Attestation_1.Attestation {
                         data: {
                             memberOf: true,
                         },
-                        schema: new AllGapSchemas_1.AllGapSchemas().findSchema('MemberOf', consts_1.chainIdToNetwork[attestation.chainID]),
+                        schema: new AllGapSchemas_1.AllGapSchemas().findSchema("MemberOf", consts_1.chainIdToNetwork[attestation.chainID]),
                         chainID: attestation.chainID,
                     });
                     if (m.details) {
@@ -235,7 +237,7 @@ class Project extends Attestation_1.Attestation {
                             data: {
                                 ...details.data,
                             },
-                            schema: new AllGapSchemas_1.AllGapSchemas().findSchema('MemberDetails', consts_1.chainIdToNetwork[attestation.chainID]),
+                            schema: new AllGapSchemas_1.AllGapSchemas().findSchema("MemberDetails", consts_1.chainIdToNetwork[attestation.chainID]),
                             chainID: attestation.chainID,
                         });
                     }
@@ -255,7 +257,7 @@ class Project extends Attestation_1.Attestation {
                         data: {
                             ...pi.data,
                         },
-                        schema: new AllGapSchemas_1.AllGapSchemas().findSchema('ProjectDetails', consts_1.chainIdToNetwork[attestation.chainID]),
+                        schema: new AllGapSchemas_1.AllGapSchemas().findSchema("ProjectDetails", consts_1.chainIdToNetwork[attestation.chainID]),
                         chainID: attestation.chainID,
                     });
                     return endorsement;
@@ -268,11 +270,11 @@ class Project extends Attestation_1.Attestation {
         const projectImpact = new ProjectImpact_1.ProjectImpact({
             data: {
                 ...data,
-                type: 'project-impact',
+                type: "project-impact",
             },
             recipient: this.recipient,
             refUID: this.uid,
-            schema: this.schema.gap.findSchema('ProjectDetails'),
+            schema: this.schema.gap.findSchema("ProjectDetails"),
         });
         await projectImpact.attest(signer);
         this.impacts.push(projectImpact);
@@ -281,11 +283,11 @@ class Project extends Attestation_1.Attestation {
         const projectEndorsement = new attestations_1.ProjectEndorsement({
             data: {
                 ...data,
-                type: 'project-endorsement',
+                type: "project-endorsement",
             },
             recipient: this.recipient,
             refUID: this.uid,
-            schema: this.schema.gap.findSchema('ProjectDetails'),
+            schema: this.schema.gap.findSchema("ProjectDetails"),
         });
         await projectEndorsement.attest(signer);
         this.endorsements.push(projectEndorsement);

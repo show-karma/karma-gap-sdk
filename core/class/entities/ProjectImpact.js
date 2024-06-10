@@ -20,6 +20,8 @@ class ProjectImpact extends Attestation_1.Attestation {
     async attestStatus(signer, schema, callback) {
         const eas = this.schema.gap.eas.connect(signer);
         try {
+            if (callback)
+                callback("preparing");
             const tx = await eas.attest({
                 schema: schema.uid,
                 data: {
@@ -34,7 +36,7 @@ class ProjectImpact extends Attestation_1.Attestation {
                 callback("pending");
             const uid = await tx.wait();
             if (callback)
-                callback("completed");
+                callback("confirmed");
             console.log(uid);
         }
         catch (error) {
