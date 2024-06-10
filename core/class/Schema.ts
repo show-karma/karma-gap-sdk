@@ -92,13 +92,13 @@ export abstract class Schema<T extends string = string>
   implements SchemaInterface<T>
 {
   protected static schemas: Record<TNetwork, Schema[]> = {
-    'optimism-sepolia': [],
+    "optimism-sepolia": [],
     // "optimism-goerli": [],
     optimism: [],
     sepolia: [],
     arbitrum: [],
     celo: [],
-    'base-sepolia': [],
+    "base-sepolia": [],
   };
 
   protected encoder: SchemaEncoder;
@@ -310,15 +310,21 @@ export abstract class Schema<T extends string = string>
    * @param {Object} param0 - An object containing the schema and other optional settings.
    * @returns {Object} An object containing the attestation results, including the CID if 'ipfsKey' is enabled.
    */
-  async attest<T>({ data, to, signer, refUID, callback }: AttestArgs<T> & { callback?: (status: string) => void }): Promise<Hex> {
+  async attest<T>({
+    data,
+    to,
+    signer,
+    refUID,
+    callback,
+  }: AttestArgs<T>): Promise<Hex> {
     const eas = this.gap.eas.connect(signer);
-  
+
     if (this.references && !refUID)
       throw new AttestationError(
         "INVALID_REFERENCE",
         "Attestation schema references another schema but no reference UID was provided."
       );
-  
+
     if (this.isJsonSchema()) {
       const { remoteClient } = GAP;
       if (remoteClient) {
@@ -326,14 +332,14 @@ export abstract class Schema<T extends string = string>
         const encodedData = remoteClient.encode(cid);
         data = encodedData as T;
       }
-  
+
       this.setValue("json", JSON.stringify(data));
     } else {
       Object.entries(data).forEach(([key, value]) => {
         this.setValue(key, value);
       });
     }
-  
+
     const payload: RawAttestationPayload = {
       schema: this.uid,
       data: {
@@ -355,26 +361,26 @@ export abstract class Schema<T extends string = string>
         },
       },
     };
-  
+
+    callback?.("preparing");
     if (useDefaultAttestation.includes(this.name as TSchemaName)) {
       const tx = await eas.attest({
         schema: this.uid,
         data: payload.data.payload,
       });
-  
-      if (callback) callback('pending');
-  
+
+      callback?.("pending");
+
       const txResult = await tx.wait();
-  
-      if (callback) callback('completed');
-  
+
+      callback?.("confirmed");
+
       return txResult as Hex;
     }
-  
-    const uid = await GapContract.attest(signer, payload);
+
+    const uid = await GapContract.attest(signer, payload, callback);
     return uid;
   }
-  
 
   /**
    * Bulk attest a set of attestations.
@@ -382,7 +388,11 @@ export abstract class Schema<T extends string = string>
    * @param entities
    * @returns
    */
-  async multiAttest(signer: SignerOrProvider, entities: Attestation[] = [],callback?: Function) {
+  async multiAttest(
+    signer: SignerOrProvider,
+    entities: Attestation[] = [],
+    callback?: Function
+  ) {
     entities.forEach((entity) => {
       if (this.references && !entity.refUID)
         throw new SchemaError(
@@ -402,7 +412,6 @@ export abstract class Schema<T extends string = string>
       },
       {} as Record<string, Attestation[]>
     );
-
     const payload = Object.entries(entityBySchema).map(([schema, ents]) => ({
       schema,
       data: ents.map((e) => ({
@@ -413,12 +422,14 @@ export abstract class Schema<T extends string = string>
       })),
     }));
 
+    if (callback) callback("preparing");
     const tx = await eas.multiAttest(payload, {
       gasLimit: 5000000n,
     });
-    if (callback) callback('pending');
-    return tx.wait();
-    if (callback) callback('completed');
+    if (callback) callback("pending");
+    return tx.wait().then(() => {
+      if (callback) callback("confirmed");
+    });
   }
 
   /**
@@ -427,7 +438,12 @@ export abstract class Schema<T extends string = string>
    * @param uids
    * @returns
    */
-  async multiRevoke(signer: SignerOrProvider, toRevoke: MultiRevokeArgs[]) {
+  async multiRevoke(
+    signer: SignerOrProvider,
+    toRevoke: MultiRevokeArgs[],
+    callback?: Function
+  ) {
+    callback?.("preparing");
     const groupBySchema = toRevoke.reduce(
       (acc, { uid, schemaId }) => {
         if (!acc[schemaId]) acc[schemaId] = [];
@@ -446,7 +462,10 @@ export abstract class Schema<T extends string = string>
     const tx = await eas.multiRevoke(payload, {
       gasLimit: 5000000n,
     });
-    return tx.wait();
+    callback?.("pending");
+    return tx.wait().then(() => {
+      callback?.("confirmed");
+    });
   }
 
   static exists(name: string, network: TNetwork) {

@@ -30,12 +30,14 @@ export interface MultiRevokeArgs {
   schemaId: Hex;
 }
 
+export type CallbackStatus = "pending" | "confirmed" | "preparing";
+
 export interface AttestArgs<T = unknown> {
   to: Hex;
   data: T;
   refUID?: Hex;
   signer: SignerOrProvider;
-  callback?: SignerOrProvider;
+  callback?: (status: CallbackStatus) => void;
 }
 
 export type TSchemaName =

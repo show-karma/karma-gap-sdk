@@ -1,9 +1,9 @@
-import { SignerOrProvider, TNetwork } from '../../../core/types';
-import { Attestation } from '../Attestation';
-import { GapSchema } from '../GapSchema';
-import { AttestationError } from '../SchemaError';
-import { AllGapSchemas } from '../AllGapSchemas';
-import { chainIdToNetwork } from '../../../core/consts';
+import { SignerOrProvider, TNetwork } from "../../../core/types";
+import { Attestation } from "../Attestation";
+import { GapSchema } from "../GapSchema";
+import { AttestationError } from "../SchemaError";
+import { AllGapSchemas } from "../AllGapSchemas";
+import { chainIdToNetwork } from "../../../core/consts";
 
 export interface _IGrantUpdate extends GrantUpdate {}
 export interface IGrantUpdate {
@@ -12,7 +12,7 @@ export interface IGrantUpdate {
   type?: string;
 }
 
-type IStatus = 'verified';
+type IStatus = "verified";
 
 export interface IGrantUpdateStatus {
   type: `grant-update-${IStatus}`;
@@ -38,9 +38,14 @@ export class GrantUpdate
   /**
    * Attest the status of the milestone as approved, rejected or completed.
    */
-  private async attestStatus(signer: SignerOrProvider, schema: GapSchema, callback?: Function) {
+  private async attestStatus(
+    signer: SignerOrProvider,
+    schema: GapSchema,
+    callback?: Function
+  ) {
     const eas = this.schema.gap.eas.connect(signer);
     try {
+      if (callback) callback("preparing");
       const tx = await eas.attest({
         schema: schema.uid,
         data: {
@@ -51,15 +56,15 @@ export class GrantUpdate
           revocable: schema.revocable,
         },
       });
-      
-      if (callback) callback('pending');
+
+      if (callback) callback("pending");
       const uid = await tx.wait();
-      if (callback) callback('completed')
+      if (callback) callback("confirmed");
 
       console.log(uid);
     } catch (error: any) {
       console.error(error);
-      throw new AttestationError('ATTEST_ERROR', error.message);
+      throw new AttestationError("ATTEST_ERROR", error.message);
     }
   }
 
@@ -69,21 +74,21 @@ export class GrantUpdate
    * @param signer
    * @param reason
    */
-  async verify(signer: SignerOrProvider, reason = '', callback?: Function) {
-    console.log('Verifying');
+  async verify(signer: SignerOrProvider, reason = "", callback?: Function) {
+    console.log("Verifying");
 
-    const schema = this.schema.gap.findSchema('GrantUpdateStatus');
-    schema.setValue('type', 'grant-update-verified');
-    schema.setValue('reason', reason);
+    const schema = this.schema.gap.findSchema("GrantUpdateStatus");
+    schema.setValue("type", "grant-update-verified");
+    schema.setValue("reason", reason);
 
-    console.log('Before attest grant update verified');
+    console.log("Before attest grant update verified");
     await this.attestStatus(signer, schema, callback);
-    console.log('After attest grant update verified');
+    console.log("After attest grant update verified");
 
     this.verified.push(
       new GrantUpdateStatus({
         data: {
-          type: 'grant-update-verified',
+          type: "grant-update-verified",
           reason,
         },
         refUID: this.uid,
@@ -95,24 +100,32 @@ export class GrantUpdate
 
   static from(attestations: _IGrantUpdate[], network: TNetwork): GrantUpdate[] {
     return attestations.map((attestation) => {
-      const grantUpdate =  new GrantUpdate({
-            ...attestation,
-            data: {
-              ...attestation.data,
-            },
-            schema: new AllGapSchemas().findSchema('GrantUpdate', chainIdToNetwork[attestation.chainID] as TNetwork),
-            chainID: attestation.chainID,
+      const grantUpdate = new GrantUpdate({
+        ...attestation,
+        data: {
+          ...attestation.data,
+        },
+        schema: new AllGapSchemas().findSchema(
+          "GrantUpdate",
+          chainIdToNetwork[attestation.chainID] as TNetwork
+        ),
+        chainID: attestation.chainID,
       });
 
       if (attestation.verified?.length > 0) {
-        grantUpdate.verified = attestation.verified.map(m => new GrantUpdateStatus({
-          ...m,
-          data: {
-            ...m.data,
-          },
-          schema: new AllGapSchemas().findSchema('GrantUpdateStatus', chainIdToNetwork[attestation.chainID] as TNetwork),
-          chainID: attestation.chainID,
-        })
+        grantUpdate.verified = attestation.verified.map(
+          (m) =>
+            new GrantUpdateStatus({
+              ...m,
+              data: {
+                ...m.data,
+              },
+              schema: new AllGapSchemas().findSchema(
+                "GrantUpdateStatus",
+                chainIdToNetwork[attestation.chainID] as TNetwork
+              ),
+              chainID: attestation.chainID,
+            })
         );
       }
 

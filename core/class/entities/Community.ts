@@ -1,22 +1,22 @@
-import { Attestation } from '../Attestation';
+import { Attestation } from "../Attestation";
 import {
   CommunityDetails,
   Grantee,
   ICommunityDetails,
-} from '../types/attestations';
-import { nullRef } from '../../consts';
-import { AttestationError } from '../SchemaError';
-import { GapSchema } from '../GapSchema';
-import { Project } from './Project';
+} from "../types/attestations";
+import { nullRef } from "../../consts";
+import { AttestationError } from "../SchemaError";
+import { GapSchema } from "../GapSchema";
+import { Project } from "./Project";
 import {
   IAttestation,
   MultiAttestPayload,
   SignerOrProvider,
   TNetwork,
-} from 'core/types';
-import { GapContract } from '../contract/GapContract';
-import { Grant, IGrant } from './Grant';
-import { ICommunityResponse } from '../karma-indexer/api/types';
+} from "core/types";
+import { GapContract } from "../contract/GapContract";
+import { Grant, IGrant } from "./Grant";
+import { ICommunityResponse } from "../karma-indexer/api/types";
 
 interface _Community extends Community {}
 export interface ICommunity {
@@ -68,8 +68,9 @@ export class Community extends Attestation<ICommunity> {
     details?: ICommunityDetails,
     callback?: Function
   ): Promise<void> {
-    console.log('Attesting community');
+    console.log("Attesting community");
     try {
+      if (callback) callback("preparing");
       this._uid = await this.schema.attest({
         signer,
         to: this.recipient,
@@ -77,33 +78,36 @@ export class Community extends Attestation<ICommunity> {
         data: this.data,
       });
       console.log(this.uid);
-    if (callback) callback('pending');
+      if (callback) callback("pending");
 
-      if(details){
-          const communityDetails = new CommunityDetails({
-            data: details,
-            recipient: this.recipient,
-            refUID: this.uid,
-            schema: this.schema.gap.findSchema('CommunityDetails'),
-          });
-      
-          await communityDetails.attest(signer);
+      if (details) {
+        const communityDetails = new CommunityDetails({
+          data: details,
+          recipient: this.recipient,
+          refUID: this.uid,
+          schema: this.schema.gap.findSchema("CommunityDetails"),
+        });
+
+        await communityDetails.attest(signer);
       }
-      if (callback) callback('completed');
+      if (callback) callback("confirmed");
     } catch (error) {
       console.error(error);
-      throw new AttestationError('ATTEST_ERROR', 'Error during attestation.');
+      throw new AttestationError("ATTEST_ERROR", "Error during attestation.");
     }
   }
 
-  static from(attestations: ICommunityResponse[], network: TNetwork): Community[] {
+  static from(
+    attestations: ICommunityResponse[],
+    network: TNetwork
+  ): Community[] {
     return attestations.map((attestation) => {
       const community = new Community({
         ...attestation,
         data: {
           community: true,
         },
-        schema: GapSchema.find('Community', network),
+        schema: GapSchema.find("Community", network),
         chainID: attestation.chainID,
       });
 
@@ -114,7 +118,7 @@ export class Community extends Attestation<ICommunity> {
           data: {
             ...details.data,
           },
-          schema: GapSchema.find('CommunityDetails', network),
+          schema: GapSchema.find("CommunityDetails", network),
           chainID: attestation.chainID,
         });
       }
