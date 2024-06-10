@@ -18,12 +18,12 @@ export const useDefaultAttestation: TSchemaName[] = [
 ];
 
 export const chainIdToNetwork = {
-  11155420: 'optimism-sepolia',
-  42161: 'arbitrum',
-  10: 'optimism',
-  11155111: 'sepolia',
-  84532: 'base-sepolia',
-  42220: 'celo'
+  11155420: "optimism-sepolia",
+  42161: "arbitrum",
+  10: "optimism",
+  11155111: "sepolia",
+  84532: "base-sepolia",
+  42220: "celo",
 };
 
 export const nullRef =
@@ -49,6 +49,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       multicall: "0xd2eD366393FDfd243931Fe48e9fb65A192B0018c", //proxy,
       projectResolver: "0x7177AdC0f924b695C0294A40C4C5FEFf5EE1E141",
       communityResolver: "0x6dC1D6b864e8BEf815806f9e4677123496e12026",
+      donations: "0x021896771412C1D3f31BC7B01fFA3a6A17c5dA30",
     },
     schemas: {
       Community:
@@ -82,6 +83,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       multicall: "0xC891F8eBA218f5034bf3a472528408BE19E1130E",
       projectResolver: "0x832931F23ea4e3c70957DA71a7eB50F5B7efA93D",
       schema: "0x4200000000000000000000000000000000000020",
+      donations: "0x3caF83Ed040501f1f439fb22E198bB5a67Bc2884",
     },
     schemas: {
       Community:
@@ -115,6 +117,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       multicall: "0x6dC1D6b864e8BEf815806f9e4677123496e12026", //proxy,
       projectResolver: "0x28BE0b0515be8BB8822aF1467A6613795E74717b",
       communityResolver: "0xD534C4704F82494aBbc901560046fB62Ac63E9C4",
+      donations: "0x475F3E915601d975c792E6116791FBe9ACdBE902",
     },
     schemas: {
       Community:
@@ -148,6 +151,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       multicall: "0xec8d7BFe344790FD860920C41B46B259c005727A",
       projectResolver: "0x099787D5a5aC92779A519CfD925ACB0Dc7E8bd23",
       communityResolver: "0xa9E55D9F52d7B47792d2Db15F6A9674c56ccc5C9",
+      donations: "0xb2021F7550b8B07cA71696159B592C1F713593e4",
     },
     schemas: {
       Community:
@@ -174,14 +178,14 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
   "base-sepolia": {
     chainId: 84532,
     url: "https://base-sepolia.easscan.org/graphql",
-    rpcUrl:
-      "https://sepolia.base.org",
+    rpcUrl: "https://sepolia.base.org",
     contracts: {
       eas: "0x4200000000000000000000000000000000000021",
       schema: "0x4200000000000000000000000000000000000020",
       multicall: "0x4Ca7230fB6b78875bdd1B1e4F665B7B7f1891239",
       projectResolver: "0xC891F8eBA218f5034bf3a472528408BE19E1130E",
       communityResolver: "0x009dC7dF3Ea3b23CE80Fd3Ba811d5bA5675934A1",
+      donations: "0x61eD6D070EE996698fB35B909e45111402336645",
     },
     schemas: {
       Community:
@@ -204,17 +208,17 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
         "0x5ddd6b7a11406771308431ca9bd146cc717848b74b52993a532dc1aad0ccc83f",
     },
   },
-  "celo": {
+  celo: {
     chainId: 42220,
     url: "https://celo.easscan.org/graphql",
-    rpcUrl:
-      "https://forno.celo.org",
+    rpcUrl: "https://forno.celo.org",
     contracts: {
       eas: "0x72E1d8ccf5299fb36fEfD8CC4394B8ef7e98Af92",
       schema: "0x5ece93bE4BDCF293Ed61FA78698B594F2135AF34",
       multicall: "0x8791Ac8c099314bB1D1514D76de13a1E80275950",
       projectResolver: "0x6dC1D6b864e8BEf815806f9e4677123496e12026",
       communityResolver: "0xfddb660F2F1C27d219372210745BB9f73431856E",
+      donations: "0xf373467c21841DF20529FAA8bE49381106DBc258",
     },
     schemas: {
       Community:
@@ -236,7 +240,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       Project:
         "0xf3f753b41e04d1052b5a5ec7624d1dfdb6c2da288a985120e477ddbcac071022",
     },
-  }
+  },
 } as const;
 
 const DetailsSchema = [{ type: "string", name: "json", value: null }];
