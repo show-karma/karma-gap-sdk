@@ -79,12 +79,11 @@ export type TNetwork =
   // | "mainnet"
   // | "base-goerli"
   | "optimism"
-  | 'celo'
+  | "celo"
   | "optimism-sepolia"
   | "arbitrum"
-  | 'sepolia'
-  | 'base-sepolia';
-
+  | "sepolia"
+  | "base-sepolia";
 
 /**
  * Generic GAP Facade interface.
@@ -132,6 +131,7 @@ export interface EASNetworkConfig {
     multicall: Hex;
     projectResolver: Hex;
     communityResolver: Hex;
+    donations: Hex;
   };
   /**
    * A tuple containing the schema name and it's UID for that network
