@@ -13,12 +13,12 @@ exports.useDefaultAttestation = [
     "GrantUpdateStatus",
 ];
 exports.chainIdToNetwork = {
-    11155420: 'optimism-sepolia',
-    42161: 'arbitrum',
-    10: 'optimism',
-    11155111: 'sepolia',
-    84532: 'base-sepolia',
-    42220: 'celo'
+    11155420: "optimism-sepolia",
+    42161: "arbitrum",
+    10: "optimism",
+    11155111: "sepolia",
+    84532: "base-sepolia",
+    42220: "celo",
 };
 exports.nullRef = "0x0000000000000000000000000000000000000000000000000000000000000000";
 // TODO: Remove null resolver and change usage to zero address
@@ -39,6 +39,7 @@ exports.Networks = {
             multicall: "0xd2eD366393FDfd243931Fe48e9fb65A192B0018c", //proxy,
             projectResolver: "0x7177AdC0f924b695C0294A40C4C5FEFf5EE1E141",
             communityResolver: "0x6dC1D6b864e8BEf815806f9e4677123496e12026",
+            donations: "0x021896771412C1D3f31BC7B01fFA3a6A17c5dA30",
         },
         schemas: {
             Community: "0x721c17b065dccc5c916e0c2708d0ef50f1810591b76d0402ff6fe5accbd8488f",
@@ -62,6 +63,7 @@ exports.Networks = {
             multicall: "0xC891F8eBA218f5034bf3a472528408BE19E1130E",
             projectResolver: "0x832931F23ea4e3c70957DA71a7eB50F5B7efA93D",
             schema: "0x4200000000000000000000000000000000000020",
+            donations: "0x3caF83Ed040501f1f439fb22E198bB5a67Bc2884",
         },
         schemas: {
             Community: "0x314bb1c3c9b5311c1b813a3ad123b6ac5a03902b987795056dd2e4ff38e833ea",
@@ -85,6 +87,7 @@ exports.Networks = {
             multicall: "0x6dC1D6b864e8BEf815806f9e4677123496e12026", //proxy,
             projectResolver: "0x28BE0b0515be8BB8822aF1467A6613795E74717b",
             communityResolver: "0xD534C4704F82494aBbc901560046fB62Ac63E9C4",
+            donations: "0x475F3E915601d975c792E6116791FBe9ACdBE902",
         },
         schemas: {
             Community: "0xc604f0661cfd522583835ed2b2c644b80e068139d287f93c7f1680888894bacc",
@@ -108,6 +111,7 @@ exports.Networks = {
             multicall: "0xec8d7BFe344790FD860920C41B46B259c005727A",
             projectResolver: "0x099787D5a5aC92779A519CfD925ACB0Dc7E8bd23",
             communityResolver: "0xa9E55D9F52d7B47792d2Db15F6A9674c56ccc5C9",
+            donations: "0xb2021F7550b8B07cA71696159B592C1F713593e4",
         },
         schemas: {
             Community: "0xf3d790c7fdab6c1b1f25ffcc9289e5be2792eb596d2851a4d059c8aae1bc8b2e", //test with resolver
@@ -132,6 +136,7 @@ exports.Networks = {
             multicall: "0x4Ca7230fB6b78875bdd1B1e4F665B7B7f1891239",
             projectResolver: "0xC891F8eBA218f5034bf3a472528408BE19E1130E",
             communityResolver: "0x009dC7dF3Ea3b23CE80Fd3Ba811d5bA5675934A1",
+            donations: "0x61eD6D070EE996698fB35B909e45111402336645",
         },
         schemas: {
             Community: "0xe130107659909d20cbd75a2c82e1988b09b1c08fd39ad6f4397ce27c089e0e95",
@@ -145,7 +150,7 @@ exports.Networks = {
             Project: "0x5ddd6b7a11406771308431ca9bd146cc717848b74b52993a532dc1aad0ccc83f",
         },
     },
-    "celo": {
+    celo: {
         chainId: 42220,
         url: "https://celo.easscan.org/graphql",
         rpcUrl: "https://forno.celo.org",
@@ -155,6 +160,7 @@ exports.Networks = {
             multicall: "0x8791Ac8c099314bB1D1514D76de13a1E80275950",
             projectResolver: "0x6dC1D6b864e8BEf815806f9e4677123496e12026",
             communityResolver: "0xfddb660F2F1C27d219372210745BB9f73431856E",
+            donations: "0xf373467c21841DF20529FAA8bE49381106DBc258",
         },
         schemas: {
             Community: "0x3c2231024f4f17f3718b5bd9ed9ff29cc323dea5449f9ceba11a9888bfbdd0e1",
@@ -167,7 +173,7 @@ exports.Networks = {
             GrantUpdateStatus: "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
             Project: "0xf3f753b41e04d1052b5a5ec7624d1dfdb6c2da288a985120e477ddbcac071022",
         },
-    }
+    },
 };
 const DetailsSchema = [{ type: "string", name: "json", value: null }];
 /**
