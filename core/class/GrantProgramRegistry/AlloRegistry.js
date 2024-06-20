@@ -62,8 +62,7 @@ class AlloRegistry {
     }
     async isMemberOf(profileId, address) {
         try {
-            const tx = await this.contract.isMemberOfProfile(profileId, address);
-            const response = await tx.wait();
+            const response = await this.contract.isMemberOfProfile(profileId, address);
             return response;
         }
         catch (error) {
