@@ -60,5 +60,15 @@ class AlloRegistry {
             console.error(`Failed to update profile metadata: ${error}`);
         }
     }
+    async isMemberOf(profileId, address) {
+        try {
+            const tx = await this.contract.isMemberOfProfile(profileId, address);
+            const response = await tx.wait();
+            return response;
+        }
+        catch (error) {
+            console.error(`Failed to update profile metadata: ${error}`);
+        }
+    }
 }
 exports.AlloRegistry = AlloRegistry;

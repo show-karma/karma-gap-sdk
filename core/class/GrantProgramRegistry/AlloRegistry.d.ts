@@ -11,4 +11,5 @@ export declare class AlloRegistry {
         txHash: any;
     }>;
     updateProgramMetadata(profileId: string, profileMetadata: ProfileMetadata): Promise<any>;
+    isMemberOf(profileId: string, address: string): Promise<any>;
 }
