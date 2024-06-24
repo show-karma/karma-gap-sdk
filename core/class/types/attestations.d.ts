@@ -105,6 +105,10 @@ export declare class ProjectDetails extends Attestation<IProjectDetails> impleme
     slug: string;
     type: string;
     externalIds: string[];
+    businessModel?: string;
+    stageIn?: string;
+    raisedMoney?: string;
+    pathToTake?: string[];
 }
 export declare class Grantee {
     address: string;
