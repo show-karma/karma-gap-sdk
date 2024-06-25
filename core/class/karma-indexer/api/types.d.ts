@@ -108,6 +108,10 @@ export interface IProjectDetails extends IAttestationResponse {
         tags?: ITag[];
         slug?: string;
         type: "project-details";
+        businessModel?: string;
+        stageIn?: string;
+        raisedMoney?: string;
+        pathToTake?: string;
     };
 }
 export interface IProjectImpact extends IAttestationResponse {
