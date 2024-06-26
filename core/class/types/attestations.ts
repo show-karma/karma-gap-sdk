@@ -126,6 +126,10 @@ export interface IProjectDetails {
   externalIds?: string[];
   slug?: string;
   type?: string;
+  businessModel?: string;
+  stageIn?: string;
+  raisedMoney?: string;
+  pathToTake?: string;
 }
 export class ProjectDetails
   extends Attestation<IProjectDetails>
@@ -139,6 +143,10 @@ export class ProjectDetails
   slug: string;
   type = "project-details";
   externalIds: string[] = [];
+  businessModel?: string;
+  stageIn?: string;
+  raisedMoney?: string;
+  pathToTake?: string;
 }
 
 export class Grantee {
