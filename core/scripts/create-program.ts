@@ -1,17 +1,18 @@
 import { AlloRegistry } from "../class/GrantProgramRegistry/AlloRegistry";
 import { ethers } from "ethers";
 import { Networks } from "../consts";
-import { NFTStorage } from "nft.storage";
+import pinataSDK from "@pinata/sdk";
+
 import keys from "../../config/keys.json";
 
-const networkName = "sepolia"; 
+const networkName = "sepolia";
 const web3 = new ethers.JsonRpcProvider(Networks[networkName].rpcUrl);
 const wallet = new ethers.Wallet(keys.privateKey, web3);
 const signer = wallet.connect(web3);
 
 export async function main() {
-  const ipfsStorage = new NFTStorage({
-    token: keys.ipfsToken,
+  const ipfsStorage = new pinataSDK({
+    pinataJWTKey: keys.ipfsToken,
   });
 
   const alloRegistry = new AlloRegistry(signer, ipfsStorage);
@@ -30,7 +31,7 @@ export async function main() {
     credentials: {},
     createdAt: new Date().getTime(),
 
-    type: "program"
+    type: "program",
   };
   const owner = await signer.getAddress();
 

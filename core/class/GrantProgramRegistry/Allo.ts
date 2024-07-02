@@ -2,7 +2,7 @@ import { ethers, formatEther, parseEther } from "ethers";
 import AlloContractABI from "../../abi/Allo.json";
 import { AlloContracts } from "../../consts";
 import { Address, GrantArgs } from "../types/allo";
-import { NFTStorage } from "nft.storage";
+import pinataSDK from "@pinata/sdk";
 import { AbiCoder } from "ethers";
 import { Allo } from "@allo-team/allo-v2-sdk/";
 import { CreatePoolArgs } from "@allo-team/allo-v2-sdk/dist/Allo/types";
@@ -11,10 +11,10 @@ import { TransactionData } from "@allo-team/allo-v2-sdk/dist/Common/types";
 export class AlloBase {
   private signer: ethers.Signer;
   private contract: ethers.Contract;
-  private static ipfsClient: NFTStorage;
+  private static ipfsClient: pinataSDK;
   private allo: Allo;
 
-  constructor(signer: ethers.Signer, ipfsStorage: NFTStorage, chainId: number) {
+  constructor(signer: ethers.Signer, ipfsStorage: pinataSDK, chainId: number) {
     this.signer = signer;
     this.contract = new ethers.Contract(
       AlloContracts.alloProxy,
@@ -28,11 +28,8 @@ export class AlloBase {
 
   async saveAndGetCID(data: any) {
     try {
-      const blob = new Blob([JSON.stringify(data)], {
-        type: "application/json",
-      });
-      const cid = await AlloBase.ipfsClient.storeBlob(blob);
-      return cid;
+      const res = await AlloBase.ipfsClient.pinJSONToIPFS(data);
+      return res.IpfsHash;
     } catch (error) {
       throw new Error(`Error adding data to IPFS: ${error}`);
     }
@@ -124,10 +121,7 @@ export class AlloBase {
     }
   }
 
-  async updatePoolMetadata(
-    poolId: string,
-    poolMetadata: any
-  ) {
+  async updatePoolMetadata(poolId: string, poolMetadata: any) {
     try {
       const metadata_cid = await this.saveAndGetCID(poolMetadata);
       const metadata = {
