@@ -1,7 +1,7 @@
 import { AlloBase } from "../class/GrantProgramRegistry/Allo";
 import { ethers } from "ethers";
 import { Networks } from "../consts";
-import { NFTStorage } from "nft.storage";
+import pinataSDK from "@pinata/sdk";
 import { ApplicationMetadata, RoundMetadata } from "../class/types/allo";
 import keys from "../../config/keys.json";
 import { AlloContracts } from "../consts";
@@ -14,8 +14,8 @@ const wallet = new ethers.Wallet(keys.privateKey, web3);
 const signer = wallet.connect(web3);
 
 export async function main() {
-  const ipfsStorage = new NFTStorage({
-    token: keys.ipfsToken,
+  const ipfsStorage = new pinataSDK({
+    pinataJWTKey: keys.ipfsToken,
   });
 
   const allo = new AlloBase(signer, ipfsStorage, chainId);

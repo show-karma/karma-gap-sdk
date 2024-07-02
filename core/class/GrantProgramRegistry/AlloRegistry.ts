@@ -2,13 +2,13 @@ import { ethers } from "ethers";
 import AlloRegistryABI from "../../abi/AlloRegistry.json";
 import { AlloContracts } from "../../consts";
 import { ProfileMetadata } from "../types/allo";
-import { NFTStorage } from "nft.storage";
+import pinataSDK from "@pinata/sdk";
 
 export class AlloRegistry {
   private contract: ethers.Contract;
-  private static ipfsClient: NFTStorage;
+  private static ipfsClient: pinataSDK;
 
-  constructor(signer: ethers.Signer, ipfsStorage: NFTStorage) {
+  constructor(signer: ethers.Signer, ipfsStorage: pinataSDK) {
     this.contract = new ethers.Contract(
       AlloContracts.registry,
       AlloRegistryABI,
@@ -20,11 +20,8 @@ export class AlloRegistry {
 
   async saveAndGetCID(data: any) {
     try {
-      const blob = new Blob([JSON.stringify(data)], {
-        type: "application/json",
-      });
-      const cid = await AlloRegistry.ipfsClient.storeBlob(blob);
-      return cid;
+      const res = await AlloRegistry.ipfsClient.pinJSONToIPFS(data);
+      return res.IpfsHash;
     } catch (error) {
       throw new Error(`Error adding data to IPFS: ${error}`);
     }

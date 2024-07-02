@@ -1,41 +1,37 @@
-import { NFTStorage } from 'nft.storage';
-import { RemoteStorage } from './RemoteStorage';
-import { RemoteStorageError } from '../SchemaError';
-import { getIPFSData } from '../../utils';
-import { STORAGE_TYPE, TRemoteStorageOutput } from 'core/types';
+import pinataSDK from "@pinata/sdk";
+import { RemoteStorage } from "./RemoteStorage";
+import { RemoteStorageError } from "../SchemaError";
+import { getIPFSData } from "../../utils";
+import { STORAGE_TYPE, TRemoteStorageOutput } from "core/types";
 
 export interface IpfsStorageOptions {
   token: string;
-  endpoint?: URL;
 }
 
-export class IpfsStorage extends RemoteStorage<NFTStorage> {
+export class IpfsStorage extends RemoteStorage<pinataSDK> {
   constructor(
     opts: IpfsStorageOptions,
     /**
      * If set, will send request to another server instead of
      * using the local instance
      */
-    sponsor?: RemoteStorage['sponsor']
+    sponsor?: RemoteStorage["sponsor"]
   ) {
     super(STORAGE_TYPE.IPFS, sponsor);
 
     this.assert(opts);
-    this.client = new NFTStorage({ ...opts });
+    this.client = new pinataSDK({ pinataJWTKey: opts.token });
   }
 
   private assert(opts: IpfsStorageOptions) {}
 
   async save<T = unknown>(data: T): Promise<string> {
     try {
-      const blob = new Blob([JSON.stringify(data)], {
-        type: 'application/json',
-      });
-      const cid = await this.client.storeBlob(blob);
-      return cid;
+      const res = await this.client.pinJSONToIPFS(data);
+      return res.IpfsHash;
     } catch (error) {
       throw new RemoteStorageError(
-        'REMOTE_STORAGE_UPLOAD',
+        "REMOTE_STORAGE_UPLOAD",
         `Error adding data to IPFS`
       );
     }
