@@ -14,11 +14,8 @@ class AlloRegistry {
     }
     async saveAndGetCID(data) {
         try {
-            const blob = new Blob([JSON.stringify(data)], {
-                type: "application/json",
-            });
-            const cid = await AlloRegistry.ipfsClient.storeBlob(blob);
-            return cid;
+            const res = await AlloRegistry.ipfsClient.pinJSONToIPFS(data);
+            return res.IpfsHash;
         }
         catch (error) {
             throw new Error(`Error adding data to IPFS: ${error}`);
@@ -55,15 +52,6 @@ class AlloRegistry {
             const tx = await this.contract.updateProfileMetadata(profileId, metadata);
             const receipt = await tx.wait();
             return receipt;
-        }
-        catch (error) {
-            console.error(`Failed to update profile metadata: ${error}`);
-        }
-    }
-    async isMemberOf(profileId, address) {
-        try {
-            const response = await this.contract.isMemberOfProfile(profileId, address);
-            return response;
         }
         catch (error) {
             console.error(`Failed to update profile metadata: ${error}`);

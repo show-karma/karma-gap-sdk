@@ -86,7 +86,7 @@ data, chainId, target) {
             chainId,
             target,
         },
-        '{apiKey}', // filled in the api
+        '{apiKey}',
         {
             retries: 3,
         },

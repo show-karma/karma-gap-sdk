@@ -18,11 +18,8 @@ class AlloBase {
     }
     async saveAndGetCID(data) {
         try {
-            const blob = new Blob([JSON.stringify(data)], {
-                type: "application/json",
-            });
-            const cid = await AlloBase.ipfsClient.storeBlob(blob);
-            return cid;
+            const res = await AlloBase.ipfsClient.pinJSONToIPFS(data);
+            return res.IpfsHash;
         }
         catch (error) {
             throw new Error(`Error adding data to IPFS: ${error}`);
@@ -31,12 +28,12 @@ class AlloBase {
     async encodeStrategyInitData(applicationStart, applicationEnd, roundStart, roundEnd, payoutToken) {
         const encoder = new ethers_2.AbiCoder();
         const initStrategyData = encoder.encode(["bool", "bool", "uint256", "uint256", "uint256", "uint256", "address[]"], [
-            false, // useRegistryAnchor
-            true, // metadataRequired
-            applicationStart, // Eg. Curr + 1 hour later   registrationStartTime
-            applicationEnd, // Eg. Curr +  5 days later   registrationEndTime
-            roundStart, // Eg. Curr + 2 hours later  allocationStartTime
-            roundEnd, // Eg. Curr + 10 days later  allocaitonEndTime
+            false,
+            true,
+            applicationStart,
+            applicationEnd,
+            roundStart,
+            roundEnd,
             [payoutToken],
         ]);
         return initStrategyData;
@@ -58,7 +55,7 @@ class AlloBase {
             const createPoolArgs = {
                 profileId: args.profileId,
                 strategy: args.strategy,
-                initStrategyData: initStrategyData, // unique to the strategy
+                initStrategyData: initStrategyData,
                 token: args.payoutToken,
                 amount: BigInt(args.matchingFundAmt),
                 metadata: metadata,

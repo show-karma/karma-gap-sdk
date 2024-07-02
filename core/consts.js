@@ -36,7 +36,7 @@ exports.Networks = {
         contracts: {
             eas: "0x4200000000000000000000000000000000000021",
             schema: "0x4200000000000000000000000000000000000020",
-            multicall: "0xd2eD366393FDfd243931Fe48e9fb65A192B0018c", //proxy,
+            multicall: "0xd2eD366393FDfd243931Fe48e9fb65A192B0018c",
             projectResolver: "0x7177AdC0f924b695C0294A40C4C5FEFf5EE1E141",
             communityResolver: "0x6dC1D6b864e8BEf815806f9e4677123496e12026",
             donations: "0x021896771412C1D3f31BC7B01fFA3a6A17c5dA30",
@@ -84,7 +84,7 @@ exports.Networks = {
         contracts: {
             eas: "0xbD75f629A22Dc1ceD33dDA0b68c546A1c035c458",
             schema: "0xA310da9c5B885E7fb3fbA9D66E9Ba6Df512b78eB",
-            multicall: "0x6dC1D6b864e8BEf815806f9e4677123496e12026", //proxy,
+            multicall: "0x6dC1D6b864e8BEf815806f9e4677123496e12026",
             projectResolver: "0x28BE0b0515be8BB8822aF1467A6613795E74717b",
             communityResolver: "0xD534C4704F82494aBbc901560046fB62Ac63E9C4",
             donations: "0x475F3E915601d975c792E6116791FBe9ACdBE902",
@@ -114,10 +114,10 @@ exports.Networks = {
             donations: "0xb2021F7550b8B07cA71696159B592C1F713593e4",
         },
         schemas: {
-            Community: "0xf3d790c7fdab6c1b1f25ffcc9289e5be2792eb596d2851a4d059c8aae1bc8b2e", //test with resolver
+            Community: "0xf3d790c7fdab6c1b1f25ffcc9289e5be2792eb596d2851a4d059c8aae1bc8b2e",
             // "0x1954572e3fe21bf4334afdaf1358ed7098af1ed136e76dc93c2fdc25e83934c1", // original without resolver
             Details: "0x2c270e35bfcdc4d611f0e9d3d2ab6924ec6c673505abc22a1dd07e19b67211af",
-            Grant: "0x09697aeeb3ae71de1cc19e388fd74264f11af5fba3016094764553ac341fdc72", // with communityUID/resolver
+            Grant: "0x09697aeeb3ae71de1cc19e388fd74264f11af5fba3016094764553ac341fdc72",
             GrantVerified: "0x0be8952e2dd74ffd63a02f4d55b20b603fe7a60130cb9d70de31feb9c52fdd37",
             MemberOf: "0xdd87b3500457931252424f4439365534ba72a367503a8805ff3482353fb90301",
             MilestoneApproved: "0xcdef0e492d2e7ad25d0b0fdb868f6dcd1f5e5c30e42fd5fa0debdc12f7618322",
