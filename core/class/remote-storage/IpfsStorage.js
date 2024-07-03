@@ -4,10 +4,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.IpfsStorage = void 0;
-const sdk_1 = __importDefault(require("@pinata/sdk"));
 const RemoteStorage_1 = require("./RemoteStorage");
 const SchemaError_1 = require("../SchemaError");
 const utils_1 = require("../../utils");
+const axios_1 = __importDefault(require("axios"));
 class IpfsStorage extends RemoteStorage_1.RemoteStorage {
     constructor(opts, 
     /**
@@ -17,13 +17,13 @@ class IpfsStorage extends RemoteStorage_1.RemoteStorage {
     sponsor) {
         super(0 /* STORAGE_TYPE.IPFS */, sponsor);
         this.assert(opts);
-        this.client = new sdk_1.default({ pinataJWTKey: opts.token });
+        this.pinataJWTToken = opts.token;
     }
     assert(opts) { }
     async save(data) {
         try {
-            const res = await this.client.pinJSONToIPFS(data);
-            return res.IpfsHash;
+            const cid = await this.saveAndGetCID(data);
+            return cid;
         }
         catch (error) {
             throw new SchemaError_1.RemoteStorageError("REMOTE_STORAGE_UPLOAD", `Error adding data to IPFS`);
@@ -34,6 +34,23 @@ class IpfsStorage extends RemoteStorage_1.RemoteStorage {
     }
     async get(args) {
         return (0, utils_1.getIPFSData)(args.cid);
+    }
+    async saveAndGetCID(data, pinataMetadata = { name: "via karma-gap-sdk" }) {
+        try {
+            const res = await axios_1.default.post("https://api.pinata.cloud/pinning/pinJSONToIPFS", {
+                pinataContent: data,
+                pinataMetadata: pinataMetadata,
+            }, {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${this.pinataJWTToken}`,
+                },
+            });
+            return res.data.IpfsHash;
+        }
+        catch (error) {
+            console.log(error);
+        }
     }
 }
 exports.IpfsStorage = IpfsStorage;

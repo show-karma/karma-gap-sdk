@@ -9,20 +9,29 @@ const Allo_json_1 = __importDefault(require("../../abi/Allo.json"));
 const consts_1 = require("../../consts");
 const ethers_2 = require("ethers");
 const allo_v2_sdk_1 = require("@allo-team/allo-v2-sdk/");
+const axios_1 = __importDefault(require("axios"));
 class AlloBase {
-    constructor(signer, ipfsStorage, chainId) {
+    constructor(signer, pinataJWTToken, chainId) {
         this.signer = signer;
         this.contract = new ethers_1.ethers.Contract(consts_1.AlloContracts.alloProxy, Allo_json_1.default, signer);
         this.allo = new allo_v2_sdk_1.Allo({ chain: chainId });
-        AlloBase.ipfsClient = ipfsStorage;
+        this.pinataJWTToken = pinataJWTToken;
     }
-    async saveAndGetCID(data) {
+    async saveAndGetCID(data, pinataMetadata = { name: "via karma-gap-sdk" }) {
         try {
-            const res = await AlloBase.ipfsClient.pinJSONToIPFS(data);
-            return res.IpfsHash;
+            const res = await axios_1.default.post("https://api.pinata.cloud/pinning/pinJSONToIPFS", {
+                pinataContent: data,
+                pinataMetadata: pinataMetadata,
+            }, {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${this.pinataJWTToken}`,
+                },
+            });
+            return res.data.IpfsHash;
         }
         catch (error) {
-            throw new Error(`Error adding data to IPFS: ${error}`);
+            console.log(error);
         }
     }
     async encodeStrategyInitData(applicationStart, applicationEnd, roundStart, roundEnd, payoutToken) {

@@ -1,10 +1,10 @@
-import pinataSDK from "@pinata/sdk";
 import { RemoteStorage } from "./RemoteStorage";
 import { TRemoteStorageOutput } from "core/types";
 export interface IpfsStorageOptions {
     token: string;
 }
-export declare class IpfsStorage extends RemoteStorage<pinataSDK> {
+export declare class IpfsStorage extends RemoteStorage {
+    private pinataJWTToken;
     constructor(opts: IpfsStorageOptions, 
     /**
      * If set, will send request to another server instead of
@@ -17,4 +17,7 @@ export declare class IpfsStorage extends RemoteStorage<pinataSDK> {
     get<T = unknown>(args: {
         cid: string;
     }): Promise<T>;
+    saveAndGetCID(data: any, pinataMetadata?: {
+        name: string;
+    }): Promise<any>;
 }
