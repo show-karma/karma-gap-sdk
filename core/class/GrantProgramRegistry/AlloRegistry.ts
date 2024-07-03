@@ -2,28 +2,43 @@ import { ethers } from "ethers";
 import AlloRegistryABI from "../../abi/AlloRegistry.json";
 import { AlloContracts } from "../../consts";
 import { ProfileMetadata } from "../types/allo";
-import pinataSDK from "@pinata/sdk";
+import axios from "axios";
 
 export class AlloRegistry {
   private contract: ethers.Contract;
-  private static ipfsClient: pinataSDK;
+  private pinataJWTToken: string;
 
-  constructor(signer: ethers.Signer, ipfsStorage: pinataSDK) {
+  constructor(signer: ethers.Signer, pinataJWTToken: string) {
     this.contract = new ethers.Contract(
       AlloContracts.registry,
       AlloRegistryABI,
       signer
     );
 
-    AlloRegistry.ipfsClient = ipfsStorage;
+    this.pinataJWTToken = pinataJWTToken;
   }
 
-  async saveAndGetCID(data: any) {
+  async saveAndGetCID(
+    data: any,
+    pinataMetadata = { name: "via karma-gap-sdk" }
+  ) {
     try {
-      const res = await AlloRegistry.ipfsClient.pinJSONToIPFS(data);
-      return res.IpfsHash;
+      const res = await axios.post(
+        "https://api.pinata.cloud/pinning/pinJSONToIPFS",
+        {
+          pinataContent: data,
+          pinataMetadata: pinataMetadata,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${this.pinataJWTToken}`,
+          },
+        }
+      );
+      return res.data.IpfsHash;
     } catch (error) {
-      throw new Error(`Error adding data to IPFS: ${error}`);
+      console.log(error);
     }
   }
 

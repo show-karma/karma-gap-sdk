@@ -1,7 +1,6 @@
 import { AlloRegistry } from "../class/GrantProgramRegistry/AlloRegistry";
 import { ethers } from "ethers";
 import { Networks } from "../consts";
-import pinataSDK from "@pinata/sdk";
 
 import keys from "../../config/keys.json";
 
@@ -11,11 +10,7 @@ const wallet = new ethers.Wallet(keys.privateKey, web3);
 const signer = wallet.connect(web3);
 
 export async function main() {
-  const ipfsStorage = new pinataSDK({
-    pinataJWTKey: keys.ipfsToken,
-  });
-
-  const alloRegistry = new AlloRegistry(signer, ipfsStorage);
+  const alloRegistry = new AlloRegistry(signer, keys.ipfsToken);
 
   const nonce = 12310;
   const name = "Karma Gap Registry";
