@@ -1,37 +1,51 @@
-import { ethers, formatEther, parseEther } from "ethers";
+import { ethers, formatEther } from "ethers";
 import AlloContractABI from "../../abi/Allo.json";
 import { AlloContracts } from "../../consts";
-import { Address, GrantArgs } from "../types/allo";
-import pinataSDK from "@pinata/sdk";
+import { Address } from "../types/allo";
 import { AbiCoder } from "ethers";
 import { Allo } from "@allo-team/allo-v2-sdk/";
 import { CreatePoolArgs } from "@allo-team/allo-v2-sdk/dist/Allo/types";
 import { TransactionData } from "@allo-team/allo-v2-sdk/dist/Common/types";
+import axios from "axios";
 
 export class AlloBase {
   private signer: ethers.Signer;
   private contract: ethers.Contract;
-  private static ipfsClient: pinataSDK;
   private allo: Allo;
+  private pinataJWTToken: string;
 
-  constructor(signer: ethers.Signer, ipfsStorage: pinataSDK, chainId: number) {
+  constructor(signer: ethers.Signer, pinataJWTToken: string, chainId: number) {
     this.signer = signer;
     this.contract = new ethers.Contract(
       AlloContracts.alloProxy,
       AlloContractABI,
       signer
     );
-
     this.allo = new Allo({ chain: chainId });
-    AlloBase.ipfsClient = ipfsStorage;
+    this.pinataJWTToken = pinataJWTToken;
   }
 
-  async saveAndGetCID(data: any) {
+  async saveAndGetCID(
+    data: any,
+    pinataMetadata = { name: "via karma-gap-sdk" }
+  ) {
     try {
-      const res = await AlloBase.ipfsClient.pinJSONToIPFS(data);
-      return res.IpfsHash;
+      const res = await axios.post(
+        "https://api.pinata.cloud/pinning/pinJSONToIPFS",
+        {
+          pinataContent: data,
+          pinataMetadata: pinataMetadata,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${this.pinataJWTToken}`,
+          },
+        }
+      );
+      return res.data.IpfsHash;
     } catch (error) {
-      throw new Error(`Error adding data to IPFS: ${error}`);
+      console.log(error);
     }
   }
 
