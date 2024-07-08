@@ -47,7 +47,7 @@ class AlloBase {
         ]);
         return initStrategyData;
     }
-    async createGrant(args) {
+    async createGrant(args, callback) {
         console.log("Creating grant...");
         const walletBalance = await this.signer.provider.getBalance(await this.signer.getAddress());
         console.log("Wallet balance:", (0, ethers_1.formatEther)(walletBalance.toString()), " ETH");
@@ -70,13 +70,16 @@ class AlloBase {
                 metadata: metadata,
                 managers: args.managers,
             };
+            callback?.("preparing");
             const txData = this.allo.createPool(createPoolArgs);
             const tx = await this.signer.sendTransaction({
                 data: txData.data,
                 to: txData.to,
                 value: BigInt(txData.value),
             });
+            callback?.("pending");
             const receipt = await tx.wait();
+            callback?.("confirmed");
             // Get ProfileCreated event
             const poolId = receipt.logs[receipt.logs.length - 1].topics[0];
             return {
@@ -88,15 +91,18 @@ class AlloBase {
             console.error(`Failed to create pool: ${error}`);
         }
     }
-    async updatePoolMetadata(poolId, poolMetadata) {
+    async updatePoolMetadata(poolId, poolMetadata, callback) {
         try {
+            callback?.("preparing");
             const metadata_cid = await this.saveAndGetCID(poolMetadata);
             const metadata = {
                 protocol: 1,
                 pointer: metadata_cid,
             };
             const tx = await this.contract.updatePoolMetadata(poolId, metadata);
+            callback?.("pending");
             const receipt = await tx.wait();
+            callback?.("confirmed");
             return receipt;
         }
         catch (error) {
