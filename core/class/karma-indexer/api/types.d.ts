@@ -45,6 +45,7 @@ export interface IMilestoneResponse extends IAttestationResponse {
         title: string;
         description: string;
         endsAt: number;
+        startsAt?: number;
         type: "milestone";
     };
 }
