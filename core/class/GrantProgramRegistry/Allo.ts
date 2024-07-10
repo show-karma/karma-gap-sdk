@@ -73,7 +73,7 @@ export class AlloBase {
     return initStrategyData;
   }
 
-  async createGrant(args: any) {
+  async createGrant(args: any, callback?: Function) {
     console.log("Creating grant...");
     const walletBalance = await this.signer.provider.getBalance(
       await this.signer.getAddress()
@@ -114,6 +114,7 @@ export class AlloBase {
         managers: args.managers,
       };
 
+      callback?.("preparing");
       const txData: TransactionData = this.allo.createPool(createPoolArgs);
 
       const tx = await this.signer.sendTransaction({
@@ -121,8 +122,9 @@ export class AlloBase {
         to: txData.to,
         value: BigInt(txData.value),
       });
+      callback?.("pending");
       const receipt = await tx.wait();
-
+      callback?.("confirmed");
       // Get ProfileCreated event
       const poolId = receipt.logs[receipt.logs.length - 1].topics[0];
 
@@ -135,8 +137,9 @@ export class AlloBase {
     }
   }
 
-  async updatePoolMetadata(poolId: string, poolMetadata: any) {
+  async updatePoolMetadata(poolId: string, poolMetadata: any, callback?: Function) {
     try {
+      callback?.("preparing");
       const metadata_cid = await this.saveAndGetCID(poolMetadata);
       const metadata = {
         protocol: 1,
@@ -144,7 +147,9 @@ export class AlloBase {
       };
 
       const tx = await this.contract.updatePoolMetadata(poolId, metadata);
+      callback?.("pending");
       const receipt = await tx.wait();
+      callback?.("confirmed");
       return receipt;
     } catch (error) {
       console.error(`Failed to update pool metadata: ${error}`);
