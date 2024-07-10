@@ -32,8 +32,11 @@ export interface ISummaryProject {
     uid: Hex;
 }
 export interface IMilestoneCompleted extends IAttestationResponse {
-    type: "approved" | "rejected" | "completed";
-    reason?: string;
+    type: "MilestoneStatus";
+    data: {
+        type: "approved" | "rejected" | "completed";
+        reason?: string;
+    };
 }
 export interface IMilestoneResponse extends IAttestationResponse {
     type: "Milestone";
@@ -52,6 +55,10 @@ export interface IMilestoneResponse extends IAttestationResponse {
 export interface IGrantUpdateStatus extends IAttestationResponse {
     type: `grant-update-${IStatus}`;
     reason?: string;
+    data: {
+        type: "approved" | "rejected" | "completed";
+        reason?: string;
+    };
 }
 export interface IGrantUpdate extends IAttestationResponse {
     data: {
