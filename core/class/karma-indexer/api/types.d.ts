@@ -58,6 +58,7 @@ export interface IGrantUpdate extends IAttestationResponse {
         title: string;
         type: "grant-update";
     };
+    verified?: IGrantUpdateStatus[];
 }
 export interface IGrantDetails extends IAttestationResponse {
     type: "GrantDetails";
