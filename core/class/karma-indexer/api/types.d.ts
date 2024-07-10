@@ -114,6 +114,11 @@ export interface IProjectDetails extends IAttestationResponse {
         pathToTake?: string;
     };
 }
+type IStatus = "verified";
+export interface IProjectImpactStatus {
+    type: `project-impact-${IStatus}`;
+    reason?: string;
+}
 export interface IProjectImpact extends IAttestationResponse {
     type: "ProjectImpact";
     data: {
@@ -124,6 +129,7 @@ export interface IProjectImpact extends IAttestationResponse {
         completedAt: number;
         type: "project-impact";
     };
+    verified: IProjectImpactStatus[];
 }
 export interface IProjectEndorsement extends IAttestationResponse {
     type: "ProjectEndorsement";
@@ -174,3 +180,4 @@ export interface ISearchResponse {
     projects: IProjectResponse[];
     communities: ICommunityResponse[];
 }
+export {};
