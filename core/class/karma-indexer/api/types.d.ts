@@ -151,7 +151,7 @@ export interface IProjectResponse extends IAttestationResponse {
     };
     details?: IProjectDetails;
     members: IMemberOf[];
-    grants: any[];
+    grants: IGrantResponse[];
     grantee: any;
     impacts: IProjectImpact[];
     endorsements: IProjectEndorsement[];
