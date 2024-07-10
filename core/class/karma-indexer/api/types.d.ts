@@ -115,7 +115,7 @@ export interface IProjectDetails extends IAttestationResponse {
     };
 }
 type IStatus = "verified";
-export interface IProjectImpactStatus {
+export interface IProjectImpactStatus extends IAttestationResponse {
     type: `project-impact-${IStatus}`;
     reason?: string;
 }
