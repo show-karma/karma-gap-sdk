@@ -48,6 +48,10 @@ export interface IMilestoneResponse extends IAttestationResponse {
         type: "milestone";
     };
 }
+export interface IGrantUpdateStatus extends IAttestationResponse {
+    type: `grant-update-${IStatus}`;
+    reason?: string;
+}
 export interface IGrantUpdate extends IAttestationResponse {
     data: {
         text: string;
