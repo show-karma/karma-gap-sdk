@@ -9,9 +9,9 @@ export declare class AlloBase {
         name: string;
     }): Promise<any>;
     encodeStrategyInitData(applicationStart: number, applicationEnd: number, roundStart: number, roundEnd: number, payoutToken: string): Promise<string>;
-    createGrant(args: any): Promise<{
+    createGrant(args: any, callback?: Function): Promise<{
         poolId: string;
         txHash: string;
     }>;
-    updatePoolMetadata(poolId: string, poolMetadata: any): Promise<any>;
+    updatePoolMetadata(poolId: string, poolMetadata: any, callback?: Function): Promise<any>;
 }
