@@ -32,8 +32,11 @@ export interface ISummaryProject {
     uid: Hex;
 }
 export interface IMilestoneCompleted extends IAttestationResponse {
-    type: "approved" | "rejected" | "completed";
-    reason?: string;
+    type: "MilestoneStatus";
+    data: {
+        type: "approved" | "rejected" | "completed";
+        reason?: string;
+    };
 }
 export interface IMilestoneResponse extends IAttestationResponse {
     type: "Milestone";
@@ -45,7 +48,16 @@ export interface IMilestoneResponse extends IAttestationResponse {
         title: string;
         description: string;
         endsAt: number;
+        startsAt?: number;
         type: "milestone";
+    };
+}
+export interface IGrantUpdateStatus extends IAttestationResponse {
+    type: `grant-update-${IStatus}`;
+    reason?: string;
+    data: {
+        type: "approved" | "rejected" | "completed";
+        reason?: string;
     };
 }
 export interface IGrantUpdate extends IAttestationResponse {
@@ -54,6 +66,7 @@ export interface IGrantUpdate extends IAttestationResponse {
         title: string;
         type: "grant-update";
     };
+    verified?: IGrantUpdateStatus[];
 }
 export interface IGrantDetails extends IAttestationResponse {
     type: "GrantDetails";
@@ -118,6 +131,11 @@ export interface IProjectDetails extends IAttestationResponse {
         pathToTake?: string;
     };
 }
+type IStatus = "verified";
+export interface IProjectImpactStatus extends IAttestationResponse {
+    type: `project-impact-${IStatus}`;
+    reason?: string;
+}
 export interface IProjectImpact extends IAttestationResponse {
     type: "ProjectImpact";
     data: {
@@ -128,6 +146,7 @@ export interface IProjectImpact extends IAttestationResponse {
         completedAt: number;
         type: "project-impact";
     };
+    verified: IProjectImpactStatus[];
 }
 export interface IProjectEndorsement extends IAttestationResponse {
     type: "ProjectEndorsement";
@@ -143,7 +162,7 @@ export interface IProjectResponse extends IAttestationResponse {
     };
     details?: IProjectDetails;
     members: IMemberOf[];
-    grants: any[];
+    grants: IGrantResponse[];
     grantee: any;
     impacts: IProjectImpact[];
     endorsements: IProjectEndorsement[];
@@ -178,3 +197,4 @@ export interface ISearchResponse {
     projects: IProjectResponse[];
     communities: ICommunityResponse[];
 }
+export {};
