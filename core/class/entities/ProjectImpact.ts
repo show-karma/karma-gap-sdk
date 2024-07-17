@@ -29,6 +29,7 @@ export interface IProjectImpact {
   startedAt?: number;
   completedAt: number;
   type?: string;
+  verified: ProjectImpactStatus[];
 }
 
 export class ProjectImpact
