@@ -107,6 +107,7 @@ class AlloBase {
         }
         catch (error) {
             console.error(`Failed to update pool metadata: ${error}`);
+            throw new Error(`Failed to update pool metadata: ${error}`);
         }
     }
 }
