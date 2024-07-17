@@ -120,6 +120,10 @@ export class Tag extends Attestation<ITag> implements ITag {
 export interface IProjectDetails {
   title: string;
   description: string;
+  problem?: string;
+  solution?: string;
+  missionSummary?: string;
+  locationOfImpact?: string;
   imageURL: string;
   links?: ExternalLink;
   tags?: ITag[];
@@ -137,6 +141,10 @@ export class ProjectDetails
 {
   title: string;
   description: string;
+  problem?: string;
+  solution?: string;
+  missionSummary?: string;
+  locationOfImpact?: string;
   imageURL: string;
   links: ExternalLink = [];
   tags: ITag[] = [];
