@@ -134,6 +134,7 @@ export class AlloBase {
       };
     } catch (error) {
       console.error(`Failed to create pool: ${error}`);
+      throw new Error(`Failed to create pool metadata: ${error}`);
     }
   }
 
@@ -153,6 +154,7 @@ export class AlloBase {
       return receipt;
     } catch (error) {
       console.error(`Failed to update pool metadata: ${error}`);
+      throw new Error(`Failed to update pool metadata: ${error}`);
     }
   }
 }
