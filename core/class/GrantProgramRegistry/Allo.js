@@ -89,6 +89,7 @@ class AlloBase {
         }
         catch (error) {
             console.error(`Failed to create pool: ${error}`);
+            throw new Error(`Failed to create pool metadata: ${error}`);
         }
     }
     async updatePoolMetadata(poolId, poolMetadata, callback) {
@@ -107,6 +108,7 @@ class AlloBase {
         }
         catch (error) {
             console.error(`Failed to update pool metadata: ${error}`);
+            throw new Error(`Failed to update pool metadata: ${error}`);
         }
     }
 }
