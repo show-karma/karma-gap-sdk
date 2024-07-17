@@ -103,6 +103,10 @@ export interface IProjectDetails extends IAttestationResponse {
     data: {
         title: string;
         description: string;
+        problem?: string;
+        solution?: string;
+        missionSummary?: string;
+        locationOfImpact?: string;
         imageURL: string;
         links?: ExternalLink[];
         tags?: ITag[];
