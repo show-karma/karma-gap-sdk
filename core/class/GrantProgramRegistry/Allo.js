@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AlloBase = void 0;
 const ethers_1 = require("ethers");
-const Allo_json_1 = __importDefault(require("../../abi/Allo.json"));
+const AlloCaller_json_1 = __importDefault(require("../../abi/AlloCaller.json"));
 const consts_1 = require("../../consts");
 const ethers_2 = require("ethers");
 const allo_v2_sdk_1 = require("@allo-team/allo-v2-sdk/");
@@ -13,7 +13,7 @@ const axios_1 = __importDefault(require("axios"));
 class AlloBase {
     constructor(signer, pinataJWTToken, chainId) {
         this.signer = signer;
-        this.contract = new ethers_1.ethers.Contract(consts_1.AlloContracts.alloProxy, Allo_json_1.default, signer);
+        this.contract = new ethers_1.ethers.Contract(consts_1.AlloContracts.alloCaller, AlloCaller_json_1.default, signer);
         this.allo = new allo_v2_sdk_1.Allo({ chain: chainId });
         this.pinataJWTToken = pinataJWTToken;
     }

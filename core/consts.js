@@ -303,6 +303,7 @@ exports.alloSupportedNetworks = {
 exports.AlloContracts = {
     registry: "0x4AAcca72145e1dF2aeC137E1f3C5E3D75DB8b5f3",
     alloProxy: "0x1133eA7Af70876e64665ecD07C0A0476d09465a1",
+    alloCaller: "0xdB842B3F4df5Bf2d899807330dDE65B4b77C5f23",
     alloImplementation: "0xB087535DB0df98fC4327136e897A5985E5Cfbd66",
     strategy: {
         DonationVotingMerkleDistributionDirectTransferStrategy: "0x787eC93Dd71a90563979417879F5a3298389227f",

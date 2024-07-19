@@ -32,6 +32,7 @@ export declare const alloSupportedNetworks: {
 export declare const AlloContracts: {
     registry: string;
     alloProxy: string;
+    alloCaller: string;
     alloImplementation: string;
     strategy: {
         DonationVotingMerkleDistributionDirectTransferStrategy: string;
