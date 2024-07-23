@@ -98,6 +98,8 @@ export abstract class Schema<T extends string = string>
     sepolia: [],
     arbitrum: [],
     celo: [],
+    "sei": [],
+    "sei-testnet": [],
     "base-sepolia": [],
   };
 
