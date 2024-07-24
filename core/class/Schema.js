@@ -4,9 +4,9 @@ exports.Schema = void 0;
 const eas_sdk_1 = require("@ethereum-attestation-service/eas-sdk");
 const SchemaError_1 = require("./SchemaError");
 const consts_1 = require("../consts");
-const GAP_1 = require("./GAP");
 const GapContract_1 = require("./contract/GapContract");
 const ethers_1 = require("ethers");
+const IpfsStorage_1 = require("./remote-storage/IpfsStorage");
 /**
  * Represents the EAS Schema and provides methods to encode and decode the schema,
  * and validate the schema references.
@@ -224,9 +224,11 @@ class Schema {
         if (this.references && !refUID)
             throw new SchemaError_1.AttestationError("INVALID_REFERENCE", "Attestation schema references another schema but no reference UID was provided.");
         if (this.isJsonSchema()) {
-            const { remoteClient } = GAP_1.GAP;
+            const remoteClient = new IpfsStorage_1.IpfsStorage({
+                token: process.env.NEXT_PUBLIC_IPFS_TOKEN,
+            });
             if (remoteClient) {
-                const cid = await remoteClient.save(data, this.name);
+                const cid = await remoteClient.save(data);
                 const encodedData = remoteClient.encode(cid);
                 data = encodedData;
             }
