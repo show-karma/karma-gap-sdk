@@ -20,6 +20,7 @@ import { GAP } from "./GAP";
 import { GapSchema } from "./GapSchema";
 import { Networks, nullRef } from "../consts";
 import { GapContract } from "./contract/GapContract";
+import { IpfsStorage } from "./remote-storage/IpfsStorage";
 
 export interface AttestationArgs<T = unknown, S extends Schema = Schema> {
   data: T | string;
@@ -252,7 +253,9 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
     this.assertPayload();
 
     if (this.schema.isJsonSchema()) {
-      const { remoteClient } = GAP;
+      const remoteClient =  new IpfsStorage({
+        token: process.env.NEXT_PUBLIC_IPFS_TOKEN,
+      });
 
       if ((this as any).type) {
         (this._data as T & { type: string }).type = (this as any).type;
@@ -260,7 +263,7 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
       }
 
       if (remoteClient && JSON.stringify(this._data)?.length > 1500) {
-        const cid = await remoteClient.save(this._data, this.schema.name);
+        const cid = await remoteClient.save(this._data);
         const encodedData = remoteClient.encode(cid);
         this.schema.setValue("json", JSON.stringify(encodedData));
       }
