@@ -71,6 +71,23 @@ export interface IGrantUpdate extends IAttestationResponse {
   verified?: IGrantUpdateStatus[];
 }
 
+export interface IProjectUpdateStatus extends IAttestationResponse {
+  type: `project-update-${IStatus}`;
+  reason?: string;
+  data: {
+    type: "approved" | "rejected" | "completed";
+    reason?: string;
+  };
+}
+export interface IProjectUpdate extends IAttestationResponse {
+  data: {
+    text: string;
+    title: string;
+    type: "project-update";
+  };
+  verified?: IProjectUpdateStatus[];
+}
+
 export interface IGrantDetails extends IAttestationResponse {
   type: "GrantDetails";
   data: {
@@ -164,6 +181,7 @@ export interface IProjectResponse extends IAttestationResponse {
   grants: IGrantResponse[];
   grantee: any;
   impacts: IProjectImpact[];
+  updates: IProjectUpdate[];
   endorsements: IProjectEndorsement[];
 }
 
