@@ -17,7 +17,7 @@ class IpfsStorage extends RemoteStorage_1.RemoteStorage {
     sponsor) {
         super(0 /* STORAGE_TYPE.IPFS */, sponsor);
         this.assert(opts);
-        IpfsStorage.pinataJWTToken = opts.token;
+        this.pinataJWTToken = opts.token;
     }
     assert(opts) { }
     async save(data) {
@@ -43,7 +43,7 @@ class IpfsStorage extends RemoteStorage_1.RemoteStorage {
             }, {
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${IpfsStorage.pinataJWTToken}`,
+                    Authorization: `Bearer ${this.pinataJWTToken}`,
                 },
             });
             return res.data.IpfsHash;

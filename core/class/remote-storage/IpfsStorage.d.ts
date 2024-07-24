@@ -4,7 +4,7 @@ export interface IpfsStorageOptions {
     token: string;
 }
 export declare class IpfsStorage extends RemoteStorage {
-    static pinataJWTToken: string;
+    private pinataJWTToken;
     constructor(opts: IpfsStorageOptions, 
     /**
      * If set, will send request to another server instead of

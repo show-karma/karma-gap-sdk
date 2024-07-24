@@ -4,9 +4,9 @@ exports.Attestation = void 0;
 const Schema_1 = require("./Schema");
 const SchemaError_1 = require("./SchemaError");
 const get_date_1 = require("../utils/get-date");
-const GAP_1 = require("./GAP");
 const consts_1 = require("../consts");
 const GapContract_1 = require("./contract/GapContract");
+const IpfsStorage_1 = require("./remote-storage/IpfsStorage");
 /**
  * Represents the EAS Attestation and provides methods to manage attestations.
  * @example
@@ -196,13 +196,15 @@ class Attestation {
     async payloadFor(refIdx) {
         this.assertPayload();
         if (this.schema.isJsonSchema()) {
-            const { remoteClient } = GAP_1.GAP;
+            const remoteClient = new IpfsStorage_1.IpfsStorage({
+                token: process.env.NEXT_PUBLIC_IPFS_TOKEN,
+            });
             if (this.type) {
                 this._data.type = this.type;
                 this.schema.setValue("json", JSON.stringify(this._data));
             }
             if (remoteClient && JSON.stringify(this._data)?.length > 1500) {
-                const cid = await remoteClient.save(this._data, this.schema.name);
+                const cid = await remoteClient.save(this._data);
                 const encodedData = remoteClient.encode(cid);
                 this.schema.setValue("json", JSON.stringify(encodedData));
             }
