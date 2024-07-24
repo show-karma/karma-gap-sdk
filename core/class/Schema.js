@@ -467,5 +467,7 @@ Schema.schemas = {
     sepolia: [],
     arbitrum: [],
     celo: [],
+    "sei": [],
+    "sei-testnet": [],
     "base-sepolia": [],
 };
