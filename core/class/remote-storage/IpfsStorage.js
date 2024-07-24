@@ -17,12 +17,12 @@ class IpfsStorage extends RemoteStorage_1.RemoteStorage {
     sponsor) {
         super(0 /* STORAGE_TYPE.IPFS */, sponsor);
         this.assert(opts);
-        this.pinataJWTToken = opts.token;
+        IpfsStorage.pinataJWTToken = opts.token;
     }
     assert(opts) { }
-    async save(data, schemaName) {
+    async save(data) {
         try {
-            const cid = await this.saveAndGetCID(data, schemaName);
+            const cid = await this.saveAndGetCID(data);
             return cid;
         }
         catch (error) {
@@ -35,15 +35,15 @@ class IpfsStorage extends RemoteStorage_1.RemoteStorage {
     async get(args) {
         return (0, utils_1.getIPFSData)(args.cid);
     }
-    async saveAndGetCID(data, schemaName, pinataMetadata = { name: "via karma-gap-sdk" }) {
+    async saveAndGetCID(data, pinataMetadata = { name: "via karma-gap-sdk" }) {
         try {
             const res = await axios_1.default.post("https://api.pinata.cloud/pinning/pinJSONToIPFS", {
-                pinataContent: { data, schemaName },
+                pinataContent: data,
                 pinataMetadata: pinataMetadata,
             }, {
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${this.pinataJWTToken}`,
+                    Authorization: `Bearer ${IpfsStorage.pinataJWTToken}`,
                 },
             });
             return res.data.IpfsHash;

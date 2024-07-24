@@ -4,7 +4,7 @@ export interface IpfsStorageOptions {
     token: string;
 }
 export declare class IpfsStorage extends RemoteStorage {
-    private pinataJWTToken;
+    static pinataJWTToken: string;
     constructor(opts: IpfsStorageOptions, 
     /**
      * If set, will send request to another server instead of
@@ -12,12 +12,12 @@ export declare class IpfsStorage extends RemoteStorage {
      */
     sponsor?: RemoteStorage["sponsor"]);
     private assert;
-    save<T = unknown>(data: T, schemaName: string): Promise<string>;
+    save<T = unknown>(data: T): Promise<string>;
     encode(data: string): TRemoteStorageOutput<string>;
     get<T = unknown>(args: {
         cid: string;
     }): Promise<T>;
-    saveAndGetCID(data: any, schemaName: string, pinataMetadata?: {
+    saveAndGetCID(data: any, pinataMetadata?: {
         name: string;
     }): Promise<any>;
 }
