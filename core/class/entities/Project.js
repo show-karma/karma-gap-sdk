@@ -11,6 +11,7 @@ const MemberOf_1 = require("./MemberOf");
 const GapContract_1 = require("../contract/GapContract");
 const AllGapSchemas_1 = require("../AllGapSchemas");
 const ProjectImpact_1 = require("./ProjectImpact");
+const ProjectUpdate_1 = require("./ProjectUpdate");
 class Project extends Attestation_1.Attestation {
     constructor() {
         super(...arguments);
@@ -18,6 +19,7 @@ class Project extends Attestation_1.Attestation {
         this.grants = [];
         this.impacts = [];
         this.endorsements = [];
+        this.updates = [];
     }
     /**
      * Creates the payload for a multi-attestation.
@@ -265,6 +267,19 @@ class Project extends Attestation_1.Attestation {
             }
             return project;
         });
+    }
+    async attestUpdate(signer, data, callback) {
+        const projectUpdate = new ProjectUpdate_1.ProjectUpdate({
+            data: {
+                ...data,
+                type: "project-update",
+            },
+            recipient: this.recipient,
+            refUID: this.uid,
+            schema: this.schema.gap.findSchema("ProjectUpdate"),
+        });
+        await projectUpdate.attest(signer, callback);
+        this.updates.push(projectUpdate);
     }
     async attestImpact(signer, data) {
         const projectImpact = new ProjectImpact_1.ProjectImpact({

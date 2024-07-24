@@ -20,3 +20,4 @@ __exportStar(require("./Project"), exports);
 __exportStar(require("./Community"), exports);
 __exportStar(require("./MemberOf"), exports);
 __exportStar(require("./GrantUpdate"), exports);
+__exportStar(require("./ProjectUpdate"), exports);

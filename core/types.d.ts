@@ -23,8 +23,8 @@ export interface AttestArgs<T = unknown> {
     signer: SignerOrProvider;
     callback?: (status: CallbackStatus) => void;
 }
-export type TSchemaName = "Community" | "CommunityDetails" | "Grant" | "GrantDetails" | "GrantVerified" | "MemberOf" | "MemberDetails" | "Milestone" | "MilestoneCompleted" | "MilestoneApproved" | "Project" | "ProjectDetails" | "Details" | "ProjectImpact" | "GrantUpdate" | "GrantUpdateStatus" | "ProjectEndorsement";
-export type TResolvedSchemaNames = "Community" | "Grant" | "GrantVerified" | "MemberOf" | "MilestoneCompleted" | "MilestoneApproved" | "Project" | "Details" | "GrantUpdateStatus";
+export type TSchemaName = "Community" | "CommunityDetails" | "Grant" | "GrantDetails" | "GrantVerified" | "MemberOf" | "MemberDetails" | "Milestone" | "MilestoneCompleted" | "MilestoneApproved" | "Project" | "ProjectDetails" | "Details" | "ProjectImpact" | "ProjectUpdate" | "ProjectUpdateStatus" | "GrantUpdate" | "GrantUpdateStatus" | "ProjectEndorsement";
+export type TResolvedSchemaNames = "Community" | "Grant" | "GrantVerified" | "MemberOf" | "MilestoneCompleted" | "MilestoneApproved" | "Project" | "Details" | "ProjectUpdateStatus" | "GrantUpdateStatus" | "ProjectUpdateStatus";
 export type TExternalLink = "twitter" | "github" | "website" | "linkedin" | "discord";
 export type TNetwork = "optimism" | "celo" | "optimism-sepolia" | "arbitrum" | "sepolia" | "base-sepolia";
 /**
