@@ -2,7 +2,7 @@ import { AttestArgs, Facade, SchemaInterface, TNetwork, TSchemaName, SignerOrPro
 import { GapSchema } from './GapSchema';
 import { ethers } from 'ethers';
 import { Fetcher } from './Fetcher';
-import { RemoteStorage } from './remote-storage/RemoteStorage';
+import { IpfsStorage } from './remote-storage/IpfsStorage';
 interface GAPArgs {
     network: TNetwork;
     globalSchemas?: boolean;
@@ -94,7 +94,7 @@ interface GAPArgs {
      * If defined, all the details data from an attestation will
      * be stored in the remote storage, e.g. IPFS.
      */
-    remoteStorage?: RemoteStorage;
+    remoteStorage?: IpfsStorage;
 }
 /**
  * GAP SDK Facade.
@@ -231,6 +231,6 @@ export declare class GAP extends Facade {
      */
     static get gelatoOpts(): GAPArgs['gelatoOpts'];
     static set useGasLess(useGasLess: boolean);
-    static get remoteClient(): RemoteStorage<unknown>;
+    static get remoteClient(): IpfsStorage;
 }
 export {};

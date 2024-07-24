@@ -12,12 +12,12 @@ export declare class IpfsStorage extends RemoteStorage {
      */
     sponsor?: RemoteStorage["sponsor"]);
     private assert;
-    save<T = unknown>(data: T): Promise<string>;
+    save<T = unknown>(data: T, schemaName: string): Promise<string>;
     encode(data: string): TRemoteStorageOutput<string>;
     get<T = unknown>(args: {
         cid: string;
     }): Promise<T>;
-    saveAndGetCID(data: any, pinataMetadata?: {
+    saveAndGetCID(data: any, schemaName: string, pinataMetadata?: {
         name: string;
     }): Promise<any>;
 }
