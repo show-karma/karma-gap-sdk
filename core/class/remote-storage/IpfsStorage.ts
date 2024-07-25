@@ -67,7 +67,10 @@ export class IpfsStorage extends RemoteStorage {
       );
       return res.data.IpfsHash;
     } catch (error) {
-      console.log(error);
+      throw new RemoteStorageError(
+        "REMOTE_STORAGE_UPLOAD",
+        `Error adding data to IPFS`
+      );
     }
   }
 }
