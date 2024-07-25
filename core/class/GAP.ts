@@ -1,6 +1,6 @@
-import MulticallABI from '../abi/MultiAttester.json';
-import ProjectResolverABI from '../abi/ProjectResolver.json';
-import CommunityResolverABI from '../abi/CommunityResolverABI.json';
+import MulticallABI from "../abi/MultiAttester.json";
+import ProjectResolverABI from "../abi/ProjectResolver.json";
+import CommunityResolverABI from "../abi/CommunityResolverABI.json";
 
 import {
   AttestArgs,
@@ -9,17 +9,17 @@ import {
   TNetwork,
   TSchemaName,
   SignerOrProvider,
-} from '../types';
-import { Schema } from './Schema';
-import { GapSchema } from './GapSchema';
-import { EAS } from '@ethereum-attestation-service/eas-sdk';
-import { MountEntities, Networks } from '../consts';
-import { ethers } from 'ethers';
-import { version } from '../../package.json';
-import { Fetcher } from './Fetcher';
-import { RemoteStorage } from './remote-storage/RemoteStorage';
-import { GapEasClient } from './GraphQL';
-import { getWeb3Provider } from '../utils/get-web3-provider';
+} from "../types";
+import { Schema } from "./Schema";
+import { GapSchema } from "./GapSchema";
+import { EAS } from "@ethereum-attestation-service/eas-sdk";
+import { MountEntities, Networks } from "../consts";
+import { ethers } from "ethers";
+import { version } from "../../package.json";
+import { Fetcher } from "./Fetcher";
+import { RemoteStorage } from "./remote-storage/RemoteStorage";
+import { GapEasClient } from "./GraphQL";
+import { getWeb3Provider } from "../utils/get-web3-provider";
 
 interface GAPArgs {
   network: TNetwork;
@@ -221,7 +221,7 @@ export class GAP extends Facade {
       args.gelatoOpts &&
       !(args.gelatoOpts.sponsorUrl || args.gelatoOpts.apiKey)
     ) {
-      throw new Error('You must provide a `sponsorUrl` or an `apiKey`.');
+      throw new Error("You must provide a `sponsorUrl` or an `apiKey`.");
     }
 
     if (
@@ -230,7 +230,7 @@ export class GAP extends Facade {
       !args.gelatoOpts.env_gelatoApiKey
     ) {
       throw new Error(
-        'You must provide `env_gelatoApiKey` to be able to use it in a backend handler.'
+        "You must provide `env_gelatoApiKey` to be able to use it in a backend handler."
       );
     }
 
@@ -241,7 +241,7 @@ export class GAP extends Facade {
       !args.gelatoOpts?.useGasless
     ) {
       console.warn(
-        'GAP::You are using gelatoOpts but not setting useGasless to true. This will send transactions through the normal provider.'
+        "GAP::You are using gelatoOpts but not setting useGasless to true. This will send transactions through the normal provider."
       );
     }
   }
@@ -282,19 +282,18 @@ export class GAP extends Facade {
   generateSlug = async (text: string): Promise<string> => {
     let slug = text
       .toLowerCase()
-      .replace(/ /g, '-')
-      .replace(/[^\w-]+/g, '');
+      .replace(/ /g, "-")
+      .replace(/[^\w-]+/g, "");
     const slugExists = await this.fetch.slugExists(slug);
 
     if (slugExists) {
-      const parts = slug.split('-');
+      const parts = slug.split("-");
       const counter = parts.pop();
-      slug = /\d+/g.test(counter) ? parts.join('-') : slug;
+      slug = /\d+/g.test(counter) ? parts.join("-") : slug;
       // eslint-disable-next-line no-param-reassign
       const nextSlug = `${slug}-${
         counter && /\d+/g.test(counter) ? +counter + 1 : 1
       }`;
-      console.log({ nextSlug, counter, slug });
       return this.generateSlug(nextSlug);
     }
 
@@ -365,23 +364,23 @@ export class GAP extends Facade {
    * Get the multicall contract
    * @param signer
    */
-  static async getCommunityResolver( 
+  static async getCommunityResolver(
     signer: SignerOrProvider & { getChainId?: () => Promise<number> },
     chainId?: number
-    ) {
-      const currentChainId =
-        chainId ||
-        Number(
-          (await signer.provider.getNetwork())?.chainId ||
-            (await signer.getChainId())
-        );
-
-      const provider = chainId ? getWeb3Provider(chainId) : signer;
-      const network = Object.values(Networks).find(
-        (n) => +n.chainId === Number(currentChainId)
+  ) {
+    const currentChainId =
+      chainId ||
+      Number(
+        (await signer.provider.getNetwork())?.chainId ||
+          (await signer.getChainId())
       );
-      const address = network.contracts.communityResolver;
-      return new ethers.Contract(address, CommunityResolverABI, provider as any);
+
+    const provider = chainId ? getWeb3Provider(chainId) : signer;
+    const network = Object.values(Networks).find(
+      (n) => +n.chainId === Number(currentChainId)
+    );
+    const address = network.contracts.communityResolver;
+    return new ethers.Contract(address, CommunityResolverABI, provider as any);
   }
 
   get schemas() {
@@ -394,11 +393,11 @@ export class GAP extends Facade {
    * In case of true, the transactions will be sent through [Gelato](https://gelato.network)
    * and an API key is needed.
    */
-  private static set gelatoOpts(gelatoOpts: GAPArgs['gelatoOpts']) {
-    if (typeof this._gelatoOpts === 'undefined') {
+  private static set gelatoOpts(gelatoOpts: GAPArgs["gelatoOpts"]) {
+    if (typeof this._gelatoOpts === "undefined") {
       this._gelatoOpts = gelatoOpts;
     } else {
-      throw new Error('Cannot change a readonly value gelatoOpts.');
+      throw new Error("Cannot change a readonly value gelatoOpts.");
     }
   }
 
@@ -408,7 +407,7 @@ export class GAP extends Facade {
    * In case of true, the transactions will be sent through [Gelato](https://gelato.network)
    * and an API key is needed.
    */
-  static get gelatoOpts(): GAPArgs['gelatoOpts'] {
+  static get gelatoOpts(): GAPArgs["gelatoOpts"] {
     return this._gelatoOpts;
   }
 
@@ -420,7 +419,7 @@ export class GAP extends Facade {
       !this._gelatoOpts?.env_gelatoApiKey
     ) {
       throw new Error(
-        'You must provide a `sponsorUrl` or an `apiKey` before using gasless transactions.'
+        "You must provide a `sponsorUrl` or an `apiKey` before using gasless transactions."
       );
     }
     this._gelatoOpts.useGasless = useGasLess;
