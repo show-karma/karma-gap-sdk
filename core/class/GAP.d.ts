@@ -1,8 +1,8 @@
-import { AttestArgs, Facade, SchemaInterface, TNetwork, TSchemaName, SignerOrProvider } from '../types';
-import { GapSchema } from './GapSchema';
-import { ethers } from 'ethers';
-import { Fetcher } from './Fetcher';
-import { RemoteStorage } from './remote-storage/RemoteStorage';
+import { AttestArgs, Facade, SchemaInterface, TNetwork, TSchemaName, SignerOrProvider } from "../types";
+import { GapSchema } from "./GapSchema";
+import { ethers } from "ethers";
+import { Fetcher } from "./Fetcher";
+import { RemoteStorage } from "./remote-storage/RemoteStorage";
 interface GAPArgs {
     network: TNetwork;
     globalSchemas?: boolean;
@@ -229,7 +229,7 @@ export declare class GAP extends Facade {
      * In case of true, the transactions will be sent through [Gelato](https://gelato.network)
      * and an API key is needed.
      */
-    static get gelatoOpts(): GAPArgs['gelatoOpts'];
+    static get gelatoOpts(): GAPArgs["gelatoOpts"];
     static set useGasLess(useGasLess: boolean);
     static get remoteClient(): RemoteStorage<unknown>;
 }
