@@ -27,11 +27,9 @@ export class IpfsStorage extends RemoteStorage {
 
   private assert(opts: IpfsStorageOptions) {}
 
-  async save<T = unknown>(data: T, schemaName: string): Promise<string> {
+  async save<T = unknown>(data: T): Promise<string> {
     try {
-      const cid = await this.saveAndGetCID(
-        schemaName ? { ...data, type: schemaName } : data
-      );
+      const cid = await this.saveAndGetCID(data);
       return cid;
     } catch (error) {
       throw new RemoteStorageError(
@@ -69,10 +67,7 @@ export class IpfsStorage extends RemoteStorage {
       );
       return res.data.IpfsHash;
     } catch (error) {
-      throw new RemoteStorageError(
-        "REMOTE_STORAGE_UPLOAD",
-        `Error adding data to IPFS`
-      );
+      console.log(error);
     }
   }
 }
