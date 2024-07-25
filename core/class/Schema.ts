@@ -329,16 +329,6 @@ export abstract class Schema<T extends string = string>
       );
 
     if (this.isJsonSchema()) {
-      const remoteClient =  new IpfsStorage({
-        token: process.env.NEXT_PUBLIC_IPFS_TOKEN,
-      });
-
-      if (remoteClient) {
-        const cid = await remoteClient.save(data);
-        const encodedData = remoteClient.encode(cid);
-        data = encodedData as T;
-      }
-
       this.setValue("json", JSON.stringify(data));
     } else {
       Object.entries(data).forEach(([key, value]) => {

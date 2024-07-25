@@ -253,20 +253,11 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
     this.assertPayload();
 
     if (this.schema.isJsonSchema()) {
-      const remoteClient =  new IpfsStorage({
-        token: process.env.NEXT_PUBLIC_IPFS_TOKEN,
-      });
-
       if ((this as any).type) {
         (this._data as T & { type: string }).type = (this as any).type;
         this.schema.setValue("json", JSON.stringify(this._data));
       }
 
-      if (remoteClient && JSON.stringify(this._data)?.length > 1500) {
-        const cid = await remoteClient.save(this._data);
-        const encodedData = remoteClient.encode(cid);
-        this.schema.setValue("json", JSON.stringify(encodedData));
-      }
     }
 
     const payload = (encode = true): MultiAttestData => ({
