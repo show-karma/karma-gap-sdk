@@ -23,6 +23,7 @@ import { GAP } from "./GAP";
 import { Attestation } from "./Attestation";
 import { GapContract } from "./contract/GapContract";
 import { isAddress } from "ethers";
+import { IpfsStorage } from "./remote-storage/IpfsStorage";
 /**
  * Represents the EAS Schema and provides methods to encode and decode the schema,
  * and validate the schema references.
@@ -98,6 +99,8 @@ export abstract class Schema<T extends string = string>
     sepolia: [],
     arbitrum: [],
     celo: [],
+    "sei": [],
+    "sei-testnet": [],
     "base-sepolia": [],
   };
 
@@ -326,13 +329,6 @@ export abstract class Schema<T extends string = string>
       );
 
     if (this.isJsonSchema()) {
-      const { remoteClient } = GAP;
-      if (remoteClient) {
-        const cid = await remoteClient.save(data, this.name);
-        const encodedData = remoteClient.encode(cid);
-        data = encodedData as T;
-      }
-
       this.setValue("json", JSON.stringify(data));
     } else {
       Object.entries(data).forEach(([key, value]) => {

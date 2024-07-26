@@ -89,6 +89,8 @@ export type TNetwork =
   | "optimism-sepolia"
   | "arbitrum"
   | "sepolia"
+  | "sei"
+  | "sei-testnet"
   | "base-sepolia";
 
 /**
