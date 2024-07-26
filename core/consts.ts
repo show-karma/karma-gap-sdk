@@ -256,7 +256,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
         "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
     },
   },
-  "sei": {
+  sei: {
     chainId: 1329,
     url: "https://sei.easscan.org/graphql",
     rpcUrl: "https://evm-rpc.sei-apis.com",
@@ -287,6 +287,8 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
         "0x6edc90af92553109cfed1292a67a75b34e41880bd8a61e9d05db0473b69a2f9e",
       Project:
         "0xf6b89107f8096220051240b89a48abb66e0a23e529c914953b80f5a2bc5ea44c",
+      ProjectUpdateStatus:
+        "0x6edc90af92553109cfed1292a67a75b34e41880bd8a61e9d05db0473b69a2f9e",
     },
   },
   "sei-testnet": {
@@ -319,7 +321,9 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       GrantUpdateStatus:
         "0xb25551d21dc886be83a07c241c46de318704cb6f485191fdedcf80f4b8b28188",
       Project:
-        "0x9de9294fbb62391b39332a33bfc28b4e0e728dd094aee4bda3955df62f8401a5",
+        "0x9de9294fbb62391b393332a33bfc28b4e0e728dd094aee4bda3955df62f8401a5",
+      ProjectUpdateStatus:
+        "0xb25551d21dc886be83a07c241c46de318704cb6f485191fdedcf80f4b8b28188",
     },
   },
 } as const;
