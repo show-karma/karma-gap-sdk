@@ -4,7 +4,6 @@ exports.Attestation = void 0;
 const Schema_1 = require("./Schema");
 const SchemaError_1 = require("./SchemaError");
 const get_date_1 = require("../utils/get-date");
-const GAP_1 = require("./GAP");
 const consts_1 = require("../consts");
 const GapContract_1 = require("./contract/GapContract");
 /**
@@ -196,15 +195,9 @@ class Attestation {
     async payloadFor(refIdx) {
         this.assertPayload();
         if (this.schema.isJsonSchema()) {
-            const { remoteClient } = GAP_1.GAP;
             if (this.type) {
                 this._data.type = this.type;
                 this.schema.setValue("json", JSON.stringify(this._data));
-            }
-            if (remoteClient && JSON.stringify(this._data)?.length > 1500) {
-                const cid = await remoteClient.save(this._data, this.schema.name);
-                const encodedData = remoteClient.encode(cid);
-                this.schema.setValue("json", JSON.stringify(encodedData));
             }
         }
         const payload = (encode = true) => ({

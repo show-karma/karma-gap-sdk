@@ -49,7 +49,7 @@ class IpfsStorage extends RemoteStorage_1.RemoteStorage {
             return res.data.IpfsHash;
         }
         catch (error) {
-            console.log(error);
+            throw new SchemaError_1.RemoteStorageError("REMOTE_STORAGE_UPLOAD", `Error adding data to IPFS`);
         }
     }
 }

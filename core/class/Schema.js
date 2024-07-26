@@ -4,7 +4,6 @@ exports.Schema = void 0;
 const eas_sdk_1 = require("@ethereum-attestation-service/eas-sdk");
 const SchemaError_1 = require("./SchemaError");
 const consts_1 = require("../consts");
-const GAP_1 = require("./GAP");
 const GapContract_1 = require("./contract/GapContract");
 const ethers_1 = require("ethers");
 /**
@@ -224,12 +223,6 @@ class Schema {
         if (this.references && !refUID)
             throw new SchemaError_1.AttestationError("INVALID_REFERENCE", "Attestation schema references another schema but no reference UID was provided.");
         if (this.isJsonSchema()) {
-            const { remoteClient } = GAP_1.GAP;
-            if (remoteClient) {
-                const cid = await remoteClient.save(data, this.name);
-                const encodedData = remoteClient.encode(cid);
-                data = encodedData;
-            }
             this.setValue("json", JSON.stringify(data));
         }
         else {
@@ -467,5 +460,7 @@ Schema.schemas = {
     sepolia: [],
     arbitrum: [],
     celo: [],
+    "sei": [],
+    "sei-testnet": [],
     "base-sepolia": [],
 };
