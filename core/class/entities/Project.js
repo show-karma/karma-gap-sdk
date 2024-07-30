@@ -252,6 +252,9 @@ class Project extends Attestation_1.Attestation {
             if (attestation.impacts) {
                 project.impacts = ProjectImpact_1.ProjectImpact.from(attestation.impacts, network);
             }
+            if (attestation.updates) {
+                project.updates = ProjectUpdate_1.ProjectUpdate.from(attestation.updates, network);
+            }
             if (attestation.endorsements) {
                 project.endorsements = attestation.endorsements.map((pi) => {
                     const endorsement = new attestations_1.ProjectEndorsement({

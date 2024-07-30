@@ -1,6 +1,5 @@
 import { SignerOrProvider, TNetwork } from "../../../core/types";
-import { Attestation, AttestationArgs } from "../Attestation";
-import { GapSchema } from "../GapSchema";
+import { Attestation } from "../Attestation";
 export interface _IProjectUpdate extends ProjectUpdate {
 }
 export interface IProjectUpdate {
@@ -21,7 +20,6 @@ export declare class ProjectUpdate extends Attestation<IProjectUpdate> implement
     title: string;
     text: string;
     verified: ProjectUpdateStatus[];
-    constructor(data: AttestationArgs<IProjectUpdate, GapSchema>);
     /**
      * Attest the status of the update as approved, rejected or completed.
      */

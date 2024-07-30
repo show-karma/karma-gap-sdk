@@ -9,9 +9,8 @@ class ProjectUpdateStatus extends Attestation_1.Attestation {
 }
 exports.ProjectUpdateStatus = ProjectUpdateStatus;
 class ProjectUpdate extends Attestation_1.Attestation {
-    constructor(data) {
-        data.data.type = "project-update";
-        super(data);
+    constructor() {
+        super(...arguments);
         this.verified = [];
     }
     /**
