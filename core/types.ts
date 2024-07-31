@@ -57,6 +57,7 @@ export type TSchemaName =
   | "ProjectImpact"
   | "ProjectUpdate"
   | "ProjectUpdateStatus"
+  | "ProjectPointer"
   | "GrantUpdate"
   | "GrantUpdateStatus"
   | "ProjectEndorsement";

@@ -465,6 +465,12 @@ export const MountEntities = (
     uid: network.schemas.ProjectUpdateStatus,
     references: "ProjectUpdate",
   },
+  ProjectPointer: {
+    name: "ProjectPointer",
+    schema: DetailsSchema,
+    uid: network.schemas.Details,
+    references: "Project",
+  },
 });
 
 export const alloSupportedNetworks = {
