@@ -406,6 +406,13 @@ export class Project extends Attestation<IProject> {
         );
       }
 
+      if (attestation.updates) {
+        project.updates = ProjectUpdate.from(
+          attestation.updates as unknown as ProjectUpdate[],
+          network
+        );
+      }
+
       if (attestation.endorsements) {
         project.endorsements = attestation.endorsements.map((pi) => {
           const endorsement = new ProjectEndorsement({
