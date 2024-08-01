@@ -190,6 +190,7 @@ export interface IProjectResponse extends IAttestationResponse {
   impacts: IProjectImpact[];
   updates: IProjectUpdate[];
   pointers: IProjectPointer[];
+  symlinks: Hex[];
   endorsements: IProjectEndorsement[];
 }
 
