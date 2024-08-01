@@ -1,20 +1,21 @@
-import { BytesLike } from 'ethers';
+import { BytesLike } from "ethers";
 import {
   AttestationRequestData,
   EAS,
   MultiAttestationRequest,
   SchemaItem,
-} from '@ethereum-attestation-service/eas-sdk';
-import { SignerOrProvider as EASSigner } from '@ethereum-attestation-service/eas-sdk/dist/transaction';
-import { Attestation } from './class';
-import { Fetcher } from './class/Fetcher';
+} from "@ethereum-attestation-service/eas-sdk";
+// import { SignerOrProvider as EASSigner } from '@ethereum-attestation-service/eas-sdk/dist/transaction';
+import { Attestation, GAP } from "./class";
+import { Fetcher } from "./class/Fetcher";
 export type Hex = `0x${string}`;
 
-export type SignerOrProvider = EASSigner & {
-  address?: Hex;
-  _address?: Hex;
-  getAddress?: () => Promise<Hex>;
-};
+export type SignerOrProvider = any;
+// EASSigner & {
+//   address?: Hex;
+//   _address?: Hex;
+//   getAddress?: () => Promise<Hex>;
+// };
 
 export interface SchemaInterface<T extends string = string> {
   name: string;
@@ -29,52 +30,64 @@ export interface MultiRevokeArgs {
   schemaId: Hex;
 }
 
+export type CallbackStatus = "pending" | "confirmed" | "preparing";
+
 export interface AttestArgs<T = unknown> {
   to: Hex;
   data: T;
   refUID?: Hex;
   signer: SignerOrProvider;
+  callback?: (status: CallbackStatus) => void;
 }
 
 export type TSchemaName =
-  | 'Community'
-  | 'CommunityDetails'
-  | 'Grant'
-  | 'GrantDetails'
-  | 'GrantVerified'
-  | 'MemberOf'
-  | 'MemberDetails'
-  | 'Milestone'
-  | 'MilestoneCompleted'
-  | 'MilestoneApproved'
-  | 'Project'
-  | 'ProjectDetails'
-  | 'Details';
+  | "Community"
+  | "CommunityDetails"
+  | "Grant"
+  | "GrantDetails"
+  | "GrantVerified"
+  | "MemberOf"
+  | "MemberDetails"
+  | "Milestone"
+  | "MilestoneCompleted"
+  | "MilestoneApproved"
+  | "Project"
+  | "ProjectDetails"
+  | "Details"
+  | "ProjectImpact"
+  | "GrantUpdate"
+  | "GrantUpdateStatus"
+  | "ProjectEndorsement";
 
 export type TResolvedSchemaNames =
-  | 'Community'
-  | 'Grant'
-  | 'GrantVerified'
-  | 'MemberOf'
-  | 'MilestoneCompleted'
-  | 'MilestoneApproved'
-  | 'Project'
-  | 'Details';
+  | "Community"
+  | "Grant"
+  | "GrantVerified"
+  | "MemberOf"
+  | "MilestoneCompleted"
+  | "MilestoneApproved"
+  | "Project"
+  | "Details"
+  | "GrantUpdateStatus";
 
 export type TExternalLink =
-  | 'twitter'
-  | 'github'
-  | 'website'
-  | 'linkedin'
-  | 'discord';
+  | "twitter"
+  | "github"
+  | "website"
+  | "linkedin"
+  | "discord";
 
 export type TNetwork =
   // | "mainnet"
   // | "base-goerli"
-  | 'optimism'
-  | 'optimism-goerli'
-  // | "arbitrum"
-  // | 'sepolia';y
+  | "optimism"
+  | "celo"
+  | "optimism-sepolia"
+  | "arbitrum"
+  | "sepolia"
+  | "sei"
+  | "sei-testnet"
+  | "base-sepolia";
 
 /**
  * Generic GAP Facade interface.
@@ -84,9 +97,9 @@ export abstract class Facade {
   abstract readonly network: TNetwork;
   abstract readonly schemas: SchemaInterface[];
   abstract readonly fetch: Fetcher;
-  protected static _eas: EAS;
+  protected _eas: EAS;
 
-  static get eas() {
+  get eas() {
     return this._eas;
   }
 }
@@ -114,12 +127,15 @@ export type MultiAttestPayload = [Attestation, RawMultiAttestPayload][];
 
 export interface EASNetworkConfig {
   url: string;
+  rpcUrl: string;
   chainId: number;
   contracts: {
     eas: Hex;
     schema: Hex;
     multicall: Hex;
     projectResolver: Hex;
+    communityResolver: Hex;
+    donations: Hex;
   };
   /**
    * A tuple containing the schema name and it's UID for that network

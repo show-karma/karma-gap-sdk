@@ -1,6 +1,8 @@
-import { mapFilter } from "../utils";
-import { IGapSchema, SchemaInterface, TSchemaName } from "../types";
-import { Schema } from "./Schema";
+import { mapFilter } from '../utils';
+import { IGapSchema, SchemaInterface, TNetwork, TSchemaName } from '../types';
+import { Schema } from './Schema';
+import { GAP } from './GAP';
+import { MountEntities, Networks } from 'core/consts';
 
 /**
  * Represents the GapSchema
@@ -9,16 +11,18 @@ import { Schema } from "./Schema";
 export class GapSchema extends Schema implements IGapSchema {
   public readonly name: TSchemaName;
   public readonly references: TSchemaName;
-
+  
   constructor(
     args: SchemaInterface<TSchemaName>,
+    gap: GAP,
     strict = false,
     ignoreSchema = false
   ) {
-    super(args, strict, ignoreSchema);
+    super(args, gap, strict, ignoreSchema);
 
     if (!ignoreSchema)
       Schema.add(
+        gap.network,
         new GapSchema(
           {
             name: args.name,
@@ -27,6 +31,7 @@ export class GapSchema extends Schema implements IGapSchema {
             references: args.references,
             revocable: args.revocable,
           },
+          gap,
           strict,
           true
         )
@@ -47,6 +52,7 @@ export class GapSchema extends Schema implements IGapSchema {
         references: schema.references,
         revocable: schema.revocable,
       },
+      schema.gap,
       false,
       true
     );
@@ -57,8 +63,8 @@ export class GapSchema extends Schema implements IGapSchema {
    * @param name
    * @returns
    */
-  static find(name: TSchemaName): GapSchema {
-    const found = Schema.get<TSchemaName, GapSchema>(name);
+  static find(name: TSchemaName, network: TNetwork): GapSchema {
+    const found = Schema.get<TSchemaName, GapSchema>(name, network);
     return this.clone(found);
   }
 
@@ -67,8 +73,8 @@ export class GapSchema extends Schema implements IGapSchema {
    * @param names
    * @returns
    */
-  static findMany(names: TSchemaName[]): GapSchema[] {
-    const schemas = Schema.getMany<TSchemaName, GapSchema>(names);
+  static findMany(names: TSchemaName[], network: TNetwork): GapSchema[] {
+    const schemas = Schema.getMany<TSchemaName, GapSchema>(names, network);
     return schemas.map((s) => this.clone(s));
   }
 
@@ -77,9 +83,10 @@ export class GapSchema extends Schema implements IGapSchema {
    */
   get children() {
     return mapFilter(
-      GapSchema.schemas,
+      GapSchema.schemas[this.gap.network],
       (s) => s.references === this.name || s.references === this.uid,
-      (s: Schema<TSchemaName>) => new GapSchema(s, false, true)
+      (s: Schema<TSchemaName>) => new GapSchema(s, s.gap, false, true)
     );
   }
+
 }

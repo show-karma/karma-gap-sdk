@@ -15,7 +15,6 @@ import {
 import {
   CommunityDetails,
   GrantDetails,
-  GrantUpdate,
   Grantee,
   MemberDetails,
   MilestoneCompleted,
@@ -29,11 +28,11 @@ import { Community } from '../entities/Community';
 import { mapFilter } from '../../utils';
 import { Fetcher } from '../Fetcher';
 import { Networks } from '../../consts';
+import { GrantUpdate } from '../entities/GrantUpdate';
 
 interface EASClientProps {
   network: TNetwork;
 }
-
 
 // TODO: Split this class into small ones
 export class GapEasClient extends Fetcher {
@@ -56,11 +55,14 @@ export class GapEasClient extends Fetcher {
 
     return schemata.map(
       (schema) =>
-        new GapSchema({
-          name: '',
-          schema: Schema.rawToObject(schema.schema),
-          uid: schema.uid,
-        })
+        new GapSchema(
+          {
+            name: '',
+            schema: Schema.rawToObject(schema.schema),
+            uid: schema.uid,
+          },
+          this.gap
+        )
     );
   }
 
@@ -68,14 +70,17 @@ export class GapEasClient extends Fetcher {
     const query = gqlQueries.attestation(uid);
     const { attestation } = await this.query<AttestationRes>(query);
 
-    return Attestation.fromInterface<Attestation<T>>([attestation])[0];
+    return Attestation.fromInterface<Attestation<T>>(
+      [attestation],
+      this.network.name
+    )[0];
   }
 
   async attestations(
     schemaName: TSchemaName,
     search?: string
   ): Promise<IAttestation[]> {
-    const schema = GapSchema.find(schemaName);
+    const schema = this.gap.findSchema(schemaName);
 
     const query = gqlQueries.attestationsOf(schema.uid, search);
     const {
@@ -89,7 +94,7 @@ export class GapEasClient extends Fetcher {
     schemaName: TSchemaName,
     recipient: Hex
   ): Promise<IAttestation[]> {
-    const schema = GapSchema.find(schemaName);
+    const schema = this.gap.findSchema(schemaName);
     const query = gqlQueries.attestationsOf(schema.uid, recipient);
     const {
       schema: { attestations },
@@ -102,7 +107,7 @@ export class GapEasClient extends Fetcher {
     schemaName: TSchemaName,
     recipient: Hex
   ): Promise<IAttestation[]> {
-    const schema = GapSchema.find(schemaName);
+    const schema = this.gap.findSchema(schemaName);
     const query = gqlQueries.attestationsTo(schema.uid, recipient);
     const {
       schema: { attestations },
@@ -120,7 +125,7 @@ export class GapEasClient extends Fetcher {
     parentSchema: TSchemaName,
     parentUid: Hex
   ): Promise<Attestation[]> {
-    const parent = GapSchema.find(parentSchema);
+    const parent = this.gap.findSchema(parentSchema);
     const children = parent.children.map((c) => c.uid);
 
     if (!children.length)
@@ -132,11 +137,11 @@ export class GapEasClient extends Fetcher {
     const query = gqlQueries.dependentsOf(parentUid, children);
     const { attestations } = await this.query<AttestationsRes>(query);
 
-    return Attestation.fromInterface(attestations);
+    return Attestation.fromInterface(attestations, this.network.name);
   }
 
   async communities(search?: string) {
-    const [community, communityDetails] = GapSchema.findMany([
+    const [community, communityDetails] = this.gap.findManySchemas([
       'Community',
       'CommunityDetails',
     ]);
@@ -146,7 +151,10 @@ export class GapEasClient extends Fetcher {
       schema: { attestations },
     } = await this.query<SchemaRes>(query);
 
-    const communities = Attestation.fromInterface<Community>(attestations);
+    const communities = Attestation.fromInterface<Community>(
+      attestations,
+      this.network.name
+    );
 
     if (!communities.length) return [];
 
@@ -154,14 +162,35 @@ export class GapEasClient extends Fetcher {
   }
 
   async communitiesOf(address?: Hex) {
-    const [community] = GapSchema.findMany(['Community']);
+    const [community] = this.gap.findManySchemas(['Community']);
 
     const query = gqlQueries.attestationsTo(community.uid, address);
     const {
       schema: { attestations },
     } = await this.query<SchemaRes>(query);
 
-    const communities = Attestation.fromInterface<Community>(attestations);
+    const communities = Attestation.fromInterface<Community>(
+      attestations,
+      this.network.name
+    );
+
+    if (!communities.length) return [];
+
+    return this.communitiesDetails(communities);
+  }
+
+  async communitiesAdminOf(address?: Hex) {
+    const [community] = this.gap.findManySchemas(['Community']);
+
+    const query = gqlQueries.attestationsTo(community.uid, address);
+    const {
+      schema: { attestations },
+    } = await this.query<SchemaRes>(query);
+
+    const communities = Attestation.fromInterface<Community>(
+      attestations,
+      this.network.name
+    );
 
     if (!communities.length) return [];
 
@@ -170,7 +199,7 @@ export class GapEasClient extends Fetcher {
 
   async communitiesByIds(uids: Hex[]) {
     if (!uids.length) return [];
-    const communityDetails = GapSchema.find('CommunityDetails');
+    const communityDetails = this.gap.findSchema('CommunityDetails');
 
     const communityQuery = gqlQueries.attestationsIn(uids);
     const detailsQuery = gqlQueries.dependentsOf(uids, [communityDetails.uid]);
@@ -181,11 +210,13 @@ export class GapEasClient extends Fetcher {
       ]);
 
       const communitiesAttestations = Attestation.fromInterface<Community>(
-        communities.attestations || []
+        communities.attestations || [],
+        this.network.name
       );
 
       const detailsAttestations = Attestation.fromInterface<CommunityDetails>(
-        details.attestations || []
+        details.attestations || [],
+        this.network.name
       );
 
       communitiesAttestations.forEach((community) => {
@@ -201,7 +232,7 @@ export class GapEasClient extends Fetcher {
   }
 
   async communitiesDetails(communities: Community[]) {
-    const [project, communityDetails] = GapSchema.findMany([
+    const [project, communityDetails] = this.gap.findManySchemas([
       'Project',
       'CommunityDetails',
     ]);
@@ -212,7 +243,10 @@ export class GapEasClient extends Fetcher {
     );
 
     const results = await this.query<AttestationsRes>(ref);
-    const deps = Attestation.fromInterface(results.attestations || []);
+    const deps = Attestation.fromInterface(
+      results.attestations || [],
+      this.network.name
+    );
 
     return communities.map((community) => {
       community.projects = <Project[]>(
@@ -235,7 +269,7 @@ export class GapEasClient extends Fetcher {
   }
 
   async communityBySlug(slug: string) {
-    const communitySchema = GapSchema.find('CommunityDetails');
+    const communitySchema = this.gap.findSchema('CommunityDetails');
 
     const query = gqlQueries.attestationsOf(
       communitySchema.uid,
@@ -250,7 +284,10 @@ export class GapEasClient extends Fetcher {
       if (!attestations.length) throw new Error('Community not found.');
 
       const communities = mapFilter(
-        Attestation.fromInterface<CommunityDetails>(attestations),
+        Attestation.fromInterface<CommunityDetails>(
+          attestations,
+          this.network.name
+        ),
         (details) => !!details.name,
         (details) => {
           const community = new Community({
@@ -284,9 +321,10 @@ export class GapEasClient extends Fetcher {
 
     if (!attestation) throw new Error('Community not found.');
 
-    const communities = Attestation.fromInterface<Community>([attestation]).map(
-      (c) => new Community(c)
-    );
+    const communities = Attestation.fromInterface<Community>(
+      [attestation],
+      this.network.name
+    ).map((c) => new Community(c));
 
     const [withDetails] = await this.communitiesDetails(communities);
     if (!withDetails) throw new Error('Community not found.');
@@ -304,7 +342,7 @@ export class GapEasClient extends Fetcher {
   async projectsDetails(projects: Project[]) {
     // Get projects array and fetch details, members, grants, etc then append to the project and return the array.
 
-    const [projectDetails] = GapSchema.findMany(['ProjectDetails']);
+    const [projectDetails] = this.gap.findManySchemas(['ProjectDetails']);
 
     const refQuery = gqlQueries.dependentsOf(
       projects.map((p) => p.uid),
@@ -317,7 +355,10 @@ export class GapEasClient extends Fetcher {
       this.grantsFor(projects, true),
     ]);
 
-    const deps = Attestation.fromInterface(result.attestations || []);
+    const deps = Attestation.fromInterface(
+      result.attestations || [],
+      this.network.name
+    );
 
     return projects.map((project) => {
       project.details = <ProjectDetails>(
@@ -341,9 +382,10 @@ export class GapEasClient extends Fetcher {
 
     if (!attestation) throw new Error('Project not found.');
 
-    const projectAttestation = Attestation.fromInterface<Project>([
-      attestation,
-    ])[0];
+    const projectAttestation = Attestation.fromInterface<Project>(
+      [attestation],
+      this.network.name
+    )[0];
 
     const [result] = await this.projectsDetails([
       new Project(projectAttestation),
@@ -353,7 +395,7 @@ export class GapEasClient extends Fetcher {
   }
 
   async projectBySlug(slug: string) {
-    const projectDetails = GapSchema.find('ProjectDetails');
+    const projectDetails = this.gap.findSchema('ProjectDetails');
 
     const query = gqlQueries.attestationsOf(
       projectDetails.uid,
@@ -365,7 +407,8 @@ export class GapEasClient extends Fetcher {
     } = await this.query<SchemaRes>(query);
 
     const projectAttestations = Attestation.fromInterface<ProjectDetails>(
-      attestations
+      attestations,
+      this.network.name
     ).filter((p) => p.title);
 
     if (!projectAttestations.length) throw new Error('Project not found.');
@@ -373,7 +416,7 @@ export class GapEasClient extends Fetcher {
     const project = new Project({
       data: { project: true },
       uid: projectAttestations[0].refUID,
-      schema: GapSchema.find('Project'),
+      schema: this.gap.findSchema('Project'),
       recipient: projectAttestations[0].recipient,
     });
     const [withDetails] = await this.projectsDetails([project]);
@@ -384,7 +427,7 @@ export class GapEasClient extends Fetcher {
   }
 
   async slugExists(slug: string) {
-    const details = GapSchema.find('ProjectDetails');
+    const details = this.gap.findSchema('ProjectDetails');
 
     const query = gqlQueries.attestationsOf(details.uid, 'slug');
     const {
@@ -394,11 +437,22 @@ export class GapEasClient extends Fetcher {
     return attestations.some((a) => a.decodedDataJson.includes(slug));
   }
 
+  search(query: string): Promise<{projects: Project[], communities: Community[]}> {
+    throw new Error('Method not implemented.');
+  }
+
+  searchProjects(query: string): Promise<Project[]> {
+    throw new Error('Method not implemented.');
+  }
+
   async projects(name?: string): Promise<Project[]> {
     const result = await this.attestations('Project', name);
 
     if (!result.length) return [];
-    const projects = Attestation.fromInterface<Project>(result);
+    const projects = Attestation.fromInterface<Project>(
+      result,
+      this.network.name
+    );
     return this.projectsDetails(projects);
   }
 
@@ -406,7 +460,10 @@ export class GapEasClient extends Fetcher {
     const result = await this.attestationsTo('Project', grantee);
 
     if (!result.length) return [];
-    const projects = Attestation.fromInterface<Project>(result);
+    const projects = Attestation.fromInterface<Project>(
+      result,
+      this.network.name
+    );
     return this.projectsDetails(projects);
   }
 
@@ -432,7 +489,7 @@ export class GapEasClient extends Fetcher {
   }
 
   async grantsOf(grantee: Hex, withCommunity?: boolean): Promise<Grant[]> {
-    const [grant, grantDetails, grantVerified] = GapSchema.findMany([
+    const [grant, grantDetails, grantVerified] = this.gap.findManySchemas([
       'Grant',
       'GrantDetails',
       'GrantVerified',
@@ -443,7 +500,10 @@ export class GapEasClient extends Fetcher {
       schema: { attestations },
     } = await this.query<SchemaRes>(query);
 
-    const grants = Attestation.fromInterface<Grant>(attestations);
+    const grants = Attestation.fromInterface<Grant>(
+      attestations,
+      this.network.name
+    );
 
     if (!grants.length) return [];
 
@@ -454,7 +514,10 @@ export class GapEasClient extends Fetcher {
     );
 
     const results = await this.query<AttestationsRes>(ref);
-    const deps = Attestation.fromInterface(results.attestations || []);
+    const deps = Attestation.fromInterface(
+      results.attestations || [],
+      this.network.name
+    );
 
     const milestones = await this.milestonesOf(grants);
     const communities = withCommunity
@@ -497,7 +560,7 @@ export class GapEasClient extends Fetcher {
   }
 
   async grantsUpdates(grants: Grant[]) {
-    const details = GapSchema.find('GrantDetails');
+    const details = this.gap.findSchema('GrantDetails');
 
     const query = gqlQueries.attestationsOf(
       details.uid,
@@ -509,7 +572,10 @@ export class GapEasClient extends Fetcher {
       schema: { attestations },
     } = await this.query<SchemaRes>(query);
 
-    const updates = Attestation.fromInterface<GrantUpdate>(attestations);
+    const updates = Attestation.fromInterface<GrantUpdate>(
+      attestations,
+      this.network.name
+    );
 
     return grants.map((grant) => {
       grant.updates = updates.filter((u) => u.refUID === grant.uid);
@@ -518,21 +584,23 @@ export class GapEasClient extends Fetcher {
   }
 
   async grantsByCommunity(uid: Hex) {
-    const [grant, grantDetails, project, projectDetails] = GapSchema.findMany([
-      'Grant',
-      'GrantDetails',
-      'Project',
-      'ProjectDetails',
-    ]);
+    const [grant, grantDetails, project, projectDetails] =
+      this.gap.findManySchemas([
+        'Grant',
+        'GrantDetails',
+        'Project',
+        'ProjectDetails',
+      ]);
 
     const query = gqlQueries.attestations(grant.uid, uid);
     const {
       schema: { attestations },
     } = await this.query<SchemaRes>(query);
 
-    const grants = Attestation.fromInterface<Grant>(attestations).map(
-      (g) => new Grant(g)
-    );
+    const grants = Attestation.fromInterface<Grant>(
+      attestations,
+      this.network.name
+    ).map((g) => new Grant(g));
 
     if (!grants.length) return [];
 
@@ -543,7 +611,10 @@ export class GapEasClient extends Fetcher {
 
     const results = await this.query<AttestationsRes>(refs);
 
-    const deps = Attestation.fromInterface(results.attestations || []);
+    const deps = Attestation.fromInterface(
+      results.attestations || [],
+      this.network.name
+    );
 
     const projectsQuery = gqlQueries.attestationsIn(
       grants.map((g) => g.refUID)
@@ -552,7 +623,10 @@ export class GapEasClient extends Fetcher {
     const { attestations: projectAttestations } =
       await this.query<AttestationsRes>(projectsQuery);
 
-    const projects = Attestation.fromInterface<Project>(projectAttestations);
+    const projects = Attestation.fromInterface<Project>(
+      projectAttestations,
+      this.network.name
+    );
 
     const milestones = await this.milestonesOf(grants);
 
@@ -597,7 +671,7 @@ export class GapEasClient extends Fetcher {
     projects: Project[],
     withCommunity?: boolean
   ): Promise<Grant[]> {
-    const [grant, grantDetails] = GapSchema.findMany([
+    const [grant, grantDetails] = this.gap.findManySchemas([
       'Grant',
       'GrantDetails',
       'Milestone',
@@ -612,9 +686,10 @@ export class GapEasClient extends Fetcher {
 
     const { attestations: grants } = await this.query<AttestationsRes>(query);
 
-    const grantsWithDetails = Attestation.fromInterface<Grant>(grants).map(
-      (g) => new Grant(g)
-    );
+    const grantsWithDetails = Attestation.fromInterface<Grant>(
+      grants,
+      this.network.name
+    ).map((g) => new Grant(g));
 
     const ref = gqlQueries.dependentsOf(
       grants.map((g) => g.uid),
@@ -625,7 +700,7 @@ export class GapEasClient extends Fetcher {
 
     const milestones = await this.milestonesOf(grantsWithDetails);
 
-    const deps = Attestation.fromInterface(attestations);
+    const deps = Attestation.fromInterface(attestations, this.network.name);
 
     // TODO unify this with grantsOf
     grantsWithDetails.forEach((grant) => {
@@ -671,7 +746,7 @@ export class GapEasClient extends Fetcher {
 
   async milestonesOf(grants: Grant[]): Promise<Milestone[]> {
     const [milestone, milestoneApproved, milestoneCompleted] =
-      GapSchema.findMany([
+      this.gap.findManySchemas([
         'Milestone',
         'MilestoneApproved',
         'MilestoneCompleted',
@@ -684,7 +759,10 @@ export class GapEasClient extends Fetcher {
 
     const { attestations } = await this.query<AttestationsRes>(query);
 
-    const milestones = Attestation.fromInterface<Milestone>(attestations)
+    const milestones = Attestation.fromInterface<Milestone>(
+      attestations,
+      this.network.name
+    )
       .map((milestone) => new Milestone(milestone))
       .filter((m) => typeof m.endsAt !== 'undefined');
 
@@ -698,7 +776,8 @@ export class GapEasClient extends Fetcher {
     const results = await this.query<AttestationsRes>(ref);
 
     const deps = Attestation.fromInterface<MilestoneCompleted>(
-      results.attestations || []
+      results.attestations || [],
+      this.network.name
     );
 
     return milestones.map((milestone) => {
@@ -723,7 +802,7 @@ export class GapEasClient extends Fetcher {
   }
 
   async membersOf(projects: Project[]): Promise<MemberOf[]> {
-    const [member, memberDetails] = GapSchema.findMany([
+    const [member, memberDetails] = this.gap.findManySchemas([
       'MemberOf',
       'MemberDetails',
     ]);
@@ -739,7 +818,8 @@ export class GapEasClient extends Fetcher {
     const results = await this.query<AttestationsRes>(query);
 
     const members = Attestation.fromInterface<MemberOf>(
-      results.attestations || []
+      results.attestations || [],
+      this.network.name
     );
 
     if (members.length) {
@@ -751,7 +831,8 @@ export class GapEasClient extends Fetcher {
 
       const detailsResult = await this.query<AttestationsRes>(ref);
       const detailsRef = Attestation.fromInterface<MemberDetails>(
-        detailsResult.attestations || []
+        detailsResult.attestations || [],
+        this.network.name
       );
 
       members.forEach((member) => {

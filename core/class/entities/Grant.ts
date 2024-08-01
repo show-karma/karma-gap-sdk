@@ -2,19 +2,25 @@ import { Attestation } from '../Attestation';
 import {
   GrantDetails,
   GrantRound,
-  GrantUpdate,
-  IGrantUpdate,
   GrantCompleted,
 } from '../types/attestations';
 import { IMilestone, Milestone } from './Milestone';
 import { GapSchema } from '../GapSchema';
 import { GAP } from '../GAP';
 import { AttestationError } from '../SchemaError';
-import { nullRef } from '../../consts';
-import { Hex, MultiAttestPayload, SignerOrProvider } from 'core/types';
+import { chainIdToNetwork, nullRef } from '../../consts';
+import {
+  Hex,
+  MultiAttestPayload,
+  SignerOrProvider,
+  TNetwork,
+} from 'core/types';
 import { GapContract } from '../contract/GapContract';
 import { Community } from './Community';
 import { Project } from './Project';
+import { AllGapSchemas } from '../AllGapSchemas';
+import { IGrantResponse } from '../karma-indexer/api/types';
+import { GrantUpdate, IGrantUpdate, _IGrantUpdate } from './GrantUpdate';
 
 interface _Grant extends Grant {}
 
@@ -42,8 +48,8 @@ export class Grant extends Attestation<IGrant> {
   categories?: string[] = [];
 
   async verify(signer: SignerOrProvider) {
-    const eas = GAP.eas.connect(signer);
-    const schema = GapSchema.find('MilestoneApproved');
+    const eas = this.schema.gap.eas.connect(signer);
+    const schema = this.schema.gap.findSchema('MilestoneApproved');
     schema.setValue('approved', true);
 
     try {
@@ -70,7 +76,7 @@ export class Grant extends Attestation<IGrant> {
    * @param milestones
    */
   addMilestones(milestones: IMilestone[]) {
-    const schema = GapSchema.find('Milestone');
+    const schema = this.schema.gap.findSchema('Milestone');
 
     const newMilestones = milestones.map((milestone) => {
       const m = new Milestone({
@@ -112,7 +118,7 @@ export class Grant extends Attestation<IGrant> {
       await Promise.all(
         this.milestones.map(async (m) =>
           payload.push(
-            ...(await m.multiAttestPayload(currentPayload, grantIdx))
+            ...(await m.multiAttestPayload(payload, grantIdx))
           )
         )
       );
@@ -128,16 +134,52 @@ export class Grant extends Attestation<IGrant> {
     return payload.slice(currentPayload.length, payload.length);
   }
 
+  async attestProject(
+    signer: SignerOrProvider,
+    originalProjectChainId: number
+  ) {
+    const project = new Project({
+      data: { project: true },
+      schema: this.schema.gap.findSchema('Project'),
+      recipient: this.recipient,
+      chainID: this.chainID,
+    });
+
+    (project.details as Attestation) = new Attestation({
+      data: {
+        originalProjectChainId,
+        uid: this.refUID,
+      },
+      chainID: this.chainID,
+      recipient: this.recipient,
+      schema: this.schema.gap.findSchema('ProjectDetails'),
+    });
+
+    // Overwrite refuid
+    Object.assign(this, { refUID: nullRef });
+    project.grants = [this];
+
+    await project.attest(signer);
+  }
+
   /**
    * @inheritdoc
    */
-  async attest(signer: SignerOrProvider): Promise<void> {
+  async attest(
+    signer: SignerOrProvider,
+    projectChainId: number,
+    callback?: Function
+  ): Promise<void> {
+    if (projectChainId !== this.chainID) {
+      return this.attestProject(signer, projectChainId);
+    }
     this.assertPayload();
     const payload = await this.multiAttestPayload();
 
     const uids = await GapContract.multiAttest(
       signer,
-      payload.map((p) => p[1])
+      payload.map((p) => p[1]),
+      callback
     );
 
     uids.forEach((uid, index) => {
@@ -147,7 +189,7 @@ export class Grant extends Attestation<IGrant> {
     console.log(uids);
   }
 
-  async attestUpdate(signer: SignerOrProvider, data: IGrantUpdate) {
+  async attestUpdate(signer: SignerOrProvider, data: IGrantUpdate, callback?: Function) {
     const grantUpdate = new GrantUpdate({
       data: {
         ...data,
@@ -155,14 +197,14 @@ export class Grant extends Attestation<IGrant> {
       },
       recipient: this.recipient,
       refUID: this.uid,
-      schema: GapSchema.find('GrantDetails'),
+      schema: this.schema.gap.findSchema('GrantDetails'),
     });
 
-    await grantUpdate.attest(signer);
+    await grantUpdate.attest(signer, callback);
     this.updates.push(grantUpdate);
   }
 
-  async complete(signer: SignerOrProvider, data: IGrantUpdate) {
+  async complete(signer: SignerOrProvider, data: IGrantUpdate, callback?: Function) {
     const completed = new GrantCompleted({
       data: {
         ...data,
@@ -170,10 +212,10 @@ export class Grant extends Attestation<IGrant> {
       },
       recipient: this.recipient,
       refUID: this.uid,
-      schema: GapSchema.find('GrantDetails'),
+      schema: this.schema.gap.findSchema('GrantDetails'),
     });
 
-    await completed.attest(signer);
+    await completed.attest(signer, callback);
     this.completed = completed;
   }
 
@@ -190,14 +232,15 @@ export class Grant extends Attestation<IGrant> {
     return true;
   }
 
-  static from(attestations: _Grant[]): Grant[] {
+  static from(attestations: IGrantResponse[], network: TNetwork): Grant[] {
     return attestations.map((attestation) => {
       const grant = new Grant({
         ...attestation,
         data: {
           communityUID: attestation.data.communityUID,
         },
-        schema: GapSchema.find('Grant'),
+        schema: new AllGapSchemas().findSchema('Grant', chainIdToNetwork[attestation.chainID] as TNetwork),
+        chainID: attestation.chainID,
       });
 
       if (attestation.details) {
@@ -207,27 +250,19 @@ export class Grant extends Attestation<IGrant> {
           data: {
             ...details.data,
           },
-          schema: GapSchema.find('GrantDetails'),
+          schema: new AllGapSchemas().findSchema('GrantDetails', chainIdToNetwork[attestation.chainID] as TNetwork),
+          chainID: attestation.chainID,
         });
       }
 
       if (attestation.milestones) {
         const { milestones } = attestation;
-        grant.milestones = Milestone.from(milestones);
+        grant.milestones = Milestone.from(milestones, network);
       }
 
       if (attestation.updates) {
         const { updates } = attestation;
-        grant.updates = updates.map(
-          (u) =>
-            new GrantUpdate({
-              ...u,
-              data: {
-                ...u.data,
-              },
-              schema: GapSchema.find('GrantDetails'),
-            })
-        );
+        grant.updates = GrantUpdate.from((updates as any) as _IGrantUpdate[], network);
       }
 
       if (attestation.completed) {
@@ -237,7 +272,8 @@ export class Grant extends Attestation<IGrant> {
           data: {
             ...completed.data,
           },
-          schema: GapSchema.find('GrantDetails'),
+          schema: new AllGapSchemas().findSchema('GrantDetails', chainIdToNetwork[attestation.chainID] as TNetwork),
+          chainID: attestation.chainID,
         });
       }
 
@@ -248,14 +284,14 @@ export class Grant extends Attestation<IGrant> {
 
       if (attestation.community) {
         const { community } = attestation;
-        grant.community = Community.from([community])[0];
+        grant.community = Community.from([community], network)[0];
       }
 
       if (attestation.members) {
         grant.members = attestation.members;
       }
 
-      if(attestation.categories) {
+      if (attestation.categories) {
         grant.categories = attestation.categories;
       }
 

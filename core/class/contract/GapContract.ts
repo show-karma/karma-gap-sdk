@@ -1,16 +1,17 @@
 import {
+  CallbackStatus,
   Hex,
   RawAttestationPayload,
   RawMultiAttestPayload,
   SignerOrProvider,
-} from 'core/types';
-import { GAP } from '../GAP';
-import { serializeWithBigint } from '../../utils/serialize-bigint';
-import { Gelato, sendGelatoTxn } from '../../utils/gelato/send-gelato-txn';
+} from "core/types";
+import { GAP } from "../GAP";
+import { serializeWithBigint } from "../../utils/serialize-bigint";
+import { Gelato, sendGelatoTxn } from "../../utils/gelato/send-gelato-txn";
 import {
   MultiRevocationRequest,
   getUIDsFromAttestReceipt,
-} from '@ethereum-attestation-service/eas-sdk';
+} from "@ethereum-attestation-service/eas-sdk";
 
 type TSignature = {
   r: string;
@@ -22,9 +23,9 @@ type TSignature = {
 
 const AttestationDataTypes = {
   Attest: [
-    { name: 'payloadHash', type: 'string' },
-    { name: 'nonce', type: 'uint256' },
-    { name: 'expiry', type: 'uint256' },
+    { name: "payloadHash", type: "string" },
+    { name: "nonce", type: "uint256" },
+    { name: "expiry", type: "uint256" },
   ],
 };
 
@@ -46,9 +47,9 @@ export class GapContract {
 
     const domain = {
       chainId,
-      name: 'gap-attestation',
-      version: '1',
-      verifyingContract: GAP.getMulticall(null).address,
+      name: "gap-attestation",
+      version: "1",
+      verifyingContract: (await GAP.getMulticall(signer)).address,
     };
 
     const data = { payloadHash: payload, nonce, expiry };
@@ -82,7 +83,7 @@ export class GapContract {
       signer.address || signer._address || (await signer.getAddress());
     if (!address)
       throw new Error(
-        'Signer does not provider either address or getAddress().'
+        "Signer does not provider either address or getAddress()."
       );
     return address;
   }
@@ -93,12 +94,12 @@ export class GapContract {
    * @returns
    */
   private static async getNonce(signer: SignerOrProvider) {
-    const contract = GAP.getMulticall(signer);
+    const contract = await GAP.getMulticall(signer);
     const address = await this.getSignerAddress(signer);
 
     console.log({ address });
 
-    const nonce = <bigint>await contract.functions.nonces(address);
+    const nonce = <bigint>await contract.nonces(address);
     return {
       nonce: Number(nonce),
       next: Number(nonce + 1n),
@@ -113,20 +114,26 @@ export class GapContract {
    */
   static async attest(
     signer: SignerOrProvider,
-    payload: RawAttestationPayload
+    payload: RawAttestationPayload,
+    callback?: ((status: CallbackStatus) => void) & ((status: string) => void)
   ) {
-    const contract = GAP.getMulticall(signer);
+    const contract = await GAP.getMulticall(signer);
 
     if (GAP.gelatoOpts?.useGasless) {
       return this.attestBySig(signer, payload);
     }
-
-    const tx = await contract.functions.attest({
-      schema: payload.schema,
-      data: payload.data.payload,
-    });
-
+    callback?.("preparing");
+    const tx = await contract
+      .attest({
+        schema: payload.schema,
+        data: payload.data.payload,
+      })
+      .then((res) => {
+        callback?.("pending");
+        return res;
+      });
     const result = await tx.wait?.();
+    callback?.("confirmed");
     const attestations = getUIDsFromAttestReceipt(result)[0];
 
     return attestations as Hex;
@@ -136,7 +143,7 @@ export class GapContract {
     signer: SignerOrProvider,
     payload: RawAttestationPayload
   ) {
-    const contract = GAP.getMulticall(signer);
+    const contract = await GAP.getMulticall(signer);
     const expiry = BigInt(Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30);
     const address = await this.getSignerAddress(signer);
     const payloadHash = serializeWithBigint({
@@ -151,7 +158,7 @@ export class GapContract {
     );
 
     const { data: populatedTxn } =
-      await contract.populateTransaction.attestBySig(
+      await contract.attestBySig.populateTransaction(
         {
           data: payload.data.payload,
           schema: payload.schema,
@@ -165,10 +172,12 @@ export class GapContract {
         s
       );
 
-    if (!populatedTxn) throw new Error('Transaction data is empty');
+    if (!populatedTxn) throw new Error("Transaction data is empty");
+
+    let contractAddress = await contract.getAddress();
 
     const txn = await sendGelatoTxn(
-      ...Gelato.buildArgs(populatedTxn, chainId, contract.address as Hex)
+      ...Gelato.buildArgs(populatedTxn, chainId, contractAddress as Hex)
     );
 
     const attestations = await this.getTransactionLogs(signer, txn);
@@ -182,19 +191,23 @@ export class GapContract {
    */
   static async multiAttest(
     signer: SignerOrProvider,
-    payload: RawMultiAttestPayload[]
+    payload: RawMultiAttestPayload[],
+    callback?: Function
   ): Promise<Hex[]> {
-    const contract = GAP.getMulticall(signer);
+    const contract = await GAP.getMulticall(signer);
 
     if (GAP.gelatoOpts?.useGasless) {
       return this.multiAttestBySig(signer, payload);
     }
+    if (callback) callback("preparing");
 
-    const tx = await contract.functions.multiSequentialAttest(
+    const tx = await contract.multiSequentialAttest(
       payload.map((p) => p.payload)
     );
 
+    if (callback) callback("pending");
     const result = await tx.wait?.();
+    if (callback) callback("confirmed");
     const attestations = getUIDsFromAttestReceipt(result);
 
     return attestations as Hex[];
@@ -209,7 +222,7 @@ export class GapContract {
     signer: SignerOrProvider,
     payload: RawMultiAttestPayload[]
   ): Promise<Hex[]> {
-    const contract = GAP.getMulticall(signer);
+    const contract = await GAP.getMulticall(signer);
     const expiry = BigInt(Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30);
     const address = await this.getSignerAddress(signer);
 
@@ -224,7 +237,7 @@ export class GapContract {
     console.info({ r, s, v, nonce, chainId, payloadHash, address });
 
     const { data: populatedTxn } =
-      await contract.populateTransaction.multiSequentialAttestBySig(
+      await contract.multiSequentialAttestBySig.populateTransaction(
         payload.map((p) => p.payload),
         payloadHash,
         address,
@@ -235,10 +248,12 @@ export class GapContract {
         s
       );
 
-    if (!populatedTxn) throw new Error('Transaction data is empty');
+    if (!populatedTxn) throw new Error("Transaction data is empty");
+
+    let contractAddress = await contract.getAddress();
 
     const txn = await sendGelatoTxn(
-      ...Gelato.buildArgs(populatedTxn, chainId, contract.address as Hex)
+      ...Gelato.buildArgs(populatedTxn, chainId, contractAddress as Hex)
     );
 
     const attestations = await this.getTransactionLogs(signer, txn);
@@ -249,13 +264,13 @@ export class GapContract {
     signer: SignerOrProvider,
     payload: MultiRevocationRequest[]
   ) {
-    const contract = GAP.getMulticall(signer);
+    const contract = await GAP.getMulticall(signer);
 
     if (GAP.gelatoOpts?.useGasless) {
       return this.multiRevokeBySig(signer, payload);
     }
 
-    const tx = await contract.functions.multiRevoke(payload);
+    const tx = await contract.multiRevoke(payload);
 
     return tx.wait?.();
   }
@@ -269,7 +284,7 @@ export class GapContract {
     signer: SignerOrProvider,
     payload: MultiRevocationRequest[]
   ): Promise<void> {
-    const contract = GAP.getMulticall(signer);
+    const contract = await GAP.getMulticall(signer);
     const expiry = BigInt(Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30);
     const address = await this.getSignerAddress(signer);
 
@@ -284,7 +299,7 @@ export class GapContract {
     console.info({ r, s, v, nonce, chainId, payloadHash, address });
 
     const { data: populatedTxn } =
-      await contract.populateTransaction.multiRevokeBySig(
+      await contract.multiRevokeBySig.populateTransaction(
         payload,
         payloadHash,
         address,
@@ -295,10 +310,12 @@ export class GapContract {
         s
       );
 
-    if (!populatedTxn) throw new Error('Transaction data is empty');
+    if (!populatedTxn) throw new Error("Transaction data is empty");
+
+    let contractAddress = await contract.getAddress();
 
     await sendGelatoTxn(
-      ...Gelato.buildArgs(populatedTxn, chainId, contract.address as Hex)
+      ...Gelato.buildArgs(populatedTxn, chainId, contractAddress as Hex)
     );
   }
 
@@ -314,11 +331,8 @@ export class GapContract {
     projectUID: Hex,
     newOwner: Hex
   ) {
-    const contract = GAP.getProjectResolver(signer);
-    const tx = await contract.functions.transferProjectOwnership(
-      projectUID,
-      newOwner
-    );
+    const contract = await GAP.getProjectResolver(signer);
+    const tx = await contract.transferProjectOwnership(projectUID, newOwner);
     return tx.wait?.();
   }
 
@@ -330,14 +344,12 @@ export class GapContract {
    */
   static async isProjectOwner(
     signer: SignerOrProvider,
-    projectUID: Hex
+    projectUID: Hex,
+    projectChainId: number
   ): Promise<boolean> {
-    const contract = GAP.getProjectResolver(signer);
+    const contract = await GAP.getProjectResolver(signer, projectChainId);
     const address = await this.getSignerAddress(signer);
-    const isOwner = await contract.functions.isAdmin(
-      projectUID,
-      address
-    );
+    const isOwner = await contract.isAdmin(projectUID, address);
     return !!isOwner?.[0];
   }
 
@@ -346,7 +358,7 @@ export class GapContract {
     txnHash: string
   ) {
     const txn = await signer.provider.getTransactionReceipt(txnHash);
-    if (!txn || !txn.logs.length) throw new Error('Transaction not found');
+    if (!txn || !txn.logs.length) throw new Error("Transaction not found");
 
     // Returns the txn logs with the attestation results. Tha last two logs are the
     // the ones from the GelatoRelay contract.

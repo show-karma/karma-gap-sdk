@@ -1,84 +1,179 @@
-import { ethers } from "ethers";
-import { Project, GAP, Grant, Hex, GapSchema } from "./core";
+import { ethers } from 'ethers';
+import {
+  Project,
+  GAP,
+  Grant,
+  Hex,
+  GapSchema,
+  ProjectDetails,
+  CommunityDetails,
+  MilestoneCompleted,
+  GrantDetails,
+  nullRef,
+  ProjectEndorsement,
+} from './core';
+import {
+  Community,
+  GapIndexerClient,
+  IpfsStorage,
+  Milestone,
+  RemoteStorage,
+} from './core/class';
+import axios from 'axios';
+import CommunityResolverABI from './core/abi/CommunityResolverABI.json';
+import { GapIndexerApi } from './core/class/karma-indexer/api/GapIndexerApi';
+// 
+const walletAddress = '0x5A4830885f12438E00D8f4d98e9Fe083e707698C';
+// const web3 = new ethers.AlchemyProvider(
+//   'optimism-sepolia',
+//   '9FEqTNKmgO7X7ll92ALJrEih7Jjhldf-'
+// );
+// const wallet = new ethers.Wallet(
+//   '',
+//   web3 as any
+// );
 
-const key = require("./config/keys.json").sepolia;
-
-const web3 = new ethers.providers.JsonRpcProvider(
-  "https://goerli.optimism.io"
-  // "https://eth-sepolia-public.unifra.io"
-);
-
-const wallet = new ethers.Wallet(key, web3);
-const gap = GAP.createClient({
-  network: "optimism-goerli",
-  gelatoOpts: {
-    // env_gelatoApiKey: "GELATO_API_KEY",
-    // sponsorUrl: "http://localhost:3000/api/sponsored-txn",
-    apiKey: "{{apikey}}",
-    useGasless: true,
-  },
+const gap = new GAP({
+  network: 'optimism-sepolia',
+  apiClient: new GapIndexerClient('https://gapstagapi.karmahq.xyz'),
+  remoteStorage: new IpfsStorage(
+    {
+      token:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweGVkMjAzYTRFODc3ZjFlQTk2MzkzY2M5YjhDNUU4NUUxM2U5OWI5NzEiLCJpc3MiOiJuZnQtc3RvcmFnZSIsImlhdCI6MTcwMDUxNTIzOTg5MSwibmFtZSI6IkdBUF9URVNUIn0.QwVmWPOXeDKCtWGFaLxGdllv-te1pKc4Jrj7rYlMdFk',
+    },
+    {
+      url: 'https://gapstagapi.karmahq.xyz/ipfs',
+      responseParser: (response: any) => response.cid,
+    }
+  ),
 });
 
-console.time("fetchSchemas");
+// async function attestation() {
+//   const grant = new Grant({
+//     data: {
+//       communityUID:
+//         '0xc85c9f504e60550bc45e87ab71986c36f046e8f8aa8085bbe07d37825bcbb10a',
+//     },
+//     refUID:
+//       '0xc3594f22568f292c9ac55e4181fd79e07e9a42d3c630906d734aecfc0fe9c19b',
+//     schema: gap.findSchema('Grant'),
+//     recipient: walletAddress,
+//     uid: nullRef,
+//   });
+//   grant.details = new GrantDetails({
+//     data: {
+//       amount: '',
+//       description: 'Description',
+//       proposalURL: 'link',
+//       title: 'Title test-fine #01',
+//       assetAndChainId: ['0x0', 1],
+//       payoutAddress: walletAddress,
+//       // cycle: data.cycle,
+//       // season: data.season,
+//       questions: [],
+//       startDate: new Date().getTime() / 1000,
+//     },
+//     refUID: grant.uid,
+//     schema: gap.findSchema('GrantDetails'),
+//     recipient: grant.recipient,
+//     uid: nullRef,
+//   });
+//   // eslint-disable-next-line no-param-reassign
+//   // grant.updates = data.grantUpdate
+//   //   ? [
+//   //       new GrantUpdate({
+//   //         data: {
+//   //           text: data.grantUpdate || "",
+//   //           title: "",
+//   //         },
+//   //         schema: gap.findSchema("Milestone"),
+//   //         recipient: grant.recipient,
+//   //       }),
+//   //     ]
+//   //   : [];
 
-const grantDetails = (grants: Grant[] = []) =>
-  grants.map((g) => ({
-    uid: g.uid,
-    title: g.details?.title,
-    refUID: g.refUID,
-    milestones: g.milestones.map((m) => ({
-      uid: m.uid,
-      title: m.title,
-      description: m.description,
-      completed: { ...m.completed?.data },
-      approved: { ...m.approved?.data },
-      rejected: { ...m.rejected?.data },
-    })),
-    community: {
-      uid: g?.community?.uid,
-      name: g?.community?.details?.name,
+//   // eslint-disable-next-line no-param-reassign
+//   const milestones = [
+//     {
+//       title: 'Milestone Title #01',
+//       description: 'Milestone Description',
+//       endsAt: new Date().getTime() / 1000,
+//       completedText: 'Completed Text',
+//     },
+//   ];
+//   grant.milestones = milestones.map((milestone) => {
+//     const created = new Milestone({
+//       data: {
+//         title: milestone.title,
+//         description: milestone.description,
+//         endsAt: milestone.endsAt,
+//       },
+//       refUID: grant.uid,
+//       schema: gap.findSchema('Milestone'),
+//       recipient: grant.recipient,
+//       uid: nullRef,
+//     });
+//     if (milestone.completedText) {
+//       created.completed = new MilestoneCompleted({
+//         data: {
+//           reason: milestone.completedText,
+//           type: 'completed',
+//         },
+//         refUID: created.uid,
+//         schema: gap.findSchema('MilestoneCompleted'),
+//         recipient: grant.recipient,
+//       });
+//     }
+//     return created;
+//   });
+
+//   const response = await grant.attest(wallet as any, 11155420);
+//   console.log(response);
+// }
+
+// // attestation().then((uids) => {
+// //   console.log('Finish Attest');
+// // });
+
+// (async () => {
+//   try {
+//     const project = await gap.fetch.projectBySlug('project-zomboid');
+//     const response = await project.attestEndorsement(wallet, {
+//       comment: 'This is my first endorsement with comment!'
+//     } as ProjectEndorsement)
+//     console.log(project);
+//   } catch (err) {
+//     console.log(err);
+//   }
+// })();
+
+// // (async () => {
+// //   const resolver = new ethers.Contract('0xa5B7bbFD545A1a816aa8cBE28a1F0F2Cca58363d', CommunityResolverABI, wallet as any);
+// //   const response = await resolver.isAdmin(
+// //     '0x929de14333fe173c99cea73fe1356b0cd30041ef7b1752253105c60653fa1815',
+// //     '0x57855A663D824BFfe6eb6f9c271E42a42BF3587e');
+// //   console.log(response)
+// // })()
+
+(async () => {
+  const web3 = new ethers.AlchemyProvider('optimism-sepolia', '-');
+  const localWallet = new ethers.Wallet('', web3 as any);
+
+  const completed = new Milestone({
+    data: {
+      description: 'desc',
+      title: 'title',
+      endsAt: 111554200
     },
-  }));
-
-const projectDetails = (projects: Project[] = []) =>
-  projects.map((p) => ({
-    uid: p.uid,
-    title: p.details?.title,
-    description: p.details?.description,
-    tags: p.details?.tags?.map((t) => t.name) || [],
-    imageURL: p.details?.imageURL,
-    members: p.members.map((m) => ({
-      uid: m.uid,
-      address: m.recipient,
-      name: m.details?.name,
-      profilePictureURL: m.details?.profilePictureURL,
-    })),
-    grants: grantDetails(p.grants),
-  }));
-
-async function attestation() {
-  const [projectSchema] = GapSchema.findMany(["Project", "ProjectDetails"]);
-
-  const project = new Project({
-    data: { project: true },
-    schema: projectSchema,
-    recipient: "0x5A4830885f12438E00D8f4d98e9Fe083e707698C",
-    // uid: "0x0f290f88ef6b3838f83b49bd0c1eeb4bda31502d0aa4591470fac30abb2f0111",
+    schema: gap.findSchema('Milestone'),
+    refUID: '0x36da1d4a4e5965b88f35724baf6ca2f6610455f4df50012546ad5b13d45a6a6f',
+    recipient: walletAddress
   });
 
-  await project.attest(wallet as any);
+  await completed.attest(localWallet as any, (status) => {
+    console.log("tx status: ", status);
+  });
+  console.log('Finish Attest: ', completed);
+})();
 
-  return [project.uid];
-}
 
-async function getProject(uid: Hex) {
-  const project = await gap.fetch.projectById(uid);
-
-  // await project.grants[0].milestones[0].complete(wallet as any);
-  console.log(JSON.stringify(projectDetails([project]), null, 2));
-}
-
-attestation().then((uids) => {
-  console.log(uids);
-  getProject(uids[0]);
-});

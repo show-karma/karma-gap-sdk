@@ -1,18 +1,27 @@
-import { Attestation } from '../Attestation';
+import { Attestation } from "../Attestation";
 import {
   Grantee,
   MemberDetails,
   ProjectDetails,
+  ProjectEndorsement,
   Tag,
-} from '../types/attestations';
-import { Hex, MultiAttestPayload, SignerOrProvider } from 'core/types';
-import { GapSchema } from '../GapSchema';
-import { AttestationError } from '../SchemaError';
-import { mapFilter } from '../../utils';
-import { Grant } from './Grant';
-import { nullRef } from '../../consts';
-import { MemberOf } from './MemberOf';
-import { GapContract } from '../contract/GapContract';
+} from "../types/attestations";
+import {
+  Hex,
+  MultiAttestPayload,
+  SignerOrProvider,
+  TNetwork,
+} from "core/types";
+import { GapSchema } from "../GapSchema";
+import { AttestationError } from "../SchemaError";
+import { mapFilter } from "../../utils";
+import { Grant } from "./Grant";
+import { chainIdToNetwork, nullRef } from "../../consts";
+import { MemberOf } from "./MemberOf";
+import { GapContract } from "../contract/GapContract";
+import { AllGapSchemas } from "../AllGapSchemas";
+import { IProjectResponse } from "../karma-indexer/api/types";
+import { ProjectImpact } from "./ProjectImpact";
 
 interface _Project extends Project {}
 
@@ -25,6 +34,8 @@ export class Project extends Attestation<IProject> {
   members: MemberOf[] = [];
   grants: Grant[] = [];
   grantee: Grantee;
+  impacts: ProjectImpact[] = [];
+  endorsements: ProjectEndorsement[] = [];
 
   /**
    * Creates the payload for a multi-attestation.
@@ -41,7 +52,8 @@ export class Project extends Attestation<IProject> {
     communityIdx = 0
   ): Promise<MultiAttestPayload> {
     const payload = [...currentPayload];
-    const projectIdx = payload.push([this, await this.payloadFor(communityIdx)]) - 1;
+    const projectIdx =
+      payload.push([this, await this.payloadFor(communityIdx)]) - 1;
 
     if (this.details) {
       payload.push([this.details, await this.details.payloadFor(projectIdx)]);
@@ -49,26 +61,29 @@ export class Project extends Attestation<IProject> {
 
     if (this.members?.length) {
       await Promise.all(
-        this.members.map(async (m) => payload.push(...(await m.multiAttestPayload(payload, projectIdx))))
+        this.members.map(async (m) =>
+          payload.push(...(await m.multiAttestPayload(payload, projectIdx)))
+        )
       );
     }
 
     if (this.grants?.length) {
       await Promise.all(
-        this.grants.map(async (g) => payload.push(...(await g.multiAttestPayload(payload, projectIdx))))
+        this.grants.map(async (g) =>
+          payload.push(...(await g.multiAttestPayload(payload, projectIdx)))
+        )
       );
-
- 
     }
 
     return payload.slice(currentPayload.length, payload.length);
   }
 
-  async attest(signer: SignerOrProvider): Promise<void> {
+  async attest(signer: SignerOrProvider, callback?: Function): Promise<void> {
     const payload = await this.multiAttestPayload();
     const uids = await GapContract.multiAttest(
       signer,
-      payload.map((p) => p[1])
+      payload.map((p) => p[1]),
+      callback
     );
 
     uids.forEach((uid, index) => {
@@ -76,12 +91,18 @@ export class Project extends Attestation<IProject> {
     });
   }
 
-  async transferOwnership(signer: SignerOrProvider, newOwner: Hex) {
+  async transferOwnership(
+    signer: SignerOrProvider,
+    newOwner: Hex,
+    callback?: Function
+  ) {
+    callback?.("preparing");
     await GapContract.transferProjectOwnership(signer, this.uid, newOwner);
+    callback?.("confirmed");
   }
 
   isOwner(signer: SignerOrProvider): Promise<boolean> {
-    return GapContract.isProjectOwner(signer, this.uid);
+    return GapContract.isProjectOwner(signer, this.uid, this.chainID);
   }
 
   /**
@@ -99,7 +120,7 @@ export class Project extends Attestation<IProject> {
           new MemberOf({
             data: { memberOf: true },
             refUID: this.uid,
-            schema: GapSchema.find('MemberOf'),
+            schema: this.schema.gap.findSchema("MemberOf"),
             recipient: member,
             uid: nullRef,
           })
@@ -116,7 +137,11 @@ export class Project extends Attestation<IProject> {
    * @param signer
    * @param members
    */
-  async attestMembers(signer: SignerOrProvider, members: MemberDetails[]) {
+  async attestMembers(
+    signer: SignerOrProvider,
+    members: MemberDetails[],
+    callback?: Function
+  ) {
     const newMembers = mapFilter(
       members,
       (member) => !this.members.find((m) => m.recipient === member.recipient),
@@ -125,7 +150,7 @@ export class Project extends Attestation<IProject> {
         const member = new MemberOf({
           data: { memberOf: true },
           refUID: this.uid,
-          schema: GapSchema.find('MemberOf'),
+          schema: this.schema.gap.findSchema("MemberOf"),
           createdAt: Date.now(),
           recipient: details.recipient,
           uid: nullRef,
@@ -135,17 +160,18 @@ export class Project extends Attestation<IProject> {
     );
 
     if (!newMembers.length) {
-      throw new AttestationError('ATTEST_ERROR', 'No new members to add.');
+      throw new AttestationError("ATTEST_ERROR", "No new members to add.");
     }
 
     console.log(`Creating ${newMembers.length} new members`);
 
-    const attestedMembers = <Hex[]>await this.schema.multiAttest(
+    const attestedMembers = await this.schema.multiAttest(
       signer,
-      newMembers.map((m) => m.member)
+      newMembers.map((m) => m.member),
+      callback
     );
 
-    console.log('attested-members', attestedMembers);
+    console.log("attested-members", attestedMembers);
 
     newMembers.forEach(({ member, details }, idx) => {
       Object.assign(member, { uid: attestedMembers[idx] });
@@ -171,7 +197,8 @@ export class Project extends Attestation<IProject> {
    */
   private async addMemberDetails(
     signer: SignerOrProvider,
-    entities: MemberDetails[]
+    entities: MemberDetails[],
+    callback?: Function
   ) {
     // Check if any of members should be revoked (details modified)
     const toRevoke = mapFilter(
@@ -187,16 +214,18 @@ export class Project extends Attestation<IProject> {
     );
 
     if (toRevoke.length) {
-      console.log('Revoking details');
+      console.log("Revoking details");
       await this.cleanDetails(signer, toRevoke);
     }
 
     console.log(`Creating ${entities.length} new member details`);
 
-    const attestedEntities = <Hex[]>(
-      await this.schema.multiAttest(signer, entities)
+    const attestedEntities = await this.schema.multiAttest(
+      signer,
+      entities,
+      callback
     );
-    console.log('attested-entities', attestedEntities);
+    console.log("attested-entities", attestedEntities);
 
     entities.forEach((entity, idx) => {
       const member = this.members.find(
@@ -216,9 +245,9 @@ export class Project extends Attestation<IProject> {
    */
   async cleanDetails(signer: SignerOrProvider, uids: Hex[]) {
     if (!uids.length) {
-      throw new AttestationError('ATTEST_ERROR', 'No details to clean.');
+      throw new AttestationError("ATTEST_ERROR", "No details to clean.");
     }
-    const memberDetails = GapSchema.find('MemberDetails');
+    const memberDetails = this.schema.gap.findSchema("MemberDetails");
 
     await this.schema.multiRevoke(
       signer,
@@ -241,9 +270,9 @@ export class Project extends Attestation<IProject> {
    */
   async removeMembers(signer: SignerOrProvider, uids: Hex[]) {
     if (!uids.length) {
-      throw new AttestationError('ATTEST_ERROR', 'No members to remove.');
+      throw new AttestationError("ATTEST_ERROR", "No members to remove.");
     }
-    const memberOf = GapSchema.find('MemberOf');
+    const memberOf = this.schema.gap.findSchema("MemberOf");
 
     const details = mapFilter(
       this.members,
@@ -275,7 +304,7 @@ export class Project extends Attestation<IProject> {
     );
 
     if (!members.length) {
-      throw new AttestationError('REVOKATION_ERROR', 'No members to revoke.');
+      throw new AttestationError("REVOKATION_ERROR", "No members to revoke.");
     }
 
     const details = mapFilter(
@@ -291,14 +320,18 @@ export class Project extends Attestation<IProject> {
     this.members.splice(0, this.members.length);
   }
 
-  static from(attestations: _Project[]): Project[] {
+  static from(attestations: IProjectResponse[], network: TNetwork): Project[] {
     return attestations.map((attestation) => {
       const project = new Project({
         ...attestation,
         data: {
           project: true,
         },
-        schema: GapSchema.find('Project'),
+        schema: new AllGapSchemas().findSchema(
+          "Project",
+          chainIdToNetwork[attestation.chainID] as TNetwork
+        ),
+        chainID: attestation.chainID,
       });
 
       if (attestation.details) {
@@ -308,7 +341,11 @@ export class Project extends Attestation<IProject> {
           data: {
             ...details.data,
           },
-          schema: GapSchema.find('ProjectDetails'),
+          schema: new AllGapSchemas().findSchema(
+            "ProjectDetails",
+            chainIdToNetwork[attestation.chainID] as TNetwork
+          ),
+          chainID: attestation.chainID,
         });
 
         project.details.links = details.data.links || [];
@@ -330,7 +367,11 @@ export class Project extends Attestation<IProject> {
             data: {
               memberOf: true,
             },
-            schema: GapSchema.find('MemberOf'),
+            schema: new AllGapSchemas().findSchema(
+              "MemberOf",
+              chainIdToNetwork[attestation.chainID] as TNetwork
+            ),
+            chainID: attestation.chainID,
           });
 
           if (m.details) {
@@ -340,7 +381,11 @@ export class Project extends Attestation<IProject> {
               data: {
                 ...details.data,
               },
-              schema: GapSchema.find('MemberDetails'),
+              schema: new AllGapSchemas().findSchema(
+                "MemberDetails",
+                chainIdToNetwork[attestation.chainID] as TNetwork
+              ),
+              chainID: attestation.chainID,
             });
           }
 
@@ -349,10 +394,65 @@ export class Project extends Attestation<IProject> {
       }
 
       if (attestation.grants) {
-        project.grants = Grant.from(attestation.grants);
+        project.grants = Grant.from(attestation.grants, network);
+      }
+
+      if (attestation.impacts) {
+        project.impacts = ProjectImpact.from(
+          attestation.impacts as unknown as ProjectImpact[],
+          network
+        );
+      }
+
+      if (attestation.endorsements) {
+        project.endorsements = attestation.endorsements.map((pi) => {
+          const endorsement = new ProjectEndorsement({
+            ...pi,
+            data: {
+              ...pi.data,
+            },
+            schema: new AllGapSchemas().findSchema(
+              "ProjectDetails",
+              chainIdToNetwork[attestation.chainID] as TNetwork
+            ),
+            chainID: attestation.chainID,
+          });
+
+          return endorsement;
+        });
       }
 
       return project;
     });
+  }
+
+  async attestImpact(signer: SignerOrProvider, data: ProjectImpact) {
+    const projectImpact = new ProjectImpact({
+      data: {
+        ...data,
+        type: "project-impact",
+      },
+      recipient: this.recipient,
+      refUID: this.uid,
+      schema: this.schema.gap.findSchema("ProjectDetails"),
+    });
+
+    await projectImpact.attest(signer);
+    this.impacts.push(projectImpact);
+  }
+
+  async attestEndorsement(signer: SignerOrProvider, data?: ProjectEndorsement) {
+    const projectEndorsement = new ProjectEndorsement({
+      data: {
+        ...data,
+        type: "project-endorsement",
+      },
+      recipient: this.recipient,
+      refUID: this.uid,
+      schema: this.schema.gap.findSchema("ProjectDetails"),
+    });
+
+    await projectEndorsement.attest(signer);
+    this.endorsements.push(projectEndorsement);
   }
 }

@@ -4,7 +4,7 @@ import {
   SchemaEncoder,
   SchemaItem,
   SchemaValue,
-} from '@ethereum-attestation-service/eas-sdk';
+} from "@ethereum-attestation-service/eas-sdk";
 import {
   AttestArgs,
   Hex,
@@ -14,14 +14,16 @@ import {
   SignerOrProvider,
   RawMultiAttestPayload,
   RawAttestationPayload,
-} from '../types';
-import { AttestationError, SchemaError } from './SchemaError';
-import { ethers } from 'ethers';
-import { useDefaultAttestation, zeroAddress } from '../consts';
-import { GAP } from './GAP';
-import { Attestation } from './Attestation';
-import { GapContract } from './contract/GapContract';
-
+  TNetwork,
+} from "../types";
+import { AttestationError, SchemaError } from "./SchemaError";
+import { ethers } from "ethers";
+import { useDefaultAttestation, zeroAddress } from "../consts";
+import { GAP } from "./GAP";
+import { Attestation } from "./Attestation";
+import { GapContract } from "./contract/GapContract";
+import { isAddress } from "ethers";
+import { IpfsStorage } from "./remote-storage/IpfsStorage";
 /**
  * Represents the EAS Schema and provides methods to encode and decode the schema,
  * and validate the schema references.
@@ -90,7 +92,17 @@ import { GapContract } from './contract/GapContract';
 export abstract class Schema<T extends string = string>
   implements SchemaInterface<T>
 {
-  protected static schemas: Schema[] = [];
+  protected static schemas: Record<TNetwork, Schema[]> = {
+    "optimism-sepolia": [],
+    // "optimism-goerli": [],
+    optimism: [],
+    sepolia: [],
+    arbitrum: [],
+    celo: [],
+    "sei": [],
+    "sei-testnet": [],
+    "base-sepolia": [],
+  };
 
   protected encoder: SchemaEncoder;
   private _schema: SchemaItem[] = [];
@@ -101,15 +113,22 @@ export abstract class Schema<T extends string = string>
   readonly revocable?: boolean;
   readonly references?: T;
 
+  readonly gap: GAP;
+
   /**
    * Creates a new schema instance
    * @param args
    * @param strict If true, will throw an error if schema reference is not valid. With this option, user should add schemas
    * in a strict order.
    */
-  constructor(args: SchemaInterface<T>, strict = false, ignoreSchema = false) {
+  constructor(
+    args: SchemaInterface<T>,
+    gap?: GAP,
+    strict = false,
+    ignoreSchema = false
+  ) {
     this.assert(args, strict);
-
+    this.gap = gap;
     this._schema = args.schema;
     this.uid = args.uid;
     this.name = args.name;
@@ -136,7 +155,7 @@ export abstract class Schema<T extends string = string>
     const idx = this._schema.findIndex((item) => item.name === key);
     if (!~idx)
       throw new SchemaError(
-        'INVALID_SCHEMA_FIELD',
+        "INVALID_SCHEMA_FIELD",
         `Field ${key} not found in schema ${this.name}`
       );
 
@@ -150,61 +169,61 @@ export abstract class Schema<T extends string = string>
    * @returns boolean
    */
   isJsonSchema() {
-    return !!this.schema.find((s) => s.name === 'json' && s.type === 'string');
+    return !!this.schema.find((s) => s.name === "json" && s.type === "string");
   }
 
   private assertField(item: SchemaItem, value: any) {
     const { type, name } = item;
 
-    if (type.includes('uint') && /\D/.test(value)) {
+    if (type.includes("uint") && /\D/.test(value)) {
       throw new SchemaError(
-        'INVALID_SCHEMA_FIELD',
+        "INVALID_SCHEMA_FIELD",
         `Field ${name} is of type ${type} but value is not a number.`
       );
     }
 
     if (
-      type.includes('address') &&
-      !ethers.utils.isAddress(value) &&
+      type.includes("address") &&
+      !isAddress(value) &&
       value !== zeroAddress
     ) {
       throw new SchemaError(
-        'INVALID_SCHEMA_FIELD',
+        "INVALID_SCHEMA_FIELD",
         `Field ${name} is of type ${type} but value is not a valid address.`
       );
     }
 
-    if (type.includes('bytes') && !value.startsWith('0x')) {
+    if (type.includes("bytes") && !value.startsWith("0x")) {
       throw new SchemaError(
-        'INVALID_SCHEMA_FIELD',
+        "INVALID_SCHEMA_FIELD",
         `Field ${name} is of type ${type} but value is not a valid hex string.`
       );
     }
 
     if (
-      type.includes('bool') &&
-      (!['true', 'false', true, false].includes(value) ||
-        typeof value !== 'boolean')
+      type.includes("bool") &&
+      (!["true", "false", true, false].includes(value) ||
+        typeof value !== "boolean")
     ) {
       throw new SchemaError(
-        'INVALID_SCHEMA_FIELD',
+        "INVALID_SCHEMA_FIELD",
         `Field ${name} is of type ${type} but value is not a valid boolean.`
       );
     }
 
-    if (type.includes('tuple') && !Array.isArray(value)) {
+    if (type.includes("tuple") && !Array.isArray(value)) {
       throw new SchemaError(
-        'INVALID_SCHEMA_FIELD',
+        "INVALID_SCHEMA_FIELD",
         `Field ${name} is of type ${type} but value is not a valid array.`
       );
     }
 
-    if (type === 'string' && name === 'json') {
+    if (type === "string" && name === "json") {
       try {
         JSON.parse(value);
       } catch (error) {
         throw new SchemaError(
-          'INVALID_SCHEMA_FIELD',
+          "INVALID_SCHEMA_FIELD",
           `Field ${name} is of type ${type} but value is not a valid JSON string.`
         );
       }
@@ -220,20 +239,20 @@ export abstract class Schema<T extends string = string>
     const { name, schema, uid, references } = args;
 
     if (!name) {
-      throw new SchemaError('MISSING_FIELD', 'Schema name is required');
+      throw new SchemaError("MISSING_FIELD", "Schema name is required");
     }
 
     if (!schema && !Array.isArray(schema)) {
-      throw new SchemaError('MISSING_FIELD', 'Schema must be an array.');
+      throw new SchemaError("MISSING_FIELD", "Schema must be an array.");
     }
 
     // if (!uid) {
     //   throw new SchemaError("MISSING_FIELD", "Schema uid is required");
     // }
 
-    if (strict && references && !Schema.exists(references)) {
+    if (strict && references && !Schema.exists(references, this.gap.network)) {
       throw new SchemaError(
-        'INVALID_REFERENCE',
+        "INVALID_REFERENCE",
         `Schema ${name} references ${references} but it does not exist.`
       );
     }
@@ -244,7 +263,7 @@ export abstract class Schema<T extends string = string>
    * @returns
    */
   async attestOffchain({ data, signer, to, refUID }: AttestArgs) {
-    const eas = await GAP.eas.getOffchain();
+    const eas = await this.gap.eas.getOffchain();
     const payload = <OffchainAttestationParams>{
       data,
       version: eas.version,
@@ -265,7 +284,7 @@ export abstract class Schema<T extends string = string>
    * @returns
    */
   async revokeOffchain(uid: Hex, signer: SignerOrProvider) {
-    const eas = GAP.eas.connect(signer);
+    const eas = this.gap.eas.connect(signer);
     return eas.revokeOffchain(uid);
   }
 
@@ -276,7 +295,7 @@ export abstract class Schema<T extends string = string>
    * @returns
    */
   async multiRevokeOffchain(uids: Hex[], signer: SignerOrProvider) {
-    const eas = GAP.eas.connect(signer);
+    const eas = this.gap.eas.connect(signer);
     return eas.multiRevokeOffchain(uids);
   }
 
@@ -294,24 +313,23 @@ export abstract class Schema<T extends string = string>
    * @param {Object} param0 - An object containing the schema and other optional settings.
    * @returns {Object} An object containing the attestation results, including the CID if 'ipfsKey' is enabled.
    */
-  async attest<T>({ data, to, signer, refUID }: AttestArgs<T>): Promise<Hex> {
-    const eas = GAP.eas.connect(signer);
+  async attest<T>({
+    data,
+    to,
+    signer,
+    refUID,
+    callback,
+  }: AttestArgs<T>): Promise<Hex> {
+    const eas = this.gap.eas.connect(signer);
 
     if (this.references && !refUID)
       throw new AttestationError(
-        'INVALID_REFERENCE',
-        'Attestation schema references another schema but no reference UID was provided.'
+        "INVALID_REFERENCE",
+        "Attestation schema references another schema but no reference UID was provided."
       );
 
     if (this.isJsonSchema()) {
-      const { remoteClient } = GAP;
-      if (remoteClient) {
-        const cid = await remoteClient.save(data, this.name);
-        const encodedData = remoteClient.encode(cid);
-        data = encodedData as T;
-      }
-
-      this.setValue('json', JSON.stringify(data));
+      this.setValue("json", JSON.stringify(data));
     } else {
       Object.entries(data).forEach(([key, value]) => {
         this.setValue(key, value);
@@ -340,17 +358,23 @@ export abstract class Schema<T extends string = string>
       },
     };
 
+    callback?.("preparing");
     if (useDefaultAttestation.includes(this.name as TSchemaName)) {
       const tx = await eas.attest({
         schema: this.uid,
         data: payload.data.payload,
       });
 
-      return tx.wait() as Promise<Hex>;
+      callback?.("pending");
+
+      const txResult = await tx.wait();
+
+      callback?.("confirmed");
+
+      return txResult as Hex;
     }
 
-    const uid = await GapContract.attest(signer, payload);
-
+    const uid = await GapContract.attest(signer, payload, callback);
     return uid;
   }
 
@@ -360,16 +384,20 @@ export abstract class Schema<T extends string = string>
    * @param entities
    * @returns
    */
-  async multiAttest(signer: SignerOrProvider, entities: Attestation[] = []) {
+  async multiAttest(
+    signer: SignerOrProvider,
+    entities: Attestation[] = [],
+    callback?: Function
+  ) {
     entities.forEach((entity) => {
       if (this.references && !entity.refUID)
         throw new SchemaError(
-          'INVALID_REF_UID',
+          "INVALID_REF_UID",
           `Entity ${entity.schema.name} references another schema but no reference UID was provided.`
         );
     });
 
-    const eas = GAP.eas.connect(signer);
+    const eas = this.gap.eas.connect(signer);
 
     const entityBySchema = entities.reduce(
       (acc, entity) => {
@@ -380,7 +408,6 @@ export abstract class Schema<T extends string = string>
       },
       {} as Record<string, Attestation[]>
     );
-
     const payload = Object.entries(entityBySchema).map(([schema, ents]) => ({
       schema,
       data: ents.map((e) => ({
@@ -391,10 +418,14 @@ export abstract class Schema<T extends string = string>
       })),
     }));
 
+    if (callback) callback("preparing");
     const tx = await eas.multiAttest(payload, {
       gasLimit: 5000000n,
     });
-    return tx.wait();
+    if (callback) callback("pending");
+    return tx.wait().then(() => {
+      if (callback) callback("confirmed");
+    });
   }
 
   /**
@@ -403,7 +434,12 @@ export abstract class Schema<T extends string = string>
    * @param uids
    * @returns
    */
-  async multiRevoke(signer: SignerOrProvider, toRevoke: MultiRevokeArgs[]) {
+  async multiRevoke(
+    signer: SignerOrProvider,
+    toRevoke: MultiRevokeArgs[],
+    callback?: Function
+  ) {
+    callback?.("preparing");
     const groupBySchema = toRevoke.reduce(
       (acc, { uid, schemaId }) => {
         if (!acc[schemaId]) acc[schemaId] = [];
@@ -413,7 +449,7 @@ export abstract class Schema<T extends string = string>
       {} as Record<string, Hex[]>
     );
 
-    const eas = GAP.eas.connect(signer);
+    const eas = this.gap.eas.connect(signer);
     const payload = Object.entries(groupBySchema).map(([schema, uids]) => ({
       schema,
       data: uids.map((uid) => ({ uid })),
@@ -422,11 +458,14 @@ export abstract class Schema<T extends string = string>
     const tx = await eas.multiRevoke(payload, {
       gasLimit: 5000000n,
     });
-    return tx.wait();
+    callback?.("pending");
+    return tx.wait().then(() => {
+      callback?.("confirmed");
+    });
   }
 
-  static exists(name: string) {
-    return this.schemas.find((schema) => schema.name === name);
+  static exists(name: string, network: TNetwork) {
+    return this.schemas[network].find((schema) => schema.name === name);
   }
 
   /**
@@ -436,30 +475,31 @@ export abstract class Schema<T extends string = string>
    * of the class AND its data can be overriden by any changes.__
    * @param schemas
    */
-  static add<T extends Schema>(...schemas: T[]) {
+  static add<T extends Schema>(network: TNetwork, ...schemas: T[]) {
     schemas.forEach((schema) => {
-      if (!this.exists(schema.name)) this.schemas.push(schema);
-      else
-        throw new SchemaError(
-          'SCHEMA_ALREADY_EXISTS',
-          `Schema ${schema.name} already exists.`
-        );
+      if (!this.exists(schema.name, network))
+        this.schemas[network].push(schema);
     });
   }
 
-  static getAll<T extends Schema>(): T[] {
-    return this.schemas as T[];
+  static getAll<T extends Schema>(network: TNetwork): T[] {
+    return this.schemas[network] as T[];
   }
 
-  static get<N extends string, T extends Schema>(name: N): T {
-    const schema = this.schemas.find(
+  static get<N extends string, T extends Schema>(
+    name: N,
+    network: TNetwork
+  ): T {
+    const schema = this.schemas[network].find(
       (schema) => schema.name === name || schema.uid === name
     );
 
     if (!schema)
       throw new SchemaError(
-        'SCHEMA_NOT_FOUND',
-        `Schema ${name} not found. Available schemas: ${Schema.getNames()}`
+        "SCHEMA_NOT_FOUND",
+        `Schema ${name} not found. Available schemas: ${Schema.getNames(
+          network
+        )}`
       );
 
     return schema as T;
@@ -470,12 +510,15 @@ export abstract class Schema<T extends string = string>
    * @param names
    * @returns
    */
-  static getMany<N extends string, T extends Schema>(names: N[]) {
-    return names.map((name) => <T>this.get(name));
+  static getMany<N extends string, T extends Schema>(
+    names: N[],
+    network: TNetwork
+  ) {
+    return names.map((name) => <T>this.get(name, network));
   }
 
-  static getNames(): string[] {
-    return Schema.schemas.map((schema) => schema.name);
+  static getNames(network: TNetwork): string[] {
+    return Schema.schemas[network].map((schema) => schema.name);
   }
 
   /**
@@ -483,15 +526,16 @@ export abstract class Schema<T extends string = string>
    * @throws {SchemaError} if any reference is not valid
    * @returns {true} if references are valid
    */
-  static validate(): true {
+  static validate(network: TNetwork): true {
     const errors: SchemaError[] = [];
 
-    this.schemas.forEach((schema) => {
-      if (!schema.references || Schema.exists(schema.references)) return;
+    this.schemas[network].forEach((schema) => {
+      if (!schema.references || Schema.exists(schema.references, network))
+        return;
       else
         errors.push(
           new SchemaError(
-            'INVALID_REFERENCE',
+            "INVALID_REFERENCE",
             `Schema ${schema.name} references ${schema.references} but it does not exist.`
           )
         );
@@ -505,19 +549,21 @@ export abstract class Schema<T extends string = string>
    * Replaces the schema list with a new list.
    * @param schemas
    */
-  static replaceAll(schemas: Schema[]) {
-    this.schemas = schemas;
+  static replaceAll(schemas: Schema[], network: TNetwork) {
+    this.schemas[network] = schemas;
   }
 
   /**
    * Replaces a schema from the schema list.
    * @throws {SchemaError} if desired schema name does not exist.
    */
-  static replaceOne(schema: Schema) {
-    const idx = this.schemas.findIndex((item) => schema.name === item.name);
+  static replaceOne(schema: Schema, network: TNetwork) {
+    const idx = this.schemas[network].findIndex(
+      (item) => schema.name === item.name
+    );
     if (!~idx)
       throw new SchemaError(
-        'SCHEMA_NOT_FOUND',
+        "SCHEMA_NOT_FOUND",
         `Schema ${schema.name} not found.`
       );
 
@@ -536,9 +582,9 @@ export abstract class Schema<T extends string = string>
    * @returns
    */
   static rawToObject(abi: string) {
-    const items = abi.trim().replace(/,\s+/gim, ',').split(',');
+    const items = abi.trim().replace(/,\s+/gim, ",").split(",");
     const schema: SchemaItem[] = items.map((item) => {
-      const [type, name] = item.split(' ');
+      const [type, name] = item.split(" ");
       return { type, name, value: null };
     });
 
@@ -554,7 +600,7 @@ export abstract class Schema<T extends string = string>
    * ```
    */
   get raw() {
-    return this.schema.map((item) => `${item.type} ${item.name}`).join(',');
+    return this.schema.map((item) => `${item.type} ${item.name}`).join(",");
   }
 
   get schema() {
@@ -567,7 +613,7 @@ export abstract class Schema<T extends string = string>
    * the changes made to it will reflect the original instance.
    */
   get children() {
-    return Schema.schemas.filter(
+    return Schema.schemas[this.gap.network].filter(
       (schema) =>
         schema.references === this.name || schema.references === this.uid
     );

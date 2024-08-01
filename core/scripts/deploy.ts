@@ -9,10 +9,8 @@ import keys from "../../config/keys.json";
 import { GapSchema } from "../class/GapSchema";
 import { writeFileSync } from "fs";
 
-const web3 = new ethers.providers.JsonRpcProvider(
-  "https://eth-sepolia-public.unifra.io"
-);
-const wallet = new ethers.Wallet(keys.sepolia, web3);
+const web3 = new ethers.JsonRpcProvider("https://eth-sepolia-public.unifra.io");
+const wallet = new ethers.Wallet(keys.privateKey, web3);
 
 const contract = new ethers.Contract(
   Networks.sepolia.contracts.schema,
@@ -40,8 +38,8 @@ async function deploy(networkName?: TNetwork) {
   const promises = Object.values(MountEntities(Networks.sepolia))
     .slice(0, 1)
     .map((entity) => {
-      return contract.functions.register(
-        new GapSchema(entity).raw,
+      return contract.register(
+        new GapSchema(entity, {} as any).raw,
         zeroAddress,
         revocable,
         {

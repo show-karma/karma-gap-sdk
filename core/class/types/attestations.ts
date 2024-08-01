@@ -1,6 +1,10 @@
-import { Attestation } from '../Attestation';
-import { Hex, TExternalLink } from 'core/types';
-import { Project } from '../entities/Project';
+import { Attestation, AttestationArgs } from "../Attestation";
+import { Hex, SignerOrProvider, TExternalLink } from "core/types";
+import { Project } from "../entities/Project";
+import { GapSchema } from "../GapSchema";
+import { GrantUpdate } from "../entities/GrantUpdate";
+import { nullRef } from "core/consts";
+import { AttestationError } from "../SchemaError";
 
 /** Attestation interfaces */
 
@@ -12,6 +16,8 @@ export interface ICommunityDetails {
   imageURL: string;
   slug?: string;
   links?: ExternalLink;
+  type?: string;
+  externalId?: string;
 }
 
 export class CommunityDetails
@@ -23,6 +29,8 @@ export class CommunityDetails
   imageURL: string;
   links: ExternalLink = [];
   slug?: string;
+  type = "community-details";
+  externalId?: string;
 }
 
 export interface IGrantDetails {
@@ -35,6 +43,9 @@ export interface IGrantDetails {
   // communityUID: Hex;
   season?: string;
   cycle?: string;
+  questions?: IGrantDetailsQuestion[];
+  type?: string;
+  startDate?: number;
 }
 export class GrantDetails
   extends Attestation<IGrantDetails>
@@ -49,6 +60,9 @@ export class GrantDetails
   description?: string;
   season?: string;
   cycle?: string;
+  questions?: IGrantDetailsQuestion[];
+  type = "grant-details";
+  startDate?: number;
 }
 
 export interface IGrantRound {
@@ -85,14 +99,14 @@ export class MemberDetails
 }
 
 export interface IMilestoneCompleted {
-  type: 'approved' | 'rejected' | 'completed';
+  type: "approved" | "rejected" | "completed" | "verified";
   reason?: string;
 }
 export class MilestoneCompleted
   extends Attestation<IMilestoneCompleted>
   implements IMilestoneCompleted
 {
-  type: 'approved' | 'rejected' | 'completed';
+  type: "approved" | "rejected" | "completed" | "verified";
   reason?: string;
 }
 
@@ -106,10 +120,20 @@ export class Tag extends Attestation<ITag> implements ITag {
 export interface IProjectDetails {
   title: string;
   description: string;
+  problem?: string;
+  solution?: string;
+  missionSummary?: string;
+  locationOfImpact?: string;
   imageURL: string;
   links?: ExternalLink;
   tags?: ITag[];
+  externalIds?: string[];
   slug?: string;
+  type?: string;
+  businessModel?: string;
+  stageIn?: string;
+  raisedMoney?: string;
+  pathToTake?: string;
 }
 export class ProjectDetails
   extends Attestation<IProjectDetails>
@@ -117,10 +141,20 @@ export class ProjectDetails
 {
   title: string;
   description: string;
+  problem?: string;
+  solution?: string;
+  missionSummary?: string;
+  locationOfImpact?: string;
   imageURL: string;
   links: ExternalLink = [];
   tags: ITag[] = [];
   slug: string;
+  type = "project-details";
+  externalIds: string[] = [];
+  businessModel?: string;
+  stageIn?: string;
+  raisedMoney?: string;
+  pathToTake?: string;
 }
 
 export class Grantee {
@@ -133,18 +167,28 @@ export class Grantee {
   }
 }
 
-export interface IGrantUpdate {
-  title: string;
-  text: string;
+export class GrantCompleted extends GrantUpdate {}
+
+export interface IGrantDetailsQuestion {
+  query: string;
+  explanation: string;
+  type: string;
+}
+
+export interface IProjectEndorsement {
+  comment?: string;
   type?: string;
 }
 
-export class GrantUpdate
-  extends Attestation<IGrantUpdate>
-  implements IGrantUpdate
+export class ProjectEndorsement
+  extends Attestation<IProjectEndorsement>
+  implements IProjectEndorsement
 {
-  title: string;
-  text: string;
-}
+  comment?: string;
+  type?: string;
 
-export class GrantCompleted extends GrantUpdate {}
+  constructor(data: AttestationArgs<IProjectEndorsement, GapSchema>) {
+    (data.data as any).type = "project-endorsement";
+    super(data);
+  }
+}

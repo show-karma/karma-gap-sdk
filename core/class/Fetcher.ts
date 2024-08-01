@@ -3,8 +3,19 @@ import { Attestation } from './Attestation';
 import { Community, Grant, MemberOf, Milestone, Project } from './entities';
 import { Grantee } from './types/attestations';
 import { AxiosGQL } from './GraphQL/AxiosGQL';
+import { GAP } from './GAP';
 
 export abstract class Fetcher extends AxiosGQL {
+  protected gap: GAP;
+
+  constructor(url: string) {
+    super(url);
+  }
+
+  set gapInstance(gap: GAP) {
+    this.gap = gap;
+  }
+
   /**
    * Fetch a single attestation by its UID.
    * @param uid
@@ -67,6 +78,19 @@ export abstract class Fetcher extends AxiosGQL {
   ): Promise<Community[]>;
 
   /**
+   * Fetch all available communities (admin) with details for a grantee;
+   *
+   * If search is defined, will try to find communities by the search string.
+   * @param address grantee address
+   * @param withGrants if true, will get community grants.
+   * @returns
+   */
+  abstract communitiesAdminOf(
+    address: Hex,
+    withGrants?: boolean
+  ): Promise<Community[]>;
+
+  /**
    * Fetch a set of communities by their ids.
    * @param uids
    * @returns
@@ -101,6 +125,20 @@ export abstract class Fetcher extends AxiosGQL {
    * @returns
    */
   abstract projectBySlug(slug: string): Promise<Project>;
+
+  /**
+   * Search projects and communities by name. This method will return a list of projects and a list of communities
+   * __Must be implemented by the indexer__
+   * @param query
+   */
+  abstract search(query: string): Promise<{projects: Project[], communities: Community[]}>;
+
+  /**
+   * Search projects by name. This method will return a list of projects
+   * __Must be implemented by the indexer__
+   * @param query
+   */
+    abstract searchProjects(query: string): Promise<Project[]>;
 
   /**
    * Fetch projects with details and members.
