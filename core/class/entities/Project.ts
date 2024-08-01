@@ -408,6 +408,20 @@ export class Project extends Attestation<IProject> {
         );
       }
 
+      if (attestation.pointers) {
+        project.pointers = ProjectPointer.from(
+          attestation.pointers as unknown as ProjectPointer[],
+          network
+        );
+      }
+
+      if (attestation.updates) {
+        project.updates = ProjectUpdate.from(
+          attestation.updates as unknown as ProjectUpdate[],
+          network
+        );
+      }
+
       if (attestation.endorsements) {
         project.endorsements = attestation.endorsements.map((pi) => {
           const endorsement = new ProjectEndorsement({

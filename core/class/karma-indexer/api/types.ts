@@ -189,6 +189,7 @@ export interface IProjectResponse extends IAttestationResponse {
   grantee: any;
   impacts: IProjectImpact[];
   updates: IProjectUpdate[];
+  pointers: IProjectPointer[];
   endorsements: IProjectEndorsement[];
 }
 
