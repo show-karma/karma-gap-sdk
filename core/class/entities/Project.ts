@@ -22,6 +22,7 @@ import { GapContract } from "../contract/GapContract";
 import { AllGapSchemas } from "../AllGapSchemas";
 import { IProjectResponse } from "../karma-indexer/api/types";
 import { ProjectImpact } from "./ProjectImpact";
+import { ProjectUpdate } from "./ProjectUpdate";
 
 interface _Project extends Project {}
 
@@ -36,6 +37,7 @@ export class Project extends Attestation<IProject> {
   grantee: Grantee;
   impacts: ProjectImpact[] = [];
   endorsements: ProjectEndorsement[] = [];
+  updates: ProjectUpdate[] = [];
 
   /**
    * Creates the payload for a multi-attestation.
@@ -404,6 +406,13 @@ export class Project extends Attestation<IProject> {
         );
       }
 
+      if (attestation.updates) {
+        project.updates = ProjectUpdate.from(
+          attestation.updates as unknown as ProjectUpdate[],
+          network
+        );
+      }
+
       if (attestation.endorsements) {
         project.endorsements = attestation.endorsements.map((pi) => {
           const endorsement = new ProjectEndorsement({
@@ -424,6 +433,25 @@ export class Project extends Attestation<IProject> {
 
       return project;
     });
+  }
+
+  async attestUpdate(
+    signer: SignerOrProvider,
+    data: ProjectUpdate,
+    callback?: Function
+  ) {
+    const projectUpdate = new ProjectUpdate({
+      data: {
+        ...data,
+        type: "project-update",
+      },
+      recipient: this.recipient,
+      refUID: this.uid,
+      schema: this.schema.gap.findSchema("ProjectUpdate"),
+    });
+
+    await projectUpdate.attest(signer, callback);
+    this.updates.push(projectUpdate);
   }
 
   async attestImpact(signer: SignerOrProvider, data: ProjectImpact) {
