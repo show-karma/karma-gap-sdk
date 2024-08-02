@@ -408,12 +408,14 @@ export class Project extends Attestation<IProject> {
         );
       }
 
+
       if (attestation.pointers) {
         project.pointers = ProjectPointer.from(
           attestation.pointers as unknown as ProjectPointer[],
           network
         );
       }
+
 
       if (attestation.updates) {
         project.updates = ProjectUpdate.from(
