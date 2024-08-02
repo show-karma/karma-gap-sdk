@@ -23,6 +23,7 @@ import { AllGapSchemas } from "../AllGapSchemas";
 import { IProjectResponse } from "../karma-indexer/api/types";
 import { ProjectImpact } from "./ProjectImpact";
 import { ProjectUpdate } from "./ProjectUpdate";
+import { ProjectPointer } from "./ProjectPointer";
 
 interface _Project extends Project {}
 
@@ -38,6 +39,7 @@ export class Project extends Attestation<IProject> {
   impacts: ProjectImpact[] = [];
   endorsements: ProjectEndorsement[] = [];
   updates: ProjectUpdate[] = [];
+  pointers: ProjectPointer[] = [];
 
   /**
    * Creates the payload for a multi-attestation.
@@ -406,6 +408,15 @@ export class Project extends Attestation<IProject> {
         );
       }
 
+
+      if (attestation.pointers) {
+        project.pointers = ProjectPointer.from(
+          attestation.pointers as unknown as ProjectPointer[],
+          network
+        );
+      }
+
+
       if (attestation.updates) {
         project.updates = ProjectUpdate.from(
           attestation.updates as unknown as ProjectUpdate[],
@@ -452,6 +463,25 @@ export class Project extends Attestation<IProject> {
 
     await projectUpdate.attest(signer, callback);
     this.updates.push(projectUpdate);
+  }
+
+  async attestPointer(
+    signer: SignerOrProvider,
+    data: ProjectPointer,
+    callback?: Function
+  ) {
+    const projectPointer = new ProjectPointer({
+      data: {
+        ...data,
+        type: "project-pointer",
+      },
+      recipient: this.recipient,
+      refUID: this.uid,
+      schema: this.schema.gap.findSchema("ProjectPointer"),
+    });
+
+    await projectPointer.attest(signer, callback);
+    this.pointers.push(projectPointer);
   }
 
   async attestImpact(signer: SignerOrProvider, data: ProjectImpact) {

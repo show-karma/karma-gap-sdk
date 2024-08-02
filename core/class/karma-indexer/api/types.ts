@@ -88,6 +88,13 @@ export interface IProjectUpdate extends IAttestationResponse {
   verified?: IProjectUpdateStatus[];
 }
 
+export interface IProjectPointer extends IAttestationResponse {
+  data: {
+    ogProjectUID: string;
+    type: "project-pointer";
+  };
+}
+
 export interface IGrantDetails extends IAttestationResponse {
   type: "GrantDetails";
   data: {
@@ -182,6 +189,8 @@ export interface IProjectResponse extends IAttestationResponse {
   grantee: any;
   impacts: IProjectImpact[];
   updates: IProjectUpdate[];
+  pointers: IProjectPointer[];
+  symlinks: Hex[];
   endorsements: IProjectEndorsement[];
 }
 
