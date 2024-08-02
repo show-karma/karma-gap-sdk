@@ -55,6 +55,9 @@ export type TSchemaName =
   | "ProjectDetails"
   | "Details"
   | "ProjectImpact"
+  | "ProjectUpdate"
+  | "ProjectUpdateStatus"
+  | "ProjectPointer"
   | "GrantUpdate"
   | "GrantUpdateStatus"
   | "ProjectEndorsement";
@@ -68,7 +71,9 @@ export type TResolvedSchemaNames =
   | "MilestoneApproved"
   | "Project"
   | "Details"
-  | "GrantUpdateStatus";
+  | "ProjectUpdateStatus"
+  | "GrantUpdateStatus"
+  | "ProjectUpdateStatus";
 
 export type TExternalLink =
   | "twitter"

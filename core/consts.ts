@@ -15,6 +15,7 @@ export const useDefaultAttestation: TSchemaName[] = [
   "GrantVerified",
   "Community",
   "GrantUpdateStatus",
+  "ProjectUpdateStatus",
 ];
 
 export const chainIdToNetwork = {
@@ -72,6 +73,8 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
         "0x13adc8df8a7324b1651e8bcec948b3e2d4fcfa2a88a52136206cb9ea44836e93",
       Project:
         "0x5b873b6e7a16207b526dde366e8164e95bcda2f009272306519667c5e94d2191",
+      ProjectUpdateStatus:
+        "0x13adc8df8a7324b1651e8bcec948b3e2d4fcfa2a88a52136206cb9ea44836e93",
     },
   },
   "optimism-sepolia": {
@@ -106,6 +109,8 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
         "0xf9ec600d61d88614c863365a79715a7ba29781ec67643ffeb9222dd8873ee3fa",
       Project:
         "0xf9bbd118dd100459a7d093403af21c6e7f847fd7f331b7a4e6bfb94a1366bd76",
+      ProjectUpdateStatus:
+        "0xf9ec600d61d88614c863365a79715a7ba29781ec67643ffeb9222dd8873ee3fa",
     },
   },
   arbitrum: {
@@ -140,6 +145,8 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
         "0xd25ccdfbf87659a9081681eb90598d8b944ed28544da7d57c3ccbe6e6422cc15",
       Project:
         "0xac2a06e955a7e25e6729efe1a6532237e3435b21ccd3dc827ae3c94e624d25b3",
+      ProjectUpdateStatus:
+        "0xd25ccdfbf87659a9081681eb90598d8b944ed28544da7d57c3ccbe6e6422cc15",
     },
   },
   sepolia: {
@@ -175,6 +182,8 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
         "0xcdef0e492d2e7ad25d0b0fdb868f6dcd1f5e5c30e42fd5fa0debdc12f7618322",
       Project:
         "0xec77990a252b54b17673955c774b9712766de5eecb22ca5aa2c440e0e93257fb",
+      ProjectUpdateStatus:
+        "0xcdef0e492d2e7ad25d0b0fdb868f6dcd1f5e5c30e42fd5fa0debdc12f7618322",
     },
   },
   "base-sepolia": {
@@ -208,6 +217,8 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
         "0xe9cce07bd9295aafc78faa7afdd88a6fad6fd61834a048fb8c3dbc86cb471f81",
       Project:
         "0x5ddd6b7a11406771308431ca9bd146cc717848b74b52993a532dc1aad0ccc83f",
+      ProjectUpdateStatus:
+        "0xe9cce07bd9295aafc78faa7afdd88a6fad6fd61834a048fb8c3dbc86cb471f81",
     },
   },
   celo: {
@@ -241,9 +252,11 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
         "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
       Project:
         "0xf3f753b41e04d1052b5a5ec7624d1dfdb6c2da288a985120e477ddbcac071022",
+      ProjectUpdateStatus:
+        "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
     },
   },
-  "sei": {
+  sei: {
     chainId: 1329,
     url: "https://sei.easscan.org/graphql",
     rpcUrl: "https://evm-rpc.sei-apis.com",
@@ -274,6 +287,8 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
         "0x6edc90af92553109cfed1292a67a75b34e41880bd8a61e9d05db0473b69a2f9e",
       Project:
         "0xf6b89107f8096220051240b89a48abb66e0a23e529c914953b80f5a2bc5ea44c",
+      ProjectUpdateStatus:
+        "0x6edc90af92553109cfed1292a67a75b34e41880bd8a61e9d05db0473b69a2f9e",
     },
   },
   "sei-testnet": {
@@ -306,7 +321,9 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       GrantUpdateStatus:
         "0xb25551d21dc886be83a07c241c46de318704cb6f485191fdedcf80f4b8b28188",
       Project:
-        "0x9de9294fbb62391b39332a33bfc28b4e0e728dd094aee4bda3955df62f8401a5",
+        "0x9de9294fbb62391b393332a33bfc28b4e0e728dd094aee4bda3955df62f8401a5",
+      ProjectUpdateStatus:
+        "0xb25551d21dc886be83a07c241c46de318704cb6f485191fdedcf80f4b8b28188",
     },
   },
 } as const;
@@ -429,6 +446,27 @@ export const MountEntities = (
   },
   ProjectEndorsement: {
     name: "ProjectEndorsement",
+    schema: DetailsSchema,
+    uid: network.schemas.Details,
+    references: "Project",
+  },
+  ProjectUpdate: {
+    name: "ProjectUpdate",
+    schema: DetailsSchema,
+    uid: network.schemas.Details,
+    references: "Project",
+  },
+  ProjectUpdateStatus: {
+    name: "ProjectUpdateStatus",
+    schema: [
+      { type: "string", name: "type", value: null },
+      { type: "string", name: "reason", value: "" },
+    ],
+    uid: network.schemas.ProjectUpdateStatus,
+    references: "ProjectUpdate",
+  },
+  ProjectPointer: {
+    name: "ProjectPointer",
     schema: DetailsSchema,
     uid: network.schemas.Details,
     references: "Project",
