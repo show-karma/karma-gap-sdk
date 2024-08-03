@@ -869,4 +869,4 @@ const getProjectInfo = () => {
 
 ## Contact Us
 
-If you have any questions on SDK usage, join our discord to get help: https://discord.com/invite/X4fwgzPReJ
+If you have any questions on SDK usage, join [our discord](https://discord.com/invite/X4fwgzPReJ) to get help
