@@ -16,7 +16,7 @@
   - [7. Gasless Transactions with Gelato](#7-gasless-transactions-with-gelato)
     - [External API](#external-api)
   - [8. Custom API](#8-custom-api)
-    - [9. Import cost](#9-import-cost)
+  - [9. Import cost](#9-import-cost)
   - [Contact Us](#contact-us)
 
 ## 1. What is GAP SDK?
@@ -850,7 +850,7 @@ export default gap;
 
 > Note that your API service should return data that aligns with the interfaces provided by each Attestation for proper compatibility with this SDK. This ensures that the data is structured correctly to work seamlessly with the SDK.
 
-### 9. Import cost
+## 9. Import cost
 
 Unfortunately, the import cost of the SDK is quite high due some dependencies that we use on the project as `@ethereum-attestation-service/eas-contracts`, `@gelatonetwork/relay-sdk` and `ethers`.
 We plan to do some changes in the future to minify these import costs like replace `ethers` to use other lightweight libraries like `viem`.
