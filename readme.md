@@ -2,14 +2,22 @@
 
 ## Summary
 
-1. [What is GAP SDK?](#1-what-is-gap-sdk)
-2. [Architecture](#2-architecture)
-3. [Getting started](#3-getting-started)
-4. [Fetching Entities](#4-getting-attestations)
-5. [Creating entities in the Frontend](#5-attesting-data-in-a-frontend)
-6. [Creating entities in the Backend](#6-attesting-data-in-a-backend)
-7. [Gasless transactions with Gelato](#7-gasless-transactions-with-gelato)
-8. [Speed up requests with a Custom API](#8-custom-api)
+- [Karma GAP SDK](#karma-gap-sdk)
+  - [Summary](#summary)
+  - [1. What is GAP SDK?](#1-what-is-gap-sdk)
+  - [2. Architecture](#2-architecture)
+    - [Attestations](#attestations)
+  - [3. Getting started](#3-getting-started)
+  - [4. Fetching Entities](#4-fetching-entities)
+  - [5. Creating entities in the Frontend](#5-creating-entities-in-the-frontend)
+    - [Deleting an entity](#deleting-an-entity)
+    - [Updating details](#updating-details)
+  - [6. Create entities in a Backend](#6-create-entities-in-a-backend)
+  - [7. Gasless Transactions with Gelato](#7-gasless-transactions-with-gelato)
+    - [External API](#external-api)
+  - [8. Custom API](#8-custom-api)
+    - [9. Import cost](#9-import-cost)
+  - [Contact Us](#contact-us)
 
 ## 1. What is GAP SDK?
 
@@ -49,7 +57,7 @@ In this diagram, you can already discern the benefits of using a Custom API to o
 All the data in the protocol is stored as attestations using [EAS](https://attest.sh). Attestations are categorized into various types of entities to establish a relationship between them and enable users to modify their attestation details without losing references to the main attestation. As a result, entities like community, project, grant, and members require two attestations: the first defines the entity, and the second defines its details. Due to this structure, all these entities will include a `details` property that contains all the data inserted into that attestation. For example:
 
 ```ts
-import { Project } from '@show-karma/karma-gap-sdk';
+import { Project } from "@show-karma/karma-gap-sdk";
 
 export function printProjectDetails(project: Project) {
   console.log({
@@ -74,46 +82,46 @@ After setting up your project, install GAP SDK with `yarn` or `npm`:
 
 `$ npm i karma-gap-sdk`
 
-After installing, you can instantiante GAP:
+After installing, you can instantiate GAP:
 
 ```ts
 // gap.client.ts;
-import { GAP } from '@show-karma/karma-gap-sdk';
+import { GAP } from "@show-karma/karma-gap-sdk";
 
-const gap = GAP.createClient({
-  network: 'optimism-goerli', // sepolia, optimism,
-  // apiClient: custom api client, see Section 8;
-  // gelatoOpts: for gasless transactions, see Section 7;
+const client = new GAP({
+  globalSchemas: false,
+  network: "optimism", // can be any of our supported networks. you can check here -> https://github.com/show-karma/karma-gap-sdk/blob/main/core/types.ts#L80
+  apiClient: new GapIndexerClient("https://gapapi.karmahq.xyz"), // custom api client, see Section 8;
 });
 
-export default gap;
+export default client;
 ```
 
-The `GAP.createClient` serves as a factory for creating a client's singleton, and you should always use it unless you require multiple clients.
+The `GAP` class is used to create an instance of the client.
 
-> Please note that the need for multiple clients arises primarily when using the default EAS API client, as it offers distinct endpoints for various networks. If you're utilizing a custom API, you can implement methods to filter by network and prevent client mutation.
+> Please note that the need for multiple instances arises primarily when using the default EAS API client, as it offers distinct endpoints for various networks. If you're utilizing a custom API, you can implement methods to filter by network and prevent instance mutation.
 
-The `apiClient` option is employed when you wish to use a Custom API. The SDK provides a standard custom API that can be initiated with `apiClient: GapIndexerClient(url)`. However, it's also possible to develop your own API in any programming language and data modeling and utilize it as your client. To achieve this, create your class and extend the abstract class `Fetcher`:
+The `apiClient` option is employed when you wish to use a Custom API. The SDK provides a standard custom API that can be initiated with `apiClient: new GapIndexerClient(url)`. However, it's also possible to develop your own API in any programming language and data modeling and utilize it as your client. To achieve this, create your class and extend the abstract class `Fetcher`:
 
 ```ts
 // MyCustomApiClient.ts
-import { Fetcher } from '@show-karma/karma-gap-sdk/core/class/Fetcher';
+import { Fetcher } from "@show-karma/karma-gap-sdk/core/class/Fetcher";
 
 export class MyCustomApiClient extends Fetcher {
   // ... implement all Fetcher methods following its return types and arguments.
 }
 ```
 
-[..] Then you can use it on GapClient. More details about how to implement a custom fetcher on [Section 8](#8-custom-api).
+[..] Then you can use it on GAP client. More details about how to implement a custom fetcher on [Section 8](#8-custom-api).
 
 ```ts
 // gap.client.ts;
-import { GAP } from '@show-karma/karma-gap-sdk';
-import { MyCustomApiClient } from './MyCustomApiClient.ts';
+import { GAP } from "@show-karma/karma-gap-sdk";
+import { MyCustomApiClient } from "./MyCustomApiClient.ts";
 
-const gap = GAP.createClient({
-  network: 'optimism-goerli', // sepolia, optimism,
-  apiClient: new MyCustomApiClient('https://my-custom-api.mydomain.com'),
+const gap = new GAP({
+  network: "optimism-goerli", // sepolia, optimism,
+  apiClient: new MyCustomApiClient("https://my-custom-api.mydomain.com"),
   // gelatoOpts: for gasless transactions, see it on Chap. 7;
   // ipfsKey: for cheaper attestations;
 });
@@ -149,7 +157,7 @@ Indeed, you can retrieve all available entities, but we provide methods primaril
 To begin using the fetcher, simply call `gap.fetch.<target>(...args)` as demonstrated in the following example:
 
 ```ts
-import { gap } from './gap-client';
+import { gap } from "./gap-client";
 
 gap.fetch.projects().then((res) => {
   res.forEach((project) => {
@@ -158,7 +166,7 @@ gap.fetch.projects().then((res) => {
 });
 
 gap.fetch
-  .projectBySlug('my-project-slug')
+  .projectBySlug("my-project-slug")
   .then((project) => {
     console.log(project.details.name);
   })
@@ -190,44 +198,45 @@ import {
   MemberOf,
   Grant,
   GapSchema,
-} from '@show-karma/karma-gap-sdk';
+} from "@show-karma/karma-gap-sdk";
 
 export function getDummyProject() {
   // Creating Project
   const project = new Project({
     data: { project: true },
-    schema: gap.findSchema('Project', 'optimism-goerli'),
+    chainID: 420, // 420 is the chainID of the optimism-sepolia
+    schema: gap.findSchema("Project"),
     // Owner address, usually whoever is connected to the app
-    recipient: '0xd7d...25f2',
+    recipient: "0xd7d...25f2",
   });
 
   // Adding details to the project
   project.details = new ProjectDetails({
     data: {
-      title: 'My Project',
-      description: 'My Description',
-      imageURL: 'https://loremflickr.com/320/240/kitten',
-      links: [{ type: 'github', url: 'https://github.com/my-org' }],
-      tags: [{ name: 'DAO' }, { name: 'UI/UX' }],
+      title: "My Project",
+      description: "My Description",
+      imageURL: "https://loremflickr.com/320/240/kitten",
+      links: [{ type: "github", url: "https://github.com/my-org" }],
+      tags: [{ name: "DAO" }, { name: "UI/UX" }],
     },
-    schema: gap.findSchema('ProjectDetails'),
+    schema: gap.findSchema("ProjectDetails"),
     recipient: project.recipient,
   });
 
   const member_1 = new MemberOf({
     data: { memberOf: true },
-    schema: gap.findSchema('MemberOf'),
-    refUID: pro.uid,
+    schema: gap.findSchema("MemberOf"),
+    refUID: project.uid,
     // member 1 address
-    recipient: '0x8dC...A8b4',
+    recipient: "0x8dC...A8b4",
   });
 
   const member_2 = new MemberOf({
     data: { memberOf: true },
-    schema: gap.findSchema('MemberOf'),
-    refUID: pro.uid,
+    schema: gap.findSchema("MemberOf"),
+    refUID: project.uid,
     // member 2 address
-    recipient: '0xabc...A7b3',
+    recipient: "0xabc...A7b3",
   });
 
   // Add members to the project
@@ -236,33 +245,33 @@ export function getDummyProject() {
   // Creating Grant
   const grant = new Grant({
     // Address of the related community
-    data: { communityUID: '0xabc...def' },
-    schema: gap.findSchema('Grant'),
+    data: { communityUID: "0xabc...def" },
+    schema: gap.findSchema("Grant"),
     recipient: project.recipient,
   });
 
   // Adding details to Grant
   grant.details = new GrantDetails({
     data: {
-      title: 'Build the Gap App',
-      proposalURL: 'https://pantera.com/',
-      description: 'Grant Description',
+      title: "Build the Gap App",
+      proposalURL: "https://pantera.com/",
+      description: "Grant Description",
       // cycle: grant cycle, optional
       // season: grant season, optional
     },
-    schema: gap.findSchema('GrantDetails'),
-    recipient: pro.recipient,
+    schema: gap.findSchema("GrantDetails"),
+    recipient: project.recipient,
   });
 
   // Creating milestone
   const milestone = new Milestone({
     data: {
-      title: 'Build the Home Page',
-      description: 'Milestone Description',
+      title: "Build the Home Page",
+      description: "Milestone Description",
       endsAt: Date.now() + 1000000,
     },
-    schema: gap.findSchema('Milestone'),
-    recipient: pro.recipient,
+    schema: gap.findSchema("Milestone"),
+    recipient: project.recipient,
   });
 
   grant.milestones.push(milestone);
@@ -280,7 +289,7 @@ Once you have set up the project with all its dependencies, it's time to attest.
 // useSigner.ts
 
 // wagmi/react example
-import { useWalletClient } from 'wagmi';
+import { useWalletClient } from "wagmi";
 
 export function walletClientToSigner(walletClient: WalletClient) {
   const { account, chain, transport } = walletClient;
@@ -317,8 +326,8 @@ export function useSigner() {
 Then, in the attestation file:
 
 ```ts
-import { getDummyProject } from 'util/get-dummy-project';
-import { useSigner } from 'util/useSigner';
+import { getDummyProject } from "util/get-dummy-project";
+import { useSigner } from "util/useSigner";
 
 export const MyComponent: React.FC = () => {
   const signer = useSigner();
@@ -340,7 +349,7 @@ The previous example is related to when a user wishes to attest a project with a
 
 ```ts
 // add-grant-to-project.ts
-import { Grant, GrantDetails, GapSchema, Hex } from '@show-karma/karma-gap-sdk';
+import { Grant, GrantDetails, GapSchema, Hex } from "@show-karma/karma-gap-sdk";
 
 export function addGrantToProject(
   grant: IGrantDetails,
@@ -350,7 +359,7 @@ export function addGrantToProject(
 ): Grant {
   const grant = new Grant({
     data: { communityUID },
-    schema: GapSchema.find('Grant'),
+    schema: GapSchema.find("Grant"),
     recipient,
     // The ref UID will create a reference from
     // the current grant to an already attested
@@ -416,7 +425,7 @@ Since every object returned by the Fetcher is also an Attestation, to delete an 
 
 ```ts
 // revoke-project.ts
-import { SignerOrProvider, Project } from '@show-karma/karma-gap-sdk';
+import { SignerOrProvider, Project } from "@show-karma/karma-gap-sdk";
 
 export async function revokeProject(
   project: Project,
@@ -438,7 +447,7 @@ import {
   IProjectDetails,
   ProjectDetails,
   GapSchema,
-} from '@show-karma/karma-gap-sdk';
+} from "@show-karma/karma-gap-sdk";
 
 export async function updateProjectDetails(
   project: Project,
@@ -472,16 +481,16 @@ export async function updateProjectDetails(
 To create entities in the backend, follow the same content as provided in [Section 5](#5-attesting-data-in-a-frontend). The only distinction between them is that in the backend, you'll need to instantiate an `ethers.js` wallet at runtime to sign attestations.
 
 ```ts
-import { gap } from 'gap-client';
-import { getDummyProject } from 'util/get-dummy-project';
+import { gap } from "gap-client";
+import { getDummyProject } from "util/get-dummy-project";
 
 // Create the web3 provider
 const web3 = new ethers.providers.JsonRpcProvider(
-  'https://my-provider-url.com'
+  "https://my-provider-url.com"
 );
 
 // Creating a ethersjs wallet
-const wallet = new ethers.Wallet('0xabc...def1', web3);
+const wallet = new ethers.Wallet("0xabc...def1", web3);
 
 const project = getDummyProject();
 
@@ -593,15 +602,15 @@ interface GAPArgs {
 If `gasless` transactions are required, developers should be aware that it can be used in three modes, all of which require setting `gelatoOpts.useGasless: true`:
 
 1. **With API Key:**
-   This method is recommended when used in an external API. If utilized at the frontend level, the API key becomes visible to all users. To implement this method, simply fill in `gelatoOpts.apiKey: '<gelato api key>'`. Please note that a deprecation warning will appear with this disclaimer, but rest assured, this option will not be removed from the SDK. The constructor will appear as follows:
+   This method is recommended when used in an external API. If utilized at the frontend level, the API key becomes visible to all users. To implement this method, simply fill in `gelatoOpts.env_gelatoApiKey: '<gelato api key>'`. Please note that a deprecation warning will appear with this disclaimer, but rest assured, this option will not be removed from the SDK. The constructor will appear as follows:
 
 ```ts
-GAP.createClient({
+new GAP({
     network: 'optimism-goerli',
     gelatoOpts: {
-        apiKey: '<GELATO_API_KEY>'
+        env_gelatoApiKey: '<GELATO_API_KEY>'
         // to use gasless. it can be mutated
-        // through GAP.useGasless = <boolval>
+        // through GAP.gelatoOpts.useGasless = <boolval>
         useGasless: true
     }
 })
@@ -611,7 +620,7 @@ GAP.createClient({
    In this scenario, you're using an external API, such as your indexer, to provide a sponsored transaction URL that communicates with Gelato. Here, the API key will not be visible. To use this method, simply provide the `gelatoOpts.sponsorUrl`.
 
 ```ts
-GAP.createClient({
+new GAP({
     network: 'optimism-goerli',
     gelatoOpts: {
         sponsorUrl: 'https://my-api.mydomain.com/sponsor-url-name'
@@ -626,10 +635,10 @@ GAP.createClient({
    This case is similar to #2, but the difference is that you're using a self-contained API, such as Next.js API, which doesn't require an external backend to request the transaction. In this case, you will need to provide:
 
 ```ts
-GAP.createClient({
-  network: 'optimism-goerli',
+new GAP({
+  network: "optimism-goerli",
   gelatoOpts: {
-    sponsorUrl: '/api/my-contained-sponsor-url',
+    sponsorUrl: "/api/my-contained-sponsor-url",
     // marking contained as required will make possible
     // to send transactions through a NextJS api.
     contained: true,
@@ -647,11 +656,11 @@ When using a self-contained API to hide API keys, we offer a plug-and-play utili
 import {
   type ApiRequest,
   handler as sponsorTxnHandler,
-} from '@show-karma/karma-gap-sdk';
-import type { NextApiResponse } from 'next';
+} from "@show-karma/karma-gap-sdk";
+import type { NextApiResponse } from "next";
 
 const handler = (req: ApiRequest, res: NextApiResponse) =>
-  sponsorTxnHandler(req as ApiRequest, res, 'NEXT_GELATO_API_KEY');
+  sponsorTxnHandler(req as ApiRequest, res, "NEXT_GELATO_API_KEY");
 
 export default handler;
 ```
@@ -666,10 +675,10 @@ When using an external API to facilitate gasless transactions, you'll need to cr
 
 ```ts
 // gelato/sponsor-handler.ts
-import { GelatoRelay } from '@gelatonetwork/relay-sdk';
-import { Gelato } from '@show-karma/karma-gap-sdk/core/utils/gelato/';
+import { GelatoRelay } from "@gelatonetwork/relay-sdk";
+import { Gelato } from "@show-karma/karma-gap-sdk/core/utils/gelato/";
 // Exception Handler available under your development.
-import { HttpException } from '../error/HttpException';
+import { HttpException } from "../error/HttpException";
 
 export type SponsoredCall = [
   {
@@ -695,14 +704,14 @@ const assertionObj = [
   },
 ];
 
-function assert(body: any): body is Parameters<GelatoRelay['sponsoredCall']> {
+function assert(body: any): body is Parameters<GelatoRelay["sponsoredCall"]> {
   if (!Array.isArray(body) || body.length !== assertionObj.length)
-    throw new HttpException('Invalid request body: wrong length.', 400);
+    throw new HttpException("Invalid request body: wrong length.", 400);
 
   assertionObj.forEach((item, index) => {
     // check if objects from assertion Object are present in body
     // and test them using the regexp from the assertion Object
-    if (typeof item === 'object') {
+    if (typeof item === "object") {
       Object.entries(item).forEach(([key, value]) => {
         if (!body[index][key]?.toString().match(value))
           throw new HttpException(
@@ -727,7 +736,7 @@ async function sendTransaction(payload: SponsoredCall) {
     if (!assert(payload)) return;
 
     const { GELATO_API_KEY: apiKey } = process.env;
-    if (!apiKey) throw new Error('Api key not provided.');
+    if (!apiKey) throw new Error("Api key not provided.");
 
     payload[1] = apiKey;
 
@@ -755,7 +764,7 @@ export { gelato };
 After setting up a custom endpoint, the constructor in your frontend app will appear as follows:
 
 ```ts
-GAP.createClient({
+new GAP({
     network: 'optimism-goerli',
     gelatoOpts: {
         sponsorUrl: 'https://my-api.mydomain.xyz/path/to/sponsored-txn'
@@ -785,8 +794,8 @@ You can review the Fetcher interface in [this file](https://github.com/show-karm
 
 ```ts
 // my-fetcher.ts
-import { Fetcher } from '@show-karma/karma-gap-sdk/core/class/Fetcher.ts';
-import { Attestation } from '@show-karma/karma-gap-sdk';
+import { Fetcher } from "@show-karma/karma-gap-sdk/core/class/Fetcher.ts";
+import { Attestation } from "@show-karma/karma-gap-sdk";
 
 const Endpoints = {
   projects: {
@@ -803,7 +812,7 @@ export class MyFetcher extends Fetcher {
       Endpoints.projects.byIdOrSlug(uid) /* ,{...axiosOpts} */
     );
 
-    if (!data) throw new Error('Attestation not found');
+    if (!data) throw new Error("Attestation not found");
     // You need to return a Project instance
     return Project.from([data])[0];
   }
@@ -811,7 +820,7 @@ export class MyFetcher extends Fetcher {
   async projects(name?: string): Promise<Project[]> {
     const { data } = await this.client.get<Project[]>(Endpoints.project.all(), {
       params: {
-        'filter[title]': name,
+        "filter[title]": name,
       },
     });
 
@@ -827,19 +836,36 @@ After implementing your own client, you can setup the GAP client:
 
 ```ts
 // gap.client.ts;
-import { GAP } from '@show-karma/karma-gap-sdk';
-import { MyFetcher } from './MyFetcher';
+import { GAP } from "@show-karma/karma-gap-sdk";
+import { MyFetcher } from "./MyFetcher";
 
-const gap = GAP.createClient({
-  network: 'optimism-goerli', // sepolia, optimism,
+const gap = new GAP({
+  network: "optimism-goerli", // sepolia, optimism,
   // Use your client here
-  apiClient: new MyFetcher('https://my-api.mydomain.com'),
+  apiClient: new MyFetcher("https://my-api.mydomain.com"),
 });
 
 export default gap;
 ```
 
 > Note that your API service should return data that aligns with the interfaces provided by each Attestation for proper compatibility with this SDK. This ensures that the data is structured correctly to work seamlessly with the SDK.
+
+### 9. Import cost
+
+Unfortunately, the import cost of the SDK is quite high due some dependencies that we use on the project as `@ethereum-attestation-service/eas-contracts`, `@gelatonetwork/relay-sdk` and `ethers`.
+We plan to do some changes in the future to minify these import costs like replace `ethers` to use other lightweight libraries like `viem`.
+
+If you just want to use GAP SDK to fetch infos from the network, you can use our `GapIndexerApi` class.
+
+This way you can **avoid** the import cost of the SDK.
+
+```ts
+const getProjectInfo = () => {
+  const gapIndexerApi = new GapIndexerApi("https://gapapi.karmahq.xyz");
+  const project = await gapIndexerApi.projectBySlug(<YOUR_PROJECT_SLUG_OR_UID>).then((res) => res.data);
+  return project;
+}
+```
 
 ## Contact Us
 
