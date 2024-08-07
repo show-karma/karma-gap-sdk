@@ -78,9 +78,15 @@ export class ProjectUpdate
     console.log("Verifying");
 
     const schema = this.schema.gap.findSchema("ProjectUpdateStatus");
-    schema.setValue("type", "project-update-verified");
-    schema.setValue("reason", reason);
-
+    if (this.schema.isJsonSchema()) {
+      schema.setValue("json", JSON.stringify({
+        type: "verified",
+        reason,
+      }))
+    } else {
+      schema.setValue("type", "project-update-verified");
+      schema.setValue("reason", reason);
+    }
     console.log("Before attest project update verified");
     await this.attestStatus(signer, schema, callback);
     console.log("After attest project update verified");

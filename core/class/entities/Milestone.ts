@@ -40,9 +40,15 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
       throw new AttestationError("ATTEST_ERROR", "Milestone is not completed");
 
     const schema = this.schema.gap.findSchema("MilestoneCompleted");
-    schema.setValue("type", "approved");
-    schema.setValue("reason", reason);
-
+    if (this.schema.isJsonSchema()) {
+      schema.setValue("json", JSON.stringify({
+        type: "approved",
+        reason,
+      }))
+    } else {
+      schema.setValue("type", "approved");
+      schema.setValue("reason", reason);
+    }
     await this.attestStatus(signer, schema, callback);
 
     this.approved = new MilestoneCompleted({
@@ -124,9 +130,16 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
    */
   async complete(signer: SignerOrProvider, reason = "", callback?: Function) {
     const schema = this.schema.gap.findSchema("MilestoneCompleted");
-    schema.setValue("type", "completed");
-    schema.setValue("reason", reason);
 
+    if (this.schema.isJsonSchema()) {
+      schema.setValue("json", JSON.stringify({
+        type: "completed",
+        reason,
+      }))
+    } else {
+      schema.setValue("type", "completed");
+      schema.setValue("reason", reason);
+    }
     await this.attestStatus(signer, schema, callback);
     this.completed = new MilestoneCompleted({
       data: {
@@ -341,9 +354,16 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
       throw new AttestationError("ATTEST_ERROR", "Milestone is not completed");
 
     const schema = this.schema.gap.findSchema("MilestoneCompleted");
-    schema.setValue("type", "verified");
-    schema.setValue("reason", reason);
 
+    if (this.schema.isJsonSchema()) {
+      schema.setValue("json", JSON.stringify({
+        type: "verified",
+        reason,
+      }))
+    } else {
+      schema.setValue("type", "verified");
+      schema.setValue("reason", reason);
+    }
     console.log("Before attestStatus");
     await this.attestStatus(signer, schema, callback);
     console.log("After attestStatus");

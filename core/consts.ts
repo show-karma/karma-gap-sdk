@@ -98,19 +98,19 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       Grant:
         "0x181beb00ef05cf99caa2e4192369232f210c2764f26e238d962112bf592e9cce",
       GrantVerified:
-        "0xf9ec600d61d88614c863365a79715a7ba29781ec67643ffeb9222dd8873ee3fa",
+        "0x6f8e6a1394bdc398f8d93a99b0ecca326d04470a4f0ee5c379bb85a458a322e4",
       MemberOf:
         "0x611f9655188f372e27dce116a803fa9081ca3e2907986368d54fcad538ca3853",
       MilestoneApproved:
-        "0xf9ec600d61d88614c863365a79715a7ba29781ec67643ffeb9222dd8873ee3fa",
+        "0x6f8e6a1394bdc398f8d93a99b0ecca326d04470a4f0ee5c379bb85a458a322e4",
       MilestoneCompleted:
-        "0xf9ec600d61d88614c863365a79715a7ba29781ec67643ffeb9222dd8873ee3fa",
+        "0x6f8e6a1394bdc398f8d93a99b0ecca326d04470a4f0ee5c379bb85a458a322e4",
       GrantUpdateStatus:
-        "0xf9ec600d61d88614c863365a79715a7ba29781ec67643ffeb9222dd8873ee3fa",
+        "0x6f8e6a1394bdc398f8d93a99b0ecca326d04470a4f0ee5c379bb85a458a322e4",
       Project:
         "0xf9bbd118dd100459a7d093403af21c6e7f847fd7f331b7a4e6bfb94a1366bd76",
       ProjectUpdateStatus:
-        "0xf9ec600d61d88614c863365a79715a7ba29781ec67643ffeb9222dd8873ee3fa",
+        "0x6f8e6a1394bdc398f8d93a99b0ecca326d04470a4f0ee5c379bb85a458a322e4",
     },
   },
   arbitrum: {
@@ -387,10 +387,7 @@ export const MountEntities = (
   },
   GrantVerified: {
     name: "GrantVerified",
-    schema: [
-      { type: "string", name: "type", value: null },
-      { type: "string", name: "reason", value: "" },
-    ],
+    schema: DetailsSchema,
     uid: network.schemas.GrantVerified,
     references: "Grant",
   },
@@ -402,19 +399,13 @@ export const MountEntities = (
   },
   MilestoneApproved: {
     name: "MilestoneApproved",
-    schema: [
-      { type: "string", name: "type", value: null },
-      { type: "string", name: "reason", value: "" },
-    ],
+    schema: DetailsSchema,
     uid: network.schemas.MilestoneApproved,
     references: "Milestone",
   },
   MilestoneCompleted: {
     name: "MilestoneCompleted",
-    schema: [
-      { type: "string", name: "type", value: null },
-      { type: "string", name: "reason", value: "" },
-    ],
+    schema: DetailsSchema,
     uid: network.schemas.MilestoneCompleted,
     references: "Milestone",
   },
@@ -437,10 +428,7 @@ export const MountEntities = (
   },
   GrantUpdateStatus: {
     name: "GrantUpdateStatus",
-    schema: [
-      { type: "string", name: "type", value: null },
-      { type: "string", name: "reason", value: "" },
-    ],
+    schema: DetailsSchema,
     uid: network.schemas.GrantUpdateStatus,
     references: "GrantUpdate",
   },
@@ -458,10 +446,7 @@ export const MountEntities = (
   },
   ProjectUpdateStatus: {
     name: "ProjectUpdateStatus",
-    schema: [
-      { type: "string", name: "type", value: null },
-      { type: "string", name: "reason", value: "" },
-    ],
+    schema: DetailsSchema,
     uid: network.schemas.ProjectUpdateStatus,
     references: "ProjectUpdate",
   },
