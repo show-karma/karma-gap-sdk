@@ -5,6 +5,8 @@ import { Grant } from "./Grant";
 import { MemberOf } from "./MemberOf";
 import { IProjectResponse } from "../karma-indexer/api/types";
 import { ProjectImpact } from "./ProjectImpact";
+import { ProjectUpdate } from "./ProjectUpdate";
+import { ProjectPointer } from "./ProjectPointer";
 export interface IProject {
     project: true;
 }
@@ -15,6 +17,8 @@ export declare class Project extends Attestation<IProject> {
     grantee: Grantee;
     impacts: ProjectImpact[];
     endorsements: ProjectEndorsement[];
+    updates: ProjectUpdate[];
+    pointers: ProjectPointer[];
     /**
      * Creates the payload for a multi-attestation.
      *
@@ -73,6 +77,8 @@ export declare class Project extends Attestation<IProject> {
      */
     removeAllMembers(signer: SignerOrProvider): Promise<void>;
     static from(attestations: IProjectResponse[], network: TNetwork): Project[];
+    attestUpdate(signer: SignerOrProvider, data: ProjectUpdate, callback?: Function): Promise<void>;
+    attestPointer(signer: SignerOrProvider, data: ProjectPointer, callback?: Function): Promise<void>;
     attestImpact(signer: SignerOrProvider, data: ProjectImpact): Promise<void>;
     attestEndorsement(signer: SignerOrProvider, data?: ProjectEndorsement): Promise<void>;
 }

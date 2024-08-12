@@ -1,20 +1,20 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.GrantUpdate = exports.GrantUpdateStatus = void 0;
+exports.ProjectUpdate = exports.ProjectUpdateStatus = void 0;
 const Attestation_1 = require("../Attestation");
 const SchemaError_1 = require("../SchemaError");
 const AllGapSchemas_1 = require("../AllGapSchemas");
 const consts_1 = require("../../../core/consts");
-class GrantUpdateStatus extends Attestation_1.Attestation {
+class ProjectUpdateStatus extends Attestation_1.Attestation {
 }
-exports.GrantUpdateStatus = GrantUpdateStatus;
-class GrantUpdate extends Attestation_1.Attestation {
+exports.ProjectUpdateStatus = ProjectUpdateStatus;
+class ProjectUpdate extends Attestation_1.Attestation {
     constructor() {
         super(...arguments);
         this.verified = [];
     }
     /**
-     * Attest the status of the milestone as approved, rejected or completed.
+     * Attest the status of the update as approved, rejected or completed.
      */
     async attestStatus(signer, schema, callback) {
         const eas = this.schema.gap.eas.connect(signer);
@@ -44,34 +44,31 @@ class GrantUpdate extends Attestation_1.Attestation {
         }
     }
     /**
-     * Verify this GrantUpdate. If the GrantUpdate is not already verified,
+     * Verify this ProjectUpdate. If the ProjectUpdate is not already verified,
      * it will throw an error.
      * @param signer
      * @param reason
      */
-    async verify(signer, reason = "", linkToProof = "", callback) {
+    async verify(signer, reason = "", callback) {
         console.log("Verifying");
-        const schema = this.schema.gap.findSchema("GrantUpdateStatus");
+        const schema = this.schema.gap.findSchema("ProjectUpdateStatus");
         if (this.schema.isJsonSchema()) {
             schema.setValue("json", JSON.stringify({
-                type: "grant-update-verified",
+                type: "verified",
                 reason,
-                linkToProof
             }));
         }
         else {
-            schema.setValue("type", "grant-update-verified");
+            schema.setValue("type", "project-update-verified");
             schema.setValue("reason", reason);
-            schema.setValue("linkToProof", linkToProof);
         }
-        console.log("Before attest grant update verified");
+        console.log("Before attest project update verified");
         await this.attestStatus(signer, schema, callback);
-        console.log("After attest grant update verified");
-        this.verified.push(new GrantUpdateStatus({
+        console.log("After attest project update verified");
+        this.verified.push(new ProjectUpdateStatus({
             data: {
-                type: "grant-update-verified",
+                type: "project-update-verified",
                 reason,
-                linkToProof,
             },
             refUID: this.uid,
             schema: schema,
@@ -80,26 +77,26 @@ class GrantUpdate extends Attestation_1.Attestation {
     }
     static from(attestations, network) {
         return attestations.map((attestation) => {
-            const grantUpdate = new GrantUpdate({
+            const projectUpdate = new ProjectUpdate({
                 ...attestation,
                 data: {
                     ...attestation.data,
                 },
-                schema: new AllGapSchemas_1.AllGapSchemas().findSchema("GrantUpdate", consts_1.chainIdToNetwork[attestation.chainID]),
+                schema: new AllGapSchemas_1.AllGapSchemas().findSchema("ProjectUpdate", consts_1.chainIdToNetwork[attestation.chainID]),
                 chainID: attestation.chainID,
             });
             if (attestation.verified?.length > 0) {
-                grantUpdate.verified = attestation.verified.map((m) => new GrantUpdateStatus({
+                projectUpdate.verified = attestation.verified.map((m) => new ProjectUpdateStatus({
                     ...m,
                     data: {
                         ...m.data,
                     },
-                    schema: new AllGapSchemas_1.AllGapSchemas().findSchema("GrantUpdateStatus", consts_1.chainIdToNetwork[attestation.chainID]),
+                    schema: new AllGapSchemas_1.AllGapSchemas().findSchema("ProjectUpdateStatus", consts_1.chainIdToNetwork[attestation.chainID]),
                     chainID: attestation.chainID,
                 }));
             }
-            return grantUpdate;
+            return projectUpdate;
         });
     }
 }
-exports.GrantUpdate = GrantUpdate;
+exports.ProjectUpdate = ProjectUpdate;

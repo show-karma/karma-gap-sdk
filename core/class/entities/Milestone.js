@@ -23,8 +23,16 @@ class Milestone extends Attestation_1.Attestation {
         if (!this.completed)
             throw new SchemaError_1.AttestationError("ATTEST_ERROR", "Milestone is not completed");
         const schema = this.schema.gap.findSchema("MilestoneCompleted");
-        schema.setValue("type", "approved");
-        schema.setValue("reason", reason);
+        if (this.schema.isJsonSchema()) {
+            schema.setValue("json", JSON.stringify({
+                type: "approved",
+                reason,
+            }));
+        }
+        else {
+            schema.setValue("type", "approved");
+            schema.setValue("reason", reason);
+        }
         await this.attestStatus(signer, schema, callback);
         this.approved = new attestations_1.MilestoneCompleted({
             data: {
@@ -97,8 +105,16 @@ class Milestone extends Attestation_1.Attestation {
      */
     async complete(signer, reason = "", callback) {
         const schema = this.schema.gap.findSchema("MilestoneCompleted");
-        schema.setValue("type", "completed");
-        schema.setValue("reason", reason);
+        if (this.schema.isJsonSchema()) {
+            schema.setValue("json", JSON.stringify({
+                type: "completed",
+                reason,
+            }));
+        }
+        else {
+            schema.setValue("type", "completed");
+            schema.setValue("reason", reason);
+        }
         await this.attestStatus(signer, schema, callback);
         this.completed = new attestations_1.MilestoneCompleted({
             data: {
@@ -261,8 +277,16 @@ class Milestone extends Attestation_1.Attestation {
         if (!this.completed)
             throw new SchemaError_1.AttestationError("ATTEST_ERROR", "Milestone is not completed");
         const schema = this.schema.gap.findSchema("MilestoneCompleted");
-        schema.setValue("type", "verified");
-        schema.setValue("reason", reason);
+        if (this.schema.isJsonSchema()) {
+            schema.setValue("json", JSON.stringify({
+                type: "verified",
+                reason,
+            }));
+        }
+        else {
+            schema.setValue("type", "verified");
+            schema.setValue("reason", reason);
+        }
         console.log("Before attestStatus");
         await this.attestStatus(signer, schema, callback);
         console.log("After attestStatus");

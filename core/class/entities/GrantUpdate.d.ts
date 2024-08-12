@@ -11,10 +11,12 @@ type IStatus = "verified";
 export interface IGrantUpdateStatus {
     type: `grant-update-${IStatus}`;
     reason?: string;
+    linkToProof?: string;
 }
 export declare class GrantUpdateStatus extends Attestation<IGrantUpdateStatus> implements IGrantUpdateStatus {
     type: `grant-update-${IStatus}`;
     reason?: string;
+    linkToProof?: string;
 }
 export declare class GrantUpdate extends Attestation<IGrantUpdate> implements IGrantUpdate {
     title: string;
@@ -30,7 +32,7 @@ export declare class GrantUpdate extends Attestation<IGrantUpdate> implements IG
      * @param signer
      * @param reason
      */
-    verify(signer: SignerOrProvider, reason?: string, callback?: Function): Promise<void>;
+    verify(signer: SignerOrProvider, reason?: string, linkToProof?: string, callback?: Function): Promise<void>;
     static from(attestations: _IGrantUpdate[], network: TNetwork): GrantUpdate[];
 }
 export {};
