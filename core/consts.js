@@ -186,7 +186,7 @@ exports.Networks = {
     sei: {
         chainId: 1329,
         url: "https://sei.easscan.org/graphql",
-        rpcUrl: "https://evm-rpc.sei-apis.com",
+        rpcUrl: "https://muddy-orbital-arrow.sei-pacific.quiknode.pro/594552c3ab4ed4106b40402c16dba137ab279d40",
         contracts: {
             eas: "0x391020888b0adBA584A67693458b374e4141f838",
             schema: "0x80A4B50f549a8271e10A6C8e79172cb56f35fD57",
