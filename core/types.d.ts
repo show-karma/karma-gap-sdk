@@ -10,6 +10,7 @@ export interface SchemaInterface<T extends string = string> {
     references?: T;
     uid: Hex;
     revocable?: boolean;
+    oldSchema?: SchemaItem[];
 }
 export interface MultiRevokeArgs {
     uid: Hex;

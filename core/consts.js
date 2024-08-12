@@ -235,6 +235,10 @@ exports.Networks = {
     },
 };
 const DetailsSchema = [{ type: "string", name: "json", value: null }];
+const oldStatusSchema = [
+    { type: "string", name: "type", value: null },
+    { type: "string", name: "reason", value: "" },
+];
 /**
  * Mounts the schemas for the given network and return all the settings
  * @param network
@@ -293,6 +297,7 @@ const MountEntities = (network) => ({
         schema: DetailsSchema,
         uid: network.schemas.GrantVerified,
         references: "Grant",
+        oldSchema: oldStatusSchema
     },
     Milestone: {
         name: "Milestone",
@@ -305,12 +310,14 @@ const MountEntities = (network) => ({
         schema: DetailsSchema,
         uid: network.schemas.MilestoneApproved,
         references: "Milestone",
+        oldSchema: oldStatusSchema
     },
     MilestoneCompleted: {
         name: "MilestoneCompleted",
         schema: DetailsSchema,
         uid: network.schemas.MilestoneCompleted,
         references: "Milestone",
+        oldSchema: oldStatusSchema
     },
     Details: {
         schema: DetailsSchema,
@@ -334,6 +341,7 @@ const MountEntities = (network) => ({
         schema: DetailsSchema,
         uid: network.schemas.GrantUpdateStatus,
         references: "GrantUpdate",
+        oldSchema: oldStatusSchema
     },
     ProjectEndorsement: {
         name: "ProjectEndorsement",
@@ -352,6 +360,7 @@ const MountEntities = (network) => ({
         schema: DetailsSchema,
         uid: network.schemas.ProjectUpdateStatus,
         references: "ProjectUpdate",
+        oldSchema: oldStatusSchema
     },
     ProjectPointer: {
         name: "ProjectPointer",
