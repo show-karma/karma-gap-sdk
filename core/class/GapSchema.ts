@@ -3,6 +3,7 @@ import { IGapSchema, SchemaInterface, TNetwork, TSchemaName } from '../types';
 import { Schema } from './Schema';
 import { GAP } from './GAP';
 import { MountEntities, Networks } from 'core/consts';
+import { SchemaItem } from '@ethereum-attestation-service/eas-sdk';
 
 /**
  * Represents the GapSchema
