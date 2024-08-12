@@ -395,7 +395,7 @@ export const MountEntities = (
     schema: DetailsSchema,
     uid: network.schemas.GrantVerified,
     references: "Grant",
-    oldSchema: oldStatusSchema
+    oldSchema: [{uid: '0xf9ec600d61d88614c863365a79715a7ba29781ec67643ffeb9222dd8873ee3fa', schema: oldStatusSchema}]
   },
   Milestone: {
     name: "Milestone",
@@ -408,14 +408,14 @@ export const MountEntities = (
     schema: DetailsSchema,
     uid: network.schemas.MilestoneApproved,
     references: "Milestone",
-    oldSchema: oldStatusSchema
+    oldSchema: [{uid: '0xf9ec600d61d88614c863365a79715a7ba29781ec67643ffeb9222dd8873ee3fa', schema: oldStatusSchema}]
   },
   MilestoneCompleted: {
     name: "MilestoneCompleted",
     schema: DetailsSchema,
     uid: network.schemas.MilestoneCompleted,
     references: "Milestone",
-    oldSchema: oldStatusSchema
+    oldSchema: [{uid: '0xf9ec600d61d88614c863365a79715a7ba29781ec67643ffeb9222dd8873ee3fa', schema: oldStatusSchema}]
   },
   Details: {
     schema: DetailsSchema,
@@ -439,7 +439,7 @@ export const MountEntities = (
     schema: DetailsSchema,
     uid: network.schemas.GrantUpdateStatus,
     references: "GrantUpdate",
-    oldSchema: oldStatusSchema
+    oldSchema: [{uid: '0xf9ec600d61d88614c863365a79715a7ba29781ec67643ffeb9222dd8873ee3fa', schema: oldStatusSchema}]
   },
   ProjectEndorsement: {
     name: "ProjectEndorsement",
@@ -458,7 +458,7 @@ export const MountEntities = (
     schema: DetailsSchema,
     uid: network.schemas.ProjectUpdateStatus,
     references: "ProjectUpdate",
-    oldSchema: oldStatusSchema
+    oldSchema: [{uid: '0xf9ec600d61d88614c863365a79715a7ba29781ec67643ffeb9222dd8873ee3fa', schema: oldStatusSchema}]
   },
   ProjectPointer: {
     name: "ProjectPointer",
