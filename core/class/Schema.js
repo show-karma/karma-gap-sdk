@@ -87,6 +87,7 @@ class Schema {
         this.name = args.name;
         this.references = args.references;
         this.revocable = args.revocable || true;
+        this.oldSchema = args.oldSchema || [];
         this.encoder = new eas_sdk_1.SchemaEncoder(this.raw);
     }
     /**
