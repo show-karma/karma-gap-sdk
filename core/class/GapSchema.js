@@ -17,6 +17,7 @@ class GapSchema extends Schema_1.Schema {
                 uid: args.uid,
                 references: args.references,
                 revocable: args.revocable,
+                oldSchema: args.oldSchema,
             }, gap, strict, true));
     }
     /**
