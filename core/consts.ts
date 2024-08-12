@@ -330,6 +330,10 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
 } as const;
 
 const DetailsSchema = [{ type: "string", name: "json", value: null }];
+const oldStatusSchema = [
+  { type: "string", name: "type", value: null },
+  { type: "string", name: "reason", value: "" },
+]
 
 /**
  * Mounts the schemas for the given network and return all the settings
@@ -391,6 +395,7 @@ export const MountEntities = (
     schema: DetailsSchema,
     uid: network.schemas.GrantVerified,
     references: "Grant",
+    oldSchema: oldStatusSchema
   },
   Milestone: {
     name: "Milestone",
@@ -403,12 +408,14 @@ export const MountEntities = (
     schema: DetailsSchema,
     uid: network.schemas.MilestoneApproved,
     references: "Milestone",
+    oldSchema: oldStatusSchema
   },
   MilestoneCompleted: {
     name: "MilestoneCompleted",
     schema: DetailsSchema,
     uid: network.schemas.MilestoneCompleted,
     references: "Milestone",
+    oldSchema: oldStatusSchema
   },
   Details: {
     schema: DetailsSchema,
@@ -432,6 +439,7 @@ export const MountEntities = (
     schema: DetailsSchema,
     uid: network.schemas.GrantUpdateStatus,
     references: "GrantUpdate",
+    oldSchema: oldStatusSchema
   },
   ProjectEndorsement: {
     name: "ProjectEndorsement",
@@ -450,6 +458,7 @@ export const MountEntities = (
     schema: DetailsSchema,
     uid: network.schemas.ProjectUpdateStatus,
     references: "ProjectUpdate",
+    oldSchema: oldStatusSchema
   },
   ProjectPointer: {
     name: "ProjectPointer",
