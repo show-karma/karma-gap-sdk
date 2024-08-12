@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import { ethers } from "ethers";
 import {
   Project,
   GAP,
@@ -11,19 +11,19 @@ import {
   GrantDetails,
   nullRef,
   ProjectEndorsement,
-} from './core';
+} from "./core";
 import {
   Community,
   GapIndexerClient,
   IpfsStorage,
   Milestone,
   RemoteStorage,
-} from './core/class';
-import axios from 'axios';
-import CommunityResolverABI from './core/abi/CommunityResolverABI.json';
-import { GapIndexerApi } from './core/class/karma-indexer/api/GapIndexerApi';
-// 
-const walletAddress = '0x5A4830885f12438E00D8f4d98e9Fe083e707698C';
+} from "./core/class";
+import axios from "axios";
+import CommunityResolverABI from "./core/abi/CommunityResolverABI.json";
+import { GapIndexerApi } from "./core/class/karma-indexer/api/GapIndexerApi";
+//
+const walletAddress = "0x5A4830885f12438E00D8f4d98e9Fe083e707698C";
 // const web3 = new ethers.AlchemyProvider(
 //   'optimism-sepolia',
 //   '9FEqTNKmgO7X7ll92ALJrEih7Jjhldf-'
@@ -34,15 +34,15 @@ const walletAddress = '0x5A4830885f12438E00D8f4d98e9Fe083e707698C';
 // );
 
 const gap = new GAP({
-  network: 'optimism-sepolia',
-  apiClient: new GapIndexerClient('https://gapstagapi.karmahq.xyz'),
+  network: "optimism-sepolia",
+  apiClient: new GapIndexerClient("https://gapstagapi.karmahq.xyz"),
   remoteStorage: new IpfsStorage(
     {
       token:
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweGVkMjAzYTRFODc3ZjFlQTk2MzkzY2M5YjhDNUU4NUUxM2U5OWI5NzEiLCJpc3MiOiJuZnQtc3RvcmFnZSIsImlhdCI6MTcwMDUxNTIzOTg5MSwibmFtZSI6IkdBUF9URVNUIn0.QwVmWPOXeDKCtWGFaLxGdllv-te1pKc4Jrj7rYlMdFk',
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweGVkMjAzYTRFODc3ZjFlQTk2MzkzY2M5YjhDNUU4NUUxM2U5OWI5NzEiLCJpc3MiOiJuZnQtc3RvcmFnZSIsImlhdCI6MTcwMDUxNTIzOTg5MSwibmFtZSI6IkdBUF9URVNUIn0.QwVmWPOXeDKCtWGFaLxGdllv-te1pKc4Jrj7rYlMdFk",
     },
     {
-      url: 'https://gapstagapi.karmahq.xyz/ipfs',
+      url: "https://gapstagapi.karmahq.xyz/ipfs",
       responseParser: (response: any) => response.cid,
     }
   ),
@@ -156,24 +156,23 @@ const gap = new GAP({
 // // })()
 
 (async () => {
-  const web3 = new ethers.AlchemyProvider('optimism-sepolia', '-');
-  const localWallet = new ethers.Wallet('', web3 as any);
+  const web3 = new ethers.AlchemyProvider("optimism-sepolia", "-");
+  const localWallet = new ethers.Wallet("", web3 as any);
 
   const completed = new Milestone({
     data: {
-      description: 'desc',
-      title: 'title',
-      endsAt: 111554200
+      description: "desc",
+      title: "title",
+      endsAt: 111554200,
     },
-    schema: gap.findSchema('Milestone'),
-    refUID: '0x36da1d4a4e5965b88f35724baf6ca2f6610455f4df50012546ad5b13d45a6a6f',
-    recipient: walletAddress
+    schema: gap.findSchema("Milestone"),
+    refUID:
+      "0x36da1d4a4e5965b88f35724baf6ca2f6610455f4df50012546ad5b13d45a6a6f",
+    recipient: walletAddress,
   });
 
   await completed.attest(localWallet as any, (status) => {
     console.log("tx status: ", status);
   });
-  console.log('Finish Attest: ', completed);
+  console.log("Finish Attest: ", completed);
 })();
-
-
