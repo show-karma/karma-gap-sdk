@@ -3,7 +3,6 @@ import { IGapSchema, SchemaInterface, TNetwork, TSchemaName } from '../types';
 import { Schema } from './Schema';
 import { GAP } from './GAP';
 import { MountEntities, Networks } from 'core/consts';
-import { SchemaItem } from '@ethereum-attestation-service/eas-sdk';
 
 /**
  * Represents the GapSchema
@@ -31,7 +30,7 @@ export class GapSchema extends Schema implements IGapSchema {
             uid: args.uid,
             references: args.references,
             revocable: args.revocable,
-            oldSchema: args.oldSchema,
+            oldSchemas: args.oldSchemas,
           },
           gap,
           strict,
@@ -53,7 +52,6 @@ export class GapSchema extends Schema implements IGapSchema {
         uid: schema.uid,
         references: schema.references,
         revocable: schema.revocable,
-        oldSchema: schema.oldSchema,
       },
       schema.gap,
       false,

@@ -111,11 +111,11 @@ export abstract class Schema<T extends string = string>
   readonly name: string;
 
   readonly revocable?: boolean;
-  readonly oldSchema?: {uid: string; schema: SchemaItem[]}[]; 
   readonly references?: T;
 
   readonly gap: GAP;
 
+  readonly oldSchemas?: {uid: string; schema: SchemaItem[]}[]; 
   /**
    * Creates a new schema instance
    * @param args
@@ -135,7 +135,7 @@ export abstract class Schema<T extends string = string>
     this.name = args.name;
     this.references = args.references;
     this.revocable = args.revocable || true;
-    this.oldSchema = args.oldSchema || [];
+    this.oldSchemas = args.oldSchemas || null;
     this.encoder = new SchemaEncoder(this.raw);
   }
 
@@ -628,4 +628,5 @@ export abstract class Schema<T extends string = string>
       this.setValue(item.name, item.value);
     });
   }
+
 }
