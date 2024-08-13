@@ -23,7 +23,7 @@ export interface SchemaInterface<T extends string = string> {
   references?: T;
   uid: Hex;
   revocable?: boolean;
-  oldSchemas?: {uid: string; schema: SchemaItem[]}[]; 
+  oldSchemas?: {uid: string; raw: SchemaItem[]}[]; 
 }
 
 export interface MultiRevokeArgs {
