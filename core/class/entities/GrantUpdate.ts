@@ -4,6 +4,7 @@ import { GapSchema } from "../GapSchema";
 import { AttestationError } from "../SchemaError";
 import { AllGapSchemas } from "../AllGapSchemas";
 import { chainIdToNetwork } from "../../../core/consts";
+import { MilestoneCompleted } from "../types/attestations";
 
 export interface _IGrantUpdate extends GrantUpdate {}
 export interface IGrantUpdate {
@@ -76,7 +77,7 @@ export class GrantUpdate
    * @param signer
    * @param reason
    */
-  async verify(signer: SignerOrProvider, reason = "", linkToProof = "", callback?: Function) {
+  async verify(signer: SignerOrProvider, data?: GrantUpdateStatus, callback?: Function) {
     console.log("Verifying");
 
     const schema = this.schema.gap.findSchema("GrantUpdateStatus");
@@ -84,13 +85,13 @@ export class GrantUpdate
     if (this.schema.isJsonSchema()) {
       schema.setValue("json", JSON.stringify({
         type: "grant-update-verified",
-        reason,
-        linkToProof
+        reason: data?.reason || '',
+        linkToProof: data?.linkToProof || '',
       }))
     } else {
       schema.setValue("type", "grant-update-verified");
-      schema.setValue("reason", reason);
-      schema.setValue("linkToProof", linkToProof);
+      schema.setValue("reason", data?.reason || '');
+      schema.setValue("linkToProof", data?.linkToProof || '');
     }
       
     console.log("Before attest grant update verified");
@@ -101,8 +102,8 @@ export class GrantUpdate
       new GrantUpdateStatus({
         data: {
           type: "grant-update-verified",
-          reason,
-          linkToProof,
+          reason: data?.reason || '',
+          linkToProof: data?.linkToProof || '',
         },
         refUID: this.uid,
         schema: schema,
