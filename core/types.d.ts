@@ -10,7 +10,7 @@ export interface SchemaInterface<T extends string = string> {
     references?: T;
     uid: Hex;
     revocable?: boolean;
-    oldSchema?: {
+    oldSchemas?: {
         uid: string;
         schema: SchemaItem[];
     }[];
