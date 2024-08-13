@@ -297,7 +297,7 @@ const MountEntities = (network) => ({
         schema: DetailsSchema,
         uid: network.schemas.GrantVerified,
         references: "Grant",
-        oldSchemas: [{ uid: '0xf9ec600d61d88614c863365a79715a7ba29781ec67643ffeb9222dd8873ee3fa', schema: oldStatusSchema }]
+        oldSchemas: [{ uid: '0xf9ec600d61d88614c863365a79715a7ba29781ec67643ffeb9222dd8873ee3fa', raw: oldStatusSchema }]
     },
     Milestone: {
         name: "Milestone",
@@ -310,14 +310,14 @@ const MountEntities = (network) => ({
         schema: DetailsSchema,
         uid: network.schemas.MilestoneApproved,
         references: "Milestone",
-        oldSchemas: [{ uid: '0xf9ec600d61d88614c863365a79715a7ba29781ec67643ffeb9222dd8873ee3fa', schema: oldStatusSchema }]
+        oldSchemas: [{ uid: '0xf9ec600d61d88614c863365a79715a7ba29781ec67643ffeb9222dd8873ee3fa', raw: oldStatusSchema }]
     },
     MilestoneCompleted: {
         name: "MilestoneCompleted",
         schema: DetailsSchema,
         uid: network.schemas.MilestoneCompleted,
         references: "Milestone",
-        oldSchemas: [{ uid: '0xf9ec600d61d88614c863365a79715a7ba29781ec67643ffeb9222dd8873ee3fa', schema: oldStatusSchema }]
+        oldSchemas: [{ uid: '0xf9ec600d61d88614c863365a79715a7ba29781ec67643ffeb9222dd8873ee3fa', raw: oldStatusSchema }]
     },
     Details: {
         schema: DetailsSchema,
@@ -341,7 +341,7 @@ const MountEntities = (network) => ({
         schema: DetailsSchema,
         uid: network.schemas.GrantUpdateStatus,
         references: "GrantUpdate",
-        oldSchemas: [{ uid: '0xf9ec600d61d88614c863365a79715a7ba29781ec67643ffeb9222dd8873ee3fa', schema: oldStatusSchema }]
+        oldSchemas: [{ uid: '0xf9ec600d61d88614c863365a79715a7ba29781ec67643ffeb9222dd8873ee3fa', raw: oldStatusSchema }]
     },
     ProjectEndorsement: {
         name: "ProjectEndorsement",
@@ -360,7 +360,7 @@ const MountEntities = (network) => ({
         schema: DetailsSchema,
         uid: network.schemas.ProjectUpdateStatus,
         references: "ProjectUpdate",
-        oldSchemas: [{ uid: '0xf9ec600d61d88614c863365a79715a7ba29781ec67643ffeb9222dd8873ee3fa', schema: oldStatusSchema }]
+        oldSchemas: [{ uid: '0xf9ec600d61d88614c863365a79715a7ba29781ec67643ffeb9222dd8873ee3fa', raw: oldStatusSchema }]
     },
     ProjectPointer: {
         name: "ProjectPointer",

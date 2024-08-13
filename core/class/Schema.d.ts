@@ -78,7 +78,7 @@ export declare abstract class Schema<T extends string = string> implements Schem
     readonly gap: GAP;
     readonly oldSchemas?: {
         uid: string;
-        schema: SchemaItem[];
+        raw: SchemaItem[];
     }[];
     /**
      * Creates a new schema instance
