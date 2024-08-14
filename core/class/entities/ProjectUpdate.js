@@ -37,6 +37,14 @@ class ProjectUpdate extends Attestation_1.Attestation {
             if (callback)
                 callback("confirmed");
             console.log(uid);
+            return {
+                tx: [
+                    {
+                        hash: tx.tx.hash,
+                    },
+                ],
+                uids: [uid],
+            };
         }
         catch (error) {
             console.error(error);

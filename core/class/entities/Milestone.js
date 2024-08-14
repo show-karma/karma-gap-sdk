@@ -276,7 +276,7 @@ class Milestone extends Attestation_1.Attestation {
         schema.setValue("type", "verified");
         schema.setValue("reason", reason);
         console.log("Before attestStatus");
-        await this.attestStatus(signer, schema, callback);
+        const { tx, uids } = await this.attestStatus(signer, schema, callback);
         console.log("After attestStatus");
         this.verified.push(new attestations_1.MilestoneCompleted({
             data: {
@@ -287,6 +287,7 @@ class Milestone extends Attestation_1.Attestation {
             schema: schema,
             recipient: this.recipient,
         }));
+        return { tx, uids };
     }
 }
 exports.Milestone = Milestone;

@@ -1,5 +1,6 @@
 import { SignerOrProvider, TNetwork } from "../../../core/types";
 import { Attestation } from "../Attestation";
+import { Transaction } from "ethers";
 export interface _IGrantUpdate extends GrantUpdate {
 }
 export interface IGrantUpdate {
@@ -30,7 +31,10 @@ export declare class GrantUpdate extends Attestation<IGrantUpdate> implements IG
      * @param signer
      * @param reason
      */
-    verify(signer: SignerOrProvider, reason?: string, callback?: Function): Promise<void>;
+    verify(signer: SignerOrProvider, reason?: string, callback?: Function): Promise<{
+        tx: Transaction[];
+        uids: `0x${string}`[];
+    }>;
     static from(attestations: _IGrantUpdate[], network: TNetwork): GrantUpdate[];
 }
 export {};

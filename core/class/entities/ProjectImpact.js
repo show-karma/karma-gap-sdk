@@ -38,6 +38,14 @@ class ProjectImpact extends Attestation_1.Attestation {
             if (callback)
                 callback("confirmed");
             console.log(uid);
+            return {
+                tx: [
+                    {
+                        hash: tx.tx.hash,
+                    },
+                ],
+                uids: [uid],
+            };
         }
         catch (error) {
             console.error(error);
@@ -56,7 +64,7 @@ class ProjectImpact extends Attestation_1.Attestation {
         schema.setValue("type", "project-impact-verified");
         schema.setValue("reason", reason);
         console.log("Before attest project impact verified");
-        await this.attestStatus(signer, schema, callback);
+        const { tx, uids } = await this.attestStatus(signer, schema, callback);
         console.log("After attest project impact verified");
         this.verified.push(new ProjectImpactStatus({
             data: {
@@ -67,6 +75,7 @@ class ProjectImpact extends Attestation_1.Attestation {
             schema: schema,
             recipient: this.recipient,
         }));
+        return { tx, uids };
     }
     static from(attestations, network) {
         return attestations.map((attestation) => {
