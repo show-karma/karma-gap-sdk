@@ -149,8 +149,9 @@ class Grant extends Attestation_1.Attestation {
             refUID: this.uid,
             schema: this.schema.gap.findSchema("GrantDetails"),
         });
-        await completed.attest(signer, callback);
+        const { tx, uids } = await completed.attest(signer, callback);
         this.completed = completed;
+        return { tx, uids };
     }
     /**
      * Validate if the grant has a valid reference to a community.
