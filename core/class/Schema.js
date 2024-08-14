@@ -253,17 +253,23 @@ class Schema {
         };
         callback?.("preparing");
         if (consts_1.useDefaultAttestation.includes(this.name)) {
-            const tx = await eas.attest({
+            const uid = await eas.attest({
                 schema: this.uid,
                 data: payload.data.payload,
             });
             callback?.("pending");
-            const txResult = await tx.wait();
+            const uidResult = await uid.wait();
             callback?.("confirmed");
-            return txResult;
+            return {
+                txHash: uidResult,
+                uids: uidResult,
+            };
         }
-        const uid = await GapContract_1.GapContract.attest(signer, payload, callback);
-        return uid;
+        const { txHash, uids } = await GapContract_1.GapContract.attest(signer, payload, callback);
+        return {
+            txHash,
+            uids,
+        };
     }
     /**
      * Bulk attest a set of attestations.
@@ -295,15 +301,20 @@ class Schema {
         }));
         if (callback)
             callback("preparing");
-        const tx = await eas.multiAttest(payload, {
+        const attestation = await eas.multiAttest(payload, {
             gasLimit: 5000000n,
         });
         if (callback)
             callback("pending");
-        return tx.wait().then(() => {
+        const txResult = await attestation.wait().then((res) => {
             if (callback)
                 callback("confirmed");
+            return res;
         });
+        return {
+            txHash: txResult,
+            uids: txResult,
+        };
     }
     /**
      * Revokes a set of attestations by their UIDs.
@@ -460,7 +471,7 @@ Schema.schemas = {
     sepolia: [],
     arbitrum: [],
     celo: [],
-    "sei": [],
+    sei: [],
     "sei-testnet": [],
     "base-sepolia": [],
 };

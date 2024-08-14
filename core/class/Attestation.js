@@ -136,7 +136,7 @@ class Attestation {
             : null;
         console.log(`Attesting ${this.schema.name}`);
         try {
-            const uid = await this.schema.attest({
+            const { txHash, uids: uid } = await this.schema.attest({
                 data: this.data,
                 to: this.recipient,
                 refUID: this.refUID,
@@ -145,6 +145,7 @@ class Attestation {
             });
             this._uid = uid;
             console.log(`Attested ${this.schema.name} with UID ${uid}`);
+            return { txHash, uids: uid };
         }
         catch (error) {
             console.error(error);

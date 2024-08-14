@@ -161,11 +161,14 @@ class Milestone extends Attestation_1.Attestation {
     async attest(signer, callback) {
         this.assertPayload();
         const payload = await this.multiAttestPayload();
-        const uids = await GapContract_1.GapContract.multiAttest(signer, payload.map((p) => p[1]), callback);
-        uids.forEach((uid, index) => {
-            payload[index][0].uid = uid;
-        });
+        const { uids, txHash } = await GapContract_1.GapContract.multiAttest(signer, payload.map((p) => p[1]), callback);
+        if (Array.isArray(uids)) {
+            uids.forEach((uid, index) => {
+                payload[index][0].uid = uid;
+            });
+        }
         console.log(uids);
+        return { txHash, uids };
     }
     /**
      * Attest the status of the milestone as approved, rejected or completed.

@@ -12,6 +12,7 @@ const GapContract_1 = require("../contract/GapContract");
 const AllGapSchemas_1 = require("../AllGapSchemas");
 const ProjectImpact_1 = require("./ProjectImpact");
 const ProjectUpdate_1 = require("./ProjectUpdate");
+const ProjectPointer_1 = require("./ProjectPointer");
 class Project extends Attestation_1.Attestation {
     constructor() {
         super(...arguments);
@@ -20,6 +21,7 @@ class Project extends Attestation_1.Attestation {
         this.impacts = [];
         this.endorsements = [];
         this.updates = [];
+        this.pointers = [];
     }
     /**
      * Creates the payload for a multi-attestation.
@@ -47,10 +49,13 @@ class Project extends Attestation_1.Attestation {
     }
     async attest(signer, callback) {
         const payload = await this.multiAttestPayload();
-        const uids = await GapContract_1.GapContract.multiAttest(signer, payload.map((p) => p[1]), callback);
-        uids.forEach((uid, index) => {
-            payload[index][0].uid = uid;
-        });
+        const { txHash, uids } = await GapContract_1.GapContract.multiAttest(signer, payload.map((p) => p[1]), callback);
+        if (Array.isArray(uids)) {
+            uids.forEach((uid, index) => {
+                payload[index][0].uid = uid;
+            });
+        }
+        return { txHash, uids };
     }
     async transferOwnership(signer, newOwner, callback) {
         callback?.("preparing");
@@ -102,7 +107,7 @@ class Project extends Attestation_1.Attestation {
             throw new SchemaError_1.AttestationError("ATTEST_ERROR", "No new members to add.");
         }
         console.log(`Creating ${newMembers.length} new members`);
-        const attestedMembers = await this.schema.multiAttest(signer, newMembers.map((m) => m.member), callback);
+        const { uids: attestedMembers } = await this.schema.multiAttest(signer, newMembers.map((m) => m.member), callback);
         console.log("attested-members", attestedMembers);
         newMembers.forEach(({ member, details }, idx) => {
             Object.assign(member, { uid: attestedMembers[idx] });
@@ -130,7 +135,7 @@ class Project extends Attestation_1.Attestation {
             await this.cleanDetails(signer, toRevoke);
         }
         console.log(`Creating ${entities.length} new member details`);
-        const attestedEntities = await this.schema.multiAttest(signer, entities, callback);
+        const { uids: attestedEntities } = await this.schema.multiAttest(signer, entities, callback);
         console.log("attested-entities", attestedEntities);
         entities.forEach((entity, idx) => {
             const member = this.members.find((member) => member.uid === entity.refUID);
@@ -252,6 +257,12 @@ class Project extends Attestation_1.Attestation {
             if (attestation.impacts) {
                 project.impacts = ProjectImpact_1.ProjectImpact.from(attestation.impacts, network);
             }
+            if (attestation.pointers) {
+                project.pointers = ProjectPointer_1.ProjectPointer.from(attestation.pointers, network);
+            }
+            if (attestation.updates) {
+                project.updates = ProjectUpdate_1.ProjectUpdate.from(attestation.updates, network);
+            }
             if (attestation.endorsements) {
                 project.endorsements = attestation.endorsements.map((pi) => {
                     const endorsement = new attestations_1.ProjectEndorsement({
@@ -280,6 +291,19 @@ class Project extends Attestation_1.Attestation {
         });
         await projectUpdate.attest(signer, callback);
         this.updates.push(projectUpdate);
+    }
+    async attestPointer(signer, data, callback) {
+        const projectPointer = new ProjectPointer_1.ProjectPointer({
+            data: {
+                ...data,
+                type: "project-pointer",
+            },
+            recipient: this.recipient,
+            refUID: this.uid,
+            schema: this.schema.gap.findSchema("ProjectPointer"),
+        });
+        await projectPointer.attest(signer, callback);
+        this.pointers.push(projectPointer);
     }
     async attestImpact(signer, data) {
         const projectImpact = new ProjectImpact_1.ProjectImpact({

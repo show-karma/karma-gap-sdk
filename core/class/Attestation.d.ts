@@ -2,6 +2,7 @@ import { Hex, IAttestation, JSONStr, MultiAttestData, SignerOrProvider, TNetwork
 import { Schema } from "./Schema";
 import { SchemaItem, SchemaValue } from "@ethereum-attestation-service/eas-sdk";
 import { GapSchema } from "./GapSchema";
+import { AttestationWithTxHash } from "./types/attestations";
 export interface AttestationArgs<T = unknown, S extends Schema = Schema> {
     data: T | string;
     schema: S;
@@ -96,7 +97,7 @@ export declare class Attestation<T = unknown, S extends Schema = GapSchema> impl
      * @returns A Promise that resolves to the UID of the attestation.
      * @throws An `AttestationError` if an error occurs during attestation.
      */
-    attest(signer: SignerOrProvider, ...args: unknown[]): Promise<void>;
+    attest(signer: SignerOrProvider, ...args: unknown[]): Promise<AttestationWithTxHash>;
     /**
      * Validates the payload.
      *

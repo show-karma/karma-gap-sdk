@@ -45,12 +45,13 @@ class Community extends Attestation_1.Attestation {
         try {
             if (callback)
                 callback("preparing");
-            this._uid = await this.schema.attest({
+            const { txHash: communityTxHash, uids: communityUID } = await this.schema.attest({
                 signer,
                 to: this.recipient,
                 refUID: consts_1.nullRef,
                 data: this.data,
             });
+            this._uid = communityTxHash;
             console.log(this.uid);
             if (callback)
                 callback("pending");
@@ -61,10 +62,15 @@ class Community extends Attestation_1.Attestation {
                     refUID: this.uid,
                     schema: this.schema.gap.findSchema("CommunityDetails"),
                 });
-                await communityDetails.attest(signer);
+                const { txHash: communityDetailsTxHash, uids: communityDetailsUID } = await communityDetails.attest(signer);
+                return {
+                    txHash: [communityTxHash, communityDetailsTxHash],
+                    uids: [communityUID, communityDetailsUID],
+                };
             }
             if (callback)
                 callback("confirmed");
+            return { txHash: communityTxHash, uids: communityUID };
         }
         catch (error) {
             console.error(error);

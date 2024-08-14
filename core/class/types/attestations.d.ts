@@ -4,6 +4,10 @@ import { Project } from "../entities/Project";
 import { GapSchema } from "../GapSchema";
 import { GrantUpdate } from "../entities/GrantUpdate";
 /** Attestation interfaces */
+export type AttestationWithTxHash = {
+    uids: Hex[] | Hex;
+    txHash: Hex | string | string[];
+};
 export type ExternalLink = {
     type: string;
     url: string;
