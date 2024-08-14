@@ -99,7 +99,7 @@ class Milestone extends Attestation_1.Attestation {
         const schema = this.schema.gap.findSchema("MilestoneCompleted");
         schema.setValue("type", "completed");
         schema.setValue("reason", reason);
-        await this.attestStatus(signer, schema, callback);
+        const { tx, uids } = await this.attestStatus(signer, schema, callback);
         this.completed = new attestations_1.MilestoneCompleted({
             data: {
                 type: "completed",
@@ -109,6 +109,7 @@ class Milestone extends Attestation_1.Attestation {
             schema,
             recipient: this.recipient,
         });
+        return { tx, uids };
     }
     /**
      * Revokes the completed status of the milestone. If the milestone is not completed,
@@ -194,6 +195,14 @@ class Milestone extends Attestation_1.Attestation {
             if (callback)
                 callback("confirmed");
             console.log(uid);
+            return {
+                tx: [
+                    {
+                        hash: tx.tx.hash,
+                    },
+                ],
+                uids: [uid],
+            };
         }
         catch (error) {
             console.error(error);

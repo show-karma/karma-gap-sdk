@@ -52,7 +52,7 @@ export declare class Milestone extends Attestation<IMilestone> implements IMiles
      * @param signer
      * @param reason
      */
-    complete(signer: SignerOrProvider, reason?: string, callback?: Function): Promise<void>;
+    complete(signer: SignerOrProvider, reason?: string, callback?: Function): Promise<AttestationWithTx>;
     /**
      * Revokes the completed status of the milestone. If the milestone is not completed,
      * it will throw an error.
