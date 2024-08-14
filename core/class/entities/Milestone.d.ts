@@ -2,7 +2,7 @@ import { MultiAttestPayload, SignerOrProvider, TNetwork } from "../../types";
 import { Attestation } from "../Attestation";
 import { GapSchema } from "../GapSchema";
 import { IMilestoneResponse } from "../karma-indexer/api/types";
-import { MilestoneCompleted } from "../types/attestations";
+import { IMilestoneCompleted, MilestoneCompleted } from "../types/attestations";
 export interface IMilestone {
     title: string;
     startsAt?: number;
@@ -26,7 +26,7 @@ export declare class Milestone extends Attestation<IMilestone> implements IMiles
      * @param signer
      * @param reason
      */
-    approve(signer: SignerOrProvider, data?: MilestoneCompleted, callback?: Function): Promise<void>;
+    approve(signer: SignerOrProvider, data?: IMilestoneCompleted, callback?: Function): Promise<void>;
     /**
      * Revokes the approved status of the milestone. If the milestone is not approved,
      * it will throw an error.
@@ -52,7 +52,7 @@ export declare class Milestone extends Attestation<IMilestone> implements IMiles
      * @param signer
      * @param reason
      */
-    complete(signer: SignerOrProvider, data?: MilestoneCompleted, callback?: Function): Promise<void>;
+    complete(signer: SignerOrProvider, data?: IMilestoneCompleted, callback?: Function): Promise<void>;
     /**
      * Revokes the completed status of the milestone. If the milestone is not completed,
      * it will throw an error.
@@ -85,5 +85,5 @@ export declare class Milestone extends Attestation<IMilestone> implements IMiles
      * @param signer
      * @param reason
      */
-    verify(signer: SignerOrProvider, data?: MilestoneCompleted, callback?: Function): Promise<void>;
+    verify(signer: SignerOrProvider, data?: IMilestoneCompleted, callback?: Function): Promise<void>;
 }
