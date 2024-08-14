@@ -90,8 +90,9 @@ class GapContract {
         const result = await tx.wait?.();
         callback?.("confirmed");
         const attestations = (0, eas_sdk_1.getUIDsFromAttestReceipt)(result)[0];
+        const resultArray = [result].flat();
         return {
-            tx: result,
+            tx: resultArray,
             uids: [attestations],
         };
     }
