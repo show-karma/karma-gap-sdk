@@ -16,7 +16,7 @@ export interface IGrantUpdate {
 type IStatus = "verified";
 
 export interface IGrantUpdateStatus {
-  type: `grant-update-${IStatus}`;
+  type?: `grant-update-${IStatus}`;
   reason?: string;
   linkToProof?: string;
 }
@@ -77,13 +77,13 @@ export class GrantUpdate
    * @param signer
    * @param reason
    */
-  async verify(signer: SignerOrProvider, data?: GrantUpdateStatus, callback?: Function) {
+  async verify(signer: SignerOrProvider, data?: IGrantUpdateStatus, callback?: Function) {
     console.log("Verifying");
 
     const schema = this.schema.gap.findSchema("GrantUpdateStatus");
     
     if (this.schema.isJsonSchema()) {
-      schema.setValue("json", JSON.stringify({
+    schema.setValue("json", JSON.stringify({
         type: "grant-update-verified",
         reason: data?.reason || '',
         linkToProof: data?.linkToProof || '',

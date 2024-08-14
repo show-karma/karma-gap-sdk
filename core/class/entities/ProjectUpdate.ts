@@ -16,7 +16,7 @@ export interface IProjectUpdate {
 type IStatus = "verified";
 
 export interface IProjectUpdateStatus {
-  type: `project-update-${IStatus}`;
+  type?: `project-update-${IStatus}`;
   reason?: string;
 }
 
@@ -75,7 +75,7 @@ export class ProjectUpdate
    * @param signer
    * @param reason
    */
-  async verify(signer: SignerOrProvider, data?: ProjectUpdateStatus, callback?: Function) {
+  async verify(signer: SignerOrProvider, data?: IProjectUpdateStatus, callback?: Function) {
     console.log("Verifying");
 
     const schema = this.schema.gap.findSchema("ProjectUpdateStatus");

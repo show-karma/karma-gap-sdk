@@ -7,7 +7,7 @@ import { GapSchema } from "../GapSchema";
 import { AttestationError } from "../SchemaError";
 import { GapContract } from "../contract/GapContract";
 import { IMilestoneResponse } from "../karma-indexer/api/types";
-import { MilestoneCompleted } from "../types/attestations";
+import { IMilestoneCompleted, MilestoneCompleted } from "../types/attestations";
 
 interface _Milestone extends Milestone {}
 
@@ -35,7 +35,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
    * @param signer
    * @param reason
    */
-  async approve(signer: SignerOrProvider, data?: MilestoneCompleted, callback?: Function) {
+  async approve(signer: SignerOrProvider, data?: IMilestoneCompleted, callback?: Function) {
     if (!this.completed)
       throw new AttestationError("ATTEST_ERROR", "Milestone is not completed");
 
@@ -128,7 +128,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
    * @param signer
    * @param reason
    */
-  async complete(signer: SignerOrProvider, data?: MilestoneCompleted, callback?: Function) {
+  async complete(signer: SignerOrProvider, data?: IMilestoneCompleted, callback?: Function) {
     const schema = this.schema.gap.findSchema("MilestoneCompleted");
 
     if (this.schema.isJsonSchema()) {
@@ -348,7 +348,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
    * @param signer
    * @param reason
    */
-  async verify(signer: SignerOrProvider, data?: MilestoneCompleted, callback?: Function) {
+  async verify(signer: SignerOrProvider, data?: IMilestoneCompleted, callback?: Function) {
     console.log("Verifying");
     if (!this.completed)
       throw new AttestationError("ATTEST_ERROR", "Milestone is not completed");
