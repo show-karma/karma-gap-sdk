@@ -91,8 +91,8 @@ class GapContract {
         callback?.("confirmed");
         const attestations = (0, eas_sdk_1.getUIDsFromAttestReceipt)(result)[0];
         return {
-            txHash: tx,
-            uids: attestations,
+            tx: result,
+            uids: [attestations],
         };
     }
     static async attestBySig(signer, payload) {
@@ -114,7 +114,11 @@ class GapContract {
         const txn = await (0, send_gelato_txn_1.sendGelatoTxn)(...send_gelato_txn_1.Gelato.buildArgs(populatedTxn, chainId, contractAddress));
         const attestations = await this.getTransactionLogs(signer, txn);
         return {
-            txHash: txn,
+            tx: [
+                {
+                    hash: txn,
+                },
+            ],
             uids: attestations,
         };
     }
@@ -138,7 +142,7 @@ class GapContract {
             callback("confirmed");
         const attestations = (0, eas_sdk_1.getUIDsFromAttestReceipt)(result);
         return {
-            txHash: tx,
+            tx: result,
             uids: attestations,
         };
     }
@@ -161,7 +165,11 @@ class GapContract {
         const txn = await (0, send_gelato_txn_1.sendGelatoTxn)(...send_gelato_txn_1.Gelato.buildArgs(populatedTxn, chainId, contractAddress));
         const attestations = await this.getTransactionLogs(signer, txn);
         return {
-            txHash: txn,
+            tx: [
+                {
+                    hash: txn,
+                },
+            ],
             uids: attestations,
         };
     }

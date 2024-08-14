@@ -1,6 +1,7 @@
 import { CallbackStatus, Hex, RawAttestationPayload, RawMultiAttestPayload, SignerOrProvider } from "core/types";
 import { MultiRevocationRequest } from "@ethereum-attestation-service/eas-sdk";
 import { AttestationWithTxHash } from "../types/attestations";
+import { Transaction } from "ethers";
 export declare class GapContract {
     static nonces: {
         [key: string]: number;
@@ -33,7 +34,7 @@ export declare class GapContract {
      */
     static attest(signer: SignerOrProvider, payload: RawAttestationPayload, callback?: ((status: CallbackStatus) => void) & ((status: string) => void)): Promise<AttestationWithTxHash>;
     static attestBySig(signer: SignerOrProvider, payload: RawAttestationPayload): Promise<{
-        txHash: string;
+        tx: Transaction[];
         uids: `0x${string}`[];
     }>;
     /**

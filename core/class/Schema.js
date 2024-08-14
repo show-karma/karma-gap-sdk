@@ -261,13 +261,17 @@ class Schema {
             const uidResult = await uid.wait();
             callback?.("confirmed");
             return {
-                txHash: uidResult,
-                uids: uidResult,
+                tx: [
+                    {
+                        hash: uidResult,
+                    },
+                ],
+                uids: [uidResult],
             };
         }
-        const { txHash, uids } = await GapContract_1.GapContract.attest(signer, payload, callback);
+        const { tx, uids } = await GapContract_1.GapContract.attest(signer, payload, callback);
         return {
-            txHash,
+            tx,
             uids,
         };
     }
@@ -311,8 +315,9 @@ class Schema {
                 callback("confirmed");
             return res;
         });
+        const tx = txResult.map((item) => ({ hash: item }));
         return {
-            txHash: txResult,
+            tx,
             uids: txResult,
         };
     }

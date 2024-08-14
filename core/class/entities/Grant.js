@@ -106,8 +106,8 @@ class Grant extends Attestation_1.Attestation {
         // Overwrite refuid
         Object.assign(this, { refUID: consts_1.nullRef });
         project.grants = [this];
-        const { txHash, uids } = await project.attest(signer);
-        return { txHash, uids };
+        const attestation = await project.attest(signer);
+        return attestation;
     }
     /**
      * @inheritdoc
@@ -118,13 +118,13 @@ class Grant extends Attestation_1.Attestation {
         }
         this.assertPayload();
         const payload = await this.multiAttestPayload();
-        const { txHash, uids } = await GapContract_1.GapContract.multiAttest(signer, payload.map((p) => p[1]), callback);
+        const { tx, uids } = await GapContract_1.GapContract.multiAttest(signer, payload.map((p) => p[1]), callback);
         if (Array.isArray(uids)) {
             uids.forEach((uid, index) => {
                 payload[index][0].uid = uid;
             });
         }
-        return { txHash, uids };
+        return { tx, uids };
     }
     async attestUpdate(signer, data, callback) {
         const grantUpdate = new GrantUpdate_1.GrantUpdate({

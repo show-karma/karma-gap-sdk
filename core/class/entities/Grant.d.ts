@@ -44,10 +44,7 @@ export declare class Grant extends Attestation<IGrant> {
      * @param projectIdx
      */
     multiAttestPayload(currentPayload?: MultiAttestPayload, projectIdx?: number): Promise<[Attestation<unknown, GapSchema>, import("core/types").RawMultiAttestPayload][]>;
-    attestProject(signer: SignerOrProvider, originalProjectChainId: number): Promise<{
-        txHash: string | string[];
-        uids: `0x${string}` | `0x${string}`[];
-    }>;
+    attestProject(signer: SignerOrProvider, originalProjectChainId: number): Promise<AttestationWithTxHash>;
     /**
      * @inheritdoc
      */

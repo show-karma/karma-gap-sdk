@@ -49,13 +49,13 @@ class Project extends Attestation_1.Attestation {
     }
     async attest(signer, callback) {
         const payload = await this.multiAttestPayload();
-        const { txHash, uids } = await GapContract_1.GapContract.multiAttest(signer, payload.map((p) => p[1]), callback);
+        const { tx, uids } = await GapContract_1.GapContract.multiAttest(signer, payload.map((p) => p[1]), callback);
         if (Array.isArray(uids)) {
             uids.forEach((uid, index) => {
                 payload[index][0].uid = uid;
             });
         }
-        return { txHash, uids };
+        return { tx, uids };
     }
     async transferOwnership(signer, newOwner, callback) {
         callback?.("preparing");

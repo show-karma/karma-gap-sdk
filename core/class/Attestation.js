@@ -136,16 +136,16 @@ class Attestation {
             : null;
         console.log(`Attesting ${this.schema.name}`);
         try {
-            const { txHash, uids: uid } = await this.schema.attest({
+            const { tx, uids: uid } = await this.schema.attest({
                 data: this.data,
                 to: this.recipient,
                 refUID: this.refUID,
                 signer,
                 callback: callback,
             });
-            this._uid = uid;
+            this._uid = uid[0];
             console.log(`Attested ${this.schema.name} with UID ${uid}`);
-            return { txHash, uids: uid };
+            return { tx, uids: uid };
         }
         catch (error) {
             console.error(error);
