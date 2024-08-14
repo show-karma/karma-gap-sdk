@@ -8,6 +8,11 @@ import { AttestationError } from "../SchemaError";
 
 /** Attestation interfaces */
 
+export type AttestationWithTxHash = {
+  uids: Hex[] | Hex;
+  txHash: Hex | string | string[];
+};
+
 export type ExternalLink = { type: string; url: string }[];
 
 export interface ICommunityDetails {

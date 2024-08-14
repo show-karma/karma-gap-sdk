@@ -7,7 +7,10 @@ import { GapSchema } from "../GapSchema";
 import { AttestationError } from "../SchemaError";
 import { GapContract } from "../contract/GapContract";
 import { IMilestoneResponse } from "../karma-indexer/api/types";
-import { MilestoneCompleted } from "../types/attestations";
+import {
+  AttestationWithTxHash,
+  MilestoneCompleted,
+} from "../types/attestations";
 
 interface _Milestone extends Milestone {}
 
@@ -200,21 +203,26 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
   /**
    * @inheritdoc
    */
-  async attest(signer: SignerOrProvider, callback?: Function): Promise<void> {
+  async attest(
+    signer: SignerOrProvider,
+    callback?: Function
+  ): Promise<AttestationWithTxHash> {
     this.assertPayload();
     const payload = await this.multiAttestPayload();
 
-    const uids = await GapContract.multiAttest(
+    const { uids, txHash } = await GapContract.multiAttest(
       signer,
       payload.map((p) => p[1]),
       callback
     );
-
-    uids.forEach((uid, index) => {
-      payload[index][0].uid = uid;
-    });
-
+    if (Array.isArray(uids)) {
+      uids.forEach((uid, index) => {
+        payload[index][0].uid = uid;
+      });
+    }
     console.log(uids);
+
+    return { txHash, uids };
   }
 
   /**

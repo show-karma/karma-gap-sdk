@@ -1,5 +1,6 @@
 import {
   AttestationRequestData,
+  getUIDsFromAttestReceipt,
   OffchainAttestationParams,
   SchemaEncoder,
   SchemaItem,
@@ -24,6 +25,7 @@ import { Attestation } from "./Attestation";
 import { GapContract } from "./contract/GapContract";
 import { isAddress } from "ethers";
 import { IpfsStorage } from "./remote-storage/IpfsStorage";
+import { AttestationWithTxHash } from "./types/attestations";
 /**
  * Represents the EAS Schema and provides methods to encode and decode the schema,
  * and validate the schema references.
@@ -99,7 +101,7 @@ export abstract class Schema<T extends string = string>
     sepolia: [],
     arbitrum: [],
     celo: [],
-    "sei": [],
+    sei: [],
     "sei-testnet": [],
     "base-sepolia": [],
   };
@@ -319,7 +321,7 @@ export abstract class Schema<T extends string = string>
     signer,
     refUID,
     callback,
-  }: AttestArgs<T>): Promise<Hex> {
+  }: AttestArgs<T>): Promise<AttestationWithTxHash> {
     const eas = this.gap.eas.connect(signer);
 
     if (this.references && !refUID)
@@ -360,22 +362,32 @@ export abstract class Schema<T extends string = string>
 
     callback?.("preparing");
     if (useDefaultAttestation.includes(this.name as TSchemaName)) {
-      const tx = await eas.attest({
+      const uid = await eas.attest({
         schema: this.uid,
         data: payload.data.payload,
       });
 
       callback?.("pending");
 
-      const txResult = await tx.wait();
+      const uidResult = await uid.wait();
 
       callback?.("confirmed");
 
-      return txResult as Hex;
+      return {
+        txHash: uidResult as Hex,
+        uids: uidResult as Hex,
+      };
     }
 
-    const uid = await GapContract.attest(signer, payload, callback);
-    return uid;
+    const { txHash, uids } = await GapContract.attest(
+      signer,
+      payload,
+      callback
+    );
+    return {
+      txHash,
+      uids,
+    };
   }
 
   /**
@@ -388,7 +400,7 @@ export abstract class Schema<T extends string = string>
     signer: SignerOrProvider,
     entities: Attestation[] = [],
     callback?: Function
-  ) {
+  ): Promise<AttestationWithTxHash> {
     entities.forEach((entity) => {
       if (this.references && !entity.refUID)
         throw new SchemaError(
@@ -419,13 +431,19 @@ export abstract class Schema<T extends string = string>
     }));
 
     if (callback) callback("preparing");
-    const tx = await eas.multiAttest(payload, {
+    const attestation = await eas.multiAttest(payload, {
       gasLimit: 5000000n,
     });
     if (callback) callback("pending");
-    return tx.wait().then(() => {
+    const txResult = await attestation.wait().then((res) => {
       if (callback) callback("confirmed");
+      return res;
     });
+
+    return {
+      txHash: txResult,
+      uids: txResult as Hex[],
+    };
   }
 
   /**

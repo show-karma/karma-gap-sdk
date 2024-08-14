@@ -1,5 +1,6 @@
 import { Attestation } from "../Attestation";
 import {
+  AttestationWithTxHash,
   CommunityDetails,
   Grantee,
   ICommunityDetails,
@@ -9,6 +10,7 @@ import { AttestationError } from "../SchemaError";
 import { GapSchema } from "../GapSchema";
 import { Project } from "./Project";
 import {
+  Hex,
   IAttestation,
   MultiAttestPayload,
   SignerOrProvider,
@@ -67,16 +69,18 @@ export class Community extends Attestation<ICommunity> {
     signer: SignerOrProvider,
     details?: ICommunityDetails,
     callback?: Function
-  ): Promise<void> {
+  ): Promise<AttestationWithTxHash> {
     console.log("Attesting community");
     try {
       if (callback) callback("preparing");
-      this._uid = await this.schema.attest({
-        signer,
-        to: this.recipient,
-        refUID: nullRef,
-        data: this.data,
-      });
+      const { txHash: communityTxHash, uids: communityUID } =
+        await this.schema.attest({
+          signer,
+          to: this.recipient,
+          refUID: nullRef,
+          data: this.data,
+        });
+      this._uid = communityTxHash as Hex;
       console.log(this.uid);
       if (callback) callback("pending");
 
@@ -88,9 +92,15 @@ export class Community extends Attestation<ICommunity> {
           schema: this.schema.gap.findSchema("CommunityDetails"),
         });
 
-        await communityDetails.attest(signer);
+        const { txHash: communityDetailsTxHash, uids: communityDetailsUID } =
+          await communityDetails.attest(signer);
+        return {
+          txHash: [communityTxHash as Hex, communityDetailsTxHash as Hex],
+          uids: [communityUID as Hex, communityDetailsUID as Hex],
+        };
       }
       if (callback) callback("confirmed");
+      return { txHash: communityTxHash, uids: communityUID };
     } catch (error) {
       console.error(error);
       throw new AttestationError("ATTEST_ERROR", "Error during attestation.");

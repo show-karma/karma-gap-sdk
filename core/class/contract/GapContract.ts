@@ -12,6 +12,7 @@ import {
   MultiRevocationRequest,
   getUIDsFromAttestReceipt,
 } from "@ethereum-attestation-service/eas-sdk";
+import { AttestationWithTxHash } from "../types/attestations";
 
 type TSignature = {
   r: string;
@@ -116,7 +117,7 @@ export class GapContract {
     signer: SignerOrProvider,
     payload: RawAttestationPayload,
     callback?: ((status: CallbackStatus) => void) & ((status: string) => void)
-  ) {
+  ): Promise<AttestationWithTxHash> {
     const contract = await GAP.getMulticall(signer);
 
     if (GAP.gelatoOpts?.useGasless) {
@@ -136,7 +137,10 @@ export class GapContract {
     callback?.("confirmed");
     const attestations = getUIDsFromAttestReceipt(result)[0];
 
-    return attestations as Hex;
+    return {
+      txHash: tx,
+      uids: attestations as Hex,
+    };
   }
 
   static async attestBySig(
@@ -181,7 +185,10 @@ export class GapContract {
     );
 
     const attestations = await this.getTransactionLogs(signer, txn);
-    return attestations[0];
+    return {
+      txHash: txn,
+      uids: attestations,
+    };
   }
 
   /**
@@ -193,7 +200,7 @@ export class GapContract {
     signer: SignerOrProvider,
     payload: RawMultiAttestPayload[],
     callback?: Function
-  ): Promise<Hex[]> {
+  ): Promise<AttestationWithTxHash> {
     const contract = await GAP.getMulticall(signer);
 
     if (GAP.gelatoOpts?.useGasless) {
@@ -210,7 +217,10 @@ export class GapContract {
     if (callback) callback("confirmed");
     const attestations = getUIDsFromAttestReceipt(result);
 
-    return attestations as Hex[];
+    return {
+      txHash: tx,
+      uids: attestations as Hex[],
+    };
   }
 
   /**
@@ -221,7 +231,7 @@ export class GapContract {
   static async multiAttestBySig(
     signer: SignerOrProvider,
     payload: RawMultiAttestPayload[]
-  ): Promise<Hex[]> {
+  ): Promise<AttestationWithTxHash> {
     const contract = await GAP.getMulticall(signer);
     const expiry = BigInt(Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30);
     const address = await this.getSignerAddress(signer);
@@ -257,7 +267,10 @@ export class GapContract {
     );
 
     const attestations = await this.getTransactionLogs(signer, txn);
-    return attestations;
+    return {
+      txHash: txn,
+      uids: attestations as Hex[],
+    };
   }
 
   static async multiRevoke(
