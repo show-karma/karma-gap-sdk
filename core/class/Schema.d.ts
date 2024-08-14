@@ -2,7 +2,7 @@ import { SchemaEncoder, SchemaItem, SchemaValue } from "@ethereum-attestation-se
 import { AttestArgs, Hex, MultiRevokeArgs, SchemaInterface, SignerOrProvider, TNetwork } from "../types";
 import { GAP } from "./GAP";
 import { Attestation } from "./Attestation";
-import { AttestationWithTxHash } from "./types/attestations";
+import { AttestationWithTx } from "./types/attestations";
 /**
  * Represents the EAS Schema and provides methods to encode and decode the schema,
  * and validate the schema references.
@@ -141,14 +141,14 @@ export declare abstract class Schema<T extends string = string> implements Schem
      * @param {Object} param0 - An object containing the schema and other optional settings.
      * @returns {Object} An object containing the attestation results, including the CID if 'ipfsKey' is enabled.
      */
-    attest<T>({ data, to, signer, refUID, callback, }: AttestArgs<T>): Promise<AttestationWithTxHash>;
+    attest<T>({ data, to, signer, refUID, callback, }: AttestArgs<T>): Promise<AttestationWithTx>;
     /**
      * Bulk attest a set of attestations.
      * @param signer
      * @param entities
      * @returns
      */
-    multiAttest(signer: SignerOrProvider, entities?: Attestation[], callback?: Function): Promise<AttestationWithTxHash>;
+    multiAttest(signer: SignerOrProvider, entities?: Attestation[], callback?: Function): Promise<AttestationWithTx>;
     /**
      * Revokes a set of attestations by their UIDs.
      * @param signer

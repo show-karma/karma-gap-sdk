@@ -1,6 +1,6 @@
 import { CallbackStatus, Hex, RawAttestationPayload, RawMultiAttestPayload, SignerOrProvider } from "core/types";
 import { MultiRevocationRequest } from "@ethereum-attestation-service/eas-sdk";
-import { AttestationWithTxHash } from "../types/attestations";
+import { AttestationWithTx } from "../types/attestations";
 import { Transaction } from "ethers";
 export declare class GapContract {
     static nonces: {
@@ -32,7 +32,7 @@ export declare class GapContract {
      * @param payload
      * @returns
      */
-    static attest(signer: SignerOrProvider, payload: RawAttestationPayload, callback?: ((status: CallbackStatus) => void) & ((status: string) => void)): Promise<AttestationWithTxHash>;
+    static attest(signer: SignerOrProvider, payload: RawAttestationPayload, callback?: ((status: CallbackStatus) => void) & ((status: string) => void)): Promise<AttestationWithTx>;
     static attestBySig(signer: SignerOrProvider, payload: RawAttestationPayload): Promise<{
         tx: Transaction[];
         uids: `0x${string}`[];
@@ -42,13 +42,13 @@ export declare class GapContract {
      *
      * @returns an array with the attestation UIDs.
      */
-    static multiAttest(signer: SignerOrProvider, payload: RawMultiAttestPayload[], callback?: Function): Promise<AttestationWithTxHash>;
+    static multiAttest(signer: SignerOrProvider, payload: RawMultiAttestPayload[], callback?: Function): Promise<AttestationWithTx>;
     /**
      * Performs a referenced multi attestation.
      *
      * @returns an array with the attestation UIDs.
      */
-    static multiAttestBySig(signer: SignerOrProvider, payload: RawMultiAttestPayload[]): Promise<AttestationWithTxHash>;
+    static multiAttestBySig(signer: SignerOrProvider, payload: RawMultiAttestPayload[]): Promise<AttestationWithTx>;
     static multiRevoke(signer: SignerOrProvider, payload: MultiRevocationRequest[]): Promise<any>;
     /**
      * Performs a referenced multi attestation.

@@ -1,5 +1,5 @@
 import { Attestation } from "../Attestation";
-import { AttestationWithTxHash, CommunityDetails, ICommunityDetails } from "../types/attestations";
+import { AttestationWithTx, CommunityDetails, ICommunityDetails } from "../types/attestations";
 import { Project } from "./Project";
 import { MultiAttestPayload, SignerOrProvider, TNetwork } from "core/types";
 import { Grant } from "./Grant";
@@ -29,6 +29,6 @@ export declare class Community extends Attestation<ICommunity> {
      * @param signer
      * @param details
      */
-    attest(signer: SignerOrProvider, details?: ICommunityDetails, callback?: Function): Promise<AttestationWithTxHash>;
+    attest(signer: SignerOrProvider, details?: ICommunityDetails, callback?: Function): Promise<AttestationWithTx>;
     static from(attestations: ICommunityResponse[], network: TNetwork): Community[];
 }

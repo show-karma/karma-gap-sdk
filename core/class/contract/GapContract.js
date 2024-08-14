@@ -141,8 +141,9 @@ class GapContract {
         if (callback)
             callback("confirmed");
         const attestations = (0, eas_sdk_1.getUIDsFromAttestReceipt)(result);
+        const resultArray = [result].flat();
         return {
-            tx: result,
+            tx: resultArray,
             uids: attestations,
         };
     }

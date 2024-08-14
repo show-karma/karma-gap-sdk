@@ -2,7 +2,7 @@ import { MultiAttestPayload, SignerOrProvider, TNetwork } from "../../types";
 import { Attestation } from "../Attestation";
 import { GapSchema } from "../GapSchema";
 import { IMilestoneResponse } from "../karma-indexer/api/types";
-import { AttestationWithTxHash, MilestoneCompleted } from "../types/attestations";
+import { AttestationWithTx, MilestoneCompleted } from "../types/attestations";
 export interface IMilestone {
     title: string;
     startsAt?: number;
@@ -73,7 +73,7 @@ export declare class Milestone extends Attestation<IMilestone> implements IMiles
     /**
      * @inheritdoc
      */
-    attest(signer: SignerOrProvider, callback?: Function): Promise<AttestationWithTxHash>;
+    attest(signer: SignerOrProvider, callback?: Function): Promise<AttestationWithTx>;
     /**
      * Attest the status of the milestone as approved, rejected or completed.
      */

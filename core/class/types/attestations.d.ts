@@ -5,7 +5,7 @@ import { GapSchema } from "../GapSchema";
 import { GrantUpdate } from "../entities/GrantUpdate";
 import { Transaction } from "ethers";
 /** Attestation interfaces */
-export type AttestationWithTxHash = {
+export type AttestationWithTx = {
     uids: Hex[];
     tx: Transaction[];
 };
