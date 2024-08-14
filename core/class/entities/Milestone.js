@@ -82,12 +82,13 @@ class Milestone extends Attestation_1.Attestation {
     async revokeRejection(signer) {
         if (!this.rejected)
             throw new SchemaError_1.AttestationError("ATTEST_ERROR", "Milestone is not rejected");
-        await this.rejected.schema.multiRevoke(signer, [
+        const { tx, uids } = await this.rejected.schema.multiRevoke(signer, [
             {
                 schemaId: this.completed.schema.uid,
                 uid: this.completed.uid,
             },
         ]);
+        return { tx, uids };
     }
     /**
      * Marks a milestone as completed. If the milestone is already completed,
@@ -119,12 +120,13 @@ class Milestone extends Attestation_1.Attestation {
     async revokeCompletion(signer, callback) {
         if (!this.completed)
             throw new SchemaError_1.AttestationError("ATTEST_ERROR", "Milestone is not completed");
-        await this.completed.schema.multiRevoke(signer, [
+        const { tx, uids } = await this.completed.schema.multiRevoke(signer, [
             {
                 schemaId: this.completed.schema.uid,
                 uid: this.completed.uid,
             },
         ], callback);
+        return { tx, uids };
     }
     /**
      * Creates the payload for a multi-attestation.

@@ -1,5 +1,6 @@
 import { SchemaEncoder, SchemaItem, SchemaValue } from "@ethereum-attestation-service/eas-sdk";
 import { AttestArgs, Hex, MultiRevokeArgs, SchemaInterface, SignerOrProvider, TNetwork } from "../types";
+import { ethers } from "ethers";
 import { GAP } from "./GAP";
 import { Attestation } from "./Attestation";
 import { AttestationWithTx } from "./types/attestations";
@@ -155,7 +156,10 @@ export declare abstract class Schema<T extends string = string> implements Schem
      * @param uids
      * @returns
      */
-    multiRevoke(signer: SignerOrProvider, toRevoke: MultiRevokeArgs[], callback?: Function): Promise<void>;
+    multiRevoke(signer: SignerOrProvider, toRevoke: MultiRevokeArgs[], callback?: Function): Promise<{
+        tx: ethers.Transaction[];
+        uids: `0x${string}`[];
+    }>;
     static exists(name: string, network: TNetwork): Schema<string>;
     /**
      * Adds the schema signature to a shares list. Use Schema.get("SchemaName") to get the schema.

@@ -1,3 +1,4 @@
+import { Transaction } from "ethers";
 import { MultiAttestPayload, SignerOrProvider, TNetwork } from "../../types";
 import { Attestation } from "../Attestation";
 import { GapSchema } from "../GapSchema";
@@ -45,7 +46,10 @@ export declare class Milestone extends Attestation<IMilestone> implements IMiles
      * it will throw an error.
      * @param signer
      */
-    revokeRejection(signer: SignerOrProvider): Promise<void>;
+    revokeRejection(signer: SignerOrProvider): Promise<{
+        tx: Transaction[];
+        uids: `0x${string}`[];
+    }>;
     /**
      * Marks a milestone as completed. If the milestone is already completed,
      * it will throw an error.
@@ -58,7 +62,10 @@ export declare class Milestone extends Attestation<IMilestone> implements IMiles
      * it will throw an error.
      * @param signer
      */
-    revokeCompletion(signer: SignerOrProvider, callback?: Function): Promise<void>;
+    revokeCompletion(signer: SignerOrProvider, callback?: Function): Promise<{
+        tx: Transaction[];
+        uids: `0x${string}`[];
+    }>;
     /**
      * Creates the payload for a multi-attestation.
      *

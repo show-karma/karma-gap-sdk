@@ -344,9 +344,13 @@ class Schema {
             gasLimit: 5000000n,
         });
         callback?.("pending");
-        return tx.wait().then(() => {
+        tx.wait().then(() => {
             callback?.("confirmed");
         });
+        return {
+            tx: [{ hash: tx.tx.hash }],
+            uids: payload.map((p) => p.data.map((d) => d.uid)).flat(),
+        };
     }
     static exists(name, network) {
         return this.schemas[network].find((schema) => schema.name === name);
