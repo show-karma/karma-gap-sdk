@@ -30,7 +30,7 @@ export declare class ProjectUpdate extends Attestation<IProjectUpdate> implement
      * @param signer
      * @param reason
      */
-    verify(signer: SignerOrProvider, reason?: string, callback?: Function): Promise<void>;
+    verify(signer: SignerOrProvider, data?: ProjectUpdateStatus, callback?: Function): Promise<void>;
     static from(attestations: _IProjectUpdate[], network: TNetwork): ProjectUpdate[];
 }
 export {};

@@ -19,25 +19,25 @@ class Milestone extends Attestation_1.Attestation {
      * @param signer
      * @param reason
      */
-    async approve(signer, reason = "", callback) {
+    async approve(signer, data, callback) {
         if (!this.completed)
             throw new SchemaError_1.AttestationError("ATTEST_ERROR", "Milestone is not completed");
         const schema = this.schema.gap.findSchema("MilestoneCompleted");
         if (this.schema.isJsonSchema()) {
             schema.setValue("json", JSON.stringify({
                 type: "approved",
-                reason,
+                reason: data?.reason || '',
             }));
         }
         else {
             schema.setValue("type", "approved");
-            schema.setValue("reason", reason);
+            schema.setValue("reason", data?.reason || '');
         }
         await this.attestStatus(signer, schema, callback);
         this.approved = new attestations_1.MilestoneCompleted({
             data: {
                 type: "approved",
-                reason,
+                reason: data?.reason || '',
             },
             refUID: this.uid,
             schema: schema,
@@ -103,23 +103,23 @@ class Milestone extends Attestation_1.Attestation {
      * @param signer
      * @param reason
      */
-    async complete(signer, reason = "", callback) {
+    async complete(signer, data, callback) {
         const schema = this.schema.gap.findSchema("MilestoneCompleted");
         if (this.schema.isJsonSchema()) {
             schema.setValue("json", JSON.stringify({
                 type: "completed",
-                reason,
+                reason: data?.reason || '',
             }));
         }
         else {
             schema.setValue("type", "completed");
-            schema.setValue("reason", reason);
+            schema.setValue("reason", data?.reason || '');
         }
         await this.attestStatus(signer, schema, callback);
         this.completed = new attestations_1.MilestoneCompleted({
             data: {
                 type: "completed",
-                reason,
+                reason: data?.reason || '',
             },
             refUID: this.uid,
             schema,
@@ -272,7 +272,7 @@ class Milestone extends Attestation_1.Attestation {
      * @param signer
      * @param reason
      */
-    async verify(signer, reason = "", callback) {
+    async verify(signer, data, callback) {
         console.log("Verifying");
         if (!this.completed)
             throw new SchemaError_1.AttestationError("ATTEST_ERROR", "Milestone is not completed");
@@ -280,12 +280,12 @@ class Milestone extends Attestation_1.Attestation {
         if (this.schema.isJsonSchema()) {
             schema.setValue("json", JSON.stringify({
                 type: "verified",
-                reason,
+                reason: data?.reason || '',
             }));
         }
         else {
             schema.setValue("type", "verified");
-            schema.setValue("reason", reason);
+            schema.setValue("reason", data?.reason || '');
         }
         console.log("Before attestStatus");
         await this.attestStatus(signer, schema, callback);
@@ -293,7 +293,7 @@ class Milestone extends Attestation_1.Attestation {
         this.verified.push(new attestations_1.MilestoneCompleted({
             data: {
                 type: "verified",
-                reason,
+                reason: data?.reason || '',
             },
             refUID: this.uid,
             schema: schema,

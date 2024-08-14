@@ -49,18 +49,18 @@ class ProjectUpdate extends Attestation_1.Attestation {
      * @param signer
      * @param reason
      */
-    async verify(signer, reason = "", callback) {
+    async verify(signer, data, callback) {
         console.log("Verifying");
         const schema = this.schema.gap.findSchema("ProjectUpdateStatus");
         if (this.schema.isJsonSchema()) {
             schema.setValue("json", JSON.stringify({
                 type: "verified",
-                reason,
+                reason: data?.reason || '',
             }));
         }
         else {
             schema.setValue("type", "project-update-verified");
-            schema.setValue("reason", reason);
+            schema.setValue("reason", data?.reason || '');
         }
         console.log("Before attest project update verified");
         await this.attestStatus(signer, schema, callback);
@@ -68,7 +68,7 @@ class ProjectUpdate extends Attestation_1.Attestation {
         this.verified.push(new ProjectUpdateStatus({
             data: {
                 type: "project-update-verified",
-                reason,
+                reason: data?.reason || '',
             },
             refUID: this.uid,
             schema: schema,

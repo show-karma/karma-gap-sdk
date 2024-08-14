@@ -32,7 +32,7 @@ export declare class GrantUpdate extends Attestation<IGrantUpdate> implements IG
      * @param signer
      * @param reason
      */
-    verify(signer: SignerOrProvider, reason?: string, linkToProof?: string, callback?: Function): Promise<void>;
+    verify(signer: SignerOrProvider, data?: GrantUpdateStatus, callback?: Function): Promise<void>;
     static from(attestations: _IGrantUpdate[], network: TNetwork): GrantUpdate[];
 }
 export {};
