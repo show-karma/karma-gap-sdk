@@ -59,8 +59,10 @@ class Project extends Attestation_1.Attestation {
     }
     async transferOwnership(signer, newOwner, callback) {
         callback?.("preparing");
-        await GapContract_1.GapContract.transferProjectOwnership(signer, this.uid, newOwner);
+        const tx = await GapContract_1.GapContract.transferProjectOwnership(signer, this.uid, newOwner);
         callback?.("confirmed");
+        const txArray = [tx].flat();
+        return { tx: txArray, uids: [this.uid] };
     }
     isOwner(signer) {
         return GapContract_1.GapContract.isProjectOwner(signer, this.uid, this.chainID);
