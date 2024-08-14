@@ -181,7 +181,10 @@ class GapContract {
             return this.multiRevokeBySig(signer, payload);
         }
         const tx = await contract.multiRevoke(payload);
-        return tx.wait?.();
+        return {
+            tx: [tx],
+            uids: [],
+        };
     }
     /**
      * Performs a referenced multi attestation.
@@ -199,7 +202,11 @@ class GapContract {
         if (!populatedTxn)
             throw new Error("Transaction data is empty");
         let contractAddress = await contract.getAddress();
-        await (0, send_gelato_txn_1.sendGelatoTxn)(...send_gelato_txn_1.Gelato.buildArgs(populatedTxn, chainId, contractAddress));
+        const txn = await (0, send_gelato_txn_1.sendGelatoTxn)(...send_gelato_txn_1.Gelato.buildArgs(populatedTxn, chainId, contractAddress));
+        return {
+            tx: [{ hash: txn }],
+            uids: [],
+        };
     }
     /**
      * Transfer the ownership of an attestation

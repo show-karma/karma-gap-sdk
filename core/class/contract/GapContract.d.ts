@@ -49,13 +49,13 @@ export declare class GapContract {
      * @returns an array with the attestation UIDs.
      */
     static multiAttestBySig(signer: SignerOrProvider, payload: RawMultiAttestPayload[]): Promise<AttestationWithTx>;
-    static multiRevoke(signer: SignerOrProvider, payload: MultiRevocationRequest[]): Promise<any>;
+    static multiRevoke(signer: SignerOrProvider, payload: MultiRevocationRequest[]): Promise<AttestationWithTx>;
     /**
      * Performs a referenced multi attestation.
      *
      * @returns an array with the attestation UIDs.
      */
-    static multiRevokeBySig(signer: SignerOrProvider, payload: MultiRevocationRequest[]): Promise<void>;
+    static multiRevokeBySig(signer: SignerOrProvider, payload: MultiRevocationRequest[]): Promise<AttestationWithTx>;
     /**
      * Transfer the ownership of an attestation
      * @param signer
