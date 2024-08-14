@@ -21,7 +21,7 @@ import { GapSchema } from "./GapSchema";
 import { Networks, nullRef } from "../consts";
 import { GapContract } from "./contract/GapContract";
 import { IpfsStorage } from "./remote-storage/IpfsStorage";
-import { AttestationWithTxHash } from "./types/attestations";
+import { AttestationWithTx } from "./types/attestations";
 
 export interface AttestationArgs<T = unknown, S extends Schema = Schema> {
   data: T | string;
@@ -154,10 +154,13 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
    * @param signer
    * @returns
    */
-  async revoke(signer: SignerOrProvider, callback?: Function) {
+  async revoke(
+    signer: SignerOrProvider,
+    callback?: Function
+  ): Promise<AttestationWithTx> {
     try {
       callback?.("preparing");
-      return GapContract.multiRevoke(signer, [
+      const { tx } = await GapContract.multiRevoke(signer, [
         {
           data: [
             {
@@ -167,9 +170,11 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
           ],
           schema: this.schema.uid,
         },
-      ]).then(() => {
+      ]).then((res) => {
         callback?.("confirmed");
+        return res;
       });
+      return { tx, uids: [this.uid] };
     } catch (error) {
       console.error(error);
       throw new SchemaError("REVOKE_ERROR", "Error revoking attestation.");
@@ -186,14 +191,14 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
   async attest(
     signer: SignerOrProvider,
     ...args: unknown[]
-  ): Promise<AttestationWithTxHash> {
+  ): Promise<AttestationWithTx> {
     const callback =
       typeof args[args.length - 1] === "function"
         ? (args.pop() as (status: string) => void)
         : null;
     console.log(`Attesting ${this.schema.name}`);
     try {
-      const { txHash, uids: uid } = await this.schema.attest<T>({
+      const { tx, uids: uid } = await this.schema.attest<T>({
         data: this.data,
         to: this.recipient,
         refUID: this.refUID,
@@ -201,9 +206,9 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
         callback: callback,
       });
 
-      this._uid = uid as Hex;
+      this._uid = uid[0];
       console.log(`Attested ${this.schema.name} with UID ${uid}`);
-      return { txHash, uids: uid };
+      return { tx, uids: uid };
     } catch (error) {
       console.error(error);
       throw new AttestationError("ATTEST_ERROR", "Error during attestation.");

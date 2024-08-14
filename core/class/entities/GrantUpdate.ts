@@ -4,6 +4,8 @@ import { GapSchema } from "../GapSchema";
 import { AttestationError } from "../SchemaError";
 import { AllGapSchemas } from "../AllGapSchemas";
 import { chainIdToNetwork } from "../../../core/consts";
+import { Transaction } from "ethers";
+import { Hex } from "../karma-indexer/api/types";
 
 export interface _IGrantUpdate extends GrantUpdate {}
 export interface IGrantUpdate {
@@ -62,6 +64,14 @@ export class GrantUpdate
       if (callback) callback("confirmed");
 
       console.log(uid);
+      return {
+        tx: [
+          {
+            hash: tx.tx.hash as Hex,
+          } as Transaction,
+        ],
+        uids: [uid as `0x${string}`],
+      };
     } catch (error: any) {
       console.error(error);
       throw new AttestationError("ATTEST_ERROR", error.message);
@@ -82,7 +92,7 @@ export class GrantUpdate
     schema.setValue("reason", reason);
 
     console.log("Before attest grant update verified");
-    await this.attestStatus(signer, schema, callback);
+    const { tx, uids } = await this.attestStatus(signer, schema, callback);
     console.log("After attest grant update verified");
 
     this.verified.push(
@@ -96,6 +106,11 @@ export class GrantUpdate
         recipient: this.recipient,
       })
     );
+
+    return {
+      tx,
+      uids,
+    };
   }
 
   static from(attestations: _IGrantUpdate[], network: TNetwork): GrantUpdate[] {

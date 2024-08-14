@@ -3,7 +3,7 @@ import {
   GrantDetails,
   GrantRound,
   GrantCompleted,
-  AttestationWithTxHash,
+  AttestationWithTx,
 } from "../types/attestations";
 import { IMilestone, Milestone } from "./Milestone";
 import { GapSchema } from "../GapSchema";
@@ -158,8 +158,8 @@ export class Grant extends Attestation<IGrant> {
     Object.assign(this, { refUID: nullRef });
     project.grants = [this];
 
-    const { txHash, uids } = await project.attest(signer);
-    return { txHash, uids };
+    const attestation = await project.attest(signer);
+    return attestation;
   }
 
   /**
@@ -169,14 +169,14 @@ export class Grant extends Attestation<IGrant> {
     signer: SignerOrProvider,
     projectChainId: number,
     callback?: Function
-  ): Promise<AttestationWithTxHash> {
+  ): Promise<AttestationWithTx> {
     if (projectChainId !== this.chainID) {
       return this.attestProject(signer, projectChainId);
     }
     this.assertPayload();
     const payload = await this.multiAttestPayload();
 
-    const { txHash, uids } = await GapContract.multiAttest(
+    const { tx, uids } = await GapContract.multiAttest(
       signer,
       payload.map((p) => p[1]),
       callback
@@ -187,7 +187,7 @@ export class Grant extends Attestation<IGrant> {
         payload[index][0].uid = uid;
       });
     }
-    return { txHash, uids };
+    return { tx, uids };
   }
 
   async attestUpdate(
@@ -213,7 +213,7 @@ export class Grant extends Attestation<IGrant> {
     signer: SignerOrProvider,
     data: IGrantUpdate,
     callback?: Function
-  ) {
+  ): Promise<AttestationWithTx> {
     const completed = new GrantCompleted({
       data: {
         ...data,
@@ -224,8 +224,9 @@ export class Grant extends Attestation<IGrant> {
       schema: this.schema.gap.findSchema("GrantDetails"),
     });
 
-    await completed.attest(signer, callback);
+    const { tx, uids } = await completed.attest(signer, callback);
     this.completed = completed;
+    return { tx, uids };
   }
 
   /**

@@ -1,6 +1,6 @@
 import { Hex, MultiAttestPayload, SignerOrProvider } from "core/types";
 import { Attestation } from "../Attestation";
-import { AttestationWithTxHash, MemberDetails } from "../types/attestations";
+import { AttestationWithTx, MemberDetails } from "../types/attestations";
 import { AttestationError } from "../SchemaError";
 import { GapContract } from "../contract/GapContract";
 
@@ -29,10 +29,10 @@ export class MemberOf extends Attestation<IMemberOf> {
   async attest(
     signer: SignerOrProvider,
     callback?: Function
-  ): Promise<AttestationWithTxHash> {
+  ): Promise<AttestationWithTx> {
     const payload = await this.multiAttestPayload();
     try {
-      const { uids, txHash } = await GapContract.multiAttest(
+      const { uids, tx } = await GapContract.multiAttest(
         signer,
         payload.map((p) => p[1]),
         callback
@@ -43,7 +43,7 @@ export class MemberOf extends Attestation<IMemberOf> {
       if (this.details && detailsUID) {
         this.details.uid = detailsUID as Hex;
       }
-      return { txHash, uids };
+      return { tx, uids };
     } catch (error) {
       console.error(error);
       throw new AttestationError("ATTEST_ERROR", error.message);

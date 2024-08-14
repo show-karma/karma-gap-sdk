@@ -1,5 +1,11 @@
+import { Transaction } from "ethers";
 import { chainIdToNetwork } from "../../consts";
-import { MultiAttestPayload, SignerOrProvider, TNetwork } from "../../types";
+import {
+  Hex,
+  MultiAttestPayload,
+  SignerOrProvider,
+  TNetwork,
+} from "../../types";
 import { AllGapSchemas } from "../AllGapSchemas";
 import { Attestation } from "../Attestation";
 import { GAP } from "../GAP";
@@ -7,10 +13,7 @@ import { GapSchema } from "../GapSchema";
 import { AttestationError } from "../SchemaError";
 import { GapContract } from "../contract/GapContract";
 import { IMilestoneResponse } from "../karma-indexer/api/types";
-import {
-  AttestationWithTxHash,
-  MilestoneCompleted,
-} from "../types/attestations";
+import { AttestationWithTx, MilestoneCompleted } from "../types/attestations";
 
 interface _Milestone extends Milestone {}
 
@@ -111,12 +114,13 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
     if (!this.rejected)
       throw new AttestationError("ATTEST_ERROR", "Milestone is not rejected");
 
-    await this.rejected.schema.multiRevoke(signer, [
+    const { tx, uids } = await this.rejected.schema.multiRevoke(signer, [
       {
         schemaId: this.completed.schema.uid,
         uid: this.completed.uid,
       },
     ]);
+    return { tx, uids };
   }
 
   /**
@@ -125,12 +129,16 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
    * @param signer
    * @param reason
    */
-  async complete(signer: SignerOrProvider, reason = "", callback?: Function) {
+  async complete(
+    signer: SignerOrProvider,
+    reason = "",
+    callback?: Function
+  ): Promise<AttestationWithTx> {
     const schema = this.schema.gap.findSchema("MilestoneCompleted");
     schema.setValue("type", "completed");
     schema.setValue("reason", reason);
 
-    await this.attestStatus(signer, schema, callback);
+    const { tx, uids } = await this.attestStatus(signer, schema, callback);
     this.completed = new MilestoneCompleted({
       data: {
         type: "completed",
@@ -140,6 +148,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
       schema,
       recipient: this.recipient,
     });
+    return { tx, uids };
   }
 
   /**
@@ -151,7 +160,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
     if (!this.completed)
       throw new AttestationError("ATTEST_ERROR", "Milestone is not completed");
 
-    await this.completed.schema.multiRevoke(
+    const { tx, uids } = await this.completed.schema.multiRevoke(
       signer,
       [
         {
@@ -161,6 +170,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
       ],
       callback
     );
+    return { tx, uids };
   }
 
   /**
@@ -206,11 +216,11 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
   async attest(
     signer: SignerOrProvider,
     callback?: Function
-  ): Promise<AttestationWithTxHash> {
+  ): Promise<AttestationWithTx> {
     this.assertPayload();
     const payload = await this.multiAttestPayload();
 
-    const { uids, txHash } = await GapContract.multiAttest(
+    const { uids, tx } = await GapContract.multiAttest(
       signer,
       payload.map((p) => p[1]),
       callback
@@ -222,7 +232,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
     }
     console.log(uids);
 
-    return { txHash, uids };
+    return { tx, uids };
   }
 
   /**
@@ -232,7 +242,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
     signer: SignerOrProvider,
     schema: GapSchema,
     callback?: Function
-  ) {
+  ): Promise<AttestationWithTx> {
     const eas = this.schema.gap.eas.connect(signer);
     try {
       if (callback) callback("preparing");
@@ -251,6 +261,15 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
       const uid = await tx.wait();
       if (callback) callback("confirmed");
       console.log(uid);
+
+      return {
+        tx: [
+          {
+            hash: tx.tx.hash as Hex,
+          } as Transaction,
+        ],
+        uids: [uid as `0x${string}`],
+      };
     } catch (error: any) {
       console.error(error);
       throw new AttestationError("ATTEST_ERROR", error.message);
@@ -343,7 +362,11 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
    * @param signer
    * @param reason
    */
-  async verify(signer: SignerOrProvider, reason = "", callback?: Function) {
+  async verify(
+    signer: SignerOrProvider,
+    reason = "",
+    callback?: Function
+  ): Promise<AttestationWithTx> {
     console.log("Verifying");
     if (!this.completed)
       throw new AttestationError("ATTEST_ERROR", "Milestone is not completed");
@@ -353,7 +376,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
     schema.setValue("reason", reason);
 
     console.log("Before attestStatus");
-    await this.attestStatus(signer, schema, callback);
+    const { tx, uids } = await this.attestStatus(signer, schema, callback);
     console.log("After attestStatus");
 
     this.verified.push(
@@ -367,5 +390,6 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
         recipient: this.recipient,
       })
     );
+    return { tx, uids };
   }
 }

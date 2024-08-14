@@ -1,6 +1,6 @@
 import { Attestation } from "../Attestation";
 import {
-  AttestationWithTxHash,
+  AttestationWithTx,
   Grantee,
   MemberDetails,
   ProjectDetails,
@@ -86,9 +86,9 @@ export class Project extends Attestation<IProject> {
   async attest(
     signer: SignerOrProvider,
     callback?: Function
-  ): Promise<AttestationWithTxHash> {
+  ): Promise<AttestationWithTx> {
     const payload = await this.multiAttestPayload();
-    const { txHash, uids } = await GapContract.multiAttest(
+    const { tx, uids } = await GapContract.multiAttest(
       signer,
       payload.map((p) => p[1]),
       callback
@@ -99,17 +99,23 @@ export class Project extends Attestation<IProject> {
         payload[index][0].uid = uid;
       });
     }
-    return { txHash, uids };
+    return { tx, uids };
   }
 
   async transferOwnership(
     signer: SignerOrProvider,
     newOwner: Hex,
     callback?: Function
-  ) {
+  ): Promise<AttestationWithTx> {
     callback?.("preparing");
-    await GapContract.transferProjectOwnership(signer, this.uid, newOwner);
+    const tx = await GapContract.transferProjectOwnership(
+      signer,
+      this.uid,
+      newOwner
+    );
     callback?.("confirmed");
+    const txArray = [tx].flat();
+    return { tx: txArray, uids: [this.uid] };
   }
 
   isOwner(signer: SignerOrProvider): Promise<boolean> {

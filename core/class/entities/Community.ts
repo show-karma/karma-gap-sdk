@@ -1,6 +1,6 @@
 import { Attestation } from "../Attestation";
 import {
-  AttestationWithTxHash,
+  AttestationWithTx,
   CommunityDetails,
   Grantee,
   ICommunityDetails,
@@ -69,18 +69,18 @@ export class Community extends Attestation<ICommunity> {
     signer: SignerOrProvider,
     details?: ICommunityDetails,
     callback?: Function
-  ): Promise<AttestationWithTxHash> {
+  ): Promise<AttestationWithTx> {
     console.log("Attesting community");
     try {
       if (callback) callback("preparing");
-      const { txHash: communityTxHash, uids: communityUID } =
-        await this.schema.attest({
-          signer,
-          to: this.recipient,
-          refUID: nullRef,
-          data: this.data,
-        });
-      this._uid = communityTxHash as Hex;
+      const { tx: communityTx, uids: communityUID } = await this.schema.attest({
+        signer,
+        to: this.recipient,
+        refUID: nullRef,
+        data: this.data,
+      });
+      this._uid = communityTx[0].hash as Hex;
+
       console.log(this.uid);
       if (callback) callback("pending");
 
@@ -92,15 +92,15 @@ export class Community extends Attestation<ICommunity> {
           schema: this.schema.gap.findSchema("CommunityDetails"),
         });
 
-        const { txHash: communityDetailsTxHash, uids: communityDetailsUID } =
+        const { tx: communityDetailsTx, uids: communityDetailsUID } =
           await communityDetails.attest(signer);
         return {
-          txHash: [communityTxHash as Hex, communityDetailsTxHash as Hex],
-          uids: [communityUID as Hex, communityDetailsUID as Hex],
+          tx: [communityTx[0], communityDetailsTx[0]],
+          uids: [communityUID[0] as Hex, communityDetailsUID[0] as Hex],
         };
       }
       if (callback) callback("confirmed");
-      return { txHash: communityTxHash, uids: communityUID };
+      return { tx: communityTx, uids: communityUID };
     } catch (error) {
       console.error(error);
       throw new AttestationError("ATTEST_ERROR", "Error during attestation.");

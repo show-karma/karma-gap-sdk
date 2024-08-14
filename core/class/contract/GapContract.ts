@@ -12,7 +12,8 @@ import {
   MultiRevocationRequest,
   getUIDsFromAttestReceipt,
 } from "@ethereum-attestation-service/eas-sdk";
-import { AttestationWithTxHash } from "../types/attestations";
+import { AttestationWithTx } from "../types/attestations";
+import { Transaction } from "ethers";
 
 type TSignature = {
   r: string;
@@ -117,7 +118,7 @@ export class GapContract {
     signer: SignerOrProvider,
     payload: RawAttestationPayload,
     callback?: ((status: CallbackStatus) => void) & ((status: string) => void)
-  ): Promise<AttestationWithTxHash> {
+  ): Promise<AttestationWithTx> {
     const contract = await GAP.getMulticall(signer);
 
     if (GAP.gelatoOpts?.useGasless) {
@@ -136,10 +137,11 @@ export class GapContract {
     const result = await tx.wait?.();
     callback?.("confirmed");
     const attestations = getUIDsFromAttestReceipt(result)[0];
+    const resultArray = [result].flat();
 
     return {
-      txHash: tx,
-      uids: attestations as Hex,
+      tx: resultArray,
+      uids: [attestations as Hex],
     };
   }
 
@@ -186,7 +188,11 @@ export class GapContract {
 
     const attestations = await this.getTransactionLogs(signer, txn);
     return {
-      txHash: txn,
+      tx: [
+        {
+          hash: txn,
+        } as Transaction,
+      ],
       uids: attestations,
     };
   }
@@ -200,7 +206,7 @@ export class GapContract {
     signer: SignerOrProvider,
     payload: RawMultiAttestPayload[],
     callback?: Function
-  ): Promise<AttestationWithTxHash> {
+  ): Promise<AttestationWithTx> {
     const contract = await GAP.getMulticall(signer);
 
     if (GAP.gelatoOpts?.useGasless) {
@@ -217,8 +223,10 @@ export class GapContract {
     if (callback) callback("confirmed");
     const attestations = getUIDsFromAttestReceipt(result);
 
+    const resultArray = [result].flat();
+
     return {
-      txHash: tx,
+      tx: resultArray,
       uids: attestations as Hex[],
     };
   }
@@ -231,7 +239,7 @@ export class GapContract {
   static async multiAttestBySig(
     signer: SignerOrProvider,
     payload: RawMultiAttestPayload[]
-  ): Promise<AttestationWithTxHash> {
+  ): Promise<AttestationWithTx> {
     const contract = await GAP.getMulticall(signer);
     const expiry = BigInt(Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30);
     const address = await this.getSignerAddress(signer);
@@ -268,7 +276,11 @@ export class GapContract {
 
     const attestations = await this.getTransactionLogs(signer, txn);
     return {
-      txHash: txn,
+      tx: [
+        {
+          hash: txn,
+        } as Transaction,
+      ],
       uids: attestations as Hex[],
     };
   }
@@ -276,7 +288,7 @@ export class GapContract {
   static async multiRevoke(
     signer: SignerOrProvider,
     payload: MultiRevocationRequest[]
-  ) {
+  ): Promise<AttestationWithTx> {
     const contract = await GAP.getMulticall(signer);
 
     if (GAP.gelatoOpts?.useGasless) {
@@ -285,7 +297,10 @@ export class GapContract {
 
     const tx = await contract.multiRevoke(payload);
 
-    return tx.wait?.();
+    return {
+      tx: [tx],
+      uids: [],
+    };
   }
 
   /**
@@ -296,7 +311,7 @@ export class GapContract {
   static async multiRevokeBySig(
     signer: SignerOrProvider,
     payload: MultiRevocationRequest[]
-  ): Promise<void> {
+  ): Promise<AttestationWithTx> {
     const contract = await GAP.getMulticall(signer);
     const expiry = BigInt(Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30);
     const address = await this.getSignerAddress(signer);
@@ -327,9 +342,14 @@ export class GapContract {
 
     let contractAddress = await contract.getAddress();
 
-    await sendGelatoTxn(
+    const txn = await sendGelatoTxn(
       ...Gelato.buildArgs(populatedTxn, chainId, contractAddress as Hex)
     );
+
+    return {
+      tx: [{ hash: txn } as Transaction],
+      uids: [],
+    };
   }
 
   /**
