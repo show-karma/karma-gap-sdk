@@ -198,7 +198,7 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
         : null;
     console.log(`Attesting ${this.schema.name}`);
     try {
-      const { tx, uids: uid } = await this.schema.attest<T>({
+      const { tx, uids } = await this.schema.attest<T>({
         data: this.data,
         to: this.recipient,
         refUID: this.refUID,
@@ -206,9 +206,9 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
         callback: callback,
       });
 
-      this._uid = uid[0];
-      console.log(`Attested ${this.schema.name} with UID ${uid}`);
-      return { tx, uids: uid };
+      this._uid = uids[0];
+      console.log(`Attested ${this.schema.name} with UID ${this.uid}`);
+      return { tx, uids };
     } catch (error) {
       console.error(error);
       throw new AttestationError("ATTEST_ERROR", "Error during attestation.");
