@@ -89,7 +89,7 @@ export declare class Attestation<T = unknown, S extends Schema = GapSchema> impl
      * @param signer
      * @returns
      */
-    revoke(signer: SignerOrProvider, callback?: Function): Promise<void>;
+    revoke(signer: SignerOrProvider, callback?: Function): Promise<AttestationWithTx>;
     /**
      * Attests the data using the specified signer and schema.
      * @param signer - The signer or provider to use for attestation.

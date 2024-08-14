@@ -104,7 +104,7 @@ class Attestation {
     async revoke(signer, callback) {
         try {
             callback?.("preparing");
-            return GapContract_1.GapContract.multiRevoke(signer, [
+            const { tx } = await GapContract_1.GapContract.multiRevoke(signer, [
                 {
                     data: [
                         {
@@ -114,9 +114,11 @@ class Attestation {
                     ],
                     schema: this.schema.uid,
                 },
-            ]).then(() => {
+            ]).then((res) => {
                 callback?.("confirmed");
+                return res;
             });
+            return { tx, uids: [this.uid] };
         }
         catch (error) {
             console.error(error);
