@@ -48,7 +48,7 @@ class ProjectUpdate extends Attestation_1.Attestation {
         }
         catch (error) {
             console.error(error);
-            throw new SchemaError_1.AttestationError("ATTEST_ERROR", error.message);
+            throw new SchemaError_1.AttestationError("ATTEST_ERROR", error.message, error);
         }
     }
     /**

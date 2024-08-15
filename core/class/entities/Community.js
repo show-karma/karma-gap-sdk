@@ -74,7 +74,7 @@ class Community extends Attestation_1.Attestation {
         }
         catch (error) {
             console.error(error);
-            throw new SchemaError_1.AttestationError("ATTEST_ERROR", "Error during attestation.");
+            throw new SchemaError_1.AttestationError("ATTEST_ERROR", "Error during attestation.", error);
         }
     }
     static from(attestations, network) {

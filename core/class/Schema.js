@@ -142,7 +142,7 @@ class Schema {
                 JSON.parse(value);
             }
             catch (error) {
-                throw new SchemaError_1.SchemaError("INVALID_SCHEMA_FIELD", `Field ${name} is of type ${type} but value is not a valid JSON string.`);
+                throw new SchemaError_1.SchemaError("INVALID_SCHEMA_FIELD", `Field ${name} is of type ${type} but value is not a valid JSON string.`, error);
             }
         }
     }
