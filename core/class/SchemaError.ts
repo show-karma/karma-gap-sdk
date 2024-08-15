@@ -20,11 +20,17 @@ const SchemaErrorCodes = {
 export class SchemaError extends Error {
   readonly code: number;
   private readonly _message: string;
+  readonly originalError: any;
 
-  constructor(code: keyof typeof SchemaErrorCodes, append?: string) {
-    super(`${code}${append ? `: ${append}` : ''}`);
-    this._message = append || code.replace(/_/g, ' ');
+  constructor(
+    code: keyof typeof SchemaErrorCodes,
+    append?: string,
+    originalError?: any
+  ) {
+    super(`${code}${append ? `: ${append}` : ""}`);
+    this._message = append || code.replace(/_/g, " ");
     this.code = SchemaErrorCodes[code];
+    this.originalError = originalError;
   }
 
   get message(): string {

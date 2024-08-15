@@ -87,7 +87,7 @@ export class ProjectImpact
       };
     } catch (error: any) {
       console.error(error);
-      throw new AttestationError("ATTEST_ERROR", error.message);
+      throw new AttestationError("ATTEST_ERROR", error.message, error);
     }
   }
 

@@ -1,7 +1,5 @@
-import { SignerOrProvider, TNetwork } from "../../../core/types";
+import { TNetwork } from "../../../core/types";
 import { Attestation } from "../Attestation";
-import { GapSchema } from "../GapSchema";
-import { AttestationError } from "../SchemaError";
 import { AllGapSchemas } from "../AllGapSchemas";
 import { chainIdToNetwork } from "../../../core/consts";
 
