@@ -1,9 +1,10 @@
-import { SignerOrProvider, TNetwork } from "../../types";
+import { Hex, SignerOrProvider, TNetwork } from "../../types";
 import { Attestation, AttestationArgs } from "../Attestation";
 import { GapSchema } from "../GapSchema";
 import { AttestationError } from "../SchemaError";
 import { AllGapSchemas } from "../AllGapSchemas";
 import { chainIdToNetwork } from "../../consts";
+import { Transaction } from "ethers";
 
 export interface _IProjectImpact extends ProjectImpact {}
 
@@ -76,6 +77,14 @@ export class ProjectImpact
       if (callback) callback("confirmed");
 
       console.log(uid);
+      return {
+        tx: [
+          {
+            hash: tx.tx.hash as Hex,
+          } as Transaction,
+        ],
+        uids: [uid as `0x${string}`],
+      };
     } catch (error: any) {
       console.error(error);
       throw new AttestationError("ATTEST_ERROR", error.message);
@@ -96,7 +105,7 @@ export class ProjectImpact
     schema.setValue("reason", reason);
 
     console.log("Before attest project impact verified");
-    await this.attestStatus(signer, schema, callback);
+    const { tx, uids } = await this.attestStatus(signer, schema, callback);
     console.log("After attest project impact verified");
 
     this.verified.push(
@@ -110,6 +119,8 @@ export class ProjectImpact
         recipient: this.recipient,
       })
     );
+
+    return { tx, uids };
   }
 
   static from(

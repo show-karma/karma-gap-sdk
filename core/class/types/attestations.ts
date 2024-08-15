@@ -3,10 +3,14 @@ import { Hex, SignerOrProvider, TExternalLink } from "core/types";
 import { Project } from "../entities/Project";
 import { GapSchema } from "../GapSchema";
 import { GrantUpdate } from "../entities/GrantUpdate";
-import { nullRef } from "core/consts";
-import { AttestationError } from "../SchemaError";
+import { Transaction } from "ethers";
 
 /** Attestation interfaces */
+
+export type AttestationWithTx = {
+  uids: Hex[];
+  tx: Transaction[];
+};
 
 export type ExternalLink = { type: string; url: string }[];
 

@@ -4,6 +4,8 @@ import { GapSchema } from "../GapSchema";
 import { AttestationError } from "../SchemaError";
 import { AllGapSchemas } from "../AllGapSchemas";
 import { chainIdToNetwork } from "../../../core/consts";
+import { Transaction } from "ethers";
+import { Hex } from "../karma-indexer/api/types";
 
 export interface _IProjectUpdate extends ProjectUpdate {}
 export interface IProjectUpdate {
@@ -62,6 +64,14 @@ export class ProjectUpdate
       if (callback) callback("confirmed");
 
       console.log(uid);
+      return {
+        tx: [
+          {
+            hash: tx.tx.hash as Hex,
+          } as Transaction,
+        ],
+        uids: [uid as `0x${string}`],
+      };
     } catch (error: any) {
       console.error(error);
       throw new AttestationError("ATTEST_ERROR", error.message);

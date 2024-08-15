@@ -1,5 +1,6 @@
 import { Attestation } from "../Attestation";
 import {
+  AttestationWithTx,
   Grantee,
   MemberDetails,
   ProjectDetails,
@@ -82,27 +83,39 @@ export class Project extends Attestation<IProject> {
     return payload.slice(currentPayload.length, payload.length);
   }
 
-  async attest(signer: SignerOrProvider, callback?: Function): Promise<void> {
+  async attest(
+    signer: SignerOrProvider,
+    callback?: Function
+  ): Promise<AttestationWithTx> {
     const payload = await this.multiAttestPayload();
-    const uids = await GapContract.multiAttest(
+    const { tx, uids } = await GapContract.multiAttest(
       signer,
       payload.map((p) => p[1]),
       callback
     );
 
-    uids.forEach((uid, index) => {
-      payload[index][0].uid = uid;
-    });
+    if (Array.isArray(uids)) {
+      uids.forEach((uid, index) => {
+        payload[index][0].uid = uid;
+      });
+    }
+    return { tx, uids };
   }
 
   async transferOwnership(
     signer: SignerOrProvider,
     newOwner: Hex,
     callback?: Function
-  ) {
+  ): Promise<AttestationWithTx> {
     callback?.("preparing");
-    await GapContract.transferProjectOwnership(signer, this.uid, newOwner);
+    const tx = await GapContract.transferProjectOwnership(
+      signer,
+      this.uid,
+      newOwner
+    );
     callback?.("confirmed");
+    const txArray = [tx].flat();
+    return { tx: txArray, uids: [this.uid] };
   }
 
   isOwner(signer: SignerOrProvider): Promise<boolean> {
@@ -169,7 +182,7 @@ export class Project extends Attestation<IProject> {
 
     console.log(`Creating ${newMembers.length} new members`);
 
-    const attestedMembers = await this.schema.multiAttest(
+    const { uids: attestedMembers } = await this.schema.multiAttest(
       signer,
       newMembers.map((m) => m.member),
       callback
@@ -224,7 +237,7 @@ export class Project extends Attestation<IProject> {
 
     console.log(`Creating ${entities.length} new member details`);
 
-    const attestedEntities = await this.schema.multiAttest(
+    const { uids: attestedEntities } = await this.schema.multiAttest(
       signer,
       entities,
       callback
@@ -408,14 +421,12 @@ export class Project extends Attestation<IProject> {
         );
       }
 
-
       if (attestation.pointers) {
         project.pointers = ProjectPointer.from(
           attestation.pointers as unknown as ProjectPointer[],
           network
         );
       }
-
 
       if (attestation.updates) {
         project.updates = ProjectUpdate.from(
