@@ -226,7 +226,8 @@ export abstract class Schema<T extends string = string>
       } catch (error) {
         throw new SchemaError(
           "INVALID_SCHEMA_FIELD",
-          `Field ${name} is of type ${type} but value is not a valid JSON string.`
+          `Field ${name} is of type ${type} but value is not a valid JSON string.`,
+          error
         );
       }
     }

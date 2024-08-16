@@ -177,7 +177,11 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
       return { tx, uids: [this.uid] };
     } catch (error) {
       console.error(error);
-      throw new SchemaError("REVOKE_ERROR", "Error revoking attestation.");
+      throw new SchemaError(
+        "REVOKE_ERROR",
+        "Error revoking attestation.",
+        error
+      );
     }
   }
 
@@ -211,7 +215,11 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
       return { tx, uids };
     } catch (error) {
       console.error(error);
-      throw new AttestationError("ATTEST_ERROR", "Error during attestation.");
+      throw new AttestationError(
+        "ATTEST_ERROR",
+        "Error during attestation.",
+        error
+      );
     }
   }
 
@@ -332,7 +340,8 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
       console.error(error);
       throw new SchemaError(
         "INVALID_DATA",
-        "Data must be a valid JSON string."
+        "Data must be a valid JSON string.",
+        error
       );
     }
   }

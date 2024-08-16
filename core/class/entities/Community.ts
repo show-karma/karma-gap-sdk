@@ -103,7 +103,11 @@ export class Community extends Attestation<ICommunity> {
       return { tx: communityTx, uids: communityUID };
     } catch (error) {
       console.error(error);
-      throw new AttestationError("ATTEST_ERROR", "Error during attestation.");
+      throw new AttestationError(
+        "ATTEST_ERROR",
+        "Error during attestation.",
+        error
+      );
     }
   }
 

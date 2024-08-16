@@ -46,7 +46,7 @@ export class MemberOf extends Attestation<IMemberOf> {
       return { tx, uids };
     } catch (error) {
       console.error(error);
-      throw new AttestationError("ATTEST_ERROR", error.message);
+      throw new AttestationError("ATTEST_ERROR", error.message, error);
     }
   }
 }

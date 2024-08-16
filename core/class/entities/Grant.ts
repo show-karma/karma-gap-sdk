@@ -67,7 +67,7 @@ export class Grant extends Attestation<IGrant> {
       this.verified = true;
     } catch (error) {
       console.error(error);
-      throw new AttestationError("ATTEST_ERROR", error.message);
+      throw new AttestationError("ATTEST_ERROR", error.message, error);
     }
   }
 
