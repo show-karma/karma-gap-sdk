@@ -78,6 +78,10 @@ export declare abstract class Schema<T extends string = string> implements Schem
     readonly revocable?: boolean;
     readonly references?: T;
     readonly gap: GAP;
+    readonly oldSchemas?: {
+        uid: string;
+        raw: SchemaItem[];
+    }[];
     /**
      * Creates a new schema instance
      * @param args
