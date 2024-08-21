@@ -4,6 +4,7 @@ import { GapSchema } from "../GapSchema";
 import { AttestationError } from "../SchemaError";
 import { AllGapSchemas } from "../AllGapSchemas";
 import { chainIdToNetwork } from "../../../core/consts";
+import { MilestoneCompleted } from "../types/attestations";
 
 export interface _IProjectUpdate extends ProjectUpdate {}
 export interface IProjectUpdate {
@@ -15,7 +16,7 @@ export interface IProjectUpdate {
 type IStatus = "verified";
 
 export interface IProjectUpdateStatus {
-  type: `project-update-${IStatus}`;
+  type?: `project-update-${IStatus}`;
   reason?: string;
 }
 
@@ -74,13 +75,19 @@ export class ProjectUpdate
    * @param signer
    * @param reason
    */
-  async verify(signer: SignerOrProvider, reason = "", callback?: Function) {
+  async verify(signer: SignerOrProvider, data?: IProjectUpdateStatus, callback?: Function) {
     console.log("Verifying");
 
     const schema = this.schema.gap.findSchema("ProjectUpdateStatus");
-    schema.setValue("type", "project-update-verified");
-    schema.setValue("reason", reason);
-
+    if (this.schema.isJsonSchema()) {
+      schema.setValue("json", JSON.stringify({
+        type: "verified",
+        reason: data?.reason || '',
+      }))
+    } else {
+      schema.setValue("type", "project-update-verified");
+      schema.setValue("reason", data?.reason || '');
+    }
     console.log("Before attest project update verified");
     await this.attestStatus(signer, schema, callback);
     console.log("After attest project update verified");
@@ -89,7 +96,7 @@ export class ProjectUpdate
       new ProjectUpdateStatus({
         data: {
           type: "project-update-verified",
-          reason,
+          reason: data?.reason || '',
         },
         refUID: this.uid,
         schema: schema,

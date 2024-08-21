@@ -10,7 +10,7 @@ export interface _IProjectImpact extends ProjectImpact {}
 type IStatus = "verified";
 
 export interface IProjectImpactStatus {
-  type: `project-impact-${IStatus}`;
+  type?: `project-impact-${IStatus}`;
   reason?: string;
 }
 
@@ -88,12 +88,19 @@ export class ProjectImpact
    * @param signer
    * @param reason
    */
-  async verify(signer: SignerOrProvider, reason = "", callback?: Function) {
+  async verify(signer: SignerOrProvider, data?: IProjectImpactStatus, callback?: Function) {
     console.log("Verifying ProjectImpact");
 
     const schema = this.schema.gap.findSchema("GrantUpdateStatus");
-    schema.setValue("type", "project-impact-verified");
-    schema.setValue("reason", reason);
+    if (this.schema.isJsonSchema()) {
+      schema.setValue("json", JSON.stringify({
+        type: "project-impact-verified",
+        reason: data?.reason || '',
+      }))
+    } else {
+      schema.setValue("type", "project-impact-verified");
+      schema.setValue("reason", data?.reason || '');
+    }
 
     console.log("Before attest project impact verified");
     await this.attestStatus(signer, schema, callback);
@@ -103,7 +110,7 @@ export class ProjectImpact
       new ProjectImpactStatus({
         data: {
           type: "project-impact-verified",
-          reason,
+          reason: data?.reason || '',
         },
         refUID: this.uid,
         schema: schema,
