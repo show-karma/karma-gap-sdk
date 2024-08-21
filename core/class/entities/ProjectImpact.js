@@ -58,18 +58,26 @@ class ProjectImpact extends Attestation_1.Attestation {
      * @param signer
      * @param reason
      */
-    async verify(signer, reason = "", callback) {
+    async verify(signer, data, callback) {
         console.log("Verifying ProjectImpact");
         const schema = this.schema.gap.findSchema("GrantUpdateStatus");
-        schema.setValue("type", "project-impact-verified");
-        schema.setValue("reason", reason);
+        if (this.schema.isJsonSchema()) {
+            schema.setValue("json", JSON.stringify({
+                type: "project-impact-verified",
+                reason: data?.reason || '',
+            }));
+        }
+        else {
+            schema.setValue("type", "project-impact-verified");
+            schema.setValue("reason", data?.reason || '');
+        }
         console.log("Before attest project impact verified");
         const { tx, uids } = await this.attestStatus(signer, schema, callback);
         console.log("After attest project impact verified");
         this.verified.push(new ProjectImpactStatus({
             data: {
                 type: "project-impact-verified",
-                reason,
+                reason: data?.reason || '',
             },
             refUID: this.uid,
             schema: schema,
