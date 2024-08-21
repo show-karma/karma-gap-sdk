@@ -43,10 +43,12 @@ export interface IGrantDetails {
     questions?: IGrantDetailsQuestion[];
     type?: string;
     startDate?: number;
+    programId?: string;
 }
 export declare class GrantDetails extends Attestation<IGrantDetails> implements IGrantDetails {
     title: string;
     proposalURL: string;
+    programId?: string;
     payoutAddress?: Hex;
     amount?: string;
     assetAndChainId?: [Hex, number];
