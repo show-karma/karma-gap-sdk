@@ -1,11 +1,11 @@
-import { Attestation } from '../Attestation';
-import { GrantDetails, GrantRound, GrantCompleted } from '../types/attestations';
-import { IMilestone, Milestone } from './Milestone';
-import { GapSchema } from '../GapSchema';
-import { Hex, MultiAttestPayload, SignerOrProvider, TNetwork } from 'core/types';
-import { Community } from './Community';
-import { IGrantResponse } from '../karma-indexer/api/types';
-import { GrantUpdate, IGrantUpdate } from './GrantUpdate';
+import { Attestation } from "../Attestation";
+import { GrantDetails, GrantRound, GrantCompleted, AttestationWithTx } from "../types/attestations";
+import { IMilestone, Milestone } from "./Milestone";
+import { GapSchema } from "../GapSchema";
+import { Hex, MultiAttestPayload, SignerOrProvider, TNetwork } from "core/types";
+import { Community } from "./Community";
+import { IGrantResponse } from "../karma-indexer/api/types";
+import { GrantUpdate, IGrantUpdate } from "./GrantUpdate";
 export interface IGrant {
     communityUID: Hex;
 }
@@ -44,13 +44,13 @@ export declare class Grant extends Attestation<IGrant> {
      * @param projectIdx
      */
     multiAttestPayload(currentPayload?: MultiAttestPayload, projectIdx?: number): Promise<[Attestation<unknown, GapSchema>, import("core/types").RawMultiAttestPayload][]>;
-    attestProject(signer: SignerOrProvider, originalProjectChainId: number): Promise<void>;
+    attestProject(signer: SignerOrProvider, originalProjectChainId: number): Promise<AttestationWithTx>;
     /**
      * @inheritdoc
      */
-    attest(signer: SignerOrProvider, projectChainId: number, callback?: Function): Promise<void>;
+    attest(signer: SignerOrProvider, projectChainId: number, callback?: Function): Promise<AttestationWithTx>;
     attestUpdate(signer: SignerOrProvider, data: IGrantUpdate, callback?: Function): Promise<void>;
-    complete(signer: SignerOrProvider, data: IGrantUpdate, callback?: Function): Promise<void>;
+    complete(signer: SignerOrProvider, data: IGrantUpdate, callback?: Function): Promise<AttestationWithTx>;
     /**
      * Validate if the grant has a valid reference to a community.
      */

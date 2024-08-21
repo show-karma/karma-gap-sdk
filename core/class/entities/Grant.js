@@ -22,8 +22,8 @@ class Grant extends Attestation_1.Attestation {
     }
     async verify(signer) {
         const eas = this.schema.gap.eas.connect(signer);
-        const schema = this.schema.gap.findSchema('MilestoneApproved');
-        schema.setValue('approved', true);
+        const schema = this.schema.gap.findSchema("MilestoneApproved");
+        schema.setValue("approved", true);
         try {
             await eas.attest({
                 schema: schema.raw,
@@ -39,7 +39,7 @@ class Grant extends Attestation_1.Attestation {
         }
         catch (error) {
             console.error(error);
-            throw new SchemaError_1.AttestationError('ATTEST_ERROR', error.message);
+            throw new SchemaError_1.AttestationError("ATTEST_ERROR", error.message, error);
         }
     }
     /**
@@ -48,7 +48,7 @@ class Grant extends Attestation_1.Attestation {
      * @param milestones
      */
     addMilestones(milestones) {
-        const schema = this.schema.gap.findSchema('Milestone');
+        const schema = this.schema.gap.findSchema("Milestone");
         const newMilestones = milestones.map((milestone) => {
             const m = new Milestone_1.Milestone({
                 data: milestone,
@@ -90,7 +90,7 @@ class Grant extends Attestation_1.Attestation {
     async attestProject(signer, originalProjectChainId) {
         const project = new Project_1.Project({
             data: { project: true },
-            schema: this.schema.gap.findSchema('Project'),
+            schema: this.schema.gap.findSchema("Project"),
             recipient: this.recipient,
             chainID: this.chainID,
         });
@@ -101,12 +101,13 @@ class Grant extends Attestation_1.Attestation {
             },
             chainID: this.chainID,
             recipient: this.recipient,
-            schema: this.schema.gap.findSchema('ProjectDetails'),
+            schema: this.schema.gap.findSchema("ProjectDetails"),
         });
         // Overwrite refuid
         Object.assign(this, { refUID: consts_1.nullRef });
         project.grants = [this];
-        await project.attest(signer);
+        const attestation = await project.attest(signer);
+        return attestation;
     }
     /**
      * @inheritdoc
@@ -117,21 +118,23 @@ class Grant extends Attestation_1.Attestation {
         }
         this.assertPayload();
         const payload = await this.multiAttestPayload();
-        const uids = await GapContract_1.GapContract.multiAttest(signer, payload.map((p) => p[1]), callback);
-        uids.forEach((uid, index) => {
-            payload[index][0].uid = uid;
-        });
-        console.log(uids);
+        const { tx, uids } = await GapContract_1.GapContract.multiAttest(signer, payload.map((p) => p[1]), callback);
+        if (Array.isArray(uids)) {
+            uids.forEach((uid, index) => {
+                payload[index][0].uid = uid;
+            });
+        }
+        return { tx, uids };
     }
     async attestUpdate(signer, data, callback) {
         const grantUpdate = new GrantUpdate_1.GrantUpdate({
             data: {
                 ...data,
-                type: 'grant-update',
+                type: "grant-update",
             },
             recipient: this.recipient,
             refUID: this.uid,
-            schema: this.schema.gap.findSchema('GrantDetails'),
+            schema: this.schema.gap.findSchema("GrantDetails"),
         });
         await grantUpdate.attest(signer, callback);
         this.updates.push(grantUpdate);
@@ -140,21 +143,22 @@ class Grant extends Attestation_1.Attestation {
         const completed = new attestations_1.GrantCompleted({
             data: {
                 ...data,
-                type: 'grant-completed',
+                type: "grant-completed",
             },
             recipient: this.recipient,
             refUID: this.uid,
-            schema: this.schema.gap.findSchema('GrantDetails'),
+            schema: this.schema.gap.findSchema("GrantDetails"),
         });
-        await completed.attest(signer, callback);
+        const { tx, uids } = await completed.attest(signer, callback);
         this.completed = completed;
+        return { tx, uids };
     }
     /**
      * Validate if the grant has a valid reference to a community.
      */
     assertPayload() {
         if (!this.details || !this.communityUID) {
-            throw new SchemaError_1.AttestationError('INVALID_REFERENCE', 'Grant should include a valid reference to a community on its details.');
+            throw new SchemaError_1.AttestationError("INVALID_REFERENCE", "Grant should include a valid reference to a community on its details.");
         }
         return true;
     }
@@ -165,7 +169,7 @@ class Grant extends Attestation_1.Attestation {
                 data: {
                     communityUID: attestation.data.communityUID,
                 },
-                schema: new AllGapSchemas_1.AllGapSchemas().findSchema('Grant', consts_1.chainIdToNetwork[attestation.chainID]),
+                schema: new AllGapSchemas_1.AllGapSchemas().findSchema("Grant", consts_1.chainIdToNetwork[attestation.chainID]),
                 chainID: attestation.chainID,
             });
             if (attestation.details) {
@@ -175,7 +179,7 @@ class Grant extends Attestation_1.Attestation {
                     data: {
                         ...details.data,
                     },
-                    schema: new AllGapSchemas_1.AllGapSchemas().findSchema('GrantDetails', consts_1.chainIdToNetwork[attestation.chainID]),
+                    schema: new AllGapSchemas_1.AllGapSchemas().findSchema("GrantDetails", consts_1.chainIdToNetwork[attestation.chainID]),
                     chainID: attestation.chainID,
                 });
             }
@@ -194,7 +198,7 @@ class Grant extends Attestation_1.Attestation {
                     data: {
                         ...completed.data,
                     },
-                    schema: new AllGapSchemas_1.AllGapSchemas().findSchema('GrantDetails', consts_1.chainIdToNetwork[attestation.chainID]),
+                    schema: new AllGapSchemas_1.AllGapSchemas().findSchema("GrantDetails", consts_1.chainIdToNetwork[attestation.chainID]),
                     chainID: attestation.chainID,
                 });
             }

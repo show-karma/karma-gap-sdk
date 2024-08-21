@@ -1,11 +1,12 @@
 import { SignerOrProvider, TNetwork } from "../../types";
 import { Attestation, AttestationArgs } from "../Attestation";
 import { GapSchema } from "../GapSchema";
+import { Transaction } from "ethers";
 export interface _IProjectImpact extends ProjectImpact {
 }
 type IStatus = "verified";
 export interface IProjectImpactStatus {
-    type?: `project-impact-${IStatus}`;
+    type: `project-impact-${IStatus}`;
     reason?: string;
 }
 export declare class ProjectImpactStatus extends Attestation<IProjectImpactStatus> implements IProjectImpactStatus {
@@ -40,7 +41,10 @@ export declare class ProjectImpact extends Attestation<IProjectImpact> implement
      * @param signer
      * @param reason
      */
-    verify(signer: SignerOrProvider, data?: IProjectImpactStatus, callback?: Function): Promise<void>;
+    verify(signer: SignerOrProvider, reason?: string, callback?: Function): Promise<{
+        tx: Transaction[];
+        uids: `0x${string}`[];
+    }>;
     static from(attestations: ProjectImpact[], network: TNetwork): ProjectImpact[];
 }
 export {};

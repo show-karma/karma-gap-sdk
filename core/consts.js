@@ -1,10 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AlloContracts = exports.alloSupportedNetworks = exports.MountEntities = exports.Networks = exports.zeroAddress = exports.nullResolver = exports.nullRef = exports.chainIdToNetwork = exports.useDefaultAttestation = void 0;
-const oldStatusSchema = [
-    { type: "string", name: "type", value: null },
-    { type: "string", name: "reason", value: null },
-];
 /**
  * Schemas that should use default EAS attestation
  * instead of the custom contract.
@@ -52,41 +48,14 @@ exports.Networks = {
             Community: "0x721c17b065dccc5c916e0c2708d0ef50f1810591b76d0402ff6fe5accbd8488f",
             Details: "0x70a3f615f738fc6a4f56100692ada93d947c028b840940d97af7e7d6f0fa0577",
             Grant: "0x12837231f48acbca4e1e7f4416f684f3353bd4d71d4f03a09d29e5ffa6f21a50",
-            GrantVerified: "0xdc3f4d0938b1d029d825c01b3c53ad955e0ef3eabc1f57c1ebde90de2bf527ae",
+            GrantVerified: "0x13adc8df8a7324b1651e8bcec948b3e2d4fcfa2a88a52136206cb9ea44836e93",
             MemberOf: "0x7fbb8a65924d8ad2ae12356e04b1418043e8361ba3b1b6c917de2e23df3ec81c",
-            MilestoneApproved: "0xdc3f4d0938b1d029d825c01b3c53ad955e0ef3eabc1f57c1ebde90de2bf527ae",
-            MilestoneCompleted: "0xdc3f4d0938b1d029d825c01b3c53ad955e0ef3eabc1f57c1ebde90de2bf527ae",
-            GrantUpdateStatus: "0xdc3f4d0938b1d029d825c01b3c53ad955e0ef3eabc1f57c1ebde90de2bf527ae",
+            MilestoneApproved: "0x13adc8df8a7324b1651e8bcec948b3e2d4fcfa2a88a52136206cb9ea44836e93",
+            MilestoneCompleted: "0x13adc8df8a7324b1651e8bcec948b3e2d4fcfa2a88a52136206cb9ea44836e93",
+            GrantUpdateStatus: "0x13adc8df8a7324b1651e8bcec948b3e2d4fcfa2a88a52136206cb9ea44836e93",
             Project: "0x5b873b6e7a16207b526dde366e8164e95bcda2f009272306519667c5e94d2191",
-            ProjectUpdateStatus: "0xdc3f4d0938b1d029d825c01b3c53ad955e0ef3eabc1f57c1ebde90de2bf527ae",
+            ProjectUpdateStatus: "0x13adc8df8a7324b1651e8bcec948b3e2d4fcfa2a88a52136206cb9ea44836e93",
         },
-        oldSchemas: [
-            {
-                name: "GrantVerified",
-                uid: "0x13adc8df8a7324b1651e8bcec948b3e2d4fcfa2a88a52136206cb9ea44836e93",
-                raw: oldStatusSchema
-            },
-            {
-                name: "MilestoneApproved",
-                uid: "0x13adc8df8a7324b1651e8bcec948b3e2d4fcfa2a88a52136206cb9ea44836e93",
-                raw: oldStatusSchema
-            },
-            {
-                name: "MilestoneCompleted",
-                uid: "0x13adc8df8a7324b1651e8bcec948b3e2d4fcfa2a88a52136206cb9ea44836e93",
-                raw: oldStatusSchema
-            },
-            {
-                name: "GrantUpdateStatus",
-                uid: "0x13adc8df8a7324b1651e8bcec948b3e2d4fcfa2a88a52136206cb9ea44836e93",
-                raw: oldStatusSchema
-            },
-            {
-                name: "ProjectUpdateStatus",
-                uid: "0x13adc8df8a7324b1651e8bcec948b3e2d4fcfa2a88a52136206cb9ea44836e93",
-                raw: oldStatusSchema
-            },
-        ]
     },
     "optimism-sepolia": {
         chainId: 11155420,
@@ -104,41 +73,14 @@ exports.Networks = {
             Community: "0x314bb1c3c9b5311c1b813a3ad123b6ac5a03902b987795056dd2e4ff38e833ea",
             Details: "0xd193e75f420a69910f98fa79cacdfd9d0dcbf5933edce8f8bde9a10bd204d996",
             Grant: "0x181beb00ef05cf99caa2e4192369232f210c2764f26e238d962112bf592e9cce",
-            GrantVerified: "0x6f8e6a1394bdc398f8d93a99b0ecca326d04470a4f0ee5c379bb85a458a322e4",
+            GrantVerified: "0xf9ec600d61d88614c863365a79715a7ba29781ec67643ffeb9222dd8873ee3fa",
             MemberOf: "0x611f9655188f372e27dce116a803fa9081ca3e2907986368d54fcad538ca3853",
-            MilestoneApproved: "0x6f8e6a1394bdc398f8d93a99b0ecca326d04470a4f0ee5c379bb85a458a322e4",
-            MilestoneCompleted: "0x6f8e6a1394bdc398f8d93a99b0ecca326d04470a4f0ee5c379bb85a458a322e4",
-            GrantUpdateStatus: "0x6f8e6a1394bdc398f8d93a99b0ecca326d04470a4f0ee5c379bb85a458a322e4",
+            MilestoneApproved: "0xf9ec600d61d88614c863365a79715a7ba29781ec67643ffeb9222dd8873ee3fa",
+            MilestoneCompleted: "0xf9ec600d61d88614c863365a79715a7ba29781ec67643ffeb9222dd8873ee3fa",
+            GrantUpdateStatus: "0xf9ec600d61d88614c863365a79715a7ba29781ec67643ffeb9222dd8873ee3fa",
             Project: "0xf9bbd118dd100459a7d093403af21c6e7f847fd7f331b7a4e6bfb94a1366bd76",
-            ProjectUpdateStatus: "0x6f8e6a1394bdc398f8d93a99b0ecca326d04470a4f0ee5c379bb85a458a322e4",
+            ProjectUpdateStatus: "0xf9ec600d61d88614c863365a79715a7ba29781ec67643ffeb9222dd8873ee3fa",
         },
-        oldSchemas: [
-            {
-                name: "GrantVerified",
-                uid: "0xf9ec600d61d88614c863365a79715a7ba29781ec67643ffeb9222dd8873ee3fa",
-                raw: oldStatusSchema
-            },
-            {
-                name: "MilestoneApproved",
-                uid: "0xf9ec600d61d88614c863365a79715a7ba29781ec67643ffeb9222dd8873ee3fa",
-                raw: oldStatusSchema
-            },
-            {
-                name: "MilestoneCompleted",
-                uid: "0xf9ec600d61d88614c863365a79715a7ba29781ec67643ffeb9222dd8873ee3fa",
-                raw: oldStatusSchema
-            },
-            {
-                name: "GrantUpdateStatus",
-                uid: "0xf9ec600d61d88614c863365a79715a7ba29781ec67643ffeb9222dd8873ee3fa",
-                raw: oldStatusSchema
-            },
-            {
-                name: "ProjectUpdateStatus",
-                uid: "0xf9ec600d61d88614c863365a79715a7ba29781ec67643ffeb9222dd8873ee3fa",
-                raw: oldStatusSchema
-            },
-        ]
     },
     arbitrum: {
         chainId: 42161,
@@ -156,41 +98,14 @@ exports.Networks = {
             Community: "0xc604f0661cfd522583835ed2b2c644b80e068139d287f93c7f1680888894bacc",
             Details: "0x16bfe4783b7a9c743c401222c56a07ecb77ed42afc84b61ff1f62f5936c0b9d7",
             Grant: "0xea02ab33f9f4c92ba02c9bb21614b7410b98c940a0d8eb8ad3a20204d8b4bda5",
-            GrantVerified: "0x93391c496898c63995f23797835c8e0468be338f0dbc2df62edfd70856cde1d4",
+            GrantVerified: "0xd25ccdfbf87659a9081681eb90598d8b944ed28544da7d57c3ccbe6e6422cc15",
             MemberOf: "0x5f430aec9d04f0dcb3729775c5dfe10752e436469a7607f8c64ae44ef996e477",
-            MilestoneApproved: "0x93391c496898c63995f23797835c8e0468be338f0dbc2df62edfd70856cde1d4",
-            MilestoneCompleted: "0x93391c496898c63995f23797835c8e0468be338f0dbc2df62edfd70856cde1d4",
-            GrantUpdateStatus: "0x93391c496898c63995f23797835c8e0468be338f0dbc2df62edfd70856cde1d4",
+            MilestoneApproved: "0xd25ccdfbf87659a9081681eb90598d8b944ed28544da7d57c3ccbe6e6422cc15",
+            MilestoneCompleted: "0xd25ccdfbf87659a9081681eb90598d8b944ed28544da7d57c3ccbe6e6422cc15",
+            GrantUpdateStatus: "0xd25ccdfbf87659a9081681eb90598d8b944ed28544da7d57c3ccbe6e6422cc15",
             Project: "0xac2a06e955a7e25e6729efe1a6532237e3435b21ccd3dc827ae3c94e624d25b3",
-            ProjectUpdateStatus: "0x93391c496898c63995f23797835c8e0468be338f0dbc2df62edfd70856cde1d4",
+            ProjectUpdateStatus: "0xd25ccdfbf87659a9081681eb90598d8b944ed28544da7d57c3ccbe6e6422cc15",
         },
-        oldSchemas: [
-            {
-                name: "GrantVerified",
-                uid: "0xd25ccdfbf87659a9081681eb90598d8b944ed28544da7d57c3ccbe6e6422cc15",
-                raw: oldStatusSchema
-            },
-            {
-                name: "MilestoneApproved",
-                uid: "0xd25ccdfbf87659a9081681eb90598d8b944ed28544da7d57c3ccbe6e6422cc15",
-                raw: oldStatusSchema
-            },
-            {
-                name: "MilestoneCompleted",
-                uid: "0xd25ccdfbf87659a9081681eb90598d8b944ed28544da7d57c3ccbe6e6422cc15",
-                raw: oldStatusSchema
-            },
-            {
-                name: "GrantUpdateStatus",
-                uid: "0xd25ccdfbf87659a9081681eb90598d8b944ed28544da7d57c3ccbe6e6422cc15",
-                raw: oldStatusSchema
-            },
-            {
-                name: "ProjectUpdateStatus",
-                uid: "0xd25ccdfbf87659a9081681eb90598d8b944ed28544da7d57c3ccbe6e6422cc15",
-                raw: oldStatusSchema
-            },
-        ]
     },
     sepolia: {
         chainId: 11155111,
@@ -259,46 +174,19 @@ exports.Networks = {
             Community: "0x3c2231024f4f17f3718b5bd9ed9ff29cc323dea5449f9ceba11a9888bfbdd0e1",
             Details: "0x9895e82115987d8e3e02b35ced92e6a0509293890333f58f50ec291b34853dac",
             Grant: "0x7afa603a89cee2d8f93d30007e2c64efddc6509fd76aa95d2ccd97b6e34acc71",
-            GrantVerified: "0x80f0701853e862d920f87e8ae5b359a1625ad417a9523af2ed12bc3504b04088",
+            GrantVerified: "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
             MemberOf: "0xb4186a2401f40a4c78768941ef9140e1fbe5fe595053a65d44f31d6df180b712",
-            MilestoneApproved: "0x80f0701853e862d920f87e8ae5b359a1625ad417a9523af2ed12bc3504b04088",
-            MilestoneCompleted: "0x80f0701853e862d920f87e8ae5b359a1625ad417a9523af2ed12bc3504b04088",
-            GrantUpdateStatus: "0x80f0701853e862d920f87e8ae5b359a1625ad417a9523af2ed12bc3504b04088",
+            MilestoneApproved: "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
+            MilestoneCompleted: "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
+            GrantUpdateStatus: "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
             Project: "0xf3f753b41e04d1052b5a5ec7624d1dfdb6c2da288a985120e477ddbcac071022",
-            ProjectUpdateStatus: "0x80f0701853e862d920f87e8ae5b359a1625ad417a9523af2ed12bc3504b04088",
+            ProjectUpdateStatus: "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
         },
-        oldSchemas: [
-            {
-                name: "GrantVerified",
-                uid: "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
-                raw: oldStatusSchema
-            },
-            {
-                name: "MilestoneApproved",
-                uid: "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
-                raw: oldStatusSchema
-            },
-            {
-                name: "MilestoneCompleted",
-                uid: "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
-                raw: oldStatusSchema
-            },
-            {
-                name: "GrantUpdateStatus",
-                uid: "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
-                raw: oldStatusSchema
-            },
-            {
-                name: "ProjectUpdateStatus",
-                uid: "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
-                raw: oldStatusSchema
-            },
-        ]
     },
     sei: {
         chainId: 1329,
         url: "https://sei.easscan.org/graphql",
-        rpcUrl: "https://muddy-orbital-arrow.sei-pacific.quiknode.pro/594552c3ab4ed4106b40402c16dba137ab279d40",
+        rpcUrl: "https://evm-rpc.sei-apis.com",
         contracts: {
             eas: "0x391020888b0adBA584A67693458b374e4141f838",
             schema: "0x80A4B50f549a8271e10A6C8e79172cb56f35fD57",
@@ -311,41 +199,14 @@ exports.Networks = {
             Community: "0x57dee0b7e1aa8e5c6280c27fecf2edeb225f1b87b47e2750f9dc7eaebe57a2ba",
             Details: "0x1b4365b92aa47de3f67cdfb53127518381c1e66e0d9e0f8a15bbfa7250950967",
             Grant: "0xe9030dc574039832103dd5939f9dd214340602d2af4bbf1c8b2666e720ed0bf6",
-            GrantVerified: "0xc3b9bee0be3a6ea92f76fa459922a088824e29798becdc82d81f6b2309442563",
+            GrantVerified: "0x6edc90af92553109cfed1292a67a75b34e41880bd8a61e9d05db0473b69a2f9e",
             MemberOf: "0xb7278b94cea2b9f1a8fdd1c4bb52ed66906516a0ff9d59d0f80daffcf147ea5d",
-            MilestoneApproved: "0xc3b9bee0be3a6ea92f76fa459922a088824e29798becdc82d81f6b2309442563",
-            MilestoneCompleted: "0xc3b9bee0be3a6ea92f76fa459922a088824e29798becdc82d81f6b2309442563",
-            GrantUpdateStatus: "0xc3b9bee0be3a6ea92f76fa459922a088824e29798becdc82d81f6b2309442563",
+            MilestoneApproved: "0x6edc90af92553109cfed1292a67a75b34e41880bd8a61e9d05db0473b69a2f9e",
+            MilestoneCompleted: "0x6edc90af92553109cfed1292a67a75b34e41880bd8a61e9d05db0473b69a2f9e",
+            GrantUpdateStatus: "0x6edc90af92553109cfed1292a67a75b34e41880bd8a61e9d05db0473b69a2f9e",
             Project: "0xf6b89107f8096220051240b89a48abb66e0a23e529c914953b80f5a2bc5ea44c",
-            ProjectUpdateStatus: "0xc3b9bee0be3a6ea92f76fa459922a088824e29798becdc82d81f6b2309442563",
+            ProjectUpdateStatus: "0x6edc90af92553109cfed1292a67a75b34e41880bd8a61e9d05db0473b69a2f9e",
         },
-        oldSchemas: [
-            {
-                name: "GrantVerified",
-                uid: "0x6edc90af92553109cfed1292a67a75b34e41880bd8a61e9d05db0473b69a2f9e",
-                raw: oldStatusSchema
-            },
-            {
-                name: "MilestoneApproved",
-                uid: "0x6edc90af92553109cfed1292a67a75b34e41880bd8a61e9d05db0473b69a2f9e",
-                raw: oldStatusSchema
-            },
-            {
-                name: "MilestoneCompleted",
-                uid: "0x6edc90af92553109cfed1292a67a75b34e41880bd8a61e9d05db0473b69a2f9e",
-                raw: oldStatusSchema
-            },
-            {
-                name: "GrantUpdateStatus",
-                uid: "0x6edc90af92553109cfed1292a67a75b34e41880bd8a61e9d05db0473b69a2f9e",
-                raw: oldStatusSchema
-            },
-            {
-                name: "ProjectUpdateStatus",
-                uid: "0x6edc90af92553109cfed1292a67a75b34e41880bd8a61e9d05db0473b69a2f9e",
-                raw: oldStatusSchema
-            },
-        ]
     },
     "sei-testnet": {
         chainId: 1328,
@@ -384,41 +245,35 @@ const MountEntities = (network) => ({
         name: "Community",
         schema: [{ type: "bool", name: "community", value: true }],
         uid: network.schemas.Community,
-        oldSchemas: network.oldSchemas?.filter(s => s.name === "Community")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
     CommunityDetails: {
         name: "CommunityDetails",
         schema: DetailsSchema,
         uid: network.schemas.Details,
         references: "Community",
-        oldSchemas: network.oldSchemas?.filter(s => s.name === "CommunityDetails")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
     Project: {
         name: "Project",
         schema: [{ type: "bool", name: "project", value: true }],
         uid: network.schemas.Project,
-        oldSchemas: network.oldSchemas?.filter(s => s.name === "Project")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
     ProjectDetails: {
         name: "ProjectDetails",
         schema: DetailsSchema,
         uid: network.schemas.Details,
         references: "Project",
-        oldSchemas: network.oldSchemas?.filter(s => s.name === "ProjectDetails")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
     MemberOf: {
         name: "MemberOf",
         schema: [{ type: "bool", name: "memberOf", value: true }],
         uid: network.schemas.MemberOf,
         references: "Project",
-        oldSchemas: network.oldSchemas?.filter(s => s.name === "MemberOf")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
     MemberDetails: {
         name: "MemberDetails",
         schema: DetailsSchema,
         uid: network.schemas.Details,
         references: "MemberOf",
-        oldSchemas: network.oldSchemas?.filter(s => s.name === "MemberDetails")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
     Grant: {
         name: "Grant",
@@ -426,97 +281,98 @@ const MountEntities = (network) => ({
         // schema: [{ type: "bool", name: "grant", value: true }],
         uid: network.schemas.Grant,
         references: "Project",
-        oldSchemas: network.oldSchemas?.filter(s => s.name === "Grant")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
     GrantDetails: {
         name: "GrantDetails",
         schema: DetailsSchema,
         uid: network.schemas.Details,
         references: "Grant",
-        oldSchemas: network.oldSchemas?.filter(s => s.name === "GrantDetails")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
     GrantVerified: {
         name: "GrantVerified",
-        schema: DetailsSchema,
+        schema: [
+            { type: "string", name: "type", value: null },
+            { type: "string", name: "reason", value: "" },
+        ],
         uid: network.schemas.GrantVerified,
         references: "Grant",
-        oldSchemas: network.oldSchemas?.filter(s => s.name === "GrantVerified")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
     Milestone: {
         name: "Milestone",
         schema: DetailsSchema,
         uid: network.schemas.Details,
         references: "Grant",
-        oldSchemas: network.oldSchemas?.filter(s => s.name === "Milestone")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
     MilestoneApproved: {
         name: "MilestoneApproved",
-        schema: DetailsSchema,
+        schema: [
+            { type: "string", name: "type", value: null },
+            { type: "string", name: "reason", value: "" },
+        ],
         uid: network.schemas.MilestoneApproved,
         references: "Milestone",
-        oldSchemas: network.oldSchemas?.filter(s => s.name === "MilestoneApproved")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
     MilestoneCompleted: {
         name: "MilestoneCompleted",
-        schema: DetailsSchema,
+        schema: [
+            { type: "string", name: "type", value: null },
+            { type: "string", name: "reason", value: "" },
+        ],
         uid: network.schemas.MilestoneCompleted,
         references: "Milestone",
-        oldSchemas: network.oldSchemas?.filter(s => s.name === "MilestoneCompleted")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
     Details: {
         schema: DetailsSchema,
         name: "    schema",
         uid: network.schemas.Details,
-        oldSchemas: network.oldSchemas?.filter(s => s.name === "DetailsSchema")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
     ProjectImpact: {
         name: "ProjectImpact",
         schema: DetailsSchema,
         uid: network.schemas.Details,
         references: "Project",
-        oldSchemas: network.oldSchemas?.filter(s => s.name === "ProjectImpact")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
     GrantUpdate: {
         name: "GrantUpdate",
         schema: DetailsSchema,
         uid: network.schemas.Details,
         references: "Grant",
-        oldSchemas: network.oldSchemas?.filter(s => s.name === "GrantUpdate")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
     GrantUpdateStatus: {
         name: "GrantUpdateStatus",
-        schema: DetailsSchema,
+        schema: [
+            { type: "string", name: "type", value: null },
+            { type: "string", name: "reason", value: "" },
+        ],
         uid: network.schemas.GrantUpdateStatus,
         references: "GrantUpdate",
-        oldSchemas: network.oldSchemas?.filter(s => s.name === "GrantUpdateStatus")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
     ProjectEndorsement: {
         name: "ProjectEndorsement",
         schema: DetailsSchema,
         uid: network.schemas.Details,
         references: "Project",
-        oldSchemas: network.oldSchemas?.filter(s => s.name === "ProjectEndorsement")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
     ProjectUpdate: {
         name: "ProjectUpdate",
         schema: DetailsSchema,
         uid: network.schemas.Details,
         references: "Project",
-        oldSchemas: network.oldSchemas?.filter(s => s.name === "ProjectUpdate")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
     ProjectUpdateStatus: {
         name: "ProjectUpdateStatus",
-        schema: DetailsSchema,
+        schema: [
+            { type: "string", name: "type", value: null },
+            { type: "string", name: "reason", value: "" },
+        ],
         uid: network.schemas.ProjectUpdateStatus,
         references: "ProjectUpdate",
-        oldSchemas: network.oldSchemas?.filter(s => s.name === "ProjectUpdateStatus")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
     ProjectPointer: {
         name: "ProjectPointer",
         schema: DetailsSchema,
         uid: network.schemas.Details,
         references: "Project",
-        oldSchemas: network.oldSchemas?.filter(s => s.name === "ProjectPointer")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
 });
 exports.MountEntities = MountEntities;

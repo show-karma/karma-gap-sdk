@@ -9,7 +9,7 @@ export interface IProjectUpdate {
 }
 type IStatus = "verified";
 export interface IProjectUpdateStatus {
-    type?: `project-update-${IStatus}`;
+    type: `project-update-${IStatus}`;
     reason?: string;
 }
 export declare class ProjectUpdateStatus extends Attestation<IProjectUpdateStatus> implements IProjectUpdateStatus {
@@ -30,7 +30,7 @@ export declare class ProjectUpdate extends Attestation<IProjectUpdate> implement
      * @param signer
      * @param reason
      */
-    verify(signer: SignerOrProvider, data?: IProjectUpdateStatus, callback?: Function): Promise<void>;
+    verify(signer: SignerOrProvider, reason?: string, callback?: Function): Promise<void>;
     static from(attestations: _IProjectUpdate[], network: TNetwork): ProjectUpdate[];
 }
 export {};

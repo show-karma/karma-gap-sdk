@@ -90,7 +90,11 @@ class GapContract {
         const result = await tx.wait?.();
         callback?.("confirmed");
         const attestations = (0, eas_sdk_1.getUIDsFromAttestReceipt)(result)[0];
-        return attestations;
+        const resultArray = [result].flat();
+        return {
+            tx: resultArray,
+            uids: [attestations],
+        };
     }
     static async attestBySig(signer, payload) {
         const contract = await GAP_1.GAP.getMulticall(signer);
@@ -110,7 +114,14 @@ class GapContract {
         let contractAddress = await contract.getAddress();
         const txn = await (0, send_gelato_txn_1.sendGelatoTxn)(...send_gelato_txn_1.Gelato.buildArgs(populatedTxn, chainId, contractAddress));
         const attestations = await this.getTransactionLogs(signer, txn);
-        return attestations[0];
+        return {
+            tx: [
+                {
+                    hash: txn,
+                },
+            ],
+            uids: attestations,
+        };
     }
     /**
      * Performs a referenced multi attestation.
@@ -131,7 +142,11 @@ class GapContract {
         if (callback)
             callback("confirmed");
         const attestations = (0, eas_sdk_1.getUIDsFromAttestReceipt)(result);
-        return attestations;
+        const resultArray = [result].flat();
+        return {
+            tx: resultArray,
+            uids: attestations,
+        };
     }
     /**
      * Performs a referenced multi attestation.
@@ -151,7 +166,14 @@ class GapContract {
         let contractAddress = await contract.getAddress();
         const txn = await (0, send_gelato_txn_1.sendGelatoTxn)(...send_gelato_txn_1.Gelato.buildArgs(populatedTxn, chainId, contractAddress));
         const attestations = await this.getTransactionLogs(signer, txn);
-        return attestations;
+        return {
+            tx: [
+                {
+                    hash: txn,
+                },
+            ],
+            uids: attestations,
+        };
     }
     static async multiRevoke(signer, payload) {
         const contract = await GAP_1.GAP.getMulticall(signer);
@@ -159,7 +181,10 @@ class GapContract {
             return this.multiRevokeBySig(signer, payload);
         }
         const tx = await contract.multiRevoke(payload);
-        return tx.wait?.();
+        return {
+            tx: [tx],
+            uids: [],
+        };
     }
     /**
      * Performs a referenced multi attestation.
@@ -177,7 +202,11 @@ class GapContract {
         if (!populatedTxn)
             throw new Error("Transaction data is empty");
         let contractAddress = await contract.getAddress();
-        await (0, send_gelato_txn_1.sendGelatoTxn)(...send_gelato_txn_1.Gelato.buildArgs(populatedTxn, chainId, contractAddress));
+        const txn = await (0, send_gelato_txn_1.sendGelatoTxn)(...send_gelato_txn_1.Gelato.buildArgs(populatedTxn, chainId, contractAddress));
+        return {
+            tx: [{ hash: txn }],
+            uids: [],
+        };
     }
     /**
      * Transfer the ownership of an attestation

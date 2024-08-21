@@ -45,12 +45,13 @@ class Community extends Attestation_1.Attestation {
         try {
             if (callback)
                 callback("preparing");
-            this._uid = await this.schema.attest({
+            const { tx: communityTx, uids: communityUID } = await this.schema.attest({
                 signer,
                 to: this.recipient,
                 refUID: consts_1.nullRef,
                 data: this.data,
             });
+            this._uid = communityTx[0].hash;
             console.log(this.uid);
             if (callback)
                 callback("pending");
@@ -61,14 +62,19 @@ class Community extends Attestation_1.Attestation {
                     refUID: this.uid,
                     schema: this.schema.gap.findSchema("CommunityDetails"),
                 });
-                await communityDetails.attest(signer);
+                const { tx: communityDetailsTx, uids: communityDetailsUID } = await communityDetails.attest(signer);
+                return {
+                    tx: [communityTx[0], communityDetailsTx[0]],
+                    uids: [communityUID[0], communityDetailsUID[0]],
+                };
             }
             if (callback)
                 callback("confirmed");
+            return { tx: communityTx, uids: communityUID };
         }
         catch (error) {
             console.error(error);
-            throw new SchemaError_1.AttestationError("ATTEST_ERROR", "Error during attestation.");
+            throw new SchemaError_1.AttestationError("ATTEST_ERROR", "Error during attestation.", error);
         }
     }
     static from(attestations, network) {

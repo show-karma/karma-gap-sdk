@@ -20,10 +20,11 @@ const SchemaErrorCodes = {
     REMOTE_STORAGE_UPLOAD: 50016,
 };
 class SchemaError extends Error {
-    constructor(code, append) {
-        super(`${code}${append ? `: ${append}` : ''}`);
-        this._message = append || code.replace(/_/g, ' ');
+    constructor(code, append, originalError) {
+        super(`${code}${append ? `: ${append}` : ""}`);
+        this._message = append || code.replace(/_/g, " ");
         this.code = SchemaErrorCodes[code];
+        this.originalError = originalError;
     }
     get message() {
         return this._message;

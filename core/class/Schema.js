@@ -87,7 +87,6 @@ class Schema {
         this.name = args.name;
         this.references = args.references;
         this.revocable = args.revocable || true;
-        this.oldSchemas = args.oldSchemas || null;
         this.encoder = new eas_sdk_1.SchemaEncoder(this.raw);
     }
     /**
@@ -143,7 +142,7 @@ class Schema {
                 JSON.parse(value);
             }
             catch (error) {
-                throw new SchemaError_1.SchemaError("INVALID_SCHEMA_FIELD", `Field ${name} is of type ${type} but value is not a valid JSON string.`);
+                throw new SchemaError_1.SchemaError("INVALID_SCHEMA_FIELD", `Field ${name} is of type ${type} but value is not a valid JSON string.`, error);
             }
         }
     }
@@ -254,17 +253,27 @@ class Schema {
         };
         callback?.("preparing");
         if (consts_1.useDefaultAttestation.includes(this.name)) {
-            const tx = await eas.attest({
+            const uid = await eas.attest({
                 schema: this.uid,
                 data: payload.data.payload,
             });
             callback?.("pending");
-            const txResult = await tx.wait();
+            const uidResult = await uid.wait();
             callback?.("confirmed");
-            return txResult;
+            return {
+                tx: [
+                    {
+                        hash: uidResult,
+                    },
+                ],
+                uids: [uidResult],
+            };
         }
-        const uid = await GapContract_1.GapContract.attest(signer, payload, callback);
-        return uid;
+        const { tx, uids } = await GapContract_1.GapContract.attest(signer, payload, callback);
+        return {
+            tx,
+            uids,
+        };
     }
     /**
      * Bulk attest a set of attestations.
@@ -296,15 +305,21 @@ class Schema {
         }));
         if (callback)
             callback("preparing");
-        const tx = await eas.multiAttest(payload, {
+        const attestation = await eas.multiAttest(payload, {
             gasLimit: 5000000n,
         });
         if (callback)
             callback("pending");
-        return tx.wait().then(() => {
+        const txResult = await attestation.wait().then((res) => {
             if (callback)
                 callback("confirmed");
+            return res;
         });
+        const tx = txResult.map((item) => ({ hash: item }));
+        return {
+            tx,
+            uids: txResult,
+        };
     }
     /**
      * Revokes a set of attestations by their UIDs.
@@ -329,9 +344,13 @@ class Schema {
             gasLimit: 5000000n,
         });
         callback?.("pending");
-        return tx.wait().then(() => {
+        tx.wait().then(() => {
             callback?.("confirmed");
         });
+        return {
+            tx: [{ hash: tx.tx.hash }],
+            uids: payload.map((p) => p.data.map((d) => d.uid)).flat(),
+        };
     }
     static exists(name, network) {
         return this.schemas[network].find((schema) => schema.name === name);
@@ -461,7 +480,7 @@ Schema.schemas = {
     sepolia: [],
     arbitrum: [],
     celo: [],
-    "sei": [],
+    sei: [],
     "sei-testnet": [],
     "base-sepolia": [],
 };

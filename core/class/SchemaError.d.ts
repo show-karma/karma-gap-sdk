@@ -19,7 +19,8 @@ declare const SchemaErrorCodes: {
 export declare class SchemaError extends Error {
     readonly code: number;
     private readonly _message;
-    constructor(code: keyof typeof SchemaErrorCodes, append?: string);
+    readonly originalError: any;
+    constructor(code: keyof typeof SchemaErrorCodes, append?: string, originalError?: any);
     get message(): string;
 }
 export declare class AttestationError extends SchemaError {

@@ -3,7 +3,12 @@ import { Hex } from "core/types";
 import { Project } from "../entities/Project";
 import { GapSchema } from "../GapSchema";
 import { GrantUpdate } from "../entities/GrantUpdate";
+import { Transaction } from "ethers";
 /** Attestation interfaces */
+export type AttestationWithTx = {
+    uids: Hex[];
+    tx: Transaction[];
+};
 export type ExternalLink = {
     type: string;
     url: string;
@@ -38,10 +43,12 @@ export interface IGrantDetails {
     questions?: IGrantDetailsQuestion[];
     type?: string;
     startDate?: number;
+    programId?: string;
 }
 export declare class GrantDetails extends Attestation<IGrantDetails> implements IGrantDetails {
     title: string;
     proposalURL: string;
+    programId?: string;
     payoutAddress?: Hex;
     amount?: string;
     assetAndChainId?: [Hex, number];
@@ -73,7 +80,7 @@ export declare class MemberDetails extends Attestation<IMemberDetails> implement
     profilePictureURL: string;
 }
 export interface IMilestoneCompleted {
-    type?: "approved" | "rejected" | "completed" | "verified";
+    type: "approved" | "rejected" | "completed" | "verified";
     reason?: string;
 }
 export declare class MilestoneCompleted extends Attestation<IMilestoneCompleted> implements IMilestoneCompleted {

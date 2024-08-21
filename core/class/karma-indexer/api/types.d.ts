@@ -105,6 +105,7 @@ export interface IGrantDetails extends IAttestationResponse {
             explanation: string;
         }[];
         startDate: number;
+        programId?: string;
         type: "grant-details";
     };
 }

@@ -1,5 +1,5 @@
 import { Attestation } from "../Attestation";
-import { Grantee, MemberDetails, ProjectDetails, ProjectEndorsement } from "../types/attestations";
+import { AttestationWithTx, Grantee, MemberDetails, ProjectDetails, ProjectEndorsement } from "../types/attestations";
 import { Hex, MultiAttestPayload, SignerOrProvider, TNetwork } from "core/types";
 import { Grant } from "./Grant";
 import { MemberOf } from "./MemberOf";
@@ -30,8 +30,8 @@ export declare class Project extends Attestation<IProject> {
      * @param communityIdx
      */
     multiAttestPayload(currentPayload?: MultiAttestPayload, communityIdx?: number): Promise<MultiAttestPayload>;
-    attest(signer: SignerOrProvider, callback?: Function): Promise<void>;
-    transferOwnership(signer: SignerOrProvider, newOwner: Hex, callback?: Function): Promise<void>;
+    attest(signer: SignerOrProvider, callback?: Function): Promise<AttestationWithTx>;
+    transferOwnership(signer: SignerOrProvider, newOwner: Hex, callback?: Function): Promise<AttestationWithTx>;
     isOwner(signer: SignerOrProvider): Promise<boolean>;
     /**
      * Add new members to the project.

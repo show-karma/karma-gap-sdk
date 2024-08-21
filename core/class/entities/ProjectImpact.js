@@ -38,10 +38,18 @@ class ProjectImpact extends Attestation_1.Attestation {
             if (callback)
                 callback("confirmed");
             console.log(uid);
+            return {
+                tx: [
+                    {
+                        hash: tx.tx.hash,
+                    },
+                ],
+                uids: [uid],
+            };
         }
         catch (error) {
             console.error(error);
-            throw new SchemaError_1.AttestationError("ATTEST_ERROR", error.message);
+            throw new SchemaError_1.AttestationError("ATTEST_ERROR", error.message, error);
         }
     }
     /**
@@ -50,31 +58,24 @@ class ProjectImpact extends Attestation_1.Attestation {
      * @param signer
      * @param reason
      */
-    async verify(signer, data, callback) {
+    async verify(signer, reason = "", callback) {
         console.log("Verifying ProjectImpact");
         const schema = this.schema.gap.findSchema("GrantUpdateStatus");
-        if (this.schema.isJsonSchema()) {
-            schema.setValue("json", JSON.stringify({
-                type: "project-impact-verified",
-                reason: data?.reason || '',
-            }));
-        }
-        else {
-            schema.setValue("type", "project-impact-verified");
-            schema.setValue("reason", data?.reason || '');
-        }
+        schema.setValue("type", "project-impact-verified");
+        schema.setValue("reason", reason);
         console.log("Before attest project impact verified");
-        await this.attestStatus(signer, schema, callback);
+        const { tx, uids } = await this.attestStatus(signer, schema, callback);
         console.log("After attest project impact verified");
         this.verified.push(new ProjectImpactStatus({
             data: {
                 type: "project-impact-verified",
-                reason: data?.reason || '',
+                reason,
             },
             refUID: this.uid,
             schema: schema,
             recipient: this.recipient,
         }));
+        return { tx, uids };
     }
     static from(attestations, network) {
         return attestations.map((attestation) => {

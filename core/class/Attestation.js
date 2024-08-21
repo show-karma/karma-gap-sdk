@@ -104,7 +104,7 @@ class Attestation {
     async revoke(signer, callback) {
         try {
             callback?.("preparing");
-            return GapContract_1.GapContract.multiRevoke(signer, [
+            const { tx } = await GapContract_1.GapContract.multiRevoke(signer, [
                 {
                     data: [
                         {
@@ -114,13 +114,15 @@ class Attestation {
                     ],
                     schema: this.schema.uid,
                 },
-            ]).then(() => {
+            ]).then((res) => {
                 callback?.("confirmed");
+                return res;
             });
+            return { tx, uids: [this.uid] };
         }
         catch (error) {
             console.error(error);
-            throw new SchemaError_1.SchemaError("REVOKE_ERROR", "Error revoking attestation.");
+            throw new SchemaError_1.SchemaError("REVOKE_ERROR", "Error revoking attestation.", error);
         }
     }
     /**
@@ -136,19 +138,20 @@ class Attestation {
             : null;
         console.log(`Attesting ${this.schema.name}`);
         try {
-            const uid = await this.schema.attest({
+            const { tx, uids } = await this.schema.attest({
                 data: this.data,
                 to: this.recipient,
                 refUID: this.refUID,
                 signer,
                 callback: callback,
             });
-            this._uid = uid;
-            console.log(`Attested ${this.schema.name} with UID ${uid}`);
+            this._uid = uids[0];
+            console.log(`Attested ${this.schema.name} with UID ${this.uid}`);
+            return { tx, uids };
         }
         catch (error) {
             console.error(error);
-            throw new SchemaError_1.AttestationError("ATTEST_ERROR", "Error during attestation.");
+            throw new SchemaError_1.AttestationError("ATTEST_ERROR", "Error during attestation.", error);
         }
     }
     /**
@@ -255,7 +258,7 @@ class Attestation {
         }
         catch (error) {
             console.error(error);
-            throw new SchemaError_1.SchemaError("INVALID_DATA", "Data must be a valid JSON string.");
+            throw new SchemaError_1.SchemaError("INVALID_DATA", "Data must be a valid JSON string.", error);
         }
     }
     /**

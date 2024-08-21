@@ -2,6 +2,7 @@ import { Hex, IAttestation, JSONStr, MultiAttestData, SignerOrProvider, TNetwork
 import { Schema } from "./Schema";
 import { SchemaItem, SchemaValue } from "@ethereum-attestation-service/eas-sdk";
 import { GapSchema } from "./GapSchema";
+import { AttestationWithTx } from "./types/attestations";
 export interface AttestationArgs<T = unknown, S extends Schema = Schema> {
     data: T | string;
     schema: S;
@@ -88,7 +89,7 @@ export declare class Attestation<T = unknown, S extends Schema = GapSchema> impl
      * @param signer
      * @returns
      */
-    revoke(signer: SignerOrProvider, callback?: Function): Promise<void>;
+    revoke(signer: SignerOrProvider, callback?: Function): Promise<AttestationWithTx>;
     /**
      * Attests the data using the specified signer and schema.
      * @param signer - The signer or provider to use for attestation.
@@ -96,7 +97,7 @@ export declare class Attestation<T = unknown, S extends Schema = GapSchema> impl
      * @returns A Promise that resolves to the UID of the attestation.
      * @throws An `AttestationError` if an error occurs during attestation.
      */
-    attest(signer: SignerOrProvider, ...args: unknown[]): Promise<void>;
+    attest(signer: SignerOrProvider, ...args: unknown[]): Promise<AttestationWithTx>;
     /**
      * Validates the payload.
      *

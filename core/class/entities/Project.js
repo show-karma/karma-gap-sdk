@@ -49,15 +49,20 @@ class Project extends Attestation_1.Attestation {
     }
     async attest(signer, callback) {
         const payload = await this.multiAttestPayload();
-        const uids = await GapContract_1.GapContract.multiAttest(signer, payload.map((p) => p[1]), callback);
-        uids.forEach((uid, index) => {
-            payload[index][0].uid = uid;
-        });
+        const { tx, uids } = await GapContract_1.GapContract.multiAttest(signer, payload.map((p) => p[1]), callback);
+        if (Array.isArray(uids)) {
+            uids.forEach((uid, index) => {
+                payload[index][0].uid = uid;
+            });
+        }
+        return { tx, uids };
     }
     async transferOwnership(signer, newOwner, callback) {
         callback?.("preparing");
-        await GapContract_1.GapContract.transferProjectOwnership(signer, this.uid, newOwner);
+        const tx = await GapContract_1.GapContract.transferProjectOwnership(signer, this.uid, newOwner);
         callback?.("confirmed");
+        const txArray = [tx].flat();
+        return { tx: txArray, uids: [this.uid] };
     }
     isOwner(signer) {
         return GapContract_1.GapContract.isProjectOwner(signer, this.uid, this.chainID);
@@ -104,7 +109,7 @@ class Project extends Attestation_1.Attestation {
             throw new SchemaError_1.AttestationError("ATTEST_ERROR", "No new members to add.");
         }
         console.log(`Creating ${newMembers.length} new members`);
-        const attestedMembers = await this.schema.multiAttest(signer, newMembers.map((m) => m.member), callback);
+        const { uids: attestedMembers } = await this.schema.multiAttest(signer, newMembers.map((m) => m.member), callback);
         console.log("attested-members", attestedMembers);
         newMembers.forEach(({ member, details }, idx) => {
             Object.assign(member, { uid: attestedMembers[idx] });
@@ -132,7 +137,7 @@ class Project extends Attestation_1.Attestation {
             await this.cleanDetails(signer, toRevoke);
         }
         console.log(`Creating ${entities.length} new member details`);
-        const attestedEntities = await this.schema.multiAttest(signer, entities, callback);
+        const { uids: attestedEntities } = await this.schema.multiAttest(signer, entities, callback);
         console.log("attested-entities", attestedEntities);
         entities.forEach((entity, idx) => {
             const member = this.members.find((member) => member.uid === entity.refUID);

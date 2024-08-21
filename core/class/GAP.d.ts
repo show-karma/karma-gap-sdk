@@ -167,7 +167,7 @@ export declare class GAP extends Facade {
      */
     attest<T>(attestation: AttestArgs<T> & {
         schemaName: TSchemaName;
-    }): Promise<`0x${string}`>;
+    }): Promise<import("..").AttestationWithTx>;
     /**
      * Replaces the schema list with a new list.
      * @param schemas

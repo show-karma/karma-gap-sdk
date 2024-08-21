@@ -1,8 +1,9 @@
+import { Transaction } from "ethers";
 import { MultiAttestPayload, SignerOrProvider, TNetwork } from "../../types";
 import { Attestation } from "../Attestation";
 import { GapSchema } from "../GapSchema";
 import { IMilestoneResponse } from "../karma-indexer/api/types";
-import { IMilestoneCompleted, MilestoneCompleted } from "../types/attestations";
+import { AttestationWithTx, MilestoneCompleted } from "../types/attestations";
 export interface IMilestone {
     title: string;
     startsAt?: number;
@@ -26,7 +27,7 @@ export declare class Milestone extends Attestation<IMilestone> implements IMiles
      * @param signer
      * @param reason
      */
-    approve(signer: SignerOrProvider, data?: IMilestoneCompleted, callback?: Function): Promise<void>;
+    approve(signer: SignerOrProvider, reason?: string, callback?: Function): Promise<void>;
     /**
      * Revokes the approved status of the milestone. If the milestone is not approved,
      * it will throw an error.
@@ -45,20 +46,26 @@ export declare class Milestone extends Attestation<IMilestone> implements IMiles
      * it will throw an error.
      * @param signer
      */
-    revokeRejection(signer: SignerOrProvider): Promise<void>;
+    revokeRejection(signer: SignerOrProvider): Promise<{
+        tx: Transaction[];
+        uids: `0x${string}`[];
+    }>;
     /**
      * Marks a milestone as completed. If the milestone is already completed,
      * it will throw an error.
      * @param signer
      * @param reason
      */
-    complete(signer: SignerOrProvider, data?: IMilestoneCompleted, callback?: Function): Promise<void>;
+    complete(signer: SignerOrProvider, reason?: string, callback?: Function): Promise<AttestationWithTx>;
     /**
      * Revokes the completed status of the milestone. If the milestone is not completed,
      * it will throw an error.
      * @param signer
      */
-    revokeCompletion(signer: SignerOrProvider, callback?: Function): Promise<void>;
+    revokeCompletion(signer: SignerOrProvider, callback?: Function): Promise<{
+        tx: Transaction[];
+        uids: `0x${string}`[];
+    }>;
     /**
      * Creates the payload for a multi-attestation.
      *
@@ -73,7 +80,7 @@ export declare class Milestone extends Attestation<IMilestone> implements IMiles
     /**
      * @inheritdoc
      */
-    attest(signer: SignerOrProvider, callback?: Function): Promise<void>;
+    attest(signer: SignerOrProvider, callback?: Function): Promise<AttestationWithTx>;
     /**
      * Attest the status of the milestone as approved, rejected or completed.
      */
@@ -85,5 +92,5 @@ export declare class Milestone extends Attestation<IMilestone> implements IMiles
      * @param signer
      * @param reason
      */
-    verify(signer: SignerOrProvider, data?: IMilestoneCompleted, callback?: Function): Promise<void>;
+    verify(signer: SignerOrProvider, reason?: string, callback?: Function): Promise<AttestationWithTx>;
 }

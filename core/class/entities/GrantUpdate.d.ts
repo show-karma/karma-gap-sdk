@@ -1,5 +1,6 @@
 import { SignerOrProvider, TNetwork } from "../../../core/types";
 import { Attestation } from "../Attestation";
+import { Transaction } from "ethers";
 export interface _IGrantUpdate extends GrantUpdate {
 }
 export interface IGrantUpdate {
@@ -9,14 +10,12 @@ export interface IGrantUpdate {
 }
 type IStatus = "verified";
 export interface IGrantUpdateStatus {
-    type?: `grant-update-${IStatus}`;
+    type: `grant-update-${IStatus}`;
     reason?: string;
-    linkToProof?: string;
 }
 export declare class GrantUpdateStatus extends Attestation<IGrantUpdateStatus> implements IGrantUpdateStatus {
     type: `grant-update-${IStatus}`;
     reason?: string;
-    linkToProof?: string;
 }
 export declare class GrantUpdate extends Attestation<IGrantUpdate> implements IGrantUpdate {
     title: string;
@@ -32,7 +31,10 @@ export declare class GrantUpdate extends Attestation<IGrantUpdate> implements IG
      * @param signer
      * @param reason
      */
-    verify(signer: SignerOrProvider, data?: IGrantUpdateStatus, callback?: Function): Promise<void>;
+    verify(signer: SignerOrProvider, reason?: string, callback?: Function): Promise<{
+        tx: Transaction[];
+        uids: `0x${string}`[];
+    }>;
     static from(attestations: _IGrantUpdate[], network: TNetwork): GrantUpdate[];
 }
 export {};
