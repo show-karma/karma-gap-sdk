@@ -103,7 +103,7 @@ export class MemberDetails
 }
 
 export interface IMilestoneCompleted {
-  type: "approved" | "rejected" | "completed" | "verified";
+  type?: "approved" | "rejected" | "completed" | "verified";
   reason?: string;
 }
 export class MilestoneCompleted

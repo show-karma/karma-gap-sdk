@@ -13,7 +13,11 @@ import { GapSchema } from "../GapSchema";
 import { AttestationError } from "../SchemaError";
 import { GapContract } from "../contract/GapContract";
 import { IMilestoneResponse } from "../karma-indexer/api/types";
-import { AttestationWithTx, MilestoneCompleted } from "../types/attestations";
+import {
+  AttestationWithTx,
+  MilestoneCompleted,
+  IMilestoneCompleted,
+} from "../types/attestations";
 
 interface _Milestone extends Milestone {}
 
@@ -41,20 +45,33 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
    * @param signer
    * @param reason
    */
-  async approve(signer: SignerOrProvider, reason = "", callback?: Function) {
+  async approve(
+    signer: SignerOrProvider,
+    data?: IMilestoneCompleted,
+    callback?: Function
+  ) {
     if (!this.completed)
       throw new AttestationError("ATTEST_ERROR", "Milestone is not completed");
 
     const schema = this.schema.gap.findSchema("MilestoneCompleted");
-    schema.setValue("type", "approved");
-    schema.setValue("reason", reason);
-
+    if (this.schema.isJsonSchema()) {
+      schema.setValue(
+        "json",
+        JSON.stringify({
+          type: "approved",
+          reason: data?.reason || "",
+        })
+      );
+    } else {
+      schema.setValue("type", "approved");
+      schema.setValue("reason", data?.reason || "");
+    }
     await this.attestStatus(signer, schema, callback);
 
     this.approved = new MilestoneCompleted({
       data: {
         type: "approved",
-        reason,
+        reason: data?.reason || "",
       },
       refUID: this.uid,
       schema: schema,
@@ -131,18 +148,28 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
    */
   async complete(
     signer: SignerOrProvider,
-    reason = "",
+    data?: IMilestoneCompleted,
     callback?: Function
   ): Promise<AttestationWithTx> {
     const schema = this.schema.gap.findSchema("MilestoneCompleted");
-    schema.setValue("type", "completed");
-    schema.setValue("reason", reason);
 
+    if (this.schema.isJsonSchema()) {
+      schema.setValue(
+        "json",
+        JSON.stringify({
+          type: "completed",
+          reason: data?.reason || "",
+        })
+      );
+    } else {
+      schema.setValue("type", "completed");
+      schema.setValue("reason", data?.reason || "");
+    }
     const { tx, uids } = await this.attestStatus(signer, schema, callback);
     this.completed = new MilestoneCompleted({
       data: {
         type: "completed",
-        reason,
+        reason: data?.reason || "",
       },
       refUID: this.uid,
       schema,
@@ -364,7 +391,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
    */
   async verify(
     signer: SignerOrProvider,
-    reason = "",
+    data?: IMilestoneCompleted,
     callback?: Function
   ): Promise<AttestationWithTx> {
     console.log("Verifying");
@@ -372,9 +399,19 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
       throw new AttestationError("ATTEST_ERROR", "Milestone is not completed");
 
     const schema = this.schema.gap.findSchema("MilestoneCompleted");
-    schema.setValue("type", "verified");
-    schema.setValue("reason", reason);
 
+    if (this.schema.isJsonSchema()) {
+      schema.setValue(
+        "json",
+        JSON.stringify({
+          type: "verified",
+          reason: data?.reason || "",
+        })
+      );
+    } else {
+      schema.setValue("type", "verified");
+      schema.setValue("reason", data?.reason || "");
+    }
     console.log("Before attestStatus");
     const { tx, uids } = await this.attestStatus(signer, schema, callback);
     console.log("After attestStatus");
@@ -383,7 +420,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
       new MilestoneCompleted({
         data: {
           type: "verified",
-          reason,
+          reason: data?.reason || "",
         },
         refUID: this.uid,
         schema: schema,

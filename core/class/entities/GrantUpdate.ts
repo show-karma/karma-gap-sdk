@@ -17,8 +17,9 @@ export interface IGrantUpdate {
 type IStatus = "verified";
 
 export interface IGrantUpdateStatus {
-  type: `grant-update-${IStatus}`;
+  type?: `grant-update-${IStatus}`;
   reason?: string;
+  linkToProof?: string;
 }
 
 export class GrantUpdateStatus
@@ -27,6 +28,7 @@ export class GrantUpdateStatus
 {
   type: `grant-update-${IStatus}`;
   reason?: string;
+  linkToProof?: string;
 }
 
 export class GrantUpdate
@@ -84,12 +86,29 @@ export class GrantUpdate
    * @param signer
    * @param reason
    */
-  async verify(signer: SignerOrProvider, reason = "", callback?: Function) {
+  async verify(
+    signer: SignerOrProvider,
+    data?: IGrantUpdateStatus,
+    callback?: Function
+  ) {
     console.log("Verifying");
 
     const schema = this.schema.gap.findSchema("GrantUpdateStatus");
-    schema.setValue("type", "grant-update-verified");
-    schema.setValue("reason", reason);
+
+    if (this.schema.isJsonSchema()) {
+      schema.setValue(
+        "json",
+        JSON.stringify({
+          type: "grant-update-verified",
+          reason: data?.reason || "",
+          linkToProof: data?.linkToProof || "",
+        })
+      );
+    } else {
+      schema.setValue("type", "grant-update-verified");
+      schema.setValue("reason", data?.reason || "");
+      schema.setValue("linkToProof", data?.linkToProof || "");
+    }
 
     console.log("Before attest grant update verified");
     const { tx, uids } = await this.attestStatus(signer, schema, callback);
@@ -99,7 +118,8 @@ export class GrantUpdate
       new GrantUpdateStatus({
         data: {
           type: "grant-update-verified",
-          reason,
+          reason: data?.reason || "",
+          linkToProof: data?.linkToProof || "",
         },
         refUID: this.uid,
         schema: schema,

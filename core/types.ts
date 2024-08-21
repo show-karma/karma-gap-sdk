@@ -23,6 +23,7 @@ export interface SchemaInterface<T extends string = string> {
   references?: T;
   uid: Hex;
   revocable?: boolean;
+  oldSchemas?: {uid: string; raw: SchemaItem[]}[]; 
 }
 
 export interface MultiRevokeArgs {
@@ -146,6 +147,11 @@ export interface EASNetworkConfig {
    * A tuple containing the schema name and it's UID for that network
    */
   schemas: Record<TResolvedSchemaNames, Hex>;
+  oldSchemas?: {
+    name: string;
+    uid: string;
+    raw: SchemaItem[]
+  }[];
 }
 
 export type IGapSchema = SchemaInterface<TSchemaName>;
