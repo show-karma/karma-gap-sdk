@@ -44,12 +44,12 @@ export interface IGrantDetails {
   assetAndChainId?: [Hex, number];
   payoutAddress?: Hex;
   description?: string;
-  // communityUID: Hex;
   season?: string;
   cycle?: string;
   questions?: IGrantDetailsQuestion[];
   type?: string;
   startDate?: number;
+  programId?: string;
 }
 export class GrantDetails
   extends Attestation<IGrantDetails>
@@ -57,7 +57,7 @@ export class GrantDetails
 {
   title: string;
   proposalURL: string;
-  // communityUID: Hex;
+  programId?: string;
   payoutAddress?: Hex;
   amount?: string;
   assetAndChainId?: [Hex, number];
