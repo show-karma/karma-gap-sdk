@@ -40,12 +40,12 @@ export interface IGrantDetails {
   assetAndChainId?: [Hex, number];
   payoutAddress?: Hex;
   description?: string;
-  // communityUID: Hex;
   season?: string;
   cycle?: string;
   questions?: IGrantDetailsQuestion[];
   type?: string;
   startDate?: number;
+  programId?: string;
 }
 export class GrantDetails
   extends Attestation<IGrantDetails>
@@ -53,7 +53,6 @@ export class GrantDetails
 {
   title: string;
   proposalURL: string;
-  // communityUID: Hex;
   payoutAddress?: Hex;
   amount?: string;
   assetAndChainId?: [Hex, number];
@@ -63,6 +62,7 @@ export class GrantDetails
   questions?: IGrantDetailsQuestion[];
   type = "grant-details";
   startDate?: number;
+  programId?: string;
 }
 
 export interface IGrantRound {
