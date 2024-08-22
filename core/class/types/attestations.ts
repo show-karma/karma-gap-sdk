@@ -67,6 +67,7 @@ export class GrantDetails
   questions?: IGrantDetailsQuestion[];
   type = "grant-details";
   startDate?: number;
+  programId?: string;
 }
 
 export interface IGrantRound {
