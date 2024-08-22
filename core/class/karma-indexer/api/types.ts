@@ -106,6 +106,7 @@ export interface IGrantDetails extends IAttestationResponse {
     payoutAddress: Hex;
     questions: { type: string; query: string; explanation: string }[];
     startDate: number;
+    programId?: string;
     type: "grant-details";
   };
 }

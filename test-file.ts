@@ -22,6 +22,11 @@ import {
 import axios from "axios";
 import CommunityResolverABI from "./core/abi/CommunityResolverABI.json";
 import { GapIndexerApi } from "./core/class/karma-indexer/api/GapIndexerApi";
+
+import dotenv from "dotenv";
+
+dotenv.config();
+
 //
 const walletAddress = "0x5A4830885f12438E00D8f4d98e9Fe083e707698C";
 // const web3 = new ethers.AlchemyProvider(
@@ -155,24 +160,27 @@ const gap = new GAP({
 // //   console.log(response)
 // // })()
 
-(async () => {
-  const web3 = new ethers.AlchemyProvider("optimism-sepolia", "-");
-  const localWallet = new ethers.Wallet("", web3 as any);
+const RPC_KEY = process.env.RPC_KEY;
+const PRIVATE_KEY = process.env.PRIVATE_KEY;
 
-  const completed = new Milestone({
-    data: {
-      description: "desc",
-      title: "title",
-      endsAt: 111554200,
-    },
-    schema: gap.findSchema("Milestone"),
-    refUID:
-      "0x36da1d4a4e5965b88f35724baf6ca2f6610455f4df50012546ad5b13d45a6a6f",
-    recipient: walletAddress,
-  });
+// (async () => {
+//   const web3 = new ethers.AlchemyProvider("optimism-sepolia", RPC_KEY);
+//   const localWallet = new ethers.Wallet(PRIVATE_KEY as string, web3 as any);
 
-  await completed.attest(localWallet as any, (status) => {
-    console.log("tx status: ", status);
-  });
-  console.log("Finish Attest: ", completed);
-})();
+//   const completed = new Milestone({
+//     data: {
+//       description: "desc",
+//       title: "title",
+//       endsAt: 111554200,
+//     },
+//     schema: gap.findSchema("Milestone"),
+//     refUID:
+//       "0x36da1d4a4e5965b88f35724baf6ca2f6610455f4df50012546ad5b13d45a6a6f",
+//     recipient: walletAddress,
+//   });
+
+//   await completed.attest(localWallet as any, (status) => {
+//     console.log("tx status: ", status);
+//   });
+//   console.log("Finish Attest: ", completed);
+// })();
