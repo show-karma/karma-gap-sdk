@@ -30,6 +30,7 @@ export class GapSchema extends Schema implements IGapSchema {
             uid: args.uid,
             references: args.references,
             revocable: args.revocable,
+            oldSchemas: args.oldSchemas,
           },
           gap,
           strict,

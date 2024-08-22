@@ -1,16 +1,17 @@
-import { SignerOrProvider, TNetwork } from "../../types";
+import { Hex, SignerOrProvider, TNetwork } from "../../types";
 import { Attestation, AttestationArgs } from "../Attestation";
 import { GapSchema } from "../GapSchema";
 import { AttestationError } from "../SchemaError";
 import { AllGapSchemas } from "../AllGapSchemas";
 import { chainIdToNetwork } from "../../consts";
+import { Transaction } from "ethers";
 
 export interface _IProjectImpact extends ProjectImpact {}
 
 type IStatus = "verified";
 
 export interface IProjectImpactStatus {
-  type: `project-impact-${IStatus}`;
+  type?: `project-impact-${IStatus}`;
   reason?: string;
 }
 
@@ -76,9 +77,17 @@ export class ProjectImpact
       if (callback) callback("confirmed");
 
       console.log(uid);
+      return {
+        tx: [
+          {
+            hash: tx.tx.hash as Hex,
+          } as Transaction,
+        ],
+        uids: [uid as `0x${string}`],
+      };
     } catch (error: any) {
       console.error(error);
-      throw new AttestationError("ATTEST_ERROR", error.message);
+      throw new AttestationError("ATTEST_ERROR", error.message, error);
     }
   }
 
@@ -88,28 +97,37 @@ export class ProjectImpact
    * @param signer
    * @param reason
    */
-  async verify(signer: SignerOrProvider, reason = "", callback?: Function) {
+  async verify(signer: SignerOrProvider, data?: IProjectImpactStatus, callback?: Function) {
     console.log("Verifying ProjectImpact");
 
     const schema = this.schema.gap.findSchema("GrantUpdateStatus");
-    schema.setValue("type", "project-impact-verified");
-    schema.setValue("reason", reason);
+    if (this.schema.isJsonSchema()) {
+      schema.setValue("json", JSON.stringify({
+        type: "project-impact-verified",
+        reason: data?.reason || '',
+      }))
+    } else {
+      schema.setValue("type", "project-impact-verified");
+      schema.setValue("reason", data?.reason || '');
+    }
 
     console.log("Before attest project impact verified");
-    await this.attestStatus(signer, schema, callback);
+    const { tx, uids } = await this.attestStatus(signer, schema, callback);
     console.log("After attest project impact verified");
 
     this.verified.push(
       new ProjectImpactStatus({
         data: {
           type: "project-impact-verified",
-          reason,
+          reason: data?.reason || '',
         },
         refUID: this.uid,
         schema: schema,
         recipient: this.recipient,
       })
     );
+
+    return { tx, uids };
   }
 
   static from(

@@ -1,6 +1,6 @@
-import { MultiAttestPayload, SignerOrProvider } from "core/types";
+import { Hex, MultiAttestPayload, SignerOrProvider } from "core/types";
 import { Attestation } from "../Attestation";
-import { MemberDetails } from "../types/attestations";
+import { AttestationWithTx, MemberDetails } from "../types/attestations";
 import { AttestationError } from "../SchemaError";
 import { GapContract } from "../contract/GapContract";
 
@@ -11,9 +11,13 @@ export interface IMemberOf {
 export class MemberOf extends Attestation<IMemberOf> {
   details?: MemberDetails;
 
-  async multiAttestPayload(currentPayload: MultiAttestPayload = [], projectIdx = 0) {
+  async multiAttestPayload(
+    currentPayload: MultiAttestPayload = [],
+    projectIdx = 0
+  ) {
     const payload = [...currentPayload];
-    const memberIdx = payload.push([this, await this.payloadFor(projectIdx)]) - 1;
+    const memberIdx =
+      payload.push([this, await this.payloadFor(projectIdx)]) - 1;
 
     if (this.details) {
       payload.push([this.details, await this.details.payloadFor(memberIdx)]);
@@ -22,22 +26,27 @@ export class MemberOf extends Attestation<IMemberOf> {
     return payload.slice(currentPayload.length, payload.length);
   }
 
-  async attest(signer: SignerOrProvider, callback?: Function) {
+  async attest(
+    signer: SignerOrProvider,
+    callback?: Function
+  ): Promise<AttestationWithTx> {
     const payload = await this.multiAttestPayload();
     try {
-      const [memberUID, detailsUID] = await GapContract.multiAttest(
+      const { uids, tx } = await GapContract.multiAttest(
         signer,
         payload.map((p) => p[1]),
         callback
       );
+      const [memberUID, detailsUID] = uids;
 
-      this.uid = memberUID;
+      this.uid = memberUID as Hex;
       if (this.details && detailsUID) {
-        this.details.uid = detailsUID;
+        this.details.uid = detailsUID as Hex;
       }
+      return { tx, uids };
     } catch (error) {
       console.error(error);
-      throw new AttestationError("ATTEST_ERROR", error.message);
+      throw new AttestationError("ATTEST_ERROR", error.message, error);
     }
   }
 }

@@ -1,5 +1,6 @@
 import {
   AttestationRequestData,
+  getUIDsFromAttestReceipt,
   OffchainAttestationParams,
   SchemaEncoder,
   SchemaItem,
@@ -17,13 +18,14 @@ import {
   TNetwork,
 } from "../types";
 import { AttestationError, SchemaError } from "./SchemaError";
-import { ethers } from "ethers";
+import { ethers, Transaction } from "ethers";
 import { useDefaultAttestation, zeroAddress } from "../consts";
 import { GAP } from "./GAP";
 import { Attestation } from "./Attestation";
 import { GapContract } from "./contract/GapContract";
 import { isAddress } from "ethers";
 import { IpfsStorage } from "./remote-storage/IpfsStorage";
+import { AttestationWithTx } from "./types/attestations";
 /**
  * Represents the EAS Schema and provides methods to encode and decode the schema,
  * and validate the schema references.
@@ -99,7 +101,7 @@ export abstract class Schema<T extends string = string>
     sepolia: [],
     arbitrum: [],
     celo: [],
-    "sei": [],
+    sei: [],
     "sei-testnet": [],
     "base-sepolia": [],
   };
@@ -115,6 +117,7 @@ export abstract class Schema<T extends string = string>
 
   readonly gap: GAP;
 
+  readonly oldSchemas?: {uid: string; raw: SchemaItem[]}[]; 
   /**
    * Creates a new schema instance
    * @param args
@@ -134,7 +137,7 @@ export abstract class Schema<T extends string = string>
     this.name = args.name;
     this.references = args.references;
     this.revocable = args.revocable || true;
-
+    this.oldSchemas = args.oldSchemas || null;
     this.encoder = new SchemaEncoder(this.raw);
   }
 
@@ -224,7 +227,8 @@ export abstract class Schema<T extends string = string>
       } catch (error) {
         throw new SchemaError(
           "INVALID_SCHEMA_FIELD",
-          `Field ${name} is of type ${type} but value is not a valid JSON string.`
+          `Field ${name} is of type ${type} but value is not a valid JSON string.`,
+          error
         );
       }
     }
@@ -319,7 +323,7 @@ export abstract class Schema<T extends string = string>
     signer,
     refUID,
     callback,
-  }: AttestArgs<T>): Promise<Hex> {
+  }: AttestArgs<T>): Promise<AttestationWithTx> {
     const eas = this.gap.eas.connect(signer);
 
     if (this.references && !refUID)
@@ -360,22 +364,32 @@ export abstract class Schema<T extends string = string>
 
     callback?.("preparing");
     if (useDefaultAttestation.includes(this.name as TSchemaName)) {
-      const tx = await eas.attest({
+      const uid = await eas.attest({
         schema: this.uid,
         data: payload.data.payload,
       });
 
       callback?.("pending");
 
-      const txResult = await tx.wait();
+      const uidResult = await uid.wait();
 
       callback?.("confirmed");
 
-      return txResult as Hex;
+      return {
+        tx: [
+          {
+            hash: uidResult as Hex,
+          } as Transaction,
+        ],
+        uids: [uidResult as Hex],
+      };
     }
 
-    const uid = await GapContract.attest(signer, payload, callback);
-    return uid;
+    const { tx, uids } = await GapContract.attest(signer, payload, callback);
+    return {
+      tx,
+      uids,
+    };
   }
 
   /**
@@ -388,7 +402,7 @@ export abstract class Schema<T extends string = string>
     signer: SignerOrProvider,
     entities: Attestation[] = [],
     callback?: Function
-  ) {
+  ): Promise<AttestationWithTx> {
     entities.forEach((entity) => {
       if (this.references && !entity.refUID)
         throw new SchemaError(
@@ -419,13 +433,21 @@ export abstract class Schema<T extends string = string>
     }));
 
     if (callback) callback("preparing");
-    const tx = await eas.multiAttest(payload, {
+    const attestation = await eas.multiAttest(payload, {
       gasLimit: 5000000n,
     });
     if (callback) callback("pending");
-    return tx.wait().then(() => {
+    const txResult = await attestation.wait().then((res) => {
       if (callback) callback("confirmed");
+      return res;
     });
+
+    const tx = txResult.map((item) => ({ hash: item }) as Transaction);
+
+    return {
+      tx,
+      uids: txResult as Hex[],
+    };
   }
 
   /**
@@ -459,9 +481,13 @@ export abstract class Schema<T extends string = string>
       gasLimit: 5000000n,
     });
     callback?.("pending");
-    return tx.wait().then(() => {
+    tx.wait().then(() => {
       callback?.("confirmed");
     });
+    return {
+      tx: [{ hash: tx.tx.hash } as Transaction],
+      uids: payload.map((p) => p.data.map((d) => d.uid)).flat(),
+    };
   }
 
   static exists(name: string, network: TNetwork) {
@@ -627,4 +653,5 @@ export abstract class Schema<T extends string = string>
       this.setValue(item.name, item.value);
     });
   }
+
 }
