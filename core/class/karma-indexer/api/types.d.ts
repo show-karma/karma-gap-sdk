@@ -36,6 +36,7 @@ export interface IMilestoneCompleted extends IAttestationResponse {
     data: {
         type: "approved" | "rejected" | "completed";
         reason?: string;
+        proofOfWork?: string;
     };
 }
 export interface IMilestoneResponse extends IAttestationResponse {
@@ -58,6 +59,7 @@ export interface IGrantUpdateStatus extends IAttestationResponse {
     data: {
         type: "approved" | "rejected" | "completed";
         reason?: string;
+        proofOfWork?: string;
     };
 }
 export interface IGrantUpdate extends IAttestationResponse {
