@@ -63,14 +63,12 @@ class GrantUpdate extends Attestation_1.Attestation {
         if (this.schema.isJsonSchema()) {
             schema.setValue("json", JSON.stringify({
                 type: "grant-update-verified",
-                reason: data?.reason || "",
-                proofOfWork: data?.proofOfWork || "",
+                ...data,
             }));
         }
         else {
             schema.setValue("type", "grant-update-verified");
             schema.setValue("reason", data?.reason || "");
-            schema.setValue("proofOfWork", data?.proofOfWork || "");
         }
         console.log("Before attest grant update verified");
         const { tx, uids } = await this.attestStatus(signer, schema, callback);
@@ -78,8 +76,7 @@ class GrantUpdate extends Attestation_1.Attestation {
         this.verified.push(new GrantUpdateStatus({
             data: {
                 type: "grant-update-verified",
-                reason: data?.reason || "",
-                proofOfWork: data?.proofOfWork || "",
+                ...data,
             },
             refUID: this.uid,
             schema: schema,
