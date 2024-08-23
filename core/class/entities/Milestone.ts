@@ -59,12 +59,13 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
         "json",
         JSON.stringify({
           type: "approved",
-          reason: data?.reason || "",
+          ...data,
         })
       );
     } else {
       schema.setValue("type", "approved");
       schema.setValue("reason", data?.reason || "");
+      schema.setValue("proofOfWork", data?.proofOfWork || "");
     }
     await this.attestStatus(signer, schema, callback);
 
@@ -158,18 +159,19 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
         "json",
         JSON.stringify({
           type: "completed",
-          reason: data?.reason || "",
+          ...data,
         })
       );
     } else {
       schema.setValue("type", "completed");
       schema.setValue("reason", data?.reason || "");
+      schema.setValue("proofOfWork", data?.proofOfWork || "");
     }
     const { tx, uids } = await this.attestStatus(signer, schema, callback);
     this.completed = new MilestoneCompleted({
       data: {
         type: "completed",
-        reason: data?.reason || "",
+        ...data,
       },
       refUID: this.uid,
       schema,
@@ -405,12 +407,13 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
         "json",
         JSON.stringify({
           type: "verified",
-          reason: data?.reason || "",
+          ...data,
         })
       );
     } else {
       schema.setValue("type", "verified");
       schema.setValue("reason", data?.reason || "");
+      schema.setValue("proofOfWork", data?.proofOfWork || "");
     }
     console.log("Before attestStatus");
     const { tx, uids } = await this.attestStatus(signer, schema, callback);
@@ -420,7 +423,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
       new MilestoneCompleted({
         data: {
           type: "verified",
-          reason: data?.reason || "",
+          ...data,
         },
         refUID: this.uid,
         schema: schema,
