@@ -105,6 +105,7 @@ export class MemberDetails
 export interface IMilestoneCompleted {
   type?: "approved" | "rejected" | "completed" | "verified";
   reason?: string;
+  proofOfWork?: string;
 }
 export class MilestoneCompleted
   extends Attestation<IMilestoneCompleted>
@@ -112,6 +113,7 @@ export class MilestoneCompleted
 {
   type: "approved" | "rejected" | "completed" | "verified";
   reason?: string;
+  proofOfWork?: string;
 }
 
 export interface ITag {

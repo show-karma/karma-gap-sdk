@@ -20,6 +20,7 @@ type IStatus = "verified";
 export interface IProjectUpdateStatus {
   type?: `project-update-${IStatus}`;
   reason?: string;
+  proofOfWork?: string;
 }
 
 export class ProjectUpdateStatus
@@ -28,6 +29,7 @@ export class ProjectUpdateStatus
 {
   type: `project-update-${IStatus}`;
   reason?: string;
+  proofOfWork?: string;
 }
 
 export class ProjectUpdate

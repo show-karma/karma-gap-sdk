@@ -19,7 +19,7 @@ type IStatus = "verified";
 export interface IGrantUpdateStatus {
   type?: `grant-update-${IStatus}`;
   reason?: string;
-  linkToProof?: string;
+  proofOfWork?: string;
 }
 
 export class GrantUpdateStatus
@@ -28,7 +28,7 @@ export class GrantUpdateStatus
 {
   type: `grant-update-${IStatus}`;
   reason?: string;
-  linkToProof?: string;
+  proofOfWork?: string;
 }
 
 export class GrantUpdate
@@ -101,13 +101,13 @@ export class GrantUpdate
         JSON.stringify({
           type: "grant-update-verified",
           reason: data?.reason || "",
-          linkToProof: data?.linkToProof || "",
+          proofOfWork: data?.proofOfWork || "",
         })
       );
     } else {
       schema.setValue("type", "grant-update-verified");
       schema.setValue("reason", data?.reason || "");
-      schema.setValue("linkToProof", data?.linkToProof || "");
+      schema.setValue("proofOfWork", data?.proofOfWork || "");
     }
 
     console.log("Before attest grant update verified");
@@ -119,7 +119,7 @@ export class GrantUpdate
         data: {
           type: "grant-update-verified",
           reason: data?.reason || "",
-          linkToProof: data?.linkToProof || "",
+          proofOfWork: data?.proofOfWork || "",
         },
         refUID: this.uid,
         schema: schema,
