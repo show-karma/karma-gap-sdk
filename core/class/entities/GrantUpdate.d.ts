@@ -12,12 +12,12 @@ type IStatus = "verified";
 export interface IGrantUpdateStatus {
     type?: `grant-update-${IStatus}`;
     reason?: string;
-    linkToProof?: string;
+    proofOfWork?: string;
 }
 export declare class GrantUpdateStatus extends Attestation<IGrantUpdateStatus> implements IGrantUpdateStatus {
     type: `grant-update-${IStatus}`;
     reason?: string;
-    linkToProof?: string;
+    proofOfWork?: string;
 }
 export declare class GrantUpdate extends Attestation<IGrantUpdate> implements IGrantUpdate {
     title: string;

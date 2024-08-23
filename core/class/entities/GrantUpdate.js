@@ -64,13 +64,13 @@ class GrantUpdate extends Attestation_1.Attestation {
             schema.setValue("json", JSON.stringify({
                 type: "grant-update-verified",
                 reason: data?.reason || "",
-                linkToProof: data?.linkToProof || "",
+                proofOfWork: data?.proofOfWork || "",
             }));
         }
         else {
             schema.setValue("type", "grant-update-verified");
             schema.setValue("reason", data?.reason || "");
-            schema.setValue("linkToProof", data?.linkToProof || "");
+            schema.setValue("proofOfWork", data?.proofOfWork || "");
         }
         console.log("Before attest grant update verified");
         const { tx, uids } = await this.attestStatus(signer, schema, callback);
@@ -79,7 +79,7 @@ class GrantUpdate extends Attestation_1.Attestation {
             data: {
                 type: "grant-update-verified",
                 reason: data?.reason || "",
-                linkToProof: data?.linkToProof || "",
+                proofOfWork: data?.proofOfWork || "",
             },
             refUID: this.uid,
             schema: schema,
