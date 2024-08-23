@@ -59,7 +59,6 @@ export interface IGrantUpdateStatus extends IAttestationResponse {
     data: {
         type: "approved" | "rejected" | "completed";
         reason?: string;
-        proofOfWork?: string;
     };
 }
 export interface IGrantUpdate extends IAttestationResponse {
@@ -67,6 +66,7 @@ export interface IGrantUpdate extends IAttestationResponse {
         text: string;
         title: string;
         type: "grant-update";
+        proofOfWork?: string;
     };
     verified?: IGrantUpdateStatus[];
 }
