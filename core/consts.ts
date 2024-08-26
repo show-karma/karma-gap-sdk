@@ -639,3 +639,4 @@ export const AlloContracts = {
   },
   factory: "0xE195743480D1591B79106FF9B296A0cD38aDa807",
 };
+
