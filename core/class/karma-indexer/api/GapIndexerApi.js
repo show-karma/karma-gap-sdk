@@ -151,6 +151,10 @@ class GapIndexerApi extends AxiosGQL_1.AxiosGQL {
         const response = await this.client.get(Endpoints.grants.byExternalId(projectExtId));
         return response;
     }
+    async grantsBySlug(slug) {
+        const response = await this.client.get(Endpoints.grants.byUid(slug));
+        return response;
+    }
     async grantsByCommunity(uid) {
         const response = await this.client.get(Endpoints.communities.grants(uid));
         return response;
