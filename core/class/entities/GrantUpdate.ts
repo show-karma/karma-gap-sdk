@@ -12,6 +12,7 @@ export interface IGrantUpdate {
   title: string;
   text: string;
   type?: string;
+  proofOfWork?: string;
 }
 
 type IStatus = "verified";
