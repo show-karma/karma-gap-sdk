@@ -1,3 +1,5 @@
+import { IProjectMilestone } from "core/class/entities/ProjectMilestone";
+
 export type Hex = `0x${string}`;
 export type JSONStr = string;
 export type ExternalLink = { type: string; url: string };
@@ -193,6 +195,7 @@ export interface IProjectResponse extends IAttestationResponse {
   pointers: IProjectPointer[];
   symlinks: Hex[];
   endorsements: IProjectEndorsement[];
+  milestones: IProjectMilestone[];
 }
 
 export interface ICommunityDetails extends IAttestationResponse {

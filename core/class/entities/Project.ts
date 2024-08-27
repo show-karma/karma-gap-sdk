@@ -25,6 +25,7 @@ import { IProjectResponse } from "../karma-indexer/api/types";
 import { ProjectImpact } from "./ProjectImpact";
 import { ProjectUpdate } from "./ProjectUpdate";
 import { ProjectPointer } from "./ProjectPointer";
+import { ProjectMilestone } from "./ProjectMilestone";
 
 interface _Project extends Project {}
 
@@ -41,6 +42,7 @@ export class Project extends Attestation<IProject> {
   endorsements: ProjectEndorsement[] = [];
   updates: ProjectUpdate[] = [];
   pointers: ProjectPointer[] = [];
+  milestones: ProjectMilestone[] = [];
 
   /**
    * Creates the payload for a multi-attestation.
@@ -435,6 +437,13 @@ export class Project extends Attestation<IProject> {
         );
       }
 
+      if (attestation.milestones) {
+        project.milestones = ProjectMilestone.from(
+          attestation.updates as unknown as ProjectMilestone[],
+          network
+        );
+      }
+
       if (attestation.endorsements) {
         project.endorsements = attestation.endorsements.map((pi) => {
           const endorsement = new ProjectEndorsement({
@@ -474,6 +483,25 @@ export class Project extends Attestation<IProject> {
 
     await projectUpdate.attest(signer, callback);
     this.updates.push(projectUpdate);
+  }
+
+  async attestMilestone(
+    signer: SignerOrProvider,
+    data: ProjectUpdate,
+    callback?: Function
+  ) {
+    const projectMilestone = new ProjectMilestone({
+      data: {
+        ...data,
+        type: "project-milestone",
+      },
+      recipient: this.recipient,
+      refUID: this.uid,
+      schema: this.schema.gap.findSchema("ProjectMilestone"),
+    });
+
+    await projectMilestone.attest(signer, callback);
+    this.milestones.push(projectMilestone);
   }
 
   async attestPointer(
