@@ -7,7 +7,6 @@ exports.IpfsStorage = void 0;
 const RemoteStorage_1 = require("./RemoteStorage");
 const SchemaError_1 = require("../SchemaError");
 const utils_1 = require("../../utils");
-const types_1 = require("core/types");
 const axios_1 = __importDefault(require("axios"));
 class IpfsStorage extends RemoteStorage_1.RemoteStorage {
     constructor(opts, 
@@ -16,7 +15,7 @@ class IpfsStorage extends RemoteStorage_1.RemoteStorage {
      * using the local instance
      */
     sponsor) {
-        super(types_1.STORAGE_TYPE.IPFS, sponsor);
+        super(0 /* STORAGE_TYPE.IPFS */, sponsor);
         this.assert(opts);
         this.pinataJWTToken = opts.token;
     }
