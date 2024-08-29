@@ -239,8 +239,8 @@ export class GapIndexerApi extends AxiosGQL {
 
     return response;
   }
-  async grantsBySlug(slug: Hex) {
-    const response = await this.client.get<IGrantResponse[]>(
+  async grantBySlug(slug: Hex) {
+    const response = await this.client.get<IGrantResponse>(
       Endpoints.grants.byUid(slug)
     );
 
