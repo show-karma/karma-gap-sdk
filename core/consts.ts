@@ -58,6 +58,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       projectResolver: "0x7177AdC0f924b695C0294A40C4C5FEFf5EE1E141",
       communityResolver: "0x6dC1D6b864e8BEf815806f9e4677123496e12026",
       donations: "0x021896771412C1D3f31BC7B01fFA3a6A17c5dA30",
+      airdropNFT: "0x2bB9aB0084477c1306A7da80f5DCDdBca4139112",
     },
     schemas: {
       Community:
@@ -121,6 +122,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       projectResolver: "0x832931F23ea4e3c70957DA71a7eB50F5B7efA93D",
       schema: "0x4200000000000000000000000000000000000020",
       donations: "0x3caF83Ed040501f1f439fb22E198bB5a67Bc2884",
+      airdropNFT: "0x57d6A954E051145D7E9dD81decaeA6d7Feb640ee",
     },
     schemas: {
       Community:
@@ -184,6 +186,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       projectResolver: "0x28BE0b0515be8BB8822aF1467A6613795E74717b",
       communityResolver: "0xD534C4704F82494aBbc901560046fB62Ac63E9C4",
       donations: "0x475F3E915601d975c792E6116791FBe9ACdBE902",
+      airdropNFT: "0xe957aFd24F91e6A14F4d47E801d70b876176772a",
     },
     schemas: {
       Community:
@@ -247,6 +250,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       projectResolver: "0x099787D5a5aC92779A519CfD925ACB0Dc7E8bd23",
       communityResolver: "0xa9E55D9F52d7B47792d2Db15F6A9674c56ccc5C9",
       donations: "0xb2021F7550b8B07cA71696159B592C1F713593e4",
+      airdropNFT: "0x11f48e68Ff894D417956839263337a2989822703",
     },
     schemas: {
       Community:
@@ -283,6 +287,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       projectResolver: "0xC891F8eBA218f5034bf3a472528408BE19E1130E",
       communityResolver: "0x009dC7dF3Ea3b23CE80Fd3Ba811d5bA5675934A1",
       donations: "0x61eD6D070EE996698fB35B909e45111402336645",
+      airdropNFT: "0xa9c31794385A217832D4C8E200CfA6A8da9c7B32",
     },
     schemas: {
       Community:
@@ -318,6 +323,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       projectResolver: "0x6dC1D6b864e8BEf815806f9e4677123496e12026",
       communityResolver: "0xfddb660F2F1C27d219372210745BB9f73431856E",
       donations: "0xf373467c21841DF20529FAA8bE49381106DBc258",
+      airdropNFT: "0x884F839fA169B5ECfF5d65CA600C2B43C1F6f668",
     },
     schemas: {
       Community:
@@ -381,6 +387,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       projectResolver: "0x96f36F25C6bD648d9bdBbd8C3E029CfB2394754d",
       communityResolver: "0x61d519C99279DC91fC2FC56B177f42B90B35050E",
       donations: "0xB80D85690747C3E2ceCc0f8529594C6602b642D5",
+      airdropNFT: "0xfced53EA1b05F0ef10f86757933cbD4A4e6D9c6e",
     },
     schemas: {
       Community:
@@ -443,6 +450,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       projectResolver: "0xdA2c62101851365EEdC5A1f7087d92Ffde7345B4",
       communityResolver: "0x50fb4a65CE924D29b9AC8C508c376a5a21Fda1BC",
       donations: "0xB80D85690747C3E2ceCc0f8529594C6602b642D5",
+      airdropNFT: "0x00933B581765d638369cd8A10a4583c275a857A6",
     },
     schemas: {
       Community:

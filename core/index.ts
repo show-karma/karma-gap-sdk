@@ -5,3 +5,4 @@ export * from "./class/GAP";
 export * from "./class/GapSchema";
 export * from "./class/types/attestations";
 export * from "./class/entities";
+export * from "./abi";
