@@ -1,14 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ProjectObjective = exports.ProjectObjectiveStatus = void 0;
+exports.ProjectMilestone = exports.ProjectMilestoneStatus = void 0;
 const Attestation_1 = require("../Attestation");
 const SchemaError_1 = require("../SchemaError");
 const AllGapSchemas_1 = require("../AllGapSchemas");
 const consts_1 = require("../../../core/consts");
-class ProjectObjectiveStatus extends Attestation_1.Attestation {
+class ProjectMilestoneStatus extends Attestation_1.Attestation {
 }
-exports.ProjectObjectiveStatus = ProjectObjectiveStatus;
-class ProjectObjective extends Attestation_1.Attestation {
+exports.ProjectMilestoneStatus = ProjectMilestoneStatus;
+class ProjectMilestone extends Attestation_1.Attestation {
     constructor() {
         super(...arguments);
         this.verified = [];
@@ -16,7 +16,7 @@ class ProjectObjective extends Attestation_1.Attestation {
     /**
      * Attest the status of the update as approved, rejected or completed.
      */
-    async attestObjective(signer, schema, callback) {
+    async attestMilestone(signer, schema, callback) {
         const eas = this.schema.gap.eas.connect(signer);
         try {
             if (callback)
@@ -59,7 +59,7 @@ class ProjectObjective extends Attestation_1.Attestation {
      */
     async verify(signer, data, callback) {
         console.log("Verifying");
-        const schema = this.schema.gap.findSchema("ProjectObjectiveStatus");
+        const schema = this.schema.gap.findSchema("ProjectMilestoneStatus");
         if (this.schema.isJsonSchema()) {
             schema.setValue("json", JSON.stringify({
                 type: "verified",
@@ -67,15 +67,15 @@ class ProjectObjective extends Attestation_1.Attestation {
             }));
         }
         else {
-            schema.setValue("type", "project-objective-verified");
+            schema.setValue("type", "project-milestone-verified");
             schema.setValue("reason", data?.reason || "");
         }
-        console.log("Before attest project objective verified");
-        await this.attestObjective(signer, schema, callback);
-        console.log("After attest project objective verified");
-        this.verified.push(new ProjectObjectiveStatus({
+        console.log("Before attest project milestone verified");
+        await this.attestMilestone(signer, schema, callback);
+        console.log("After attest project milestone verified");
+        this.verified.push(new ProjectMilestoneStatus({
             data: {
-                type: "project-objective-verified",
+                type: "project-milestone-verified",
                 reason: data?.reason || "",
             },
             refUID: this.uid,
@@ -85,21 +85,21 @@ class ProjectObjective extends Attestation_1.Attestation {
     }
     static from(attestations, network) {
         return attestations.map((attestation) => {
-            const projectUpdate = new ProjectObjective({
+            const projectUpdate = new ProjectMilestone({
                 ...attestation,
                 data: {
                     ...attestation.data,
                 },
-                schema: new AllGapSchemas_1.AllGapSchemas().findSchema("ProjectObjective", consts_1.chainIdToNetwork[attestation.chainID]),
+                schema: new AllGapSchemas_1.AllGapSchemas().findSchema("ProjectMilestone", consts_1.chainIdToNetwork[attestation.chainID]),
                 chainID: attestation.chainID,
             });
             if (attestation.verified?.length > 0) {
-                projectUpdate.verified = attestation.verified.map((m) => new ProjectObjectiveStatus({
+                projectUpdate.verified = attestation.verified.map((m) => new ProjectMilestoneStatus({
                     ...m,
                     data: {
                         ...m.data,
                     },
-                    schema: new AllGapSchemas_1.AllGapSchemas().findSchema("ProjectObjectiveStatus", consts_1.chainIdToNetwork[attestation.chainID]),
+                    schema: new AllGapSchemas_1.AllGapSchemas().findSchema("ProjectMilestoneStatus", consts_1.chainIdToNetwork[attestation.chainID]),
                     chainID: attestation.chainID,
                 }));
             }
@@ -107,4 +107,4 @@ class ProjectObjective extends Attestation_1.Attestation {
         });
     }
 }
-exports.ProjectObjective = ProjectObjective;
+exports.ProjectMilestone = ProjectMilestone;

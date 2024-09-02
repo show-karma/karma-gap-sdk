@@ -1,36 +1,36 @@
 import { SignerOrProvider, TNetwork } from "../../../core/types";
 import { Attestation } from "../Attestation";
-export interface _IProjectObjective extends ProjectObjective {
+export interface _IProjectMilestone extends ProjectMilestone {
 }
-export interface IProjectObjective {
+export interface IProjectMilestone {
     title: string;
     text: string;
     type?: string;
 }
 type IStatus = "verified";
-export interface IProjectObjectiveStatus {
-    type?: `project-objective-${IStatus}`;
+export interface IProjectMilestoneStatus {
+    type?: `project-milestone-${IStatus}`;
     reason?: string;
 }
-export declare class ProjectObjectiveStatus extends Attestation<IProjectObjectiveStatus> implements IProjectObjectiveStatus {
-    type: `project-objective-${IStatus}`;
+export declare class ProjectMilestoneStatus extends Attestation<IProjectMilestoneStatus> implements IProjectMilestoneStatus {
+    type: `project-milestone-${IStatus}`;
     reason?: string;
 }
-export declare class ProjectObjective extends Attestation<IProjectObjective> implements IProjectObjective {
+export declare class ProjectMilestone extends Attestation<IProjectMilestone> implements IProjectMilestone {
     title: string;
     text: string;
-    verified: ProjectObjectiveStatus[];
+    verified: ProjectMilestoneStatus[];
     /**
      * Attest the status of the update as approved, rejected or completed.
      */
-    private attestObjective;
+    private attestMilestone;
     /**
      * Verify this ProjectUpdate. If the ProjectUpdate is not already verified,
      * it will throw an error.
      * @param signer
      * @param reason
      */
-    verify(signer: SignerOrProvider, data?: IProjectObjectiveStatus, callback?: Function): Promise<void>;
-    static from(attestations: _IProjectObjective[], network: TNetwork): ProjectObjective[];
+    verify(signer: SignerOrProvider, data?: IProjectMilestoneStatus, callback?: Function): Promise<void>;
+    static from(attestations: _IProjectMilestone[], network: TNetwork): ProjectMilestone[];
 }
 export {};

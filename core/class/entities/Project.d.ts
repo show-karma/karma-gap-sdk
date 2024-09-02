@@ -7,7 +7,7 @@ import { IProjectResponse } from "../karma-indexer/api/types";
 import { ProjectImpact } from "./ProjectImpact";
 import { ProjectUpdate } from "./ProjectUpdate";
 import { ProjectPointer } from "./ProjectPointer";
-import { ProjectObjective } from "./ProjectObjective";
+import { ProjectMilestone } from "./ProjectMilestone";
 export interface IProject {
     project: true;
 }
@@ -20,7 +20,7 @@ export declare class Project extends Attestation<IProject> {
     endorsements: ProjectEndorsement[];
     updates: ProjectUpdate[];
     pointers: ProjectPointer[];
-    milestones: ProjectObjective[];
+    milestones: ProjectMilestone[];
     /**
      * Creates the payload for a multi-attestation.
      *

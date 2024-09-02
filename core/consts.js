@@ -59,35 +59,35 @@ exports.Networks = {
             GrantUpdateStatus: "0xdc3f4d0938b1d029d825c01b3c53ad955e0ef3eabc1f57c1ebde90de2bf527ae",
             Project: "0x5b873b6e7a16207b526dde366e8164e95bcda2f009272306519667c5e94d2191",
             ProjectUpdateStatus: "0xdc3f4d0938b1d029d825c01b3c53ad955e0ef3eabc1f57c1ebde90de2bf527ae",
-            ProjectObjectiveStatus: "0xdc3f4d0938b1d029d825c01b3c53ad955e0ef3eabc1f57c1ebde90de2bf527ae",
+            ProjectMilestoneStatus: "0xdc3f4d0938b1d029d825c01b3c53ad955e0ef3eabc1f57c1ebde90de2bf527ae",
         },
         oldSchemas: [
             {
                 name: "GrantVerified",
                 uid: "0x13adc8df8a7324b1651e8bcec948b3e2d4fcfa2a88a52136206cb9ea44836e93",
-                raw: oldStatusSchema,
+                raw: oldStatusSchema
             },
             {
                 name: "MilestoneApproved",
                 uid: "0x13adc8df8a7324b1651e8bcec948b3e2d4fcfa2a88a52136206cb9ea44836e93",
-                raw: oldStatusSchema,
+                raw: oldStatusSchema
             },
             {
                 name: "MilestoneCompleted",
                 uid: "0x13adc8df8a7324b1651e8bcec948b3e2d4fcfa2a88a52136206cb9ea44836e93",
-                raw: oldStatusSchema,
+                raw: oldStatusSchema
             },
             {
                 name: "GrantUpdateStatus",
                 uid: "0x13adc8df8a7324b1651e8bcec948b3e2d4fcfa2a88a52136206cb9ea44836e93",
-                raw: oldStatusSchema,
+                raw: oldStatusSchema
             },
             {
                 name: "ProjectUpdateStatus",
                 uid: "0x13adc8df8a7324b1651e8bcec948b3e2d4fcfa2a88a52136206cb9ea44836e93",
-                raw: oldStatusSchema,
+                raw: oldStatusSchema
             },
-        ],
+        ]
     },
     "optimism-sepolia": {
         chainId: 11155420,
@@ -112,35 +112,35 @@ exports.Networks = {
             GrantUpdateStatus: "0x6f8e6a1394bdc398f8d93a99b0ecca326d04470a4f0ee5c379bb85a458a322e4",
             Project: "0xf9bbd118dd100459a7d093403af21c6e7f847fd7f331b7a4e6bfb94a1366bd76",
             ProjectUpdateStatus: "0x6f8e6a1394bdc398f8d93a99b0ecca326d04470a4f0ee5c379bb85a458a322e4",
-            ProjectObjectiveStatus: "0x6f8e6a1394bdc398f8d93a99b0ecca326d04470a4f0ee5c379bb85a458a322e4",
+            ProjectMilestoneStatus: "0x6f8e6a1394bdc398f8d93a99b0ecca326d04470a4f0ee5c379bb85a458a322e4",
         },
         oldSchemas: [
             {
                 name: "GrantVerified",
                 uid: "0xf9ec600d61d88614c863365a79715a7ba29781ec67643ffeb9222dd8873ee3fa",
-                raw: oldStatusSchema,
+                raw: oldStatusSchema
             },
             {
                 name: "MilestoneApproved",
                 uid: "0xf9ec600d61d88614c863365a79715a7ba29781ec67643ffeb9222dd8873ee3fa",
-                raw: oldStatusSchema,
+                raw: oldStatusSchema
             },
             {
                 name: "MilestoneCompleted",
                 uid: "0xf9ec600d61d88614c863365a79715a7ba29781ec67643ffeb9222dd8873ee3fa",
-                raw: oldStatusSchema,
+                raw: oldStatusSchema
             },
             {
                 name: "GrantUpdateStatus",
                 uid: "0xf9ec600d61d88614c863365a79715a7ba29781ec67643ffeb9222dd8873ee3fa",
-                raw: oldStatusSchema,
+                raw: oldStatusSchema
             },
             {
                 name: "ProjectUpdateStatus",
                 uid: "0xf9ec600d61d88614c863365a79715a7ba29781ec67643ffeb9222dd8873ee3fa",
-                raw: oldStatusSchema,
+                raw: oldStatusSchema
             },
-        ],
+        ]
     },
     arbitrum: {
         chainId: 42161,
@@ -165,35 +165,35 @@ exports.Networks = {
             GrantUpdateStatus: "0x93391c496898c63995f23797835c8e0468be338f0dbc2df62edfd70856cde1d4",
             Project: "0xac2a06e955a7e25e6729efe1a6532237e3435b21ccd3dc827ae3c94e624d25b3",
             ProjectUpdateStatus: "0x93391c496898c63995f23797835c8e0468be338f0dbc2df62edfd70856cde1d4",
-            ProjectObjectiveStatus: "0x93391c496898c63995f23797835c8e0468be338f0dbc2df62edfd70856cde1d4",
+            ProjectMilestoneStatus: "0x93391c496898c63995f23797835c8e0468be338f0dbc2df62edfd70856cde1d4",
         },
         oldSchemas: [
             {
                 name: "GrantVerified",
                 uid: "0xd25ccdfbf87659a9081681eb90598d8b944ed28544da7d57c3ccbe6e6422cc15",
-                raw: oldStatusSchema,
+                raw: oldStatusSchema
             },
             {
                 name: "MilestoneApproved",
                 uid: "0xd25ccdfbf87659a9081681eb90598d8b944ed28544da7d57c3ccbe6e6422cc15",
-                raw: oldStatusSchema,
+                raw: oldStatusSchema
             },
             {
                 name: "MilestoneCompleted",
                 uid: "0xd25ccdfbf87659a9081681eb90598d8b944ed28544da7d57c3ccbe6e6422cc15",
-                raw: oldStatusSchema,
+                raw: oldStatusSchema
             },
             {
                 name: "GrantUpdateStatus",
                 uid: "0xd25ccdfbf87659a9081681eb90598d8b944ed28544da7d57c3ccbe6e6422cc15",
-                raw: oldStatusSchema,
+                raw: oldStatusSchema
             },
             {
                 name: "ProjectUpdateStatus",
                 uid: "0xd25ccdfbf87659a9081681eb90598d8b944ed28544da7d57c3ccbe6e6422cc15",
-                raw: oldStatusSchema,
+                raw: oldStatusSchema
             },
-        ],
+        ]
     },
     sepolia: {
         chainId: 11155111,
@@ -219,7 +219,7 @@ exports.Networks = {
             GrantUpdateStatus: "0xcdef0e492d2e7ad25d0b0fdb868f6dcd1f5e5c30e42fd5fa0debdc12f7618322",
             Project: "0xec77990a252b54b17673955c774b9712766de5eecb22ca5aa2c440e0e93257fb",
             ProjectUpdateStatus: "0xcdef0e492d2e7ad25d0b0fdb868f6dcd1f5e5c30e42fd5fa0debdc12f7618322",
-            ProjectObjectiveStatus: "0xcdef0e492d2e7ad25d0b0fdb868f6dcd1f5e5c30e42fd5fa0debdc12f7618322",
+            ProjectMilestoneStatus: "0xcdef0e492d2e7ad25d0b0fdb868f6dcd1f5e5c30e42fd5fa0debdc12f7618322",
         },
     },
     "base-sepolia": {
@@ -245,7 +245,7 @@ exports.Networks = {
             GrantUpdateStatus: "0xe9cce07bd9295aafc78faa7afdd88a6fad6fd61834a048fb8c3dbc86cb471f81",
             Project: "0x5ddd6b7a11406771308431ca9bd146cc717848b74b52993a532dc1aad0ccc83f",
             ProjectUpdateStatus: "0xe9cce07bd9295aafc78faa7afdd88a6fad6fd61834a048fb8c3dbc86cb471f81",
-            ProjectObjectiveStatus: "0xe9cce07bd9295aafc78faa7afdd88a6fad6fd61834a048fb8c3dbc86cb471f81",
+            ProjectMilestoneStatus: "0xe9cce07bd9295aafc78faa7afdd88a6fad6fd61834a048fb8c3dbc86cb471f81",
         },
     },
     celo: {
@@ -271,35 +271,35 @@ exports.Networks = {
             GrantUpdateStatus: "0x80f0701853e862d920f87e8ae5b359a1625ad417a9523af2ed12bc3504b04088",
             Project: "0xf3f753b41e04d1052b5a5ec7624d1dfdb6c2da288a985120e477ddbcac071022",
             ProjectUpdateStatus: "0x80f0701853e862d920f87e8ae5b359a1625ad417a9523af2ed12bc3504b04088",
-            ProjectObjectiveStatus: "0x80f0701853e862d920f87e8ae5b359a1625ad417a9523af2ed12bc3504b04088",
+            ProjectMilestoneStatus: "0x80f0701853e862d920f87e8ae5b359a1625ad417a9523af2ed12bc3504b04088",
         },
         oldSchemas: [
             {
                 name: "GrantVerified",
                 uid: "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
-                raw: oldStatusSchema,
+                raw: oldStatusSchema
             },
             {
                 name: "MilestoneApproved",
                 uid: "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
-                raw: oldStatusSchema,
+                raw: oldStatusSchema
             },
             {
                 name: "MilestoneCompleted",
                 uid: "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
-                raw: oldStatusSchema,
+                raw: oldStatusSchema
             },
             {
                 name: "GrantUpdateStatus",
                 uid: "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
-                raw: oldStatusSchema,
+                raw: oldStatusSchema
             },
             {
                 name: "ProjectUpdateStatus",
                 uid: "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
-                raw: oldStatusSchema,
+                raw: oldStatusSchema
             },
-        ],
+        ]
     },
     sei: {
         chainId: 1329,
@@ -324,35 +324,35 @@ exports.Networks = {
             GrantUpdateStatus: "0xc3b9bee0be3a6ea92f76fa459922a088824e29798becdc82d81f6b2309442563",
             Project: "0xf6b89107f8096220051240b89a48abb66e0a23e529c914953b80f5a2bc5ea44c",
             ProjectUpdateStatus: "0xc3b9bee0be3a6ea92f76fa459922a088824e29798becdc82d81f6b2309442563",
-            ProjectObjectiveStatus: "0xc3b9bee0be3a6ea92f76fa459922a088824e29798becdc82d81f6b2309442563",
+            ProjectMilestoneStatus: "0xc3b9bee0be3a6ea92f76fa459922a088824e29798becdc82d81f6b2309442563",
         },
         oldSchemas: [
             {
                 name: "GrantVerified",
                 uid: "0x6edc90af92553109cfed1292a67a75b34e41880bd8a61e9d05db0473b69a2f9e",
-                raw: oldStatusSchema,
+                raw: oldStatusSchema
             },
             {
                 name: "MilestoneApproved",
                 uid: "0x6edc90af92553109cfed1292a67a75b34e41880bd8a61e9d05db0473b69a2f9e",
-                raw: oldStatusSchema,
+                raw: oldStatusSchema
             },
             {
                 name: "MilestoneCompleted",
                 uid: "0x6edc90af92553109cfed1292a67a75b34e41880bd8a61e9d05db0473b69a2f9e",
-                raw: oldStatusSchema,
+                raw: oldStatusSchema
             },
             {
                 name: "GrantUpdateStatus",
                 uid: "0x6edc90af92553109cfed1292a67a75b34e41880bd8a61e9d05db0473b69a2f9e",
-                raw: oldStatusSchema,
+                raw: oldStatusSchema
             },
             {
                 name: "ProjectUpdateStatus",
                 uid: "0x6edc90af92553109cfed1292a67a75b34e41880bd8a61e9d05db0473b69a2f9e",
-                raw: oldStatusSchema,
+                raw: oldStatusSchema
             },
-        ],
+        ]
     },
     "sei-testnet": {
         chainId: 1328,
@@ -377,7 +377,7 @@ exports.Networks = {
             GrantUpdateStatus: "0xb25551d21dc886be83a07c241c46de318704cb6f485191fdedcf80f4b8b28188",
             Project: "0x9de9294fbb62391b393332a33bfc28b4e0e728dd094aee4bda3955df62f8401a5",
             ProjectUpdateStatus: "0xb25551d21dc886be83a07c241c46de318704cb6f485191fdedcf80f4b8b28188",
-            ProjectObjectiveStatus: "0xb25551d21dc886be83a07c241c46de318704cb6f485191fdedcf80f4b8b28188",
+            ProjectMilestoneStatus: "0xb25551d21dc886be83a07c241c46de318704cb6f485191fdedcf80f4b8b28188",
         },
     },
 };
@@ -392,53 +392,41 @@ const MountEntities = (network) => ({
         name: "Community",
         schema: [{ type: "bool", name: "community", value: true }],
         uid: network.schemas.Community,
-        oldSchemas: network.oldSchemas
-            ?.filter((s) => s.name === "Community")
-            ?.map((s) => ({ uid: s.uid, raw: s.raw })),
+        oldSchemas: network.oldSchemas?.filter(s => s.name === "Community")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
     CommunityDetails: {
         name: "CommunityDetails",
         schema: DetailsSchema,
         uid: network.schemas.Details,
         references: "Community",
-        oldSchemas: network.oldSchemas
-            ?.filter((s) => s.name === "CommunityDetails")
-            ?.map((s) => ({ uid: s.uid, raw: s.raw })),
+        oldSchemas: network.oldSchemas?.filter(s => s.name === "CommunityDetails")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
     Project: {
         name: "Project",
         schema: [{ type: "bool", name: "project", value: true }],
         uid: network.schemas.Project,
-        oldSchemas: network.oldSchemas
-            ?.filter((s) => s.name === "Project")
-            ?.map((s) => ({ uid: s.uid, raw: s.raw })),
+        oldSchemas: network.oldSchemas?.filter(s => s.name === "Project")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
     ProjectDetails: {
         name: "ProjectDetails",
         schema: DetailsSchema,
         uid: network.schemas.Details,
         references: "Project",
-        oldSchemas: network.oldSchemas
-            ?.filter((s) => s.name === "ProjectDetails")
-            ?.map((s) => ({ uid: s.uid, raw: s.raw })),
+        oldSchemas: network.oldSchemas?.filter(s => s.name === "ProjectDetails")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
     MemberOf: {
         name: "MemberOf",
         schema: [{ type: "bool", name: "memberOf", value: true }],
         uid: network.schemas.MemberOf,
         references: "Project",
-        oldSchemas: network.oldSchemas
-            ?.filter((s) => s.name === "MemberOf")
-            ?.map((s) => ({ uid: s.uid, raw: s.raw })),
+        oldSchemas: network.oldSchemas?.filter(s => s.name === "MemberOf")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
     MemberDetails: {
         name: "MemberDetails",
         schema: DetailsSchema,
         uid: network.schemas.Details,
         references: "MemberOf",
-        oldSchemas: network.oldSchemas
-            ?.filter((s) => s.name === "MemberDetails")
-            ?.map((s) => ({ uid: s.uid, raw: s.raw })),
+        oldSchemas: network.oldSchemas?.filter(s => s.name === "MemberDetails")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
     Grant: {
         name: "Grant",
@@ -446,143 +434,111 @@ const MountEntities = (network) => ({
         // schema: [{ type: "bool", name: "grant", value: true }],
         uid: network.schemas.Grant,
         references: "Project",
-        oldSchemas: network.oldSchemas
-            ?.filter((s) => s.name === "Grant")
-            ?.map((s) => ({ uid: s.uid, raw: s.raw })),
+        oldSchemas: network.oldSchemas?.filter(s => s.name === "Grant")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
     GrantDetails: {
         name: "GrantDetails",
         schema: DetailsSchema,
         uid: network.schemas.Details,
         references: "Grant",
-        oldSchemas: network.oldSchemas
-            ?.filter((s) => s.name === "GrantDetails")
-            ?.map((s) => ({ uid: s.uid, raw: s.raw })),
+        oldSchemas: network.oldSchemas?.filter(s => s.name === "GrantDetails")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
     GrantVerified: {
         name: "GrantVerified",
         schema: DetailsSchema,
         uid: network.schemas.GrantVerified,
         references: "Grant",
-        oldSchemas: network.oldSchemas
-            ?.filter((s) => s.name === "GrantVerified")
-            ?.map((s) => ({ uid: s.uid, raw: s.raw })),
+        oldSchemas: network.oldSchemas?.filter(s => s.name === "GrantVerified")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
     Milestone: {
         name: "Milestone",
         schema: DetailsSchema,
         uid: network.schemas.Details,
         references: "Grant",
-        oldSchemas: network.oldSchemas
-            ?.filter((s) => s.name === "Milestone")
-            ?.map((s) => ({ uid: s.uid, raw: s.raw })),
+        oldSchemas: network.oldSchemas?.filter(s => s.name === "Milestone")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
     MilestoneApproved: {
         name: "MilestoneApproved",
         schema: DetailsSchema,
         uid: network.schemas.MilestoneApproved,
         references: "Milestone",
-        oldSchemas: network.oldSchemas
-            ?.filter((s) => s.name === "MilestoneApproved")
-            ?.map((s) => ({ uid: s.uid, raw: s.raw })),
+        oldSchemas: network.oldSchemas?.filter(s => s.name === "MilestoneApproved")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
     MilestoneCompleted: {
         name: "MilestoneCompleted",
         schema: DetailsSchema,
         uid: network.schemas.MilestoneCompleted,
         references: "Milestone",
-        oldSchemas: network.oldSchemas
-            ?.filter((s) => s.name === "MilestoneCompleted")
-            ?.map((s) => ({ uid: s.uid, raw: s.raw })),
+        oldSchemas: network.oldSchemas?.filter(s => s.name === "MilestoneCompleted")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
     Details: {
         schema: DetailsSchema,
         name: "    schema",
         uid: network.schemas.Details,
-        oldSchemas: network.oldSchemas
-            ?.filter((s) => s.name === "DetailsSchema")
-            ?.map((s) => ({ uid: s.uid, raw: s.raw })),
+        oldSchemas: network.oldSchemas?.filter(s => s.name === "DetailsSchema")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
     ProjectImpact: {
         name: "ProjectImpact",
         schema: DetailsSchema,
         uid: network.schemas.Details,
         references: "Project",
-        oldSchemas: network.oldSchemas
-            ?.filter((s) => s.name === "ProjectImpact")
-            ?.map((s) => ({ uid: s.uid, raw: s.raw })),
+        oldSchemas: network.oldSchemas?.filter(s => s.name === "ProjectImpact")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
     GrantUpdate: {
         name: "GrantUpdate",
         schema: DetailsSchema,
         uid: network.schemas.Details,
         references: "Grant",
-        oldSchemas: network.oldSchemas
-            ?.filter((s) => s.name === "GrantUpdate")
-            ?.map((s) => ({ uid: s.uid, raw: s.raw })),
+        oldSchemas: network.oldSchemas?.filter(s => s.name === "GrantUpdate")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
     GrantUpdateStatus: {
         name: "GrantUpdateStatus",
         schema: DetailsSchema,
         uid: network.schemas.GrantUpdateStatus,
         references: "GrantUpdate",
-        oldSchemas: network.oldSchemas
-            ?.filter((s) => s.name === "GrantUpdateStatus")
-            ?.map((s) => ({ uid: s.uid, raw: s.raw })),
+        oldSchemas: network.oldSchemas?.filter(s => s.name === "GrantUpdateStatus")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
     ProjectEndorsement: {
         name: "ProjectEndorsement",
         schema: DetailsSchema,
         uid: network.schemas.Details,
         references: "Project",
-        oldSchemas: network.oldSchemas
-            ?.filter((s) => s.name === "ProjectEndorsement")
-            ?.map((s) => ({ uid: s.uid, raw: s.raw })),
+        oldSchemas: network.oldSchemas?.filter(s => s.name === "ProjectEndorsement")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
     ProjectUpdate: {
         name: "ProjectUpdate",
         schema: DetailsSchema,
         uid: network.schemas.Details,
         references: "Project",
-        oldSchemas: network.oldSchemas
-            ?.filter((s) => s.name === "ProjectUpdate")
-            ?.map((s) => ({ uid: s.uid, raw: s.raw })),
+        oldSchemas: network.oldSchemas?.filter(s => s.name === "ProjectUpdate")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
     ProjectUpdateStatus: {
         name: "ProjectUpdateStatus",
         schema: DetailsSchema,
         uid: network.schemas.ProjectUpdateStatus,
         references: "ProjectUpdate",
-        oldSchemas: network.oldSchemas
-            ?.filter((s) => s.name === "ProjectUpdateStatus")
-            ?.map((s) => ({ uid: s.uid, raw: s.raw })),
+        oldSchemas: network.oldSchemas?.filter(s => s.name === "ProjectUpdateStatus")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
     ProjectPointer: {
         name: "ProjectPointer",
         schema: DetailsSchema,
         uid: network.schemas.Details,
         references: "Project",
-        oldSchemas: network.oldSchemas
-            ?.filter((s) => s.name === "ProjectPointer")
-            ?.map((s) => ({ uid: s.uid, raw: s.raw })),
+        oldSchemas: network.oldSchemas?.filter(s => s.name === "ProjectPointer")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
-    ProjectObjective: {
-        name: "ProjectObjective",
+    ProjectMilestone: {
+        name: "ProjectMilestone",
         schema: DetailsSchema,
         uid: network.schemas.Details,
         references: "Project",
-        oldSchemas: network.oldSchemas
-            ?.filter((s) => s.name === "ProjectObjective")
-            ?.map((s) => ({ uid: s.uid, raw: s.raw })),
+        oldSchemas: network.oldSchemas?.filter(s => s.name === "ProjectMilestone")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
-    ProjectObjectiveStatus: {
-        name: "ProjectObjectiveStatus",
+    ProjectMilestoneStatus: {
+        name: "ProjectMilestoneStatus",
         schema: DetailsSchema,
         uid: network.schemas.ProjectUpdateStatus,
-        references: "ProjectObjective",
-        oldSchemas: network.oldSchemas
-            ?.filter((s) => s.name === "ProjectObjectiveStatus")
-            ?.map((s) => ({ uid: s.uid, raw: s.raw })),
+        references: "ProjectMilestone",
+        oldSchemas: network.oldSchemas?.filter(s => s.name === "ProjectMilestoneStatus")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
 });
 exports.MountEntities = MountEntities;
