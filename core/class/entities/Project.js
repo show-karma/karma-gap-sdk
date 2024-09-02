@@ -13,6 +13,7 @@ const AllGapSchemas_1 = require("../AllGapSchemas");
 const ProjectImpact_1 = require("./ProjectImpact");
 const ProjectUpdate_1 = require("./ProjectUpdate");
 const ProjectPointer_1 = require("./ProjectPointer");
+const ProjectObjective_1 = require("./ProjectObjective");
 class Project extends Attestation_1.Attestation {
     constructor() {
         super(...arguments);
@@ -22,6 +23,7 @@ class Project extends Attestation_1.Attestation {
         this.endorsements = [];
         this.updates = [];
         this.pointers = [];
+        this.milestones = [];
     }
     /**
      * Creates the payload for a multi-attestation.
@@ -265,6 +267,9 @@ class Project extends Attestation_1.Attestation {
             if (attestation.updates) {
                 project.updates = ProjectUpdate_1.ProjectUpdate.from(attestation.updates, network);
             }
+            if (attestation.milestones) {
+                project.milestones = ProjectObjective_1.ProjectObjective.from(attestation.updates, network);
+            }
             if (attestation.endorsements) {
                 project.endorsements = attestation.endorsements.map((pi) => {
                     const endorsement = new attestations_1.ProjectEndorsement({
@@ -293,6 +298,19 @@ class Project extends Attestation_1.Attestation {
         });
         await projectUpdate.attest(signer, callback);
         this.updates.push(projectUpdate);
+    }
+    async attestMilestone(signer, data, callback) {
+        const projectObjective = new ProjectObjective_1.ProjectObjective({
+            data: {
+                ...data,
+                type: "project-objective",
+            },
+            recipient: this.recipient,
+            refUID: this.uid,
+            schema: this.schema.gap.findSchema("ProjectObjective"),
+        });
+        await projectObjective.attest(signer, callback);
+        this.milestones.push(projectObjective);
     }
     async attestPointer(signer, data, callback) {
         const projectPointer = new ProjectPointer_1.ProjectPointer({

@@ -1,3 +1,4 @@
+import { IProjectObjective } from "core/class/entities/ProjectObjective";
 export type Hex = `0x${string}`;
 export type JSONStr = string;
 export type ExternalLink = {
@@ -36,7 +37,6 @@ export interface IMilestoneCompleted extends IAttestationResponse {
     data: {
         type: "approved" | "rejected" | "completed";
         reason?: string;
-        proofOfWork?: string;
     };
 }
 export interface IMilestoneResponse extends IAttestationResponse {
@@ -66,7 +66,6 @@ export interface IGrantUpdate extends IAttestationResponse {
         text: string;
         title: string;
         type: "grant-update";
-        proofOfWork?: string;
     };
     verified?: IGrantUpdateStatus[];
 }
@@ -194,6 +193,7 @@ export interface IProjectResponse extends IAttestationResponse {
     pointers: IProjectPointer[];
     symlinks: Hex[];
     endorsements: IProjectEndorsement[];
+    milestones: IProjectObjective[];
 }
 export interface ICommunityDetails extends IAttestationResponse {
     type: "CommunityDetails";
