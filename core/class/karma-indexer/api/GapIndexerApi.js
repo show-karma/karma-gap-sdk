@@ -31,6 +31,7 @@ const Endpoints = {
         byUidOrSlug: (uidOrSlug) => `/projects/${uidOrSlug}`,
         grants: (uidOrSlug) => `/projects/${uidOrSlug}/grants`,
         milestones: (uidOrSlug) => `/projects/${uidOrSlug}/milestones`,
+        projectMilestones: (uidOrSlug) => `/projects/${uidOrSlug}/project-milestones`,
     },
     search: {
         all: () => "/search",
@@ -122,6 +123,10 @@ class GapIndexerApi extends AxiosGQL_1.AxiosGQL {
     }
     async projectsOf(grantee) {
         const response = await this.client.get(Endpoints.grantees.projects(grantee));
+        return response;
+    }
+    async projectMilestones(uidOrSlug) {
+        const response = await this.client.get(Endpoints.project.projectMilestones(uidOrSlug));
         return response;
     }
     /**

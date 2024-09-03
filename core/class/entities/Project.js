@@ -325,7 +325,10 @@ class Project extends Attestation_1.Attestation {
         await projectPointer.attest(signer, callback);
         this.pointers.push(projectPointer);
     }
-    async attestImpact(signer, data) {
+    async attestImpact(signer, data, targetChainId, callback) {
+        if (targetChainId && targetChainId !== this.chainID) {
+            return this.attestGhostProjectImpact(signer, data, targetChainId, callback);
+        }
         const projectImpact = new ProjectImpact_1.ProjectImpact({
             data: {
                 ...data,
@@ -335,8 +338,30 @@ class Project extends Attestation_1.Attestation {
             refUID: this.uid,
             schema: this.schema.gap.findSchema("ProjectDetails"),
         });
-        await projectImpact.attest(signer);
+        const { tx, uids } = await projectImpact.attest(signer, callback);
         this.impacts.push(projectImpact);
+        return { tx, uids };
+    }
+    async attestGhostProjectImpact(signer, data, targetChainId, callback) {
+        const { tx, uids } = await this.attestGhostProject(signer, targetChainId);
+        const ghostProjectUid = uids[0];
+        const allGapSchemas = new AllGapSchemas_1.AllGapSchemas();
+        const projectImpact = new ProjectImpact_1.ProjectImpact({
+            data: {
+                ...data,
+                type: "project-impact",
+            },
+            recipient: this.recipient,
+            refUID: ghostProjectUid,
+            schema: allGapSchemas.findSchema("ProjectDetails", consts_1.chainIdToNetwork[targetChainId]),
+            chainID: targetChainId,
+        });
+        const impactAttestation = await projectImpact.attest(signer, callback);
+        this.impacts.push(projectImpact);
+        return {
+            tx: impactAttestation.tx,
+            uids: [...uids, impactAttestation.uids[0]],
+        };
     }
     async attestEndorsement(signer, data) {
         const projectEndorsement = new attestations_1.ProjectEndorsement({
@@ -350,6 +375,26 @@ class Project extends Attestation_1.Attestation {
         });
         await projectEndorsement.attest(signer);
         this.endorsements.push(projectEndorsement);
+    }
+    async attestGhostProject(signer, targetChainId) {
+        const allGapSchemas = new AllGapSchemas_1.AllGapSchemas();
+        const project = new Project({
+            data: { project: true },
+            schema: allGapSchemas.findSchema("Project", consts_1.chainIdToNetwork[targetChainId]),
+            recipient: this.recipient,
+            chainID: targetChainId,
+        });
+        project.details = new Attestation_1.Attestation({
+            data: {
+                originalProjectChainId: this.chainID,
+                uid: this.uid,
+            },
+            chainID: targetChainId,
+            recipient: this.recipient,
+            schema: allGapSchemas.findSchema("ProjectDetails", consts_1.chainIdToNetwork[targetChainId]),
+        });
+        const attestation = await project.attest(signer);
+        return attestation;
     }
 }
 exports.Project = Project;

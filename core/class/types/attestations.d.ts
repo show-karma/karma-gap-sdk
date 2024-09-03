@@ -89,16 +89,6 @@ export declare class MilestoneCompleted extends Attestation<IMilestoneCompleted>
     reason?: string;
     proofOfWork?: string;
 }
-export interface IProjectMilestoneCompleted {
-    type?: "completed" | "verified";
-    reason?: string;
-    proofOfWork?: string;
-}
-export declare class ProjectMilestoneCompleted extends Attestation<IProjectMilestoneCompleted> implements IProjectMilestoneCompleted {
-    type: "completed" | "verified";
-    reason?: string;
-    proofOfWork?: string;
-}
 export interface ITag {
     name: string;
 }

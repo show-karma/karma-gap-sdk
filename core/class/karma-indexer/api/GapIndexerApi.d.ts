@@ -1,5 +1,5 @@
 import { AxiosGQL } from "../../GraphQL/AxiosGQL";
-import { Hex, IAttestationResponse, ICommunityResponse, ICommunityAdminsResponse, IGrantResponse, IProjectResponse, ISearchResponse } from "./types";
+import { Hex, IAttestationResponse, ICommunityResponse, ICommunityAdminsResponse, IGrantResponse, IProjectResponse, ISearchResponse, IProjectMilestone } from "./types";
 export declare class GapIndexerApi extends AxiosGQL {
     constructor(url: string);
     attestation(uid: Hex): Promise<import("axios").AxiosResponse<IAttestationResponse, any>>;
@@ -21,6 +21,7 @@ export declare class GapIndexerApi extends AxiosGQL {
     searchProjects(query: string): Promise<import("axios").AxiosResponse<IProjectResponse[], any>>;
     projects(name?: string): Promise<import("axios").AxiosResponse<IProjectResponse[], any>>;
     projectsOf(grantee: Hex): Promise<import("axios").AxiosResponse<IProjectResponse[], any>>;
+    projectMilestones(uidOrSlug: string): Promise<import("axios").AxiosResponse<IProjectMilestone[], any>>;
     /**
      * Grantee
      */

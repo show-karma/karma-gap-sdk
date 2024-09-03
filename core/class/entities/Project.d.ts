@@ -4,7 +4,7 @@ import { Hex, MultiAttestPayload, SignerOrProvider, TNetwork } from "core/types"
 import { Grant } from "./Grant";
 import { MemberOf } from "./MemberOf";
 import { IProjectResponse } from "../karma-indexer/api/types";
-import { ProjectImpact } from "./ProjectImpact";
+import { IProjectImpact, ProjectImpact } from "./ProjectImpact";
 import { ProjectUpdate } from "./ProjectUpdate";
 import { ProjectPointer } from "./ProjectPointer";
 import { ProjectMilestone } from "./ProjectMilestone";
@@ -82,6 +82,8 @@ export declare class Project extends Attestation<IProject> {
     attestUpdate(signer: SignerOrProvider, data: ProjectUpdate, callback?: Function): Promise<void>;
     attestMilestone(signer: SignerOrProvider, data: ProjectUpdate, callback?: Function): Promise<void>;
     attestPointer(signer: SignerOrProvider, data: ProjectPointer, callback?: Function): Promise<void>;
-    attestImpact(signer: SignerOrProvider, data: ProjectImpact): Promise<void>;
+    attestImpact(signer: SignerOrProvider, data: IProjectImpact, targetChainId?: number, callback?: Function): Promise<AttestationWithTx>;
+    private attestGhostProjectImpact;
     attestEndorsement(signer: SignerOrProvider, data?: ProjectEndorsement): Promise<void>;
+    attestGhostProject(signer: SignerOrProvider, targetChainId: number): Promise<AttestationWithTx>;
 }
