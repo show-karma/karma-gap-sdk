@@ -29,28 +29,18 @@ dotenv.config();
 
 //
 const walletAddress = "0x5A4830885f12438E00D8f4d98e9Fe083e707698C";
-// const web3 = new ethers.AlchemyProvider(
-//   'optimism-sepolia',
-//   '9FEqTNKmgO7X7ll92ALJrEih7Jjhldf-'
-// );
-// const wallet = new ethers.Wallet(
-//   '',
-//   web3 as any
-// );
+const web3 = new ethers.AlchemyProvider(
+  'optimism-sepolia',
+  '9FEqTNKmgO7X7ll92ALJrEih7Jjhldf-'
+);
+const wallet = new ethers.Wallet(
+  '98f6ff7002240e302cee6665286079adb4dba0d49a8f927c1b9f5d622bae9939',
+  web3 as any
+);
 
 const gap = new GAP({
   network: "optimism-sepolia",
   apiClient: new GapIndexerClient("https://gapstagapi.karmahq.xyz"),
-  remoteStorage: new IpfsStorage(
-    {
-      token:
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweGVkMjAzYTRFODc3ZjFlQTk2MzkzY2M5YjhDNUU4NUUxM2U5OWI5NzEiLCJpc3MiOiJuZnQtc3RvcmFnZSIsImlhdCI6MTcwMDUxNTIzOTg5MSwibmFtZSI6IkdBUF9URVNUIn0.QwVmWPOXeDKCtWGFaLxGdllv-te1pKc4Jrj7rYlMdFk",
-    },
-    {
-      url: "https://gapstagapi.karmahq.xyz/ipfs",
-      responseParser: (response: any) => response.cid,
-    }
-  ),
 });
 
 // async function attestation() {
@@ -160,27 +150,18 @@ const gap = new GAP({
 // //   console.log(response)
 // // })()
 
-const RPC_KEY = process.env.RPC_KEY;
-const PRIVATE_KEY = process.env.PRIVATE_KEY;
 
-// (async () => {
-//   const web3 = new ethers.AlchemyProvider("optimism-sepolia", RPC_KEY);
-//   const localWallet = new ethers.Wallet(PRIVATE_KEY as string, web3 as any);
+(async () => {
 
-//   const completed = new Milestone({
-//     data: {
-//       description: "desc",
-//       title: "title",
-//       endsAt: 111554200,
-//     },
-//     schema: gap.findSchema("Milestone"),
-//     refUID:
-//       "0x36da1d4a4e5965b88f35724baf6ca2f6610455f4df50012546ad5b13d45a6a6f",
-//     recipient: walletAddress,
-//   });
+  const project = await gap.fetch.projectBySlug('testing-on-base-sepolia');
 
-//   await completed.attest(localWallet as any, (status) => {
-//     console.log("tx status: ", status);
-//   });
-//   console.log("Finish Attest: ", completed);
-// })();
+  const resp = await project.attestImpact(wallet, {
+    completedAt: Date.now() / 1000,
+    startedAt: Date.now() / 1000,
+    impact: "imapct",
+    proof: "myproof",
+    work: "mywork",
+  }, 11155420);
+
+  console.log({resp})
+})();

@@ -30,7 +30,7 @@ export interface IProjectImpact {
   startedAt?: number;
   completedAt: number;
   type?: string;
-  verified: ProjectImpactStatus[];
+  verified?: ProjectImpactStatus[];
 }
 
 export class ProjectImpact

@@ -22,7 +22,7 @@ import { MemberOf } from "./MemberOf";
 import { GapContract } from "../contract/GapContract";
 import { AllGapSchemas } from "../AllGapSchemas";
 import { IProjectResponse } from "../karma-indexer/api/types";
-import { ProjectImpact } from "./ProjectImpact";
+import { IProjectImpact, ProjectImpact } from "./ProjectImpact";
 import { ProjectUpdate } from "./ProjectUpdate";
 import { ProjectPointer } from "./ProjectPointer";
 
@@ -495,7 +495,26 @@ export class Project extends Attestation<IProject> {
     this.pointers.push(projectPointer);
   }
 
-  async attestImpact(signer: SignerOrProvider, data: ProjectImpact) {
+  async attestImpact(signer: SignerOrProvider, data: IProjectImpact, targetChainId?: number,) {
+    if (targetChainId && targetChainId !== this.chainID) {
+      const attest = await this.attestGhostProject(signer, targetChainId);
+      const uid = attest.uids[0];
+      
+      const allGapSchemas = new AllGapSchemas();
+      const projectImpact = new ProjectImpact({
+        data: {
+          ...data,
+          type: "project-impact",
+        },
+        recipient: this.recipient,
+        refUID: uid,
+        schema: allGapSchemas.findSchema("ProjectDetails", chainIdToNetwork[targetChainId]),
+      });
+
+      await projectImpact.attest(signer);
+      return this.impacts.push(projectImpact);
+    }
+
     const projectImpact = new ProjectImpact({
       data: {
         ...data,
@@ -523,5 +542,31 @@ export class Project extends Attestation<IProject> {
 
     await projectEndorsement.attest(signer);
     this.endorsements.push(projectEndorsement);
+  }
+
+  async attestGhostProject(
+    signer: SignerOrProvider,
+    targetChainId: number
+  ) {
+    const allGapSchemas = new AllGapSchemas();
+    const project = new Project({
+      data: { project: true },
+      schema: allGapSchemas.findSchema("Project", chainIdToNetwork[targetChainId]),
+      recipient: this.recipient,
+      chainID: targetChainId,
+    });
+
+    (project.details as Attestation) = new Attestation({
+      data: {
+        originalProjectChainId: this.chainID,
+        uid: this.uid,
+      },
+      chainID: targetChainId,
+      recipient: this.recipient,
+      schema: allGapSchemas.findSchema("ProjectDetails", chainIdToNetwork[targetChainId]),
+    });
+
+    const attestation = await project.attest(signer);
+    return attestation;
   }
 }
