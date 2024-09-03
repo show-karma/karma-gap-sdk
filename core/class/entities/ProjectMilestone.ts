@@ -6,7 +6,10 @@ import { AllGapSchemas } from "../AllGapSchemas";
 import { chainIdToNetwork } from "../../../core/consts";
 import { Transaction } from "ethers";
 import { Hex } from "../karma-indexer/api/types";
-import { AttestationWithTx } from "../types/attestations";
+import { AttestationWithTx,
+  IMilestoneCompleted as IProjectMilestoneCompleted,
+  MilestoneCompleted as ProjectMilestoneCompleted
+} from "../types/attestations";
 
 export interface _IProjectMilestone extends ProjectMilestone {}
 export interface IProjectMilestone {
@@ -15,10 +18,11 @@ export interface IProjectMilestone {
   type?: string;
 }
 
-type IStatus = "verified";
+type IStatus = "verified" | "completed";
 
 export interface IProjectMilestoneStatus {
   type?: `project-milestone-${IStatus}`;
+  proofOfWork?: string;
   reason?: string;
 }
 
@@ -37,6 +41,7 @@ export class ProjectMilestone
   title: string;
   text: string;
   verified: ProjectMilestoneStatus[] = [];
+  completed: ProjectMilestoneCompleted;
 
   constructor(data: AttestationArgs<IProjectMilestone, GapSchema>) {
     (data.data as any).type = "project-milestone";
@@ -46,7 +51,7 @@ export class ProjectMilestone
   /**
    * Attest the status of the update as approved, rejected or completed.
    */
-  private async attestMilestone(
+  private async attestStatus(
     signer: SignerOrProvider,
     schema: GapSchema,
     callback?: Function
@@ -112,7 +117,7 @@ export class ProjectMilestone
       schema.setValue("reason", data?.reason || "");
     }
     console.log("Before attest project milestone verified");
-    await this.attestMilestone(signer, schema, callback);
+    await this.attestStatus(signer, schema, callback);
     console.log("After attest project milestone verified");
 
     this.verified.push(
@@ -127,6 +132,71 @@ export class ProjectMilestone
       })
     );
   }
+
+   /**
+   * Marks a milestone as completed. If the milestone is already completed,
+   * it will throw an error.
+   * @param signer
+   * @param reason
+   */
+   async complete(
+    signer: SignerOrProvider,
+    data?: IProjectMilestoneStatus,
+    callback?: Function
+  ) {
+    console.log("Completing");
+
+    const schema = this.schema.gap.findSchema("ProjectMilestoneStatus");
+    if (this.schema.isJsonSchema()) {
+      schema.setValue(
+        "json",
+        JSON.stringify({
+          type: "completed",
+          ...data,
+        })
+      );
+    } else {
+      schema.setValue("type", "project-milestone-completed");
+      schema.setValue("proofOfWork", data?.proofOfWork || "");
+      schema.setValue("reason", data?.reason || "");
+    }
+    console.log("Before attest project milestone completed");
+    await this.attestStatus(signer, schema, callback);
+    console.log("After attest project milestone completed");
+
+    this.completed = new ProjectMilestoneCompleted({
+        data: {
+          reason: data?.reason || "",
+        },
+        refUID: this.uid,
+        schema: schema,
+        recipient: this.recipient,
+      })
+  }
+
+  /**
+   * Revokes the completed status of the milestone. If the milestone is not completed,
+   * it will throw an error.
+   * @param signer
+   */
+  async revokeCompletion(signer: SignerOrProvider, callback?: Function) {
+    if (!this.completed)
+      throw new AttestationError("ATTEST_ERROR", "Milestone is not completed");
+
+    const { tx, uids } = await this.completed.schema.multiRevoke(
+      signer,
+      [
+        {
+          schemaId: this.completed.schema.uid,
+          uid: this.completed.uid,
+        },
+      ],
+      callback
+    );
+    return { tx, uids };
+  }
+
+
 
   static from(
     attestations: _IProjectMilestone[],
@@ -160,6 +230,20 @@ export class ProjectMilestone
               chainID: attestation.chainID,
             })
         );
+      }
+
+      if (attestation.completed) {
+        projectUpdate.completed = new ProjectMilestoneCompleted({
+          ...attestation.completed,
+          data: {
+            ...attestation.completed.data,
+          },
+          schema: new AllGapSchemas().findSchema(
+            "MilestoneCompleted",
+            chainIdToNetwork[attestation.chainID] as TNetwork
+          ),
+          chainID: attestation.chainID,
+        });
       }
 
       return projectUpdate;
