@@ -106,7 +106,7 @@ class ProjectMilestone extends Attestation_1.Attestation {
             schema.setValue("reason", data?.reason || "");
         }
         console.log("Before attest project milestone completed");
-        await this.attestStatus(signer, schema, callback);
+        const { tx, uids } = await this.attestStatus(signer, schema, callback);
         console.log("After attest project milestone completed");
         this.completed = new attestations_1.MilestoneCompleted({
             data: {
@@ -116,6 +116,7 @@ class ProjectMilestone extends Attestation_1.Attestation {
             schema: schema,
             recipient: this.recipient,
         });
+        return { tx, uids };
     }
     /**
      * Revokes the completed status of the milestone. If the milestone is not completed,

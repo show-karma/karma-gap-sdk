@@ -42,7 +42,10 @@ export declare class ProjectMilestone extends Attestation<IProjectMilestone> imp
      * @param signer
      * @param reason
      */
-    complete(signer: SignerOrProvider, data?: IProjectMilestoneStatus, callback?: Function): Promise<void>;
+    complete(signer: SignerOrProvider, data?: IProjectMilestoneStatus, callback?: Function): Promise<{
+        tx: Transaction[];
+        uids: `0x${string}`[];
+    }>;
     /**
      * Revokes the completed status of the milestone. If the milestone is not completed,
      * it will throw an error.
