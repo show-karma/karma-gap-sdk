@@ -268,7 +268,7 @@ class Project extends Attestation_1.Attestation {
                 project.updates = ProjectUpdate_1.ProjectUpdate.from(attestation.updates, network);
             }
             if (attestation.milestones) {
-                project.milestones = ProjectMilestone_1.ProjectMilestone.from(attestation.updates, network);
+                project.milestones = ProjectMilestone_1.ProjectMilestone.from(attestation.milestones, network);
             }
             if (attestation.endorsements) {
                 project.endorsements = attestation.endorsements.map((pi) => {

@@ -86,11 +86,11 @@ class ProjectMilestone extends Attestation_1.Attestation {
         }));
     }
     /**
-    * Marks a milestone as completed. If the milestone is already completed,
-    * it will throw an error.
-    * @param signer
-    * @param reason
-    */
+     * Marks a milestone as completed. If the milestone is already completed,
+     * it will throw an error.
+     * @param signer
+     * @param reason
+     */
     async complete(signer, data, callback) {
         console.log("Completing");
         const schema = this.schema.gap.findSchema("ProjectMilestoneStatus");
@@ -135,7 +135,7 @@ class ProjectMilestone extends Attestation_1.Attestation {
     }
     static from(attestations, network) {
         return attestations.map((attestation) => {
-            const projectUpdate = new ProjectMilestone({
+            const projectMilestone = new ProjectMilestone({
                 ...attestation,
                 data: {
                     ...attestation.data,
@@ -143,18 +143,28 @@ class ProjectMilestone extends Attestation_1.Attestation {
                 schema: new AllGapSchemas_1.AllGapSchemas().findSchema("ProjectMilestone", consts_1.chainIdToNetwork[attestation.chainID]),
                 chainID: attestation.chainID,
             });
-            if (attestation.verified?.length > 0) {
-                projectUpdate.verified = attestation.verified.map((m) => new ProjectMilestoneStatus({
-                    ...m,
-                    data: {
-                        ...m.data,
-                    },
-                    schema: new AllGapSchemas_1.AllGapSchemas().findSchema("ProjectMilestoneStatus", consts_1.chainIdToNetwork[attestation.chainID]),
-                    chainID: attestation.chainID,
-                }));
-            }
+            // if (attestation.verified?.length > 0) {
+            //   projectMilestone.verified = attestation.verified.map(
+            //     (m) =>
+            //       new ProjectMilestoneStatus({
+            //         ...m,
+            //         data: {
+            //           ...m.data,
+            //           type:
+            //             m.data.type === "completed"
+            //               ? "project-milestone-completed"
+            //               : "project-milestone-verified",
+            //         },
+            //         schema: new AllGapSchemas().findSchema(
+            //           "ProjectMilestoneStatus",
+            //           chainIdToNetwork[attestation.chainID] as TNetwork
+            //         ),
+            //         chainID: attestation.chainID,
+            //       })
+            //   );
+            // }
             if (attestation.completed) {
-                projectUpdate.completed = new attestations_1.MilestoneCompleted({
+                projectMilestone.completed = new attestations_1.MilestoneCompleted({
                     ...attestation.completed,
                     data: {
                         ...attestation.completed.data,
@@ -163,7 +173,7 @@ class ProjectMilestone extends Attestation_1.Attestation {
                     chainID: attestation.chainID,
                 });
             }
-            return projectUpdate;
+            return projectMilestone;
         });
     }
 }

@@ -2,9 +2,8 @@ import { SignerOrProvider, TNetwork } from "../../../core/types";
 import { Attestation, AttestationArgs } from "../Attestation";
 import { GapSchema } from "../GapSchema";
 import { Transaction } from "ethers";
+import { IProjectMilestoneResponse } from "../karma-indexer/api/types";
 import { MilestoneCompleted as ProjectMilestoneCompleted } from "../types/attestations";
-export interface _IProjectMilestone extends ProjectMilestone {
-}
 export interface IProjectMilestone {
     title: string;
     text: string;
@@ -38,11 +37,11 @@ export declare class ProjectMilestone extends Attestation<IProjectMilestone> imp
      */
     verify(signer: SignerOrProvider, data?: IProjectMilestoneStatus, callback?: Function): Promise<void>;
     /**
-    * Marks a milestone as completed. If the milestone is already completed,
-    * it will throw an error.
-    * @param signer
-    * @param reason
-    */
+     * Marks a milestone as completed. If the milestone is already completed,
+     * it will throw an error.
+     * @param signer
+     * @param reason
+     */
     complete(signer: SignerOrProvider, data?: IProjectMilestoneStatus, callback?: Function): Promise<void>;
     /**
      * Revokes the completed status of the milestone. If the milestone is not completed,
@@ -53,6 +52,6 @@ export declare class ProjectMilestone extends Attestation<IProjectMilestone> imp
         tx: Transaction[];
         uids: `0x${string}`[];
     }>;
-    static from(attestations: _IProjectMilestone[], network: TNetwork): ProjectMilestone[];
+    static from(attestations: IProjectMilestoneResponse[], network: TNetwork): ProjectMilestone[];
 }
 export {};
