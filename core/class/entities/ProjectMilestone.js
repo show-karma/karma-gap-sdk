@@ -5,18 +5,15 @@ const Attestation_1 = require("../Attestation");
 const SchemaError_1 = require("../SchemaError");
 const AllGapSchemas_1 = require("../AllGapSchemas");
 const consts_1 = require("../../../core/consts");
+const attestations_1 = require("../types/attestations");
 class ProjectMilestoneStatus extends Attestation_1.Attestation {
 }
 exports.ProjectMilestoneStatus = ProjectMilestoneStatus;
 class ProjectMilestone extends Attestation_1.Attestation {
-    constructor() {
-        super(...arguments);
-        this.verified = [];
-    }
     /**
-     * Attest the status of the update as approved, rejected or completed.
+     * Attest the status of the milestone as completed.
      */
-    async attestMilestone(signer, schema, callback) {
+    async attestStatus(signer, schema, callback) {
         const eas = this.schema.gap.eas.connect(signer);
         try {
             if (callback)
@@ -52,40 +49,39 @@ class ProjectMilestone extends Attestation_1.Attestation {
         }
     }
     /**
-     * Verify this ProjectUpdate. If the ProjectUpdate is not already verified,
+     * Marks a milestone as completed. If the milestone is already completed,
      * it will throw an error.
      * @param signer
      * @param reason
      */
-    async verify(signer, data, callback) {
-        console.log("Verifying");
-        const schema = this.schema.gap.findSchema("ProjectMilestoneStatus");
+    async complete(signer, data, callback) {
+        const schema = this.schema.gap.findSchema("ProjectMilestoneCompleted");
         if (this.schema.isJsonSchema()) {
             schema.setValue("json", JSON.stringify({
-                type: "verified",
-                reason: data?.reason || "",
+                type: "completed",
+                ...data,
             }));
         }
         else {
-            schema.setValue("type", "project-milestone-verified");
+            schema.setValue("type", "completed");
             schema.setValue("reason", data?.reason || "");
+            schema.setValue("proofOfWork", data?.proofOfWork || "");
         }
-        console.log("Before attest project milestone verified");
-        await this.attestMilestone(signer, schema, callback);
-        console.log("After attest project milestone verified");
-        this.verified.push(new ProjectMilestoneStatus({
+        const { tx, uids } = await this.attestStatus(signer, schema, callback);
+        this.completed = new attestations_1.ProjectMilestoneCompleted({
             data: {
-                type: "project-milestone-verified",
-                reason: data?.reason || "",
+                type: "completed",
+                ...data,
             },
             refUID: this.uid,
-            schema: schema,
+            schema,
             recipient: this.recipient,
-        }));
+        });
+        return { tx, uids };
     }
     static from(attestations, network) {
         return attestations.map((attestation) => {
-            const projectUpdate = new ProjectMilestone({
+            const projectMilestone = new ProjectMilestone({
                 ...attestation,
                 data: {
                     ...attestation.data,
@@ -93,17 +89,17 @@ class ProjectMilestone extends Attestation_1.Attestation {
                 schema: new AllGapSchemas_1.AllGapSchemas().findSchema("ProjectMilestone", consts_1.chainIdToNetwork[attestation.chainID]),
                 chainID: attestation.chainID,
             });
-            if (attestation.verified?.length > 0) {
-                projectUpdate.verified = attestation.verified.map((m) => new ProjectMilestoneStatus({
-                    ...m,
+            if (attestation.completed) {
+                projectMilestone.completed = new attestations_1.ProjectMilestoneCompleted({
+                    ...attestation.completed,
                     data: {
-                        ...m.data,
+                        ...attestation.completed.data,
                     },
-                    schema: new AllGapSchemas_1.AllGapSchemas().findSchema("ProjectMilestoneStatus", consts_1.chainIdToNetwork[attestation.chainID]),
+                    schema: new AllGapSchemas_1.AllGapSchemas().findSchema("ProjectMilestoneCompleted", consts_1.chainIdToNetwork[attestation.chainID]),
                     chainID: attestation.chainID,
-                }));
+                });
             }
-            return projectUpdate;
+            return projectMilestone;
         });
     }
 }

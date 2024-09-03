@@ -1,5 +1,6 @@
 import { SignerOrProvider, TNetwork } from "../../../core/types";
 import { Attestation } from "../Attestation";
+import { AttestationWithTx, IProjectMilestoneCompleted, ProjectMilestoneCompleted } from "../types/attestations";
 export interface _IProjectMilestone extends ProjectMilestone {
 }
 export interface IProjectMilestone {
@@ -19,18 +20,18 @@ export declare class ProjectMilestoneStatus extends Attestation<IProjectMileston
 export declare class ProjectMilestone extends Attestation<IProjectMilestone> implements IProjectMilestone {
     title: string;
     text: string;
-    verified: ProjectMilestoneStatus[];
+    completed: ProjectMilestoneCompleted;
     /**
-     * Attest the status of the update as approved, rejected or completed.
+     * Attest the status of the milestone as completed.
      */
-    private attestMilestone;
+    private attestStatus;
     /**
-     * Verify this ProjectUpdate. If the ProjectUpdate is not already verified,
+     * Marks a milestone as completed. If the milestone is already completed,
      * it will throw an error.
      * @param signer
      * @param reason
      */
-    verify(signer: SignerOrProvider, data?: IProjectMilestoneStatus, callback?: Function): Promise<void>;
+    complete(signer: SignerOrProvider, data?: IProjectMilestoneCompleted, callback?: Function): Promise<AttestationWithTx>;
     static from(attestations: _IProjectMilestone[], network: TNetwork): ProjectMilestone[];
 }
 export {};
