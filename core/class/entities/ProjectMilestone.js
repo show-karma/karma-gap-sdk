@@ -9,8 +9,9 @@ class ProjectMilestoneStatus extends Attestation_1.Attestation {
 }
 exports.ProjectMilestoneStatus = ProjectMilestoneStatus;
 class ProjectMilestone extends Attestation_1.Attestation {
-    constructor() {
-        super(...arguments);
+    constructor(data) {
+        data.data.type = "project-milestone";
+        super(data);
         this.verified = [];
     }
     /**

@@ -1,5 +1,6 @@
 import { SignerOrProvider, TNetwork } from "../../../core/types";
-import { Attestation } from "../Attestation";
+import { Attestation, AttestationArgs } from "../Attestation";
+import { GapSchema } from "../GapSchema";
 export interface _IProjectMilestone extends ProjectMilestone {
 }
 export interface IProjectMilestone {
@@ -20,6 +21,7 @@ export declare class ProjectMilestone extends Attestation<IProjectMilestone> imp
     title: string;
     text: string;
     verified: ProjectMilestoneStatus[];
+    constructor(data: AttestationArgs<IProjectMilestone, GapSchema>);
     /**
      * Attest the status of the update as approved, rejected or completed.
      */
