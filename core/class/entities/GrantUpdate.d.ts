@@ -7,21 +7,21 @@ export interface IGrantUpdate {
     title: string;
     text: string;
     type?: string;
+    proofOfWork?: string;
 }
 type IStatus = "verified";
 export interface IGrantUpdateStatus {
     type?: `grant-update-${IStatus}`;
     reason?: string;
-    linkToProof?: string;
 }
 export declare class GrantUpdateStatus extends Attestation<IGrantUpdateStatus> implements IGrantUpdateStatus {
     type: `grant-update-${IStatus}`;
     reason?: string;
-    linkToProof?: string;
 }
 export declare class GrantUpdate extends Attestation<IGrantUpdate> implements IGrantUpdate {
     title: string;
     text: string;
+    proofOfWork: string;
     verified: GrantUpdateStatus[];
     /**
      * Attest the status of the milestone as approved, rejected or completed.

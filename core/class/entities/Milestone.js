@@ -26,12 +26,13 @@ class Milestone extends Attestation_1.Attestation {
         if (this.schema.isJsonSchema()) {
             schema.setValue("json", JSON.stringify({
                 type: "approved",
-                reason: data?.reason || "",
+                ...data,
             }));
         }
         else {
             schema.setValue("type", "approved");
             schema.setValue("reason", data?.reason || "");
+            schema.setValue("proofOfWork", data?.proofOfWork || "");
         }
         await this.attestStatus(signer, schema, callback);
         this.approved = new attestations_1.MilestoneCompleted({
@@ -109,18 +110,19 @@ class Milestone extends Attestation_1.Attestation {
         if (this.schema.isJsonSchema()) {
             schema.setValue("json", JSON.stringify({
                 type: "completed",
-                reason: data?.reason || "",
+                ...data,
             }));
         }
         else {
             schema.setValue("type", "completed");
             schema.setValue("reason", data?.reason || "");
+            schema.setValue("proofOfWork", data?.proofOfWork || "");
         }
         const { tx, uids } = await this.attestStatus(signer, schema, callback);
         this.completed = new attestations_1.MilestoneCompleted({
             data: {
                 type: "completed",
-                reason: data?.reason || "",
+                ...data,
             },
             refUID: this.uid,
             schema,
@@ -294,12 +296,13 @@ class Milestone extends Attestation_1.Attestation {
         if (this.schema.isJsonSchema()) {
             schema.setValue("json", JSON.stringify({
                 type: "verified",
-                reason: data?.reason || "",
+                ...data,
             }));
         }
         else {
             schema.setValue("type", "verified");
             schema.setValue("reason", data?.reason || "");
+            schema.setValue("proofOfWork", data?.proofOfWork || "");
         }
         console.log("Before attestStatus");
         const { tx, uids } = await this.attestStatus(signer, schema, callback);
@@ -307,7 +310,7 @@ class Milestone extends Attestation_1.Attestation {
         this.verified.push(new attestations_1.MilestoneCompleted({
             data: {
                 type: "verified",
-                reason: data?.reason || "",
+                ...data,
             },
             refUID: this.uid,
             schema: schema,

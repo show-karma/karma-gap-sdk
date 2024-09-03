@@ -82,10 +82,12 @@ export declare class MemberDetails extends Attestation<IMemberDetails> implement
 export interface IMilestoneCompleted {
     type?: "approved" | "rejected" | "completed" | "verified";
     reason?: string;
+    proofOfWork?: string;
 }
 export declare class MilestoneCompleted extends Attestation<IMilestoneCompleted> implements IMilestoneCompleted {
     type: "approved" | "rejected" | "completed" | "verified";
     reason?: string;
+    proofOfWork?: string;
 }
 export interface ITag {
     name: string;
