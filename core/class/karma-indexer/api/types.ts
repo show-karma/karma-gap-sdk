@@ -90,6 +90,23 @@ export interface IProjectUpdate extends IAttestationResponse {
   verified?: IProjectUpdateStatus[];
 }
 
+export interface IProjectMilestoneStatus extends IAttestationResponse {
+  type: `project-milestone-verified`;
+  reason?: string;
+  data: {
+    type: "approved" | "rejected" | "completed";
+    reason?: string;
+  };
+}
+export interface IProjectMilestone extends IAttestationResponse {
+  data: {
+    text: string;
+    title: string;
+    type: "project-milestone";
+  };
+  verified?: IProjectMilestoneStatus[];
+}
+
 export interface IProjectPointer extends IAttestationResponse {
   data: {
     ogProjectUID: string;
@@ -195,6 +212,7 @@ export interface IProjectResponse extends IAttestationResponse {
   pointers: IProjectPointer[];
   symlinks: Hex[];
   endorsements: IProjectEndorsement[];
+  milestones: IProjectMilestone[];
 }
 
 export interface ICommunityDetails extends IAttestationResponse {
