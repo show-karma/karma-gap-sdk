@@ -7,7 +7,7 @@ import {
   IGrantResponse,
   IProjectResponse,
   ISearchResponse,
-  IProjectMilestone,
+  IProjectMilestoneResponse,
 } from "./types";
 
 const Endpoints = {
@@ -195,7 +195,7 @@ export class GapIndexerApi extends AxiosGQL {
     return response;
   }
   async projectMilestones(uidOrSlug: string) {
-    const response = await this.client.get<IProjectMilestone[]>(
+    const response = await this.client.get<IProjectMilestoneResponse[]>(
       Endpoints.project.projectMilestones(uidOrSlug)
     );
 

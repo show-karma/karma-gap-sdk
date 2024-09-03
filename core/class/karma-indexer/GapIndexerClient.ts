@@ -1,39 +1,42 @@
-import { TSchemaName, IAttestation, TNetwork, Hex } from 'core/types';
-import { Attestation } from '../Attestation';
-import { GapSchema } from '../GapSchema';
-import { Fetcher } from '../Fetcher';
-import { Community, Project, Grant, Milestone, MemberOf } from '../entities';
-import { Grantee } from '../types/attestations';
-import { GapIndexerApi } from './api/GapIndexerApi';
-import { ICommunityAdminsResponse, ICommunityResponse } from './api/types';
+import { TSchemaName, IAttestation, TNetwork, Hex } from "core/types";
+import { Attestation } from "../Attestation";
+import { GapSchema } from "../GapSchema";
+import { Fetcher } from "../Fetcher";
+import { Community, Project, Grant, Milestone, MemberOf } from "../entities";
+import { Grantee } from "../types/attestations";
+import { GapIndexerApi } from "./api/GapIndexerApi";
+import { ICommunityAdminsResponse, ICommunityResponse } from "./api/types";
+import { ProjectMilestone } from "../entities/ProjectMilestone";
 
 const Endpoints = {
   attestations: {
-    all: () => '/attestations',
+    all: () => "/attestations",
     byUid: (uid: Hex) => `/attestations/${uid}`,
   },
   communities: {
-    all: () => '/communities',
+    all: () => "/communities",
     byUidOrSlug: (uidOrSlug: string) => `/communities/${uidOrSlug}`,
     grants: (uidOrSlug: string) => `/communities/${uidOrSlug}/grants`,
   },
   grantees: {
-    all: () => '/grantees',
+    all: () => "/grantees",
     byAddress: (address: Hex) => `/grantees/${address}`,
     grants: (address: Hex) => `/grantees/${address}/grants`,
     projects: (address: Hex) => `/grantees/${address}/projects`,
     communities: (address: Hex, withGrants) =>
-      `/grantees/${address}/communities${withGrants ? '?withGrants=true' : ''}`,
+      `/grantees/${address}/communities${withGrants ? "?withGrants=true" : ""}`,
     communitiesAdmin: (address: Hex, withGrants) =>
-      `/grantees/${address}/communities/admin${withGrants ? '?withGrants=true' : ''}`,
+      `/grantees/${address}/communities/admin${
+        withGrants ? "?withGrants=true" : ""
+      }`,
   },
   grants: {
-    all: () => '/grants',
+    all: () => "/grants",
     byUid: (uid: Hex) => `/grants/${uid}`,
     byExternalId: (id: string) => `/grants/external-id/${id}`,
   },
   project: {
-    all: () => '/projects',
+    all: () => "/projects",
     byUidOrSlug: (uidOrSlug: string) => `/projects/${uidOrSlug}`,
     grants: (uidOrSlug: string) => `/projects/${uidOrSlug}/grants`,
     milestones: (uidOrSlug: string) => `/projects/${uidOrSlug}/milestones`,
@@ -52,7 +55,7 @@ export class GapIndexerClient extends Fetcher {
   ): Promise<Attestation<T, GapSchema>> {
     const { data } = await this.apiClient.attestation(uid);
 
-    if (!data) throw new Error('Attestation not found');
+    if (!data) throw new Error("Attestation not found");
     return Attestation.fromInterface<Attestation<T>>(
       [data],
       this.gap.network
@@ -93,31 +96,37 @@ export class GapIndexerClient extends Fetcher {
   }
 
   async communitiesOf(address: Hex, withGrants: boolean): Promise<Community[]> {
-    const {data} = await this.apiClient.communitiesOf(address, withGrants)
+    const { data } = await this.apiClient.communitiesOf(address, withGrants);
 
     return Community.from(data, this.gap.network);
   }
 
   async adminOf(address: Hex): Promise<Community[]> {
-    const {data} = await this.apiClient.adminOf(address)
+    const { data } = await this.apiClient.adminOf(address);
 
     return Community.from(data, this.gap.network);
   }
 
-  async communitiesAdminOf(address: Hex, withGrants: boolean): Promise<Community[]> {
+  async communitiesAdminOf(
+    address: Hex,
+    withGrants: boolean
+  ): Promise<Community[]> {
     const { data } = await this.client.get<Community[]>(
       Endpoints.grantees.communitiesAdmin(address, withGrants)
     );
 
-    return Community.from((data as any) as ICommunityResponse[], this.gap.network);
+    return Community.from(
+      data as any as ICommunityResponse[],
+      this.gap.network
+    );
   }
 
   communitiesByIds(uids: `0x${string}`[]): Promise<Community[]> {
-    throw new Error('Method not implemented.');
+    throw new Error("Method not implemented.");
   }
 
   async communityBySlug(slug: string): Promise<Community> {
-    const {data} = await this.apiClient.communityBySlug(slug);
+    const { data } = await this.apiClient.communityBySlug(slug);
 
     return Community.from([data], this.gap.network)[0];
   }
@@ -141,10 +150,15 @@ export class GapIndexerClient extends Fetcher {
     return this.projectBySlug(uid);
   }
 
-  async search(query: string): Promise<{projects: Project[]; communities: Community[]}> {
+  async search(
+    query: string
+  ): Promise<{ projects: Project[]; communities: Community[] }> {
     const { data } = await this.apiClient.search(query);
 
-    return {data} as unknown as { projects: Project[]; communities: Community[] };
+    return { data } as unknown as {
+      projects: Project[];
+      communities: Community[];
+    };
   }
 
   async searchProjects(query: string): Promise<Project[]> {
@@ -165,8 +179,14 @@ export class GapIndexerClient extends Fetcher {
     return Project.from(data, this.gap.network);
   }
 
+  async projectMilestones(uidOrSlug: string): Promise<ProjectMilestone[]> {
+    const { data } = await this.apiClient.projectMilestones(uidOrSlug);
+
+    return ProjectMilestone.from(data, this.gap.network);
+  }
+
   async grantee(address: `0x${string}`): Promise<Grantee> {
-    const { data } = await this.apiClient.grantee(address)
+    const { data } = await this.apiClient.grantee(address);
 
     return data as Grantee;
   }
@@ -190,7 +210,10 @@ export class GapIndexerClient extends Fetcher {
     projects: Project[],
     withCommunity?: boolean
   ): Promise<Grant[]> {
-    const { data } = await this.apiClient.grantsFor(projects[0].uid, withCommunity)
+    const { data } = await this.apiClient.grantsFor(
+      projects[0].uid,
+      withCommunity
+    );
 
     return Grant.from(data, this.gap.network);
   }
@@ -214,7 +237,7 @@ export class GapIndexerClient extends Fetcher {
   }
 
   async membersOf(projects: Project[]): Promise<MemberOf[]> {
-    throw new Error('Method not implemented.');
+    throw new Error("Method not implemented.");
   }
 
   async slugExists(slug: string): Promise<boolean> {

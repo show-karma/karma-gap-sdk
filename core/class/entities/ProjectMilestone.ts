@@ -5,13 +5,13 @@ import { AttestationError } from "../SchemaError";
 import { AllGapSchemas } from "../AllGapSchemas";
 import { chainIdToNetwork } from "../../../core/consts";
 import { Transaction } from "ethers";
-import { Hex } from "../karma-indexer/api/types";
-import { AttestationWithTx,
+import { Hex, IProjectMilestoneResponse } from "../karma-indexer/api/types";
+import {
+  AttestationWithTx,
   IMilestoneCompleted as IProjectMilestoneCompleted,
-  MilestoneCompleted as ProjectMilestoneCompleted
+  MilestoneCompleted as ProjectMilestoneCompleted,
 } from "../types/attestations";
 
-export interface _IProjectMilestone extends ProjectMilestone {}
 export interface IProjectMilestone {
   title: string;
   text: string;
@@ -89,7 +89,6 @@ export class ProjectMilestone
     }
   }
 
-
   /**
    * Verify this ProjectUpdate. If the ProjectUpdate is not already verified,
    * it will throw an error.
@@ -133,13 +132,13 @@ export class ProjectMilestone
     );
   }
 
-   /**
+  /**
    * Marks a milestone as completed. If the milestone is already completed,
    * it will throw an error.
    * @param signer
    * @param reason
    */
-   async complete(
+  async complete(
     signer: SignerOrProvider,
     data?: IProjectMilestoneStatus,
     callback?: Function
@@ -161,17 +160,18 @@ export class ProjectMilestone
       schema.setValue("reason", data?.reason || "");
     }
     console.log("Before attest project milestone completed");
-    await this.attestStatus(signer, schema, callback);
+    const { tx, uids } = await this.attestStatus(signer, schema, callback);
     console.log("After attest project milestone completed");
 
     this.completed = new ProjectMilestoneCompleted({
-        data: {
-          reason: data?.reason || "",
-        },
-        refUID: this.uid,
-        schema: schema,
-        recipient: this.recipient,
-      })
+      data: {
+        reason: data?.reason || "",
+      },
+      refUID: this.uid,
+      schema: schema,
+      recipient: this.recipient,
+    });
+    return { tx, uids };
   }
 
   /**
@@ -196,14 +196,12 @@ export class ProjectMilestone
     return { tx, uids };
   }
 
-
-
   static from(
-    attestations: _IProjectMilestone[],
+    attestations: IProjectMilestoneResponse[],
     network: TNetwork
   ): ProjectMilestone[] {
     return attestations.map((attestation) => {
-      const projectUpdate = new ProjectMilestone({
+      const projectMilestone = new ProjectMilestone({
         ...attestation,
         data: {
           ...attestation.data,
@@ -215,25 +213,29 @@ export class ProjectMilestone
         chainID: attestation.chainID,
       });
 
-      if (attestation.verified?.length > 0) {
-        projectUpdate.verified = attestation.verified.map(
-          (m) =>
-            new ProjectMilestoneStatus({
-              ...m,
-              data: {
-                ...m.data,
-              },
-              schema: new AllGapSchemas().findSchema(
-                "ProjectMilestoneStatus",
-                chainIdToNetwork[attestation.chainID] as TNetwork
-              ),
-              chainID: attestation.chainID,
-            })
-        );
-      }
+      // if (attestation.verified?.length > 0) {
+      //   projectMilestone.verified = attestation.verified.map(
+      //     (m) =>
+      //       new ProjectMilestoneStatus({
+      //         ...m,
+      //         data: {
+      //           ...m.data,
+      //           type:
+      //             m.data.type === "completed"
+      //               ? "project-milestone-completed"
+      //               : "project-milestone-verified",
+      //         },
+      //         schema: new AllGapSchemas().findSchema(
+      //           "ProjectMilestoneStatus",
+      //           chainIdToNetwork[attestation.chainID] as TNetwork
+      //         ),
+      //         chainID: attestation.chainID,
+      //       })
+      //   );
+      // }
 
       if (attestation.completed) {
-        projectUpdate.completed = new ProjectMilestoneCompleted({
+        projectMilestone.completed = new ProjectMilestoneCompleted({
           ...attestation.completed,
           data: {
             ...attestation.completed.data,
@@ -246,7 +248,7 @@ export class ProjectMilestone
         });
       }
 
-      return projectUpdate;
+      return projectMilestone;
     });
   }
 }
