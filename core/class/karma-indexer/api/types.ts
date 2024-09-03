@@ -98,6 +98,7 @@ export interface IProjectMilestoneStatus extends IAttestationResponse {
     reason?: string;
   };
 }
+
 export interface IProjectMilestone extends IAttestationResponse {
   data: {
     text: string;
@@ -105,6 +106,7 @@ export interface IProjectMilestone extends IAttestationResponse {
     type: "project-milestone";
   };
   verified?: IProjectMilestoneStatus[];
+  completed?: IMilestoneCompleted;
 }
 
 export interface IProjectPointer extends IAttestationResponse {
