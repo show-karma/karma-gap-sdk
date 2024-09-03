@@ -139,20 +139,6 @@ class Grant extends Attestation_1.Attestation {
         await grantUpdate.attest(signer, callback);
         this.updates.push(grantUpdate);
     }
-    async complete(signer, data, callback) {
-        const completed = new attestations_1.GrantCompleted({
-            data: {
-                ...data,
-                type: "grant-completed",
-            },
-            recipient: this.recipient,
-            refUID: this.uid,
-            schema: this.schema.gap.findSchema("GrantDetails"),
-        });
-        const { tx, uids } = await completed.attest(signer, callback);
-        this.completed = completed;
-        return { tx, uids };
-    }
     /**
      * Validate if the grant has a valid reference to a community.
      */
