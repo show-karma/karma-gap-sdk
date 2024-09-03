@@ -7,6 +7,7 @@ import {
   IGrantResponse,
   IProjectResponse,
   ISearchResponse,
+  IProjectMilestone,
 } from "./types";
 
 const Endpoints = {
@@ -39,6 +40,8 @@ const Endpoints = {
     byUidOrSlug: (uidOrSlug: string) => `/projects/${uidOrSlug}`,
     grants: (uidOrSlug: string) => `/projects/${uidOrSlug}/grants`,
     milestones: (uidOrSlug: string) => `/projects/${uidOrSlug}/milestones`,
+    projectMilestones: (uidOrSlug: string) =>
+      `/projects/${uidOrSlug}/project-milestones`,
   },
   search: {
     all: () => "/search",
@@ -187,6 +190,13 @@ export class GapIndexerApi extends AxiosGQL {
   async projectsOf(grantee: Hex) {
     const response = await this.client.get<IProjectResponse[]>(
       Endpoints.grantees.projects(grantee)
+    );
+
+    return response;
+  }
+  async projectMilestones(uidOrSlug: string) {
+    const response = await this.client.get<IProjectMilestone[]>(
+      Endpoints.project.projectMilestones(uidOrSlug)
     );
 
     return response;
