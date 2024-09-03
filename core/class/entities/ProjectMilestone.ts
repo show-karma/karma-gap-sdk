@@ -1,5 +1,5 @@
 import { SignerOrProvider, TNetwork } from "../../../core/types";
-import { Attestation } from "../Attestation";
+import { Attestation, AttestationArgs } from "../Attestation";
 import { GapSchema } from "../GapSchema";
 import { AttestationError } from "../SchemaError";
 import { AllGapSchemas } from "../AllGapSchemas";
@@ -37,6 +37,11 @@ export class ProjectMilestone
   title: string;
   text: string;
   verified: ProjectMilestoneStatus[] = [];
+
+  constructor(data: AttestationArgs<IProjectMilestone, GapSchema>) {
+    (data.data as any).type = "project-milestone";
+    super(data);
+  }
 
   /**
    * Attest the status of the update as approved, rejected or completed.
@@ -78,6 +83,7 @@ export class ProjectMilestone
       throw new AttestationError("ATTEST_ERROR", error.message, error);
     }
   }
+
 
   /**
    * Verify this ProjectUpdate. If the ProjectUpdate is not already verified,
