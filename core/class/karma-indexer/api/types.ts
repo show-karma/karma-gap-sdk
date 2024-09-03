@@ -1,5 +1,3 @@
-import { IProjectMilestone } from "core/class/entities/ProjectMilestone";
-
 export type Hex = `0x${string}`;
 export type JSONStr = string;
 export type ExternalLink = { type: string; url: string };
@@ -88,6 +86,23 @@ export interface IProjectUpdate extends IAttestationResponse {
     type: "project-update";
   };
   verified?: IProjectUpdateStatus[];
+}
+
+export interface IProjectMilestoneStatus extends IAttestationResponse {
+  type: `project-milestone-verified`;
+  reason?: string;
+  data: {
+    type: "approved" | "rejected" | "completed";
+    reason?: string;
+  };
+}
+export interface IProjectMilestone extends IAttestationResponse {
+  data: {
+    text: string;
+    title: string;
+    type: "project-milestone";
+  };
+  verified?: IProjectMilestoneStatus[];
 }
 
 export interface IProjectPointer extends IAttestationResponse {
