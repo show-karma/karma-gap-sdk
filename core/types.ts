@@ -145,6 +145,7 @@ export interface EASNetworkConfig {
     projectResolver: Hex;
     communityResolver: Hex;
     donations: Hex;
+    airdropNFT: Hex;
   };
   /**
    * A tuple containing the schema name and it's UID for that network
