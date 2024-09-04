@@ -284,20 +284,19 @@ export class GAP extends Facade {
       .toLowerCase()
       .replace(/ /g, "-")
       .replace(/[^\w-]+/g, "");
-    const slugExists = await this.fetch.slugExists(slug);
+    
+    const checkSlug = async (currentSlug: string, counter: number = 0): Promise<string> => {
+      const slugToCheck = counter === 0 ? currentSlug : `${currentSlug}-${counter}`;
+      const slugExists = await this.fetch.slugExists(slugToCheck);
+      
+      if (slugExists) {
+        return checkSlug(currentSlug, counter + 1);
+      }
+      
+      return slugToCheck;
+    };
 
-    if (slugExists) {
-      const parts = slug.split("-");
-      const counter = parts.pop();
-      slug = /\d+/g.test(counter) ? parts.join("-") : slug;
-      // eslint-disable-next-line no-param-reassign
-      const nextSlug = `${slug}-${
-        counter && /\d+/g.test(counter) ? +counter + 1 : 1
-      }`;
-      return this.generateSlug(nextSlug);
-    }
-
-    return slug.toLowerCase();
+    return checkSlug(slug);
   };
 
   /**
