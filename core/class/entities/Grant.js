@@ -148,6 +148,20 @@ class Grant extends Attestation_1.Attestation {
         }
         return true;
     }
+    async complete(signer, data, callback) {
+        const completed = new attestations_1.GrantCompleted({
+            data: {
+                ...data,
+                type: "grant-completed",
+            },
+            recipient: this.recipient,
+            refUID: this.uid,
+            schema: this.schema.gap.findSchema("GrantDetails"),
+        });
+        const { tx, uids } = await completed.attest(signer, callback);
+        this.completed = completed;
+        return { tx, uids };
+    }
     static from(attestations, network) {
         return attestations.map((attestation) => {
             const grant = new Grant({

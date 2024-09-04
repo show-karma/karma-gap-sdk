@@ -54,5 +54,6 @@ export declare class Grant extends Attestation<IGrant> {
      * Validate if the grant has a valid reference to a community.
      */
     protected assertPayload(): boolean;
+    complete(signer: SignerOrProvider, data: IGrantUpdate, callback?: Function): Promise<AttestationWithTx>;
     static from(attestations: IGrantResponse[], network: TNetwork): Grant[];
 }
