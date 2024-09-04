@@ -209,8 +209,6 @@ export class Grant extends Attestation<IGrant> {
     this.updates.push(grantUpdate);
   }
 
-
-
   /**
    * Validate if the grant has a valid reference to a community.
    */
@@ -222,6 +220,26 @@ export class Grant extends Attestation<IGrant> {
       );
     }
     return true;
+  }
+
+  async complete(
+    signer: SignerOrProvider,
+    data: IGrantUpdate,
+    callback?: Function
+  ): Promise<AttestationWithTx> {
+    const completed = new GrantCompleted({
+      data: {
+        ...data,
+        type: "grant-completed",
+      },
+      recipient: this.recipient,
+      refUID: this.uid,
+      schema: this.schema.gap.findSchema("GrantDetails"),
+    });
+
+    const { tx, uids } = await completed.attest(signer, callback);
+    this.completed = completed;
+    return { tx, uids };
   }
 
   static from(attestations: IGrantResponse[], network: TNetwork): Grant[] {
