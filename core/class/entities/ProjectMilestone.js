@@ -96,7 +96,7 @@ class ProjectMilestone extends Attestation_1.Attestation {
         const schema = this.schema.gap.findSchema("ProjectMilestoneStatus");
         if (this.schema.isJsonSchema()) {
             schema.setValue("json", JSON.stringify({
-                type: "completed",
+                type: "project-milestone-completed",
                 ...data,
             }));
         }
@@ -108,7 +108,7 @@ class ProjectMilestone extends Attestation_1.Attestation {
         console.log("Before attest project milestone completed");
         const { tx, uids } = await this.attestStatus(signer, schema, callback);
         console.log("After attest project milestone completed");
-        this.completed = new attestations_1.ProjectMilestoneCompleted({
+        this.completed = new attestations_1.MilestoneCompleted({
             data: {
                 reason: data?.reason || "",
             },
@@ -158,7 +158,7 @@ class ProjectMilestone extends Attestation_1.Attestation {
                 }));
             }
             if (attestation.completed) {
-                projectMilestone.completed = new attestations_1.ProjectMilestoneCompleted({
+                projectMilestone.completed = new attestations_1.MilestoneCompleted({
                     ...attestation.completed,
                     data: {
                         ...attestation.completed.data,

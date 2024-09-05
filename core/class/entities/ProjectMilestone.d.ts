@@ -3,7 +3,7 @@ import { Attestation, AttestationArgs } from "../Attestation";
 import { GapSchema } from "../GapSchema";
 import { Transaction } from "ethers";
 import { IProjectMilestoneResponse } from "../karma-indexer/api/types";
-import { IProjectMilestoneCompleted, ProjectMilestoneCompleted } from "../types/attestations";
+import { MilestoneCompleted as ProjectMilestoneCompleted } from "../types/attestations";
 export interface IProjectMilestone {
     title: string;
     text: string;
@@ -42,7 +42,7 @@ export declare class ProjectMilestone extends Attestation<IProjectMilestone> imp
      * @param signer
      * @param reason
      */
-    complete(signer: SignerOrProvider, data?: IProjectMilestoneCompleted, callback?: Function): Promise<{
+    complete(signer: SignerOrProvider, data?: IProjectMilestoneStatus, callback?: Function): Promise<{
         tx: Transaction[];
         uids: `0x${string}`[];
     }>;
