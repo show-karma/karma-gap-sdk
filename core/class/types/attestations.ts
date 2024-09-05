@@ -198,3 +198,17 @@ export class ProjectEndorsement
     super(data);
   }
 }
+
+export interface IProjectMilestoneCompleted {
+  type?: "approved" | "rejected" | "completed" | "verified";
+  reason?: string;
+  proofOfWork?: string;
+}
+export class ProjectMilestoneCompleted
+  extends Attestation<IProjectMilestoneCompleted>
+  implements IProjectMilestoneCompleted
+{
+  type: "approved" | "rejected" | "completed" | "verified";
+  reason?: string;
+  proofOfWork?: string;
+}

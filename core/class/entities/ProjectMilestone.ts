@@ -6,11 +6,7 @@ import { AllGapSchemas } from "../AllGapSchemas";
 import { chainIdToNetwork } from "../../../core/consts";
 import { Transaction } from "ethers";
 import { Hex, IProjectMilestoneResponse } from "../karma-indexer/api/types";
-import {
-  AttestationWithTx,
-  IMilestoneCompleted as IProjectMilestoneCompleted,
-  MilestoneCompleted as ProjectMilestoneCompleted,
-} from "../types/attestations";
+import { AttestationWithTx, IProjectMilestoneCompleted, ProjectMilestoneCompleted } from "../types/attestations";
 
 export interface IProjectMilestone {
   title: string;
@@ -140,7 +136,7 @@ export class ProjectMilestone
    */
   async complete(
     signer: SignerOrProvider,
-    data?: IProjectMilestoneStatus,
+    data?: IProjectMilestoneCompleted,
     callback?: Function
   ) {
     console.log("Completing");
@@ -213,26 +209,26 @@ export class ProjectMilestone
         chainID: attestation.chainID,
       });
 
-      // if (attestation.verified?.length > 0) {
-      //   projectMilestone.verified = attestation.verified.map(
-      //     (m) =>
-      //       new ProjectMilestoneStatus({
-      //         ...m,
-      //         data: {
-      //           ...m.data,
-      //           type:
-      //             m.data.type === "completed"
-      //               ? "project-milestone-completed"
-      //               : "project-milestone-verified",
-      //         },
-      //         schema: new AllGapSchemas().findSchema(
-      //           "ProjectMilestoneStatus",
-      //           chainIdToNetwork[attestation.chainID] as TNetwork
-      //         ),
-      //         chainID: attestation.chainID,
-      //       })
-      //   );
-      // }
+      if (attestation.verified?.length > 0) {
+        projectMilestone.verified = attestation.verified.map(
+          (m) =>
+            new ProjectMilestoneStatus({
+              ...m,
+              data: {
+                ...m.data,
+                type:
+                  m.data.type === "completed"
+                    ? "project-milestone-completed"
+                    : "project-milestone-verified",
+              },
+              schema: new AllGapSchemas().findSchema(
+                "ProjectMilestoneStatus",
+                chainIdToNetwork[attestation.chainID] as TNetwork
+              ),
+              chainID: attestation.chainID,
+            })
+        );
+      }
 
       if (attestation.completed) {
         projectMilestone.completed = new ProjectMilestoneCompleted({
