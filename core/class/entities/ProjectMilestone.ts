@@ -6,7 +6,11 @@ import { AllGapSchemas } from "../AllGapSchemas";
 import { chainIdToNetwork } from "../../../core/consts";
 import { Transaction } from "ethers";
 import { Hex, IProjectMilestoneResponse } from "../karma-indexer/api/types";
-import { AttestationWithTx, IProjectMilestoneCompleted, ProjectMilestoneCompleted } from "../types/attestations";
+import {
+  AttestationWithTx,
+  IMilestoneCompleted as IProjectMilestoneCompleted,
+  MilestoneCompleted as ProjectMilestoneCompleted,
+} from "../types/attestations";
 
 export interface IProjectMilestone {
   title: string;
@@ -136,7 +140,7 @@ export class ProjectMilestone
    */
   async complete(
     signer: SignerOrProvider,
-    data?: IProjectMilestoneCompleted,
+    data?: IProjectMilestoneStatus,
     callback?: Function
   ) {
     console.log("Completing");
@@ -146,7 +150,7 @@ export class ProjectMilestone
       schema.setValue(
         "json",
         JSON.stringify({
-          type: "completed",
+          type: "project-milestone-completed",
           ...data,
         })
       );
