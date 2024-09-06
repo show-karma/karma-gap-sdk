@@ -152,3 +152,13 @@ export declare class ProjectEndorsement extends Attestation<IProjectEndorsement>
     type?: string;
     constructor(data: AttestationArgs<IProjectEndorsement, GapSchema>);
 }
+export interface IProjectMilestoneCompleted {
+    type?: "approved" | "rejected" | "completed" | "verified";
+    reason?: string;
+    proofOfWork?: string;
+}
+export declare class ProjectMilestoneCompleted extends Attestation<IProjectMilestoneCompleted> implements IProjectMilestoneCompleted {
+    type: "approved" | "rejected" | "completed" | "verified";
+    reason?: string;
+    proofOfWork?: string;
+}

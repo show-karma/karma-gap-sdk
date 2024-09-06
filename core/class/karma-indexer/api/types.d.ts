@@ -94,13 +94,14 @@ export interface IProjectMilestoneStatus extends IAttestationResponse {
         reason?: string;
     };
 }
-export interface IProjectMilestone extends IAttestationResponse {
+export interface IProjectMilestoneResponse extends IAttestationResponse {
     data: {
         text: string;
         title: string;
         type: "project-milestone";
     };
     verified?: IProjectMilestoneStatus[];
+    completed?: IMilestoneCompleted;
 }
 export interface IProjectPointer extends IAttestationResponse {
     data: {
@@ -210,7 +211,7 @@ export interface IProjectResponse extends IAttestationResponse {
     pointers: IProjectPointer[];
     symlinks: Hex[];
     endorsements: IProjectEndorsement[];
-    milestones: IProjectMilestone[];
+    milestones: IProjectMilestoneResponse[];
 }
 export interface ICommunityDetails extends IAttestationResponse {
     type: "CommunityDetails";

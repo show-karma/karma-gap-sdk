@@ -345,9 +345,8 @@ class Schema {
             gasLimit: 5000000n,
         });
         callback?.("pending");
-        tx.wait().then(() => {
-            callback?.("confirmed");
-        });
+        await tx.wait();
+        callback?.("confirmed");
         return {
             tx: [{ hash: tx.tx.hash }],
             uids: payload.map((p) => p.data.map((d) => d.uid)).flat(),

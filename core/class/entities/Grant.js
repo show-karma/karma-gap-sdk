@@ -139,6 +139,15 @@ class Grant extends Attestation_1.Attestation {
         await grantUpdate.attest(signer, callback);
         this.updates.push(grantUpdate);
     }
+    /**
+     * Validate if the grant has a valid reference to a community.
+     */
+    assertPayload() {
+        if (!this.details || !this.communityUID) {
+            throw new SchemaError_1.AttestationError("INVALID_REFERENCE", "Grant should include a valid reference to a community on its details.");
+        }
+        return true;
+    }
     async complete(signer, data, callback) {
         const completed = new attestations_1.GrantCompleted({
             data: {
@@ -152,15 +161,6 @@ class Grant extends Attestation_1.Attestation {
         const { tx, uids } = await completed.attest(signer, callback);
         this.completed = completed;
         return { tx, uids };
-    }
-    /**
-     * Validate if the grant has a valid reference to a community.
-     */
-    assertPayload() {
-        if (!this.details || !this.communityUID) {
-            throw new SchemaError_1.AttestationError("INVALID_REFERENCE", "Grant should include a valid reference to a community on its details.");
-        }
-        return true;
     }
     static from(attestations, network) {
         return attestations.map((attestation) => {

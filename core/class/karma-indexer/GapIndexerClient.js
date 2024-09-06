@@ -5,31 +5,32 @@ const Attestation_1 = require("../Attestation");
 const Fetcher_1 = require("../Fetcher");
 const entities_1 = require("../entities");
 const GapIndexerApi_1 = require("./api/GapIndexerApi");
+const ProjectMilestone_1 = require("../entities/ProjectMilestone");
 const Endpoints = {
     attestations: {
-        all: () => '/attestations',
+        all: () => "/attestations",
         byUid: (uid) => `/attestations/${uid}`,
     },
     communities: {
-        all: () => '/communities',
+        all: () => "/communities",
         byUidOrSlug: (uidOrSlug) => `/communities/${uidOrSlug}`,
         grants: (uidOrSlug) => `/communities/${uidOrSlug}/grants`,
     },
     grantees: {
-        all: () => '/grantees',
+        all: () => "/grantees",
         byAddress: (address) => `/grantees/${address}`,
         grants: (address) => `/grantees/${address}/grants`,
         projects: (address) => `/grantees/${address}/projects`,
-        communities: (address, withGrants) => `/grantees/${address}/communities${withGrants ? '?withGrants=true' : ''}`,
-        communitiesAdmin: (address, withGrants) => `/grantees/${address}/communities/admin${withGrants ? '?withGrants=true' : ''}`,
+        communities: (address, withGrants) => `/grantees/${address}/communities${withGrants ? "?withGrants=true" : ""}`,
+        communitiesAdmin: (address, withGrants) => `/grantees/${address}/communities/admin${withGrants ? "?withGrants=true" : ""}`,
     },
     grants: {
-        all: () => '/grants',
+        all: () => "/grants",
         byUid: (uid) => `/grants/${uid}`,
         byExternalId: (id) => `/grants/external-id/${id}`,
     },
     project: {
-        all: () => '/projects',
+        all: () => "/projects",
         byUidOrSlug: (uidOrSlug) => `/projects/${uidOrSlug}`,
         grants: (uidOrSlug) => `/projects/${uidOrSlug}/grants`,
         milestones: (uidOrSlug) => `/projects/${uidOrSlug}/milestones`,
@@ -43,7 +44,7 @@ class GapIndexerClient extends Fetcher_1.Fetcher {
     async attestation(uid) {
         const { data } = await this.apiClient.attestation(uid);
         if (!data)
-            throw new Error('Attestation not found');
+            throw new Error("Attestation not found");
         return Attestation_1.Attestation.fromInterface([data], this.gap.network)[0];
     }
     async attestations(schemaName, search) {
@@ -76,7 +77,7 @@ class GapIndexerClient extends Fetcher_1.Fetcher {
         return entities_1.Community.from(data, this.gap.network);
     }
     communitiesByIds(uids) {
-        throw new Error('Method not implemented.');
+        throw new Error("Method not implemented.");
     }
     async communityBySlug(slug) {
         const { data } = await this.apiClient.communityBySlug(slug);
@@ -112,6 +113,10 @@ class GapIndexerClient extends Fetcher_1.Fetcher {
         const { data } = await this.apiClient.projectsOf(grantee);
         return entities_1.Project.from(data, this.gap.network);
     }
+    async projectMilestones(uidOrSlug) {
+        const { data } = await this.apiClient.projectMilestones(uidOrSlug);
+        return ProjectMilestone_1.ProjectMilestone.from(data, this.gap.network);
+    }
     async grantee(address) {
         const { data } = await this.apiClient.grantee(address);
         return data;
@@ -141,7 +146,7 @@ class GapIndexerClient extends Fetcher_1.Fetcher {
         return entities_1.Milestone.from(data, this.gap.network);
     }
     async membersOf(projects) {
-        throw new Error('Method not implemented.');
+        throw new Error("Method not implemented.");
     }
     async slugExists(slug) {
         return await this.apiClient.slugExists(slug);
