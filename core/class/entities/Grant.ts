@@ -209,6 +209,19 @@ export class Grant extends Attestation<IGrant> {
     this.updates.push(grantUpdate);
   }
 
+  /**
+   * Validate if the grant has a valid reference to a community.
+   */
+  protected assertPayload() {
+    if (!this.details || !this.communityUID) {
+      throw new AttestationError(
+        "INVALID_REFERENCE",
+        "Grant should include a valid reference to a community on its details."
+      );
+    }
+    return true;
+  }
+
   async complete(
     signer: SignerOrProvider,
     data: IGrantUpdate,
@@ -227,19 +240,6 @@ export class Grant extends Attestation<IGrant> {
     const { tx, uids } = await completed.attest(signer, callback);
     this.completed = completed;
     return { tx, uids };
-  }
-
-  /**
-   * Validate if the grant has a valid reference to a community.
-   */
-  protected assertPayload() {
-    if (!this.details || !this.communityUID) {
-      throw new AttestationError(
-        "INVALID_REFERENCE",
-        "Grant should include a valid reference to a community on its details."
-      );
-    }
-    return true;
   }
 
   static from(attestations: IGrantResponse[], network: TNetwork): Grant[] {

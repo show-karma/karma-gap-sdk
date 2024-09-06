@@ -21,7 +21,10 @@ import { chainIdToNetwork, nullRef } from "../../consts";
 import { MemberOf } from "./MemberOf";
 import { GapContract } from "../contract/GapContract";
 import { AllGapSchemas } from "../AllGapSchemas";
-import { IProjectResponse } from "../karma-indexer/api/types";
+import {
+  IProjectMilestoneResponse,
+  IProjectResponse,
+} from "../karma-indexer/api/types";
 import { IProjectImpact, ProjectImpact } from "./ProjectImpact";
 import { ProjectUpdate } from "./ProjectUpdate";
 import { ProjectPointer } from "./ProjectPointer";
@@ -439,7 +442,7 @@ export class Project extends Attestation<IProject> {
 
       if (attestation.milestones) {
         project.milestones = ProjectMilestone.from(
-          attestation.updates as unknown as ProjectMilestone[],
+          attestation.milestones as unknown as IProjectMilestoneResponse[],
           network
         );
       }
@@ -530,9 +533,14 @@ export class Project extends Attestation<IProject> {
     callback?: Function
   ): Promise<AttestationWithTx> {
     if (targetChainId && targetChainId !== this.chainID) {
-      return this.attestGhostProjectImpact(signer, data, targetChainId, callback);
+      return this.attestGhostProjectImpact(
+        signer,
+        data,
+        targetChainId,
+        callback
+      );
     }
-  
+
     const projectImpact = new ProjectImpact({
       data: {
         ...data,
@@ -542,7 +550,7 @@ export class Project extends Attestation<IProject> {
       refUID: this.uid,
       schema: this.schema.gap.findSchema("ProjectDetails"),
     });
-  
+
     const { tx, uids } = await projectImpact.attest(signer, callback);
     this.impacts.push(projectImpact);
     return { tx, uids };
@@ -565,7 +573,10 @@ export class Project extends Attestation<IProject> {
       },
       recipient: this.recipient,
       refUID: ghostProjectUid,
-      schema: allGapSchemas.findSchema("ProjectDetails", chainIdToNetwork[targetChainId]),
+      schema: allGapSchemas.findSchema(
+        "ProjectDetails",
+        chainIdToNetwork[targetChainId]
+      ),
       chainID: targetChainId,
     });
 
@@ -593,14 +604,14 @@ export class Project extends Attestation<IProject> {
     this.endorsements.push(projectEndorsement);
   }
 
-  async attestGhostProject(
-    signer: SignerOrProvider,
-    targetChainId: number
-  ) {
+  async attestGhostProject(signer: SignerOrProvider, targetChainId: number) {
     const allGapSchemas = new AllGapSchemas();
     const project = new Project({
       data: { project: true },
-      schema: allGapSchemas.findSchema("Project", chainIdToNetwork[targetChainId]),
+      schema: allGapSchemas.findSchema(
+        "Project",
+        chainIdToNetwork[targetChainId]
+      ),
       recipient: this.recipient,
       chainID: targetChainId,
     });
@@ -612,7 +623,10 @@ export class Project extends Attestation<IProject> {
       },
       chainID: targetChainId,
       recipient: this.recipient,
-      schema: allGapSchemas.findSchema("ProjectDetails", chainIdToNetwork[targetChainId]),
+      schema: allGapSchemas.findSchema(
+        "ProjectDetails",
+        chainIdToNetwork[targetChainId]
+      ),
     });
 
     const attestation = await project.attest(signer);
