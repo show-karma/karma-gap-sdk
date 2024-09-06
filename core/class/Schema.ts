@@ -481,9 +481,9 @@ export abstract class Schema<T extends string = string>
       gasLimit: 5000000n,
     });
     callback?.("pending");
-    tx.wait().then(() => {
-      callback?.("confirmed");
-    });
+    await tx.wait();
+    callback?.("confirmed");
+    
     return {
       tx: [{ hash: tx.tx.hash } as Transaction],
       uids: payload.map((p) => p.data.map((d) => d.uid)).flat(),

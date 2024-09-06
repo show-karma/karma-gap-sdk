@@ -58,6 +58,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       projectResolver: "0x7177AdC0f924b695C0294A40C4C5FEFf5EE1E141",
       communityResolver: "0x6dC1D6b864e8BEf815806f9e4677123496e12026",
       donations: "0x021896771412C1D3f31BC7B01fFA3a6A17c5dA30",
+      airdropNFT: "0x2bB9aB0084477c1306A7da80f5DCDdBca4139112",
     },
     schemas: {
       Community:
@@ -79,6 +80,8 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       Project:
         "0x5b873b6e7a16207b526dde366e8164e95bcda2f009272306519667c5e94d2191",
       ProjectUpdateStatus:
+        "0xdc3f4d0938b1d029d825c01b3c53ad955e0ef3eabc1f57c1ebde90de2bf527ae",
+      ProjectMilestoneStatus:
         "0xdc3f4d0938b1d029d825c01b3c53ad955e0ef3eabc1f57c1ebde90de2bf527ae",
     },
     oldSchemas: [
@@ -121,6 +124,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       projectResolver: "0x832931F23ea4e3c70957DA71a7eB50F5B7efA93D",
       schema: "0x4200000000000000000000000000000000000020",
       donations: "0x3caF83Ed040501f1f439fb22E198bB5a67Bc2884",
+      airdropNFT: "0x57d6A954E051145D7E9dD81decaeA6d7Feb640ee",
     },
     schemas: {
       Community:
@@ -142,6 +146,8 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       Project:
         "0xf9bbd118dd100459a7d093403af21c6e7f847fd7f331b7a4e6bfb94a1366bd76",
       ProjectUpdateStatus:
+        "0x6f8e6a1394bdc398f8d93a99b0ecca326d04470a4f0ee5c379bb85a458a322e4",
+      ProjectMilestoneStatus:
         "0x6f8e6a1394bdc398f8d93a99b0ecca326d04470a4f0ee5c379bb85a458a322e4",
     },
     oldSchemas: [
@@ -184,6 +190,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       projectResolver: "0x28BE0b0515be8BB8822aF1467A6613795E74717b",
       communityResolver: "0xD534C4704F82494aBbc901560046fB62Ac63E9C4",
       donations: "0x475F3E915601d975c792E6116791FBe9ACdBE902",
+      airdropNFT: "0xe957aFd24F91e6A14F4d47E801d70b876176772a",
     },
     schemas: {
       Community:
@@ -205,6 +212,8 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       Project:
         "0xac2a06e955a7e25e6729efe1a6532237e3435b21ccd3dc827ae3c94e624d25b3",
       ProjectUpdateStatus:
+        "0x93391c496898c63995f23797835c8e0468be338f0dbc2df62edfd70856cde1d4",
+        ProjectMilestoneStatus:
         "0x93391c496898c63995f23797835c8e0468be338f0dbc2df62edfd70856cde1d4",
     },
     oldSchemas: [
@@ -247,6 +256,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       projectResolver: "0x099787D5a5aC92779A519CfD925ACB0Dc7E8bd23",
       communityResolver: "0xa9E55D9F52d7B47792d2Db15F6A9674c56ccc5C9",
       donations: "0xb2021F7550b8B07cA71696159B592C1F713593e4",
+      airdropNFT: "0x11f48e68Ff894D417956839263337a2989822703",
     },
     schemas: {
       Community:
@@ -270,6 +280,8 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
         "0xec77990a252b54b17673955c774b9712766de5eecb22ca5aa2c440e0e93257fb",
       ProjectUpdateStatus:
         "0xcdef0e492d2e7ad25d0b0fdb868f6dcd1f5e5c30e42fd5fa0debdc12f7618322",
+        ProjectMilestoneStatus:
+        "0xcdef0e492d2e7ad25d0b0fdb868f6dcd1f5e5c30e42fd5fa0debdc12f7618322",
     },
   },
   "base-sepolia": {
@@ -283,6 +295,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       projectResolver: "0xC891F8eBA218f5034bf3a472528408BE19E1130E",
       communityResolver: "0x009dC7dF3Ea3b23CE80Fd3Ba811d5bA5675934A1",
       donations: "0x61eD6D070EE996698fB35B909e45111402336645",
+      airdropNFT: "0xa9c31794385A217832D4C8E200CfA6A8da9c7B32",
     },
     schemas: {
       Community:
@@ -305,6 +318,8 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
         "0x5ddd6b7a11406771308431ca9bd146cc717848b74b52993a532dc1aad0ccc83f",
       ProjectUpdateStatus:
         "0xe9cce07bd9295aafc78faa7afdd88a6fad6fd61834a048fb8c3dbc86cb471f81",
+      ProjectMilestoneStatus:
+        "0xe9cce07bd9295aafc78faa7afdd88a6fad6fd61834a048fb8c3dbc86cb471f81",
     },
   },
   celo: {
@@ -318,6 +333,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       projectResolver: "0x6dC1D6b864e8BEf815806f9e4677123496e12026",
       communityResolver: "0xfddb660F2F1C27d219372210745BB9f73431856E",
       donations: "0xf373467c21841DF20529FAA8bE49381106DBc258",
+      airdropNFT: "0x884F839fA169B5ECfF5d65CA600C2B43C1F6f668",
     },
     schemas: {
       Community:
@@ -339,6 +355,8 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       Project:
         "0xf3f753b41e04d1052b5a5ec7624d1dfdb6c2da288a985120e477ddbcac071022",
       ProjectUpdateStatus:
+        "0x80f0701853e862d920f87e8ae5b359a1625ad417a9523af2ed12bc3504b04088",
+      ProjectMilestoneStatus:
         "0x80f0701853e862d920f87e8ae5b359a1625ad417a9523af2ed12bc3504b04088",
     },
     oldSchemas: [
@@ -381,6 +399,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       projectResolver: "0x96f36F25C6bD648d9bdBbd8C3E029CfB2394754d",
       communityResolver: "0x61d519C99279DC91fC2FC56B177f42B90B35050E",
       donations: "0xB80D85690747C3E2ceCc0f8529594C6602b642D5",
+      airdropNFT: "0xfced53EA1b05F0ef10f86757933cbD4A4e6D9c6e",
     },
     schemas: {
       Community:
@@ -402,6 +421,8 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       Project:
         "0xf6b89107f8096220051240b89a48abb66e0a23e529c914953b80f5a2bc5ea44c",
       ProjectUpdateStatus:
+        "0xc3b9bee0be3a6ea92f76fa459922a088824e29798becdc82d81f6b2309442563",
+      ProjectMilestoneStatus:
         "0xc3b9bee0be3a6ea92f76fa459922a088824e29798becdc82d81f6b2309442563",
     },
     oldSchemas: [
@@ -443,6 +464,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       projectResolver: "0xdA2c62101851365EEdC5A1f7087d92Ffde7345B4",
       communityResolver: "0x50fb4a65CE924D29b9AC8C508c376a5a21Fda1BC",
       donations: "0xB80D85690747C3E2ceCc0f8529594C6602b642D5",
+      airdropNFT: "0x00933B581765d638369cd8A10a4583c275a857A6",
     },
     schemas: {
       Community:
@@ -464,6 +486,8 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       Project:
         "0x9de9294fbb62391b393332a33bfc28b4e0e728dd094aee4bda3955df62f8401a5",
       ProjectUpdateStatus:
+        "0xb25551d21dc886be83a07c241c46de318704cb6f485191fdedcf80f4b8b28188",
+      ProjectMilestoneStatus:
         "0xb25551d21dc886be83a07c241c46de318704cb6f485191fdedcf80f4b8b28188",
     },
   },
@@ -617,6 +641,20 @@ export const MountEntities = (
     uid: network.schemas.Details,
     references: "Project",
     oldSchemas: network.oldSchemas?.filter(s => s.name === "ProjectPointer")?.map(s => ({uid: s.uid, raw: s.raw}))
+  },
+  ProjectMilestone: {
+    name: "ProjectMilestone",
+    schema: DetailsSchema,
+    uid: network.schemas.Details,
+    references: "Project",
+    oldSchemas: network.oldSchemas?.filter(s => s.name === "ProjectMilestone")?.map(s => ({uid: s.uid, raw: s.raw}))
+  },
+  ProjectMilestoneStatus: {
+    name: "ProjectMilestoneStatus",
+    schema: DetailsSchema,
+    uid: network.schemas.ProjectUpdateStatus,
+    references: "ProjectMilestone",
+    oldSchemas: network.oldSchemas?.filter(s => s.name === "ProjectMilestoneStatus")?.map(s => ({uid: s.uid, raw: s.raw}))
   },
 });
 

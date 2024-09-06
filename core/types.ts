@@ -61,7 +61,9 @@ export type TSchemaName =
   | "ProjectPointer"
   | "GrantUpdate"
   | "GrantUpdateStatus"
-  | "ProjectEndorsement";
+  | "ProjectEndorsement"
+  | "ProjectMilestone"
+  | "ProjectMilestoneStatus";
 
 export type TResolvedSchemaNames =
   | "Community"
@@ -74,7 +76,8 @@ export type TResolvedSchemaNames =
   | "Details"
   | "ProjectUpdateStatus"
   | "GrantUpdateStatus"
-  | "ProjectUpdateStatus";
+  | "ProjectUpdateStatus"
+  | "ProjectMilestoneStatus";
 
 export type TExternalLink =
   | "twitter"
@@ -142,6 +145,7 @@ export interface EASNetworkConfig {
     projectResolver: Hex;
     communityResolver: Hex;
     donations: Hex;
+    airdropNFT: Hex;
   };
   /**
    * A tuple containing the schema name and it's UID for that network

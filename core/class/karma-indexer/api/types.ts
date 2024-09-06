@@ -36,6 +36,7 @@ export interface IMilestoneCompleted extends IAttestationResponse {
   data: {
     type: "approved" | "rejected" | "completed";
     reason?: string;
+    proofOfWork?: string;
   };
 }
 
@@ -67,6 +68,7 @@ export interface IGrantUpdate extends IAttestationResponse {
     text: string;
     title: string;
     type: "grant-update";
+    proofOfWork?: string;
   };
   verified?: IGrantUpdateStatus[];
 }
@@ -86,6 +88,25 @@ export interface IProjectUpdate extends IAttestationResponse {
     type: "project-update";
   };
   verified?: IProjectUpdateStatus[];
+}
+
+export interface IProjectMilestoneStatus extends IAttestationResponse {
+  type: `project-milestone-verified`;
+  reason?: string;
+  data: {
+    type: "approved" | "rejected" | "completed";
+    reason?: string;
+  };
+}
+
+export interface IProjectMilestoneResponse extends IAttestationResponse {
+  data: {
+    text: string;
+    title: string;
+    type: "project-milestone";
+  };
+  verified?: IProjectMilestoneStatus[];
+  completed?: IMilestoneCompleted;
 }
 
 export interface IProjectPointer extends IAttestationResponse {
@@ -193,6 +214,7 @@ export interface IProjectResponse extends IAttestationResponse {
   pointers: IProjectPointer[];
   symlinks: Hex[];
   endorsements: IProjectEndorsement[];
+  milestones: IProjectMilestoneResponse[];
 }
 
 export interface ICommunityDetails extends IAttestationResponse {
