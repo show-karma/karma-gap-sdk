@@ -83,16 +83,15 @@ class GAP extends types_1.Facade {
                 .toLowerCase()
                 .replace(/ /g, "-")
                 .replace(/[^\w-]+/g, "");
-            const slugExists = await this.fetch.slugExists(slug);
-            if (slugExists) {
-                const parts = slug.split("-");
-                const counter = parts.pop();
-                slug = /\d+/g.test(counter) ? parts.join("-") : slug;
-                // eslint-disable-next-line no-param-reassign
-                const nextSlug = `${slug}-${counter && /\d+/g.test(counter) ? +counter + 1 : 1}`;
-                return this.generateSlug(nextSlug);
-            }
-            return slug.toLowerCase();
+            const checkSlug = async (currentSlug, counter = 0) => {
+                const slugToCheck = counter === 0 ? currentSlug : `${currentSlug}-${counter}`;
+                const slugExists = await this.fetch.slugExists(slugToCheck);
+                if (slugExists) {
+                    return checkSlug(currentSlug, counter + 1);
+                }
+                return slugToCheck;
+            };
+            return checkSlug(slug);
         };
         const schemas = args.schemas || Object.values((0, consts_1.MountEntities)(consts_1.Networks[args.network]));
         this.network = args.network;

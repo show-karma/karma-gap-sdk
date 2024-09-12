@@ -10,6 +10,7 @@ export interface IMilestone {
     endsAt: number;
     description: string;
     type?: string;
+    priority?: number;
 }
 export declare class Milestone extends Attestation<IMilestone> implements IMilestone {
     title: string;
@@ -21,6 +22,7 @@ export declare class Milestone extends Attestation<IMilestone> implements IMiles
     rejected: MilestoneCompleted;
     verified: MilestoneCompleted[];
     type: string;
+    priority?: number;
     /**
      * Approves this milestone. If the milestone is not completed or already approved,
      * it will throw an error.

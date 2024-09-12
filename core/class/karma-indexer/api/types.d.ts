@@ -51,6 +51,7 @@ export interface IMilestoneResponse extends IAttestationResponse {
         endsAt: number;
         startsAt?: number;
         type: "milestone";
+        priority?: number;
     };
 }
 export interface IGrantUpdateStatus extends IAttestationResponse {
