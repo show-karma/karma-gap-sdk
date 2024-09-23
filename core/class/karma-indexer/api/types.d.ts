@@ -127,6 +127,7 @@ export interface IGrantDetails extends IAttestationResponse {
         startDate: number;
         programId?: string;
         type: "grant-details";
+        fundUsage?: string;
     };
 }
 export interface IGrantResponse extends IAttestationResponse {
