@@ -51,6 +51,7 @@ export interface IMilestoneResponse extends IAttestationResponse {
         endsAt: number;
         startsAt?: number;
         type: "milestone";
+        priority?: number;
     };
 }
 export interface IGrantUpdateStatus extends IAttestationResponse {
@@ -126,6 +127,7 @@ export interface IGrantDetails extends IAttestationResponse {
         startDate: number;
         programId?: string;
         type: "grant-details";
+        fundUsage?: string;
     };
 }
 export interface IGrantResponse extends IAttestationResponse {
