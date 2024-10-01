@@ -6,3 +6,4 @@ export * from "./MemberOf";
 export * from "./GrantUpdate";
 export * from "./ProjectUpdate";
 export * from "./ProjectPointer";
+export * from "./UserSummary";
