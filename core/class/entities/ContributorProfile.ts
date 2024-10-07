@@ -13,24 +13,24 @@ import {
 } from "core/types";
 import { AllGapSchemas } from "../AllGapSchemas";
 
-export interface IUserSummary {
+export interface IContributorProfile {
   aboutMe: string;
   github?: string;
   twitter?: string;
   linkdin?: number;
 }
 
-export class UserSummary
-  extends Attestation<IUserSummary>
-  implements IUserSummary
+export class ContributorProfile
+  extends Attestation<IContributorProfile>
+  implements IContributorProfile
 {
   aboutMe: string;
   github?: string;
   twitter?: string;
   linkdin?: number;
 
-  constructor(data: AttestationArgs<IUserSummary, GapSchema>) {
-    (data.data as any).type = "user-summary";
+  constructor(data: AttestationArgs<IContributorProfile, GapSchema>) {
+    (data.data as any).type = "contributor-profile";
     super(data);
   }
 
@@ -60,22 +60,22 @@ export class UserSummary
     signer: SignerOrProvider,
     callback?: Function
   ): Promise<AttestationWithTx> {
-    console.log("Attesting UserSummary");
+    console.log("Attesting ContributorProfile");
     try {
       if (callback) callback("preparing");
-      const { tx: UserSummaryTx, uids: UserSummaryUID } = await this.schema.attest({
+      const { tx: ContributorProfileTx, uids: ContributorProfileUID } = await this.schema.attest({
         signer,
         to: this.recipient,
         refUID: nullRef,
         data: this.data,
       });
-      this._uid = UserSummaryUID[0] as Hex;
+      this._uid = ContributorProfileUID[0] as Hex;
 
       console.log(this.uid);
       if (callback) callback("pending");
 
       if (callback) callback("confirmed");
-      return { tx: UserSummaryTx, uids: UserSummaryUID };
+      return { tx: ContributorProfileTx, uids: ContributorProfileUID };
     } catch (error) {
       console.error(error);
       throw new AttestationError(
@@ -87,16 +87,16 @@ export class UserSummary
   }
 
   static from(
-    attestation: UserSummary,
+    attestation: ContributorProfile,
     network: TNetwork
-  ): UserSummary {
-    return new UserSummary({
+  ): ContributorProfile {
+    return new ContributorProfile({
       ...attestation,
       data: {
         ...attestation.data,
       },
       schema: new AllGapSchemas().findSchema(
-        "UserSummary",
+        "ContributorProfile",
         chainIdToNetwork[attestation.chainID] as TNetwork
       ),
       chainID: attestation.chainID,
