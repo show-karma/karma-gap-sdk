@@ -61,7 +61,7 @@ exports.Networks = {
             Project: "0x5b873b6e7a16207b526dde366e8164e95bcda2f009272306519667c5e94d2191",
             ProjectUpdateStatus: "0xdc3f4d0938b1d029d825c01b3c53ad955e0ef3eabc1f57c1ebde90de2bf527ae",
             ProjectMilestoneStatus: "0xdc3f4d0938b1d029d825c01b3c53ad955e0ef3eabc1f57c1ebde90de2bf527ae",
-            UserSummary: "0x"
+            ContributorProfile: "0x"
         },
         oldSchemas: [
             {
@@ -116,7 +116,7 @@ exports.Networks = {
             Project: "0xf9bbd118dd100459a7d093403af21c6e7f847fd7f331b7a4e6bfb94a1366bd76",
             ProjectUpdateStatus: "0x6f8e6a1394bdc398f8d93a99b0ecca326d04470a4f0ee5c379bb85a458a322e4",
             ProjectMilestoneStatus: "0x6f8e6a1394bdc398f8d93a99b0ecca326d04470a4f0ee5c379bb85a458a322e4",
-            UserSummary: "0xcf050d87a2a5a9ad69eab38ebdcc10aa3aee9d57ceeb9783f148f91a6532b7a0"
+            ContributorProfile: "0xcf050d87a2a5a9ad69eab38ebdcc10aa3aee9d57ceeb9783f148f91a6532b7a0"
         },
         oldSchemas: [
             {
@@ -171,7 +171,7 @@ exports.Networks = {
             Project: "0xac2a06e955a7e25e6729efe1a6532237e3435b21ccd3dc827ae3c94e624d25b3",
             ProjectUpdateStatus: "0x93391c496898c63995f23797835c8e0468be338f0dbc2df62edfd70856cde1d4",
             ProjectMilestoneStatus: "0x93391c496898c63995f23797835c8e0468be338f0dbc2df62edfd70856cde1d4",
-            UserSummary: "0x"
+            ContributorProfile: "0x"
         },
         oldSchemas: [
             {
@@ -227,7 +227,7 @@ exports.Networks = {
             Project: "0xec77990a252b54b17673955c774b9712766de5eecb22ca5aa2c440e0e93257fb",
             ProjectUpdateStatus: "0xcdef0e492d2e7ad25d0b0fdb868f6dcd1f5e5c30e42fd5fa0debdc12f7618322",
             ProjectMilestoneStatus: "0xcdef0e492d2e7ad25d0b0fdb868f6dcd1f5e5c30e42fd5fa0debdc12f7618322",
-            UserSummary: "0x"
+            ContributorProfile: "0x"
         },
     },
     "base-sepolia": {
@@ -255,7 +255,7 @@ exports.Networks = {
             Project: "0x5ddd6b7a11406771308431ca9bd146cc717848b74b52993a532dc1aad0ccc83f",
             ProjectUpdateStatus: "0xe9cce07bd9295aafc78faa7afdd88a6fad6fd61834a048fb8c3dbc86cb471f81",
             ProjectMilestoneStatus: "0xe9cce07bd9295aafc78faa7afdd88a6fad6fd61834a048fb8c3dbc86cb471f81",
-            UserSummary: "0x"
+            ContributorProfile: "0x"
         },
     },
     celo: {
@@ -283,7 +283,7 @@ exports.Networks = {
             Project: "0xf3f753b41e04d1052b5a5ec7624d1dfdb6c2da288a985120e477ddbcac071022",
             ProjectUpdateStatus: "0x80f0701853e862d920f87e8ae5b359a1625ad417a9523af2ed12bc3504b04088",
             ProjectMilestoneStatus: "0x80f0701853e862d920f87e8ae5b359a1625ad417a9523af2ed12bc3504b04088",
-            UserSummary: "0x"
+            ContributorProfile: "0x"
         },
         oldSchemas: [
             {
@@ -338,7 +338,7 @@ exports.Networks = {
             Project: "0xf6b89107f8096220051240b89a48abb66e0a23e529c914953b80f5a2bc5ea44c",
             ProjectUpdateStatus: "0xc3b9bee0be3a6ea92f76fa459922a088824e29798becdc82d81f6b2309442563",
             ProjectMilestoneStatus: "0xc3b9bee0be3a6ea92f76fa459922a088824e29798becdc82d81f6b2309442563",
-            UserSummary: "0x"
+            ContributorProfile: "0x"
         },
         oldSchemas: [
             {
@@ -393,7 +393,7 @@ exports.Networks = {
             Project: "0x9de9294fbb62391b393332a33bfc28b4e0e728dd094aee4bda3955df62f8401a5",
             ProjectUpdateStatus: "0xb25551d21dc886be83a07c241c46de318704cb6f485191fdedcf80f4b8b28188",
             ProjectMilestoneStatus: "0xb25551d21dc886be83a07c241c46de318704cb6f485191fdedcf80f4b8b28188",
-            UserSummary: "0x"
+            ContributorProfile: "0x"
         },
     },
 };
@@ -556,11 +556,11 @@ const MountEntities = (network) => ({
         references: "ProjectMilestone",
         oldSchemas: network.oldSchemas?.filter(s => s.name === "ProjectMilestoneStatus")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
-    UserSummary: {
-        name: "UserSummary",
+    ContributorProfile: {
+        name: "ContributorProfile",
         schema: DetailsSchema,
-        uid: network.schemas.UserSummary,
-        oldSchemas: network.oldSchemas?.filter(s => s.name === "UserSummary")?.map(s => ({ uid: s.uid, raw: s.raw }))
+        uid: network.schemas.ContributorProfile,
+        oldSchemas: network.oldSchemas?.filter(s => s.name === "ContributorProfile")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
 });
 exports.MountEntities = MountEntities;
