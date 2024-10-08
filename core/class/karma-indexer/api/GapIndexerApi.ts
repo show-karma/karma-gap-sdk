@@ -19,7 +19,10 @@ const Endpoints = {
     all: () => "/communities",
     admins: (uid: string) => `/communities/${uid}/admins`,
     byUidOrSlug: (uidOrSlug: string) => `/communities/${uidOrSlug}`,
-    grants: (uidOrSlug: string) => `/communities/${uidOrSlug}/grants`,
+    grants: (uidOrSlug: string, page: number = 0, pageLimit: number = 1000) =>
+      `/communities/${uidOrSlug}/grants?${page ? `page=${page}` : ""}${
+        pageLimit ? `&pageLimit=${pageLimit}` : ""
+      }`,
   },
   grantees: {
     all: () => "/grantees",
@@ -257,9 +260,13 @@ export class GapIndexerApi extends AxiosGQL {
     return response;
   }
 
-  async grantsByCommunity(uid: Hex) {
+  async grantsByCommunity(
+    uid: Hex,
+    page: number = 0,
+    pageLimit: number = 1000
+  ) {
     const response = await this.client.get<{ data: IGrantResponse[] }>(
-      Endpoints.communities.grants(uid)
+      Endpoints.communities.grants(uid, page, pageLimit)
     );
 
     return response;

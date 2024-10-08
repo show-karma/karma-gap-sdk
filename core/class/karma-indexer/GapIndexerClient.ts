@@ -224,8 +224,16 @@ export class GapIndexerClient extends Fetcher {
     return Grant.from(data, this.gap.network);
   }
 
-  async grantsByCommunity(uid: `0x${string}`) {
-    const { data } = await this.apiClient.grantsByCommunity(uid);
+  async grantsByCommunity(
+    uid: `0x${string}`,
+    page: number = 0,
+    pageLimit: number = 1000
+  ) {
+    const { data } = await this.apiClient.grantsByCommunity(
+      uid,
+      page,
+      pageLimit
+    );
     const grants = data.data;
 
     return Grant.from(grants, this.gap.network);
