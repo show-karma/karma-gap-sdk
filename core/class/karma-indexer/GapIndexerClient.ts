@@ -227,7 +227,7 @@ export class GapIndexerClient extends Fetcher {
   async grantsByCommunity(
     uid: `0x${string}`,
     page: number = 0,
-    pageLimit: number = 1000
+    pageLimit: number = 100
   ) {
     const { data } = await this.apiClient.grantsByCommunity(
       uid,
