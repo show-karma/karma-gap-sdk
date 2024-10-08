@@ -14,20 +14,22 @@ import {
 import { AllGapSchemas } from "../AllGapSchemas";
 
 export interface IContributorProfile {
-  aboutMe: string;
+  name: string;
+  aboutMe?: string;
   github?: string;
   twitter?: string;
-  linkdin?: number;
+  linkedin?: number;
 }
 
 export class ContributorProfile
   extends Attestation<IContributorProfile>
   implements IContributorProfile
 {
-  aboutMe: string;
+  name: string; 
+  aboutMe?: string;
   github?: string;
   twitter?: string;
-  linkdin?: number;
+  linkedin?: number;
 
   constructor(data: AttestationArgs<IContributorProfile, GapSchema>) {
     (data.data as any).type = "contributor-profile";
