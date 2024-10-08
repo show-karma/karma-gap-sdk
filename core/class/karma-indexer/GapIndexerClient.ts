@@ -226,8 +226,9 @@ export class GapIndexerClient extends Fetcher {
 
   async grantsByCommunity(uid: `0x${string}`) {
     const { data } = await this.apiClient.grantsByCommunity(uid);
+    const grants = data.data;
 
-    return Grant.from(data, this.gap.network);
+    return Grant.from(grants, this.gap.network);
   }
 
   async milestonesOf(grants: Grant[]): Promise<Milestone[]> {
