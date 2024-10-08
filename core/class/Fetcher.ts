@@ -1,9 +1,9 @@
-import { Hex, IAttestation, TSchemaName } from 'core/types';
-import { Attestation } from './Attestation';
-import { Community, Grant, MemberOf, Milestone, Project } from './entities';
-import { Grantee } from './types/attestations';
-import { AxiosGQL } from './GraphQL/AxiosGQL';
-import { GAP } from './GAP';
+import { Hex, IAttestation, TSchemaName } from "core/types";
+import { Attestation } from "./Attestation";
+import { Community, Grant, MemberOf, Milestone, Project } from "./entities";
+import { Grantee } from "./types/attestations";
+import { AxiosGQL } from "./GraphQL/AxiosGQL";
+import { GAP } from "./GAP";
 
 export abstract class Fetcher extends AxiosGQL {
   protected gap: GAP;
@@ -131,14 +131,16 @@ export abstract class Fetcher extends AxiosGQL {
    * __Must be implemented by the indexer__
    * @param query
    */
-  abstract search(query: string): Promise<{projects: Project[], communities: Community[]}>;
+  abstract search(
+    query: string
+  ): Promise<{ projects: Project[]; communities: Community[] }>;
 
   /**
    * Search projects by name. This method will return a list of projects
    * __Must be implemented by the indexer__
    * @param query
    */
-    abstract searchProjects(query: string): Promise<Project[]>;
+  abstract searchProjects(query: string): Promise<Project[]>;
 
   /**
    * Fetch projects with details and members.
@@ -190,7 +192,7 @@ export abstract class Fetcher extends AxiosGQL {
    * @param uid community uid
    * @returns
    */
-  abstract grantsByCommunity(uid: Hex);
+  abstract grantsByCommunity(uid: Hex, page?: number, pageLimit?: number);
 
   /**
    * Fetch all milestones related to an array of Grants.
