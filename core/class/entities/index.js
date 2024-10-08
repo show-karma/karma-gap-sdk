@@ -22,4 +22,3 @@ __exportStar(require("./MemberOf"), exports);
 __exportStar(require("./GrantUpdate"), exports);
 __exportStar(require("./ProjectUpdate"), exports);
 __exportStar(require("./ProjectPointer"), exports);
-__exportStar(require("./ContributorProfile"), exports);
