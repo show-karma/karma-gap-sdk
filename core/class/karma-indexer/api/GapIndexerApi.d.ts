@@ -39,7 +39,9 @@ export declare class GapIndexerApi extends AxiosGQL {
     grantsFor(uid: string, withCommunity?: boolean): Promise<import("axios").AxiosResponse<IGrantResponse[], any>>;
     grantsForExtProject(projectExtId: string): Promise<import("axios").AxiosResponse<IGrantResponse[], any>>;
     grantBySlug(slug: Hex): Promise<import("axios").AxiosResponse<IGrantResponse, any>>;
-    grantsByCommunity(uid: Hex): Promise<import("axios").AxiosResponse<IGrantResponse[], any>>;
+    grantsByCommunity(uid: Hex, page?: number, pageLimit?: number): Promise<import("axios").AxiosResponse<{
+        data: IGrantResponse[];
+    }, any>>;
     /**
      * Milestone
      */
