@@ -3,13 +3,15 @@ import { AttestationWithTx } from "../types/attestations";
 import { GapSchema } from "../GapSchema";
 import { MultiAttestPayload, SignerOrProvider, TNetwork } from "core/types";
 export interface IContributorProfile {
-    aboutMe: string;
+    name: string;
+    aboutMe?: string;
     github?: string;
     twitter?: string;
     linkdin?: number;
 }
 export declare class ContributorProfile extends Attestation<IContributorProfile> implements IContributorProfile {
-    aboutMe: string;
+    name: string;
+    aboutMe?: string;
     github?: string;
     twitter?: string;
     linkdin?: number;
