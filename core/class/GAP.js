@@ -95,7 +95,7 @@ class GAP extends types_1.Facade {
                 if (slugExists) {
                     return checkSlug(currentSlug, counter + 1);
                 }
-                return slugToCheck;
+                return slugToCheck.toLowerCase();
             };
             return checkSlug(slug);
         };
