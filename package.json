@@ -16,6 +16,7 @@
   "scripts": {
     "deploy": "npx ts-node ./core/scripts/deploy.ts",
     "csv-upload": "npx ts-node ./csv-upload/scripts/run.ts",
+    "create-community": "npx ts-node ./community/scripts/run.ts",
     "publish-npm": "npm version patch && tsc && cd .dist && npm publish --scope=@show-karma/karma-gap-sdk --access public"
   },
   "dependencies": {
