@@ -63,7 +63,8 @@ export type TSchemaName =
   | "GrantUpdateStatus"
   | "ProjectEndorsement"
   | "ProjectMilestone"
-  | "ProjectMilestoneStatus";
+  | "ProjectMilestoneStatus"
+  | "UserSummary";
 
 export type TResolvedSchemaNames =
   | "Community"
@@ -77,7 +78,8 @@ export type TResolvedSchemaNames =
   | "ProjectUpdateStatus"
   | "GrantUpdateStatus"
   | "ProjectUpdateStatus"
-  | "ProjectMilestoneStatus";
+  | "ProjectMilestoneStatus"
+  | "UserSummary";
 
 export type TExternalLink =
   | "twitter"
