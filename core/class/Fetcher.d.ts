@@ -1,9 +1,9 @@
-import { Hex, IAttestation, TSchemaName } from "core/types";
-import { Attestation } from "./Attestation";
-import { Community, Grant, MemberOf, Milestone, Project } from "./entities";
-import { Grantee } from "./types/attestations";
-import { AxiosGQL } from "./GraphQL/AxiosGQL";
-import { GAP } from "./GAP";
+import { Hex, IAttestation, TSchemaName } from 'core/types';
+import { Attestation } from './Attestation';
+import { Community, Grant, MemberOf, Milestone, Project } from './entities';
+import { Grantee } from './types/attestations';
+import { AxiosGQL } from './GraphQL/AxiosGQL';
+import { GAP } from './GAP';
 export declare abstract class Fetcher extends AxiosGQL {
     protected gap: GAP;
     constructor(url: string);
@@ -147,7 +147,7 @@ export declare abstract class Fetcher extends AxiosGQL {
      * @param uid community uid
      * @returns
      */
-    abstract grantsByCommunity(uid: Hex, page?: number, pageLimit?: number): any;
+    abstract grantsByCommunity(uid: Hex): any;
     /**
      * Fetch all milestones related to an array of Grants.
      * @param grants

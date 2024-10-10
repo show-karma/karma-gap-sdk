@@ -137,10 +137,9 @@ class GapIndexerClient extends Fetcher_1.Fetcher {
         const { data } = await this.apiClient.grantsForExtProject(projectExtId);
         return entities_1.Grant.from(data, this.gap.network);
     }
-    async grantsByCommunity(uid, page = 0, pageLimit = 100) {
-        const { data } = await this.apiClient.grantsByCommunity(uid, page, pageLimit);
-        const grants = data.data;
-        return entities_1.Grant.from(grants, this.gap.network);
+    async grantsByCommunity(uid) {
+        const { data } = await this.apiClient.grantsByCommunity(uid);
+        return entities_1.Grant.from(data, this.gap.network);
     }
     async milestonesOf(grants) {
         const { data } = await this.apiClient.milestonesOf(grants[0].uid);
