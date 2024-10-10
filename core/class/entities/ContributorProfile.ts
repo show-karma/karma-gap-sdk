@@ -1,7 +1,5 @@
 import { Attestation, AttestationArgs } from "../Attestation";
-import {
-  AttestationWithTx,
-} from "../types/attestations";
+import { AttestationWithTx } from "../types/attestations";
 import { chainIdToNetwork, nullRef } from "../../consts";
 import { AttestationError } from "../SchemaError";
 import { GapSchema } from "../GapSchema";
@@ -18,18 +16,18 @@ export interface IContributorProfile {
   aboutMe?: string;
   github?: string;
   twitter?: string;
-  linkedin?: number;
+  linkedin?: string;
 }
 
 export class ContributorProfile
   extends Attestation<IContributorProfile>
   implements IContributorProfile
 {
-  name: string; 
+  name: string;
   aboutMe?: string;
   github?: string;
   twitter?: string;
-  linkedin?: number;
+  linkedin?: string;
 
   constructor(data: AttestationArgs<IContributorProfile, GapSchema>) {
     (data.data as any).type = "contributor-profile";
@@ -65,12 +63,13 @@ export class ContributorProfile
     console.log("Attesting ContributorProfile");
     try {
       if (callback) callback("preparing");
-      const { tx: ContributorProfileTx, uids: ContributorProfileUID } = await this.schema.attest({
-        signer,
-        to: this.recipient,
-        refUID: nullRef,
-        data: this.data,
-      });
+      const { tx: ContributorProfileTx, uids: ContributorProfileUID } =
+        await this.schema.attest({
+          signer,
+          to: this.recipient,
+          refUID: nullRef,
+          data: this.data,
+        });
       this._uid = ContributorProfileUID[0] as Hex;
 
       console.log(this.uid);
