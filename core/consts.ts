@@ -83,6 +83,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
         "0xdc3f4d0938b1d029d825c01b3c53ad955e0ef3eabc1f57c1ebde90de2bf527ae",
       ProjectMilestoneStatus:
         "0xdc3f4d0938b1d029d825c01b3c53ad955e0ef3eabc1f57c1ebde90de2bf527ae",
+      ContributorProfile: "0x3b4d5890c1613be229b9f0f20e8244e1b46dab4d01fc18373d2570483c552ce4"
     },
     oldSchemas: [
       {
@@ -149,6 +150,8 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
         "0x6f8e6a1394bdc398f8d93a99b0ecca326d04470a4f0ee5c379bb85a458a322e4",
       ProjectMilestoneStatus:
         "0x6f8e6a1394bdc398f8d93a99b0ecca326d04470a4f0ee5c379bb85a458a322e4",
+      ContributorProfile: 
+        "0x18f95014ea1249287fa962a42bc5a1d023b42133ee28ec90730939ec082f8daf"
     },
     oldSchemas: [
       {
@@ -213,8 +216,9 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
         "0xac2a06e955a7e25e6729efe1a6532237e3435b21ccd3dc827ae3c94e624d25b3",
       ProjectUpdateStatus:
         "0x93391c496898c63995f23797835c8e0468be338f0dbc2df62edfd70856cde1d4",
-        ProjectMilestoneStatus:
+      ProjectMilestoneStatus:
         "0x93391c496898c63995f23797835c8e0468be338f0dbc2df62edfd70856cde1d4",
+      ContributorProfile: "0xb2c86dba2ae6850162914ba13ccfb7ac51dd0cbdf96cac38ec41386bad3a3720"
     },
     oldSchemas: [
       {
@@ -282,6 +286,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
         "0xcdef0e492d2e7ad25d0b0fdb868f6dcd1f5e5c30e42fd5fa0debdc12f7618322",
         ProjectMilestoneStatus:
         "0xcdef0e492d2e7ad25d0b0fdb868f6dcd1f5e5c30e42fd5fa0debdc12f7618322",
+        ContributorProfile: "0x"
     },
   },
   "base-sepolia": {
@@ -320,6 +325,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
         "0xe9cce07bd9295aafc78faa7afdd88a6fad6fd61834a048fb8c3dbc86cb471f81",
       ProjectMilestoneStatus:
         "0xe9cce07bd9295aafc78faa7afdd88a6fad6fd61834a048fb8c3dbc86cb471f81",
+      ContributorProfile: "0x18a987f800645fb6ae7fa0398da5cf5a67c866b0628774f16f485b320111416a"
     },
   },
   celo: {
@@ -358,6 +364,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
         "0x80f0701853e862d920f87e8ae5b359a1625ad417a9523af2ed12bc3504b04088",
       ProjectMilestoneStatus:
         "0x80f0701853e862d920f87e8ae5b359a1625ad417a9523af2ed12bc3504b04088",
+      ContributorProfile: "0x349e661a7546b08be1f1f6a738fbde4af2be7549e7817d26f06e0c53c3544108"
     },
     oldSchemas: [
       {
@@ -424,6 +431,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
         "0xc3b9bee0be3a6ea92f76fa459922a088824e29798becdc82d81f6b2309442563",
       ProjectMilestoneStatus:
         "0xc3b9bee0be3a6ea92f76fa459922a088824e29798becdc82d81f6b2309442563",
+      ContributorProfile: "0x3d26bc89de1e6b5c6d4430758ed2b595d9265a392e735c6f3cd795e8c200d744"
     },
     oldSchemas: [
       {
@@ -489,6 +497,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
         "0xb25551d21dc886be83a07c241c46de318704cb6f485191fdedcf80f4b8b28188",
       ProjectMilestoneStatus:
         "0xb25551d21dc886be83a07c241c46de318704cb6f485191fdedcf80f4b8b28188",
+      ContributorProfile: "0x"
     },
   },
 };
@@ -655,6 +664,12 @@ export const MountEntities = (
     uid: network.schemas.ProjectUpdateStatus,
     references: "ProjectMilestone",
     oldSchemas: network.oldSchemas?.filter(s => s.name === "ProjectMilestoneStatus")?.map(s => ({uid: s.uid, raw: s.raw}))
+  },
+  ContributorProfile: {
+    name: "ContributorProfile",
+    schema: DetailsSchema,
+    uid: network.schemas.ContributorProfile,
+    oldSchemas: network.oldSchemas?.filter(s => s.name === "ContributorProfile")?.map(s => ({uid: s.uid, raw: s.raw}))
   },
 });
 
