@@ -61,7 +61,7 @@ exports.Networks = {
             Project: "0x5b873b6e7a16207b526dde366e8164e95bcda2f009272306519667c5e94d2191",
             ProjectUpdateStatus: "0xdc3f4d0938b1d029d825c01b3c53ad955e0ef3eabc1f57c1ebde90de2bf527ae",
             ProjectMilestoneStatus: "0xdc3f4d0938b1d029d825c01b3c53ad955e0ef3eabc1f57c1ebde90de2bf527ae",
-            ContributorProfile: "0x"
+            ContributorProfile: "0x3b4d5890c1613be229b9f0f20e8244e1b46dab4d01fc18373d2570483c552ce4"
         },
         oldSchemas: [
             {
@@ -171,7 +171,7 @@ exports.Networks = {
             Project: "0xac2a06e955a7e25e6729efe1a6532237e3435b21ccd3dc827ae3c94e624d25b3",
             ProjectUpdateStatus: "0x93391c496898c63995f23797835c8e0468be338f0dbc2df62edfd70856cde1d4",
             ProjectMilestoneStatus: "0x93391c496898c63995f23797835c8e0468be338f0dbc2df62edfd70856cde1d4",
-            ContributorProfile: "0x"
+            ContributorProfile: "0xb2c86dba2ae6850162914ba13ccfb7ac51dd0cbdf96cac38ec41386bad3a3720"
         },
         oldSchemas: [
             {
@@ -255,7 +255,7 @@ exports.Networks = {
             Project: "0x5ddd6b7a11406771308431ca9bd146cc717848b74b52993a532dc1aad0ccc83f",
             ProjectUpdateStatus: "0xe9cce07bd9295aafc78faa7afdd88a6fad6fd61834a048fb8c3dbc86cb471f81",
             ProjectMilestoneStatus: "0xe9cce07bd9295aafc78faa7afdd88a6fad6fd61834a048fb8c3dbc86cb471f81",
-            ContributorProfile: "0x"
+            ContributorProfile: "0x18a987f800645fb6ae7fa0398da5cf5a67c866b0628774f16f485b320111416a"
         },
     },
     celo: {
@@ -283,7 +283,7 @@ exports.Networks = {
             Project: "0xf3f753b41e04d1052b5a5ec7624d1dfdb6c2da288a985120e477ddbcac071022",
             ProjectUpdateStatus: "0x80f0701853e862d920f87e8ae5b359a1625ad417a9523af2ed12bc3504b04088",
             ProjectMilestoneStatus: "0x80f0701853e862d920f87e8ae5b359a1625ad417a9523af2ed12bc3504b04088",
-            ContributorProfile: "0x"
+            ContributorProfile: "0x349e661a7546b08be1f1f6a738fbde4af2be7549e7817d26f06e0c53c3544108"
         },
         oldSchemas: [
             {
@@ -338,7 +338,7 @@ exports.Networks = {
             Project: "0xf6b89107f8096220051240b89a48abb66e0a23e529c914953b80f5a2bc5ea44c",
             ProjectUpdateStatus: "0xc3b9bee0be3a6ea92f76fa459922a088824e29798becdc82d81f6b2309442563",
             ProjectMilestoneStatus: "0xc3b9bee0be3a6ea92f76fa459922a088824e29798becdc82d81f6b2309442563",
-            ContributorProfile: "0x"
+            ContributorProfile: "0x3d26bc89de1e6b5c6d4430758ed2b595d9265a392e735c6f3cd795e8c200d744"
         },
         oldSchemas: [
             {
