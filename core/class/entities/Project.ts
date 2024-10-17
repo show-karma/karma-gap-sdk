@@ -632,4 +632,36 @@ export class Project extends Attestation<IProject> {
     const attestation = await project.attest(signer);
     return attestation;
   }
+
+  async addAdmin(
+    signer: SignerOrProvider,
+    newAdmin: Hex,
+    callback?: Function
+  ): Promise<AttestationWithTx> {
+    callback?.("preparing");
+    const tx = await GapContract.addProjectAdmin(
+      signer,
+      this.uid,
+      newAdmin
+    );
+    callback?.("confirmed");
+    const txArray = [tx].flat();
+    return { tx: txArray, uids: [this.uid] };
+  }
+
+  async removeAdmin(
+    signer: SignerOrProvider,
+    oldAdmin: Hex,
+    callback?: Function
+  ): Promise<AttestationWithTx> {
+    callback?.("preparing");
+    const tx = await GapContract.removeProjectAdmin(
+      signer,
+      this.uid,
+      oldAdmin
+    );
+    callback?.("confirmed");
+    const txArray = [tx].flat();
+    return { tx: txArray, uids: [this.uid] };
+  }
 }

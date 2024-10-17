@@ -397,4 +397,38 @@ export class GapContract {
     // the ones from the GelatoRelay contract.
     return getUIDsFromAttestReceipt(txn) as Hex[];
   }
+
+    /**
+   * Add Project Admin
+   * @param signer
+   * @param projectUID
+   * @param newAdmin
+   * @returns
+   */
+    static async addProjectAdmin(
+      signer: SignerOrProvider,
+      projectUID: Hex,
+      newAdmin: Hex
+    ) {
+      const contract = await GAP.getProjectResolver(signer);
+      const tx = await contract.addAdmin(projectUID, newAdmin);
+      return tx.wait?.();
+    }
+
+    /**
+   * RemoveProject Admin
+   * @param signer
+   * @param projectUID
+   * @param newAdmin
+   * @returns
+   */
+    static async removeProjectAdmin(
+      signer: SignerOrProvider,
+      projectUID: Hex,
+      oldAdmin: Hex
+    ) {
+      const contract = await GAP.getProjectResolver(signer);
+      const tx = await contract.addAdmin(projectUID, oldAdmin);
+      return tx.wait?.();
+    }
 }
