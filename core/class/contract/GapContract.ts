@@ -382,8 +382,25 @@ export class GapContract {
   ): Promise<boolean> {
     const contract = await GAP.getProjectResolver(signer, projectChainId);
     const address = await this.getSignerAddress(signer);
-    const isOwner = await contract.isAdmin(projectUID, address);
+    const isOwner = await contract.isOwner(projectUID, address);
     return !!isOwner?.[0];
+  }
+
+  /**
+   * Check if the signer is admin of the project
+   * @param signer
+   * @param projectUID
+   * @returns
+   */
+  static async isProjectAdmin(
+    signer: SignerOrProvider,
+    projectUID: Hex,
+    projectChainId: number
+  ): Promise<boolean> {
+    const contract = await GAP.getProjectResolver(signer, projectChainId);
+    const address = await this.getSignerAddress(signer);
+    const isAdmin = await contract.isAdmin(projectUID, address);
+    return !!isAdmin?.[0];
   }
 
   private static async getTransactionLogs(

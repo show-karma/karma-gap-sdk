@@ -127,6 +127,10 @@ export class Project extends Attestation<IProject> {
     return GapContract.isProjectOwner(signer, this.uid, this.chainID);
   }
 
+  isAdmin(signer: SignerOrProvider): Promise<boolean> {
+    return GapContract.isProjectAdmin(signer, this.uid, this.chainID);
+  }
+
   /**
    * Add new members to the project.
    * If any member in the array already exists in the project
