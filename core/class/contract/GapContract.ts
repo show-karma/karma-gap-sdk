@@ -382,8 +382,25 @@ export class GapContract {
   ): Promise<boolean> {
     const contract = await GAP.getProjectResolver(signer, projectChainId);
     const address = await this.getSignerAddress(signer);
-    const isOwner = await contract.isAdmin(projectUID, address);
+    const isOwner = await contract.isOwner(projectUID, address);
     return !!isOwner?.[0];
+  }
+
+  /**
+   * Check if the signer is admin of the project
+   * @param signer
+   * @param projectUID
+   * @returns
+   */
+  static async isProjectAdmin(
+    signer: SignerOrProvider,
+    projectUID: Hex,
+    projectChainId: number
+  ): Promise<boolean> {
+    const contract = await GAP.getProjectResolver(signer, projectChainId);
+    const address = await this.getSignerAddress(signer);
+    const isAdmin = await contract.isAdmin(projectUID, address);
+    return !!isAdmin?.[0];
   }
 
   private static async getTransactionLogs(
@@ -397,4 +414,38 @@ export class GapContract {
     // the ones from the GelatoRelay contract.
     return getUIDsFromAttestReceipt(txn) as Hex[];
   }
+
+    /**
+   * Add Project Admin
+   * @param signer
+   * @param projectUID
+   * @param newAdmin
+   * @returns
+   */
+    static async addProjectAdmin(
+      signer: SignerOrProvider,
+      projectUID: Hex,
+      newAdmin: Hex
+    ) {
+      const contract = await GAP.getProjectResolver(signer);
+      const tx = await contract.addAdmin(projectUID, newAdmin);
+      return tx.wait?.();
+    }
+
+    /**
+   * RemoveProject Admin
+   * @param signer
+   * @param projectUID
+   * @param newAdmin
+   * @returns
+   */
+    static async removeProjectAdmin(
+      signer: SignerOrProvider,
+      projectUID: Hex,
+      oldAdmin: Hex
+    ) {
+      const contract = await GAP.getProjectResolver(signer);
+      const tx = await contract.addAdmin(projectUID, oldAdmin);
+      return tx.wait?.();
+    }
 }
