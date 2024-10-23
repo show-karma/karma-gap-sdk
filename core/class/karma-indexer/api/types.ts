@@ -145,6 +145,9 @@ export interface IGrantResponse extends IAttestationResponse {
   community: ICommunityResponse;
   members: Hex[];
   categories?: string[];
+  externalAddresses?: {
+    [key: string]: string;
+  };
 }
 
 export interface IMemberDetails extends IAttestationResponse {
