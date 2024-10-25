@@ -11,12 +11,12 @@ export async function revokeAttestation() {
     apiClient: new GapIndexerClient("https://gapstagapi.karmahq.xyz"), // Change to prod api
   });
 
-  const web3 = new ethers.JsonRpcProvider(Networks.optimism.rpcUrl);
+  const web3 = new ethers.JsonRpcProvider(Networks["optimism-sepolia"].rpcUrl); // Change the network here
   const wallet = new ethers.Wallet(keys.privateKey, web3);
   const signer = wallet.connect(web3);
 
   const project = await gap.fetch.projectById(
-    "0x24e0986a309e5385dfb2ee2bf230b0a62e942ead8fef6171feb9de21b6d6fe8a" // Project UID
+    "0xf260da0d8a62cd36a4b47970d8c41a0af144906d52c2576212b638abe461e8fb" // Project UID which is wrongly linked
   );
   console.log(project.pointers);
 
@@ -24,7 +24,7 @@ export async function revokeAttestation() {
   const pointerToRevoke = projectPointers.find(
     (pointer) =>
       pointer.uid ===
-      "0x7542b7216ea4f82dffeac48922e64b70b240a0b95706aaa745876c5d33349133" // Pointer UID which needs to be revoked
+      "0xe8c0be759ae6861ac99ce80587ab54346c48f0c4ee50d85ba6b9a3ce4eeb196f" // Pointer UID which needs to be revoked
   );
 
   try {
