@@ -780,6 +780,13 @@ export declare const abis: {
         };
     };
     MultiAttester: ({
+        inputs: any[];
+        stateMutability: string;
+        type: string;
+        anonymous?: undefined;
+        name?: undefined;
+        outputs?: undefined;
+    } | {
         anonymous: boolean;
         inputs: {
             indexed: boolean;
@@ -789,8 +796,8 @@ export declare const abis: {
         }[];
         name: string;
         type: string;
-        outputs?: undefined;
         stateMutability?: undefined;
+        outputs?: undefined;
     } | {
         inputs: ({
             components: ({
@@ -867,13 +874,6 @@ export declare const abis: {
         stateMutability: string;
         type: string;
         anonymous?: undefined;
-    } | {
-        inputs: any[];
-        stateMutability: string;
-        type: string;
-        anonymous?: undefined;
-        name?: undefined;
-        outputs?: undefined;
     })[];
     ProjectResolver: ({
         inputs: {
