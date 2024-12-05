@@ -230,7 +230,7 @@ class GapContract {
      */
     static async isProjectOwner(signer, projectUID, projectChainId, publicAddress) {
         const contract = await GAP_1.GAP.getProjectResolver(signer, projectChainId);
-        const address = publicAddress || await this.getSignerAddress(signer);
+        const address = publicAddress || (await this.getSignerAddress(signer));
         const isOwner = await contract.isOwner(projectUID, address);
         return isOwner;
     }
@@ -244,7 +244,7 @@ class GapContract {
      */
     static async isProjectAdmin(signer, projectUID, projectChainId, publicAddress) {
         const contract = await GAP_1.GAP.getProjectResolver(signer, projectChainId);
-        const address = publicAddress || await this.getSignerAddress(signer);
+        const address = publicAddress || (await this.getSignerAddress(signer));
         const isAdmin = await contract.isAdmin(projectUID, address);
         return isAdmin;
     }
@@ -277,7 +277,7 @@ class GapContract {
      */
     static async removeProjectAdmin(signer, projectUID, oldAdmin) {
         const contract = await GAP_1.GAP.getProjectResolver(signer);
-        const tx = await contract.addAdmin(projectUID, oldAdmin);
+        const tx = await contract.removeAdmin(projectUID, oldAdmin);
         return tx.wait?.();
     }
 }
