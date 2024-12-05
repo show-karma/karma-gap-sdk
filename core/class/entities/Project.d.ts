@@ -1,13 +1,13 @@
-import { Attestation } from "../Attestation";
-import { AttestationWithTx, Grantee, MemberDetails, ProjectDetails, ProjectEndorsement } from "../types/attestations";
 import { Hex, MultiAttestPayload, SignerOrProvider, TNetwork } from "core/types";
+import { Attestation } from "../Attestation";
+import { IProjectResponse } from "../karma-indexer/api/types";
+import { AttestationWithTx, Grantee, MemberDetails, ProjectDetails, ProjectEndorsement } from "../types/attestations";
 import { Grant } from "./Grant";
 import { MemberOf } from "./MemberOf";
-import { IProjectResponse } from "../karma-indexer/api/types";
 import { IProjectImpact, ProjectImpact } from "./ProjectImpact";
-import { ProjectUpdate } from "./ProjectUpdate";
-import { ProjectPointer } from "./ProjectPointer";
 import { ProjectMilestone } from "./ProjectMilestone";
+import { ProjectPointer } from "./ProjectPointer";
+import { ProjectUpdate } from "./ProjectUpdate";
 export interface IProject {
     project: true;
 }
@@ -36,6 +36,7 @@ export declare class Project extends Attestation<IProject> {
     transferOwnership(signer: SignerOrProvider, newOwner: Hex, callback?: Function): Promise<AttestationWithTx>;
     isOwner(signer: SignerOrProvider): Promise<boolean>;
     isAdmin(signer: SignerOrProvider): Promise<boolean>;
+    isAddressAdmin(signer: SignerOrProvider, address: Hex): Promise<boolean>;
     /**
      * Add new members to the project.
      * If any member in the array already exists in the project

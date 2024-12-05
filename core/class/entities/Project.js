@@ -1,19 +1,19 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Project = void 0;
-const Attestation_1 = require("../Attestation");
-const attestations_1 = require("../types/attestations");
-const SchemaError_1 = require("../SchemaError");
-const utils_1 = require("../../utils");
-const Grant_1 = require("./Grant");
 const consts_1 = require("../../consts");
-const MemberOf_1 = require("./MemberOf");
-const GapContract_1 = require("../contract/GapContract");
+const utils_1 = require("../../utils");
 const AllGapSchemas_1 = require("../AllGapSchemas");
+const Attestation_1 = require("../Attestation");
+const GapContract_1 = require("../contract/GapContract");
+const SchemaError_1 = require("../SchemaError");
+const attestations_1 = require("../types/attestations");
+const Grant_1 = require("./Grant");
+const MemberOf_1 = require("./MemberOf");
 const ProjectImpact_1 = require("./ProjectImpact");
-const ProjectUpdate_1 = require("./ProjectUpdate");
-const ProjectPointer_1 = require("./ProjectPointer");
 const ProjectMilestone_1 = require("./ProjectMilestone");
+const ProjectPointer_1 = require("./ProjectPointer");
+const ProjectUpdate_1 = require("./ProjectUpdate");
 class Project extends Attestation_1.Attestation {
     constructor() {
         super(...arguments);
@@ -71,6 +71,9 @@ class Project extends Attestation_1.Attestation {
     }
     isAdmin(signer) {
         return GapContract_1.GapContract.isProjectAdmin(signer, this.uid, this.chainID);
+    }
+    isAddressAdmin(signer, address) {
+        return GapContract_1.GapContract.isAddressAdmin(signer, address, this.uid, this.chainID);
     }
     /**
      * Add new members to the project.

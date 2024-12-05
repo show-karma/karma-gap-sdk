@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GapContract = void 0;
-const GAP_1 = require("../GAP");
-const serialize_bigint_1 = require("../../utils/serialize-bigint");
-const send_gelato_txn_1 = require("../../utils/gelato/send-gelato-txn");
 const eas_sdk_1 = require("@ethereum-attestation-service/eas-sdk");
+const send_gelato_txn_1 = require("../../utils/gelato/send-gelato-txn");
+const serialize_bigint_1 = require("../../utils/serialize-bigint");
+const GAP_1 = require("../GAP");
 const AttestationDataTypes = {
     Attest: [
         { name: "payloadHash", type: "string" },
@@ -244,6 +244,19 @@ class GapContract {
         const isAdmin = await contract.isAdmin(projectUID, address);
         return !!isAdmin?.[0];
     }
+    /**
+     * Check if the address is admin of the project
+     * @param signer
+     * @param address
+     * @param projectUID
+     * @param projectChainId
+     * @returns
+     */
+    static async isAddressAdmin(signer, address, projectUID, projectChainId) {
+        const contract = await GAP_1.GAP.getProjectResolver(signer, projectChainId);
+        const isAdmin = await contract.isAdmin(projectUID, address);
+        return !!isAdmin?.[0];
+    }
     static async getTransactionLogs(signer, txnHash) {
         const txn = await signer.provider.getTransactionReceipt(txnHash);
         if (!txn || !txn.logs.length)
@@ -253,24 +266,24 @@ class GapContract {
         return (0, eas_sdk_1.getUIDsFromAttestReceipt)(txn);
     }
     /**
-   * Add Project Admin
-   * @param signer
-   * @param projectUID
-   * @param newAdmin
-   * @returns
-   */
+     * Add Project Admin
+     * @param signer
+     * @param projectUID
+     * @param newAdmin
+     * @returns
+     */
     static async addProjectAdmin(signer, projectUID, newAdmin) {
         const contract = await GAP_1.GAP.getProjectResolver(signer);
         const tx = await contract.addAdmin(projectUID, newAdmin);
         return tx.wait?.();
     }
     /**
-   * RemoveProject Admin
-   * @param signer
-   * @param projectUID
-   * @param newAdmin
-   * @returns
-   */
+     * RemoveProject Admin
+     * @param signer
+     * @param projectUID
+     * @param newAdmin
+     * @returns
+     */
     static async removeProjectAdmin(signer, projectUID, oldAdmin) {
         const contract = await GAP_1.GAP.getProjectResolver(signer);
         const tx = await contract.addAdmin(projectUID, oldAdmin);
