@@ -68,25 +68,20 @@ export declare class GapContract {
      * Check if the signer is the owner of the project
      * @param signer
      * @param projectUID
+     * @param projectChainId
+     * @param publicAddress
      * @returns
      */
-    static isProjectOwner(signer: SignerOrProvider, projectUID: Hex, projectChainId: number): Promise<boolean>;
+    static isProjectOwner(signer: SignerOrProvider, projectUID: Hex, projectChainId: number, publicAddress?: string): Promise<boolean>;
     /**
      * Check if the signer is admin of the project
      * @param signer
      * @param projectUID
-     * @returns
-     */
-    static isProjectAdmin(signer: SignerOrProvider, projectUID: Hex, projectChainId: number): Promise<boolean>;
-    /**
-     * Check if the address is admin of the project
-     * @param signer
-     * @param address
-     * @param projectUID
      * @param projectChainId
+     * @param publicAddress
      * @returns
      */
-    static isAddressAdmin(signer: SignerOrProvider, address: Hex, projectUID: Hex, projectChainId: number): Promise<boolean>;
+    static isProjectAdmin(signer: SignerOrProvider, projectUID: Hex, projectChainId: number, publicAddress?: string): Promise<boolean>;
     private static getTransactionLogs;
     /**
      * Add Project Admin

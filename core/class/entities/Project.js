@@ -66,14 +66,11 @@ class Project extends Attestation_1.Attestation {
         const txArray = [tx].flat();
         return { tx: txArray, uids: [this.uid] };
     }
-    isOwner(signer) {
-        return GapContract_1.GapContract.isProjectOwner(signer, this.uid, this.chainID);
+    isOwner(signer, publicAddress) {
+        return GapContract_1.GapContract.isProjectOwner(signer, this.uid, this.chainID, publicAddress);
     }
-    isAdmin(signer) {
-        return GapContract_1.GapContract.isProjectAdmin(signer, this.uid, this.chainID);
-    }
-    isAddressAdmin(signer, address) {
-        return GapContract_1.GapContract.isAddressAdmin(signer, address, this.uid, this.chainID);
+    isAdmin(signer, publicAddress) {
+        return GapContract_1.GapContract.isProjectAdmin(signer, this.uid, this.chainID, publicAddress);
     }
     /**
      * Add new members to the project.

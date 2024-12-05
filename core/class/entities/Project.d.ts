@@ -34,9 +34,8 @@ export declare class Project extends Attestation<IProject> {
     multiAttestPayload(currentPayload?: MultiAttestPayload, communityIdx?: number): Promise<MultiAttestPayload>;
     attest(signer: SignerOrProvider, callback?: Function): Promise<AttestationWithTx>;
     transferOwnership(signer: SignerOrProvider, newOwner: Hex, callback?: Function): Promise<AttestationWithTx>;
-    isOwner(signer: SignerOrProvider): Promise<boolean>;
-    isAdmin(signer: SignerOrProvider): Promise<boolean>;
-    isAddressAdmin(signer: SignerOrProvider, address: Hex): Promise<boolean>;
+    isOwner(signer: SignerOrProvider, publicAddress?: string): Promise<boolean>;
+    isAdmin(signer: SignerOrProvider, publicAddress?: string): Promise<boolean>;
     /**
      * Add new members to the project.
      * If any member in the array already exists in the project
