@@ -121,16 +121,12 @@ export class Project extends Attestation<IProject> {
     return { tx: txArray, uids: [this.uid] };
   }
 
-  isOwner(signer: SignerOrProvider): Promise<boolean> {
-    return GapContract.isProjectOwner(signer, this.uid, this.chainID);
+  isOwner(signer: SignerOrProvider, publicAddress?: string): Promise<boolean> {
+    return GapContract.isProjectOwner(signer, this.uid, this.chainID, publicAddress);
   }
 
-  isAdmin(signer: SignerOrProvider): Promise<boolean> {
-    return GapContract.isProjectAdmin(signer, this.uid, this.chainID);
-  }
-
-  isAddressAdmin(signer: SignerOrProvider, address: Hex): Promise<boolean> {
-    return GapContract.isAddressAdmin(signer, address, this.uid, this.chainID);
+  isAdmin(signer: SignerOrProvider, publicAddress?: string): Promise<boolean> {
+    return GapContract.isProjectAdmin(signer, this.uid, this.chainID, publicAddress);
   }
 
   /**

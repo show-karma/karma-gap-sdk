@@ -373,54 +373,42 @@ export class GapContract {
    * Check if the signer is the owner of the project
    * @param signer
    * @param projectUID
+   * @param projectChainId
+   * @param publicAddress
    * @returns
    */
   static async isProjectOwner(
     signer: SignerOrProvider,
     projectUID: Hex,
-    projectChainId: number
+    projectChainId: number,
+    publicAddress?: string
   ): Promise<boolean> {
     const contract = await GAP.getProjectResolver(signer, projectChainId);
-    const address = await this.getSignerAddress(signer);
+    const address = publicAddress || await this.getSignerAddress(signer);
     const isOwner = await contract.isOwner(projectUID, address);
-    return !!isOwner?.[0];
+    return isOwner;
   }
 
   /**
    * Check if the signer is admin of the project
    * @param signer
    * @param projectUID
+   * @param projectChainId
+   * @param publicAddress
    * @returns
    */
   static async isProjectAdmin(
     signer: SignerOrProvider,
     projectUID: Hex,
-    projectChainId: number
+    projectChainId: number,
+    publicAddress?: string
   ): Promise<boolean> {
     const contract = await GAP.getProjectResolver(signer, projectChainId);
-    const address = await this.getSignerAddress(signer);
+    const address =  publicAddress || await this.getSignerAddress(signer);
     const isAdmin = await contract.isAdmin(projectUID, address);
-    return !!isAdmin?.[0];
+    return isAdmin;
   }
 
-  /**
-   * Check if the address is admin of the project
-   * @param signer
-   * @param address
-   * @param projectUID
-   * @param projectChainId
-   * @returns
-   */
-  static async isAddressAdmin(
-    signer: SignerOrProvider,
-    address: Hex,
-    projectUID: Hex,
-    projectChainId: number
-  ): Promise<boolean> {
-    const contract = await GAP.getProjectResolver(signer, projectChainId);
-    const isAdmin = await contract.isAdmin(projectUID, address);
-    return !!isAdmin?.[0];
-  }
 
   private static async getTransactionLogs(
     signer: SignerOrProvider,
