@@ -1,19 +1,19 @@
 import {
+  MultiRevocationRequest,
+  getUIDsFromAttestReceipt,
+} from "@ethereum-attestation-service/eas-sdk";
+import {
   CallbackStatus,
   Hex,
   RawAttestationPayload,
   RawMultiAttestPayload,
   SignerOrProvider,
 } from "core/types";
-import { GAP } from "../GAP";
-import { serializeWithBigint } from "../../utils/serialize-bigint";
-import { Gelato, sendGelatoTxn } from "../../utils/gelato/send-gelato-txn";
-import {
-  MultiRevocationRequest,
-  getUIDsFromAttestReceipt,
-} from "@ethereum-attestation-service/eas-sdk";
-import { AttestationWithTx } from "../types/attestations";
 import { Transaction } from "ethers";
+import { Gelato, sendGelatoTxn } from "../../utils/gelato/send-gelato-txn";
+import { serializeWithBigint } from "../../utils/serialize-bigint";
+import { GAP } from "../GAP";
+import { AttestationWithTx } from "../types/attestations";
 
 type TSignature = {
   r: string;
@@ -403,6 +403,25 @@ export class GapContract {
     return !!isAdmin?.[0];
   }
 
+  /**
+   * Check if the address is admin of the project
+   * @param signer
+   * @param address
+   * @param projectUID
+   * @param projectChainId
+   * @returns
+   */
+  static async isAddressAdmin(
+    signer: SignerOrProvider,
+    address: Hex,
+    projectUID: Hex,
+    projectChainId: number
+  ): Promise<boolean> {
+    const contract = await GAP.getProjectResolver(signer, projectChainId);
+    const isAdmin = await contract.isAdmin(projectUID, address);
+    return !!isAdmin?.[0];
+  }
+
   private static async getTransactionLogs(
     signer: SignerOrProvider,
     txnHash: string
@@ -415,37 +434,37 @@ export class GapContract {
     return getUIDsFromAttestReceipt(txn) as Hex[];
   }
 
-    /**
+  /**
    * Add Project Admin
    * @param signer
    * @param projectUID
    * @param newAdmin
    * @returns
    */
-    static async addProjectAdmin(
-      signer: SignerOrProvider,
-      projectUID: Hex,
-      newAdmin: Hex
-    ) {
-      const contract = await GAP.getProjectResolver(signer);
-      const tx = await contract.addAdmin(projectUID, newAdmin);
-      return tx.wait?.();
-    }
+  static async addProjectAdmin(
+    signer: SignerOrProvider,
+    projectUID: Hex,
+    newAdmin: Hex
+  ) {
+    const contract = await GAP.getProjectResolver(signer);
+    const tx = await contract.addAdmin(projectUID, newAdmin);
+    return tx.wait?.();
+  }
 
-    /**
+  /**
    * RemoveProject Admin
    * @param signer
    * @param projectUID
    * @param newAdmin
    * @returns
    */
-    static async removeProjectAdmin(
-      signer: SignerOrProvider,
-      projectUID: Hex,
-      oldAdmin: Hex
-    ) {
-      const contract = await GAP.getProjectResolver(signer);
-      const tx = await contract.addAdmin(projectUID, oldAdmin);
-      return tx.wait?.();
-    }
+  static async removeProjectAdmin(
+    signer: SignerOrProvider,
+    projectUID: Hex,
+    oldAdmin: Hex
+  ) {
+    const contract = await GAP.getProjectResolver(signer);
+    const tx = await contract.addAdmin(projectUID, oldAdmin);
+    return tx.wait?.();
+  }
 }
