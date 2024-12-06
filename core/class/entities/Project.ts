@@ -1,34 +1,32 @@
-import { Attestation } from "../Attestation";
-import {
-  AttestationWithTx,
-  Grantee,
-  MemberDetails,
-  ProjectDetails,
-  ProjectEndorsement,
-  Tag,
-} from "../types/attestations";
 import {
   Hex,
   MultiAttestPayload,
   SignerOrProvider,
   TNetwork,
 } from "core/types";
-import { GapSchema } from "../GapSchema";
-import { AttestationError } from "../SchemaError";
-import { mapFilter } from "../../utils";
-import { Grant } from "./Grant";
 import { chainIdToNetwork, nullRef } from "../../consts";
-import { MemberOf } from "./MemberOf";
-import { GapContract } from "../contract/GapContract";
+import { mapFilter } from "../../utils";
 import { AllGapSchemas } from "../AllGapSchemas";
+import { Attestation } from "../Attestation";
+import { GapContract } from "../contract/GapContract";
 import {
   IProjectMilestoneResponse,
   IProjectResponse,
 } from "../karma-indexer/api/types";
+import { AttestationError } from "../SchemaError";
+import {
+  AttestationWithTx,
+  Grantee,
+  MemberDetails,
+  ProjectDetails,
+  ProjectEndorsement,
+} from "../types/attestations";
+import { Grant } from "./Grant";
+import { MemberOf } from "./MemberOf";
 import { IProjectImpact, ProjectImpact } from "./ProjectImpact";
-import { ProjectUpdate } from "./ProjectUpdate";
-import { ProjectPointer } from "./ProjectPointer";
 import { ProjectMilestone } from "./ProjectMilestone";
+import { ProjectPointer } from "./ProjectPointer";
+import { ProjectUpdate } from "./ProjectUpdate";
 
 interface _Project extends Project {}
 
@@ -123,8 +121,12 @@ export class Project extends Attestation<IProject> {
     return { tx: txArray, uids: [this.uid] };
   }
 
-  isOwner(signer: SignerOrProvider): Promise<boolean> {
-    return GapContract.isProjectOwner(signer, this.uid, this.chainID);
+  isOwner(signer: SignerOrProvider, publicAddress?: string): Promise<boolean> {
+    return GapContract.isProjectOwner(signer, this.uid, this.chainID, publicAddress);
+  }
+
+  isAdmin(signer: SignerOrProvider, publicAddress?: string): Promise<boolean> {
+    return GapContract.isProjectAdmin(signer, this.uid, this.chainID, publicAddress);
   }
 
   /**
@@ -631,5 +633,29 @@ export class Project extends Attestation<IProject> {
 
     const attestation = await project.attest(signer);
     return attestation;
+  }
+
+  async addAdmin(
+    signer: SignerOrProvider,
+    newAdmin: Hex,
+    callback?: Function
+  ): Promise<AttestationWithTx> {
+    callback?.("preparing");
+    const tx = await GapContract.addProjectAdmin(signer, this.uid, newAdmin);
+    callback?.("confirmed");
+    const txArray = [tx].flat();
+    return { tx: txArray, uids: [this.uid] };
+  }
+
+  async removeAdmin(
+    signer: SignerOrProvider,
+    oldAdmin: Hex,
+    callback?: Function
+  ): Promise<AttestationWithTx> {
+    callback?.("preparing");
+    const tx = await GapContract.removeProjectAdmin(signer, this.uid, oldAdmin);
+    callback?.("confirmed");
+    const txArray = [tx].flat();
+    return { tx: txArray, uids: [this.uid] };
   }
 }

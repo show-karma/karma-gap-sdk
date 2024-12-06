@@ -1,19 +1,19 @@
 import {
+  MultiRevocationRequest,
+  getUIDsFromAttestReceipt,
+} from "@ethereum-attestation-service/eas-sdk";
+import {
   CallbackStatus,
   Hex,
   RawAttestationPayload,
   RawMultiAttestPayload,
   SignerOrProvider,
 } from "core/types";
-import { GAP } from "../GAP";
-import { serializeWithBigint } from "../../utils/serialize-bigint";
-import { Gelato, sendGelatoTxn } from "../../utils/gelato/send-gelato-txn";
-import {
-  MultiRevocationRequest,
-  getUIDsFromAttestReceipt,
-} from "@ethereum-attestation-service/eas-sdk";
-import { AttestationWithTx } from "../types/attestations";
 import { Transaction } from "ethers";
+import { Gelato, sendGelatoTxn } from "../../utils/gelato/send-gelato-txn";
+import { serializeWithBigint } from "../../utils/serialize-bigint";
+import { GAP } from "../GAP";
+import { AttestationWithTx } from "../types/attestations";
 
 type TSignature = {
   r: string;
@@ -373,18 +373,42 @@ export class GapContract {
    * Check if the signer is the owner of the project
    * @param signer
    * @param projectUID
+   * @param projectChainId
+   * @param publicAddress
    * @returns
    */
   static async isProjectOwner(
     signer: SignerOrProvider,
     projectUID: Hex,
-    projectChainId: number
+    projectChainId: number,
+    publicAddress?: string
   ): Promise<boolean> {
     const contract = await GAP.getProjectResolver(signer, projectChainId);
-    const address = await this.getSignerAddress(signer);
-    const isOwner = await contract.isAdmin(projectUID, address);
-    return !!isOwner?.[0];
+    const address = publicAddress || await this.getSignerAddress(signer);
+    const isOwner = await contract.isOwner(projectUID, address);
+    return isOwner;
   }
+
+  /**
+   * Check if the signer is admin of the project
+   * @param signer
+   * @param projectUID
+   * @param projectChainId
+   * @param publicAddress
+   * @returns
+   */
+  static async isProjectAdmin(
+    signer: SignerOrProvider,
+    projectUID: Hex,
+    projectChainId: number,
+    publicAddress?: string
+  ): Promise<boolean> {
+    const contract = await GAP.getProjectResolver(signer, projectChainId);
+    const address =  publicAddress || await this.getSignerAddress(signer);
+    const isAdmin = await contract.isAdmin(projectUID, address);
+    return isAdmin;
+  }
+
 
   private static async getTransactionLogs(
     signer: SignerOrProvider,
@@ -396,5 +420,39 @@ export class GapContract {
     // Returns the txn logs with the attestation results. Tha last two logs are the
     // the ones from the GelatoRelay contract.
     return getUIDsFromAttestReceipt(txn) as Hex[];
+  }
+
+  /**
+   * Add Project Admin
+   * @param signer
+   * @param projectUID
+   * @param newAdmin
+   * @returns
+   */
+  static async addProjectAdmin(
+    signer: SignerOrProvider,
+    projectUID: Hex,
+    newAdmin: Hex
+  ) {
+    const contract = await GAP.getProjectResolver(signer);
+    const tx = await contract.addAdmin(projectUID, newAdmin);
+    return tx.wait?.();
+  }
+
+  /**
+   * RemoveProject Admin
+   * @param signer
+   * @param projectUID
+   * @param newAdmin
+   * @returns
+   */
+  static async removeProjectAdmin(
+    signer: SignerOrProvider,
+    projectUID: Hex,
+    oldAdmin: Hex
+  ) {
+    const contract = await GAP.getProjectResolver(signer);
+    const tx = await contract.addAdmin(projectUID, oldAdmin);
+    return tx.wait?.();
   }
 }
