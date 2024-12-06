@@ -21,3 +21,4 @@ __exportStar(require("./class/GAP"), exports);
 __exportStar(require("./class/GapSchema"), exports);
 __exportStar(require("./class/types/attestations"), exports);
 __exportStar(require("./class/entities"), exports);
+__exportStar(require("./abi"), exports);

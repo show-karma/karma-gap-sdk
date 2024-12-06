@@ -1,7 +1,7 @@
-import { CallbackStatus, Hex, RawAttestationPayload, RawMultiAttestPayload, SignerOrProvider } from "core/types";
 import { MultiRevocationRequest } from "@ethereum-attestation-service/eas-sdk";
-import { AttestationWithTx } from "../types/attestations";
+import { CallbackStatus, Hex, RawAttestationPayload, RawMultiAttestPayload, SignerOrProvider } from "core/types";
 import { Transaction } from "ethers";
+import { AttestationWithTx } from "../types/attestations";
 export declare class GapContract {
     static nonces: {
         [key: string]: number;
@@ -68,8 +68,35 @@ export declare class GapContract {
      * Check if the signer is the owner of the project
      * @param signer
      * @param projectUID
+     * @param projectChainId
+     * @param publicAddress
      * @returns
      */
-    static isProjectOwner(signer: SignerOrProvider, projectUID: Hex, projectChainId: number): Promise<boolean>;
+    static isProjectOwner(signer: SignerOrProvider, projectUID: Hex, projectChainId: number, publicAddress?: string): Promise<boolean>;
+    /**
+     * Check if the signer is admin of the project
+     * @param signer
+     * @param projectUID
+     * @param projectChainId
+     * @param publicAddress
+     * @returns
+     */
+    static isProjectAdmin(signer: SignerOrProvider, projectUID: Hex, projectChainId: number, publicAddress?: string): Promise<boolean>;
     private static getTransactionLogs;
+    /**
+     * Add Project Admin
+     * @param signer
+     * @param projectUID
+     * @param newAdmin
+     * @returns
+     */
+    static addProjectAdmin(signer: SignerOrProvider, projectUID: Hex, newAdmin: Hex): Promise<any>;
+    /**
+     * RemoveProject Admin
+     * @param signer
+     * @param projectUID
+     * @param newAdmin
+     * @returns
+     */
+    static removeProjectAdmin(signer: SignerOrProvider, projectUID: Hex, oldAdmin: Hex): Promise<any>;
 }

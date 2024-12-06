@@ -36,6 +36,7 @@ export interface IMilestoneCompleted extends IAttestationResponse {
     data: {
         type: "approved" | "rejected" | "completed";
         reason?: string;
+        proofOfWork?: string;
     };
 }
 export interface IMilestoneResponse extends IAttestationResponse {
@@ -50,6 +51,7 @@ export interface IMilestoneResponse extends IAttestationResponse {
         endsAt: number;
         startsAt?: number;
         type: "milestone";
+        priority?: number;
     };
 }
 export interface IGrantUpdateStatus extends IAttestationResponse {
@@ -65,6 +67,7 @@ export interface IGrantUpdate extends IAttestationResponse {
         text: string;
         title: string;
         type: "grant-update";
+        proofOfWork?: string;
     };
     verified?: IGrantUpdateStatus[];
 }
@@ -83,6 +86,23 @@ export interface IProjectUpdate extends IAttestationResponse {
         type: "project-update";
     };
     verified?: IProjectUpdateStatus[];
+}
+export interface IProjectMilestoneStatus extends IAttestationResponse {
+    type: `project-milestone-verified`;
+    reason?: string;
+    data: {
+        type: "approved" | "rejected" | "completed";
+        reason?: string;
+    };
+}
+export interface IProjectMilestoneResponse extends IAttestationResponse {
+    data: {
+        text: string;
+        title: string;
+        type: "project-milestone";
+    };
+    verified?: IProjectMilestoneStatus[];
+    completed?: IMilestoneCompleted;
 }
 export interface IProjectPointer extends IAttestationResponse {
     data: {
@@ -107,6 +127,7 @@ export interface IGrantDetails extends IAttestationResponse {
         startDate: number;
         programId?: string;
         type: "grant-details";
+        fundUsage?: string;
     };
 }
 export interface IGrantResponse extends IAttestationResponse {
@@ -122,6 +143,9 @@ export interface IGrantResponse extends IAttestationResponse {
     community: ICommunityResponse;
     members: Hex[];
     categories?: string[];
+    externalAddresses?: {
+        [key: string]: string;
+    };
 }
 export interface IMemberDetails extends IAttestationResponse {
     name: string;
@@ -192,6 +216,7 @@ export interface IProjectResponse extends IAttestationResponse {
     pointers: IProjectPointer[];
     symlinks: Hex[];
     endorsements: IProjectEndorsement[];
+    milestones: IProjectMilestoneResponse[];
 }
 export interface ICommunityDetails extends IAttestationResponse {
     type: "CommunityDetails";

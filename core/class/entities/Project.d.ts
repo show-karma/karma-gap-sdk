@@ -1,12 +1,13 @@
-import { Attestation } from "../Attestation";
-import { AttestationWithTx, Grantee, MemberDetails, ProjectDetails, ProjectEndorsement } from "../types/attestations";
 import { Hex, MultiAttestPayload, SignerOrProvider, TNetwork } from "core/types";
+import { Attestation } from "../Attestation";
+import { IProjectResponse } from "../karma-indexer/api/types";
+import { AttestationWithTx, Grantee, MemberDetails, ProjectDetails, ProjectEndorsement } from "../types/attestations";
 import { Grant } from "./Grant";
 import { MemberOf } from "./MemberOf";
-import { IProjectResponse } from "../karma-indexer/api/types";
-import { ProjectImpact } from "./ProjectImpact";
-import { ProjectUpdate } from "./ProjectUpdate";
+import { IProjectImpact, ProjectImpact } from "./ProjectImpact";
+import { ProjectMilestone } from "./ProjectMilestone";
 import { ProjectPointer } from "./ProjectPointer";
+import { ProjectUpdate } from "./ProjectUpdate";
 export interface IProject {
     project: true;
 }
@@ -19,6 +20,7 @@ export declare class Project extends Attestation<IProject> {
     endorsements: ProjectEndorsement[];
     updates: ProjectUpdate[];
     pointers: ProjectPointer[];
+    milestones: ProjectMilestone[];
     /**
      * Creates the payload for a multi-attestation.
      *
@@ -32,7 +34,8 @@ export declare class Project extends Attestation<IProject> {
     multiAttestPayload(currentPayload?: MultiAttestPayload, communityIdx?: number): Promise<MultiAttestPayload>;
     attest(signer: SignerOrProvider, callback?: Function): Promise<AttestationWithTx>;
     transferOwnership(signer: SignerOrProvider, newOwner: Hex, callback?: Function): Promise<AttestationWithTx>;
-    isOwner(signer: SignerOrProvider): Promise<boolean>;
+    isOwner(signer: SignerOrProvider, publicAddress?: string): Promise<boolean>;
+    isAdmin(signer: SignerOrProvider, publicAddress?: string): Promise<boolean>;
     /**
      * Add new members to the project.
      * If any member in the array already exists in the project
@@ -78,7 +81,12 @@ export declare class Project extends Attestation<IProject> {
     removeAllMembers(signer: SignerOrProvider): Promise<void>;
     static from(attestations: IProjectResponse[], network: TNetwork): Project[];
     attestUpdate(signer: SignerOrProvider, data: ProjectUpdate, callback?: Function): Promise<void>;
+    attestMilestone(signer: SignerOrProvider, data: ProjectUpdate, callback?: Function): Promise<void>;
     attestPointer(signer: SignerOrProvider, data: ProjectPointer, callback?: Function): Promise<void>;
-    attestImpact(signer: SignerOrProvider, data: ProjectImpact): Promise<void>;
+    attestImpact(signer: SignerOrProvider, data: IProjectImpact, targetChainId?: number, callback?: Function): Promise<AttestationWithTx>;
+    private attestGhostProjectImpact;
     attestEndorsement(signer: SignerOrProvider, data?: ProjectEndorsement): Promise<void>;
+    attestGhostProject(signer: SignerOrProvider, targetChainId: number): Promise<AttestationWithTx>;
+    addAdmin(signer: SignerOrProvider, newAdmin: Hex, callback?: Function): Promise<AttestationWithTx>;
+    removeAdmin(signer: SignerOrProvider, oldAdmin: Hex, callback?: Function): Promise<AttestationWithTx>;
 }

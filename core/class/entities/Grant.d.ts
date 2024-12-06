@@ -50,10 +50,10 @@ export declare class Grant extends Attestation<IGrant> {
      */
     attest(signer: SignerOrProvider, projectChainId: number, callback?: Function): Promise<AttestationWithTx>;
     attestUpdate(signer: SignerOrProvider, data: IGrantUpdate, callback?: Function): Promise<void>;
-    complete(signer: SignerOrProvider, data: IGrantUpdate, callback?: Function): Promise<AttestationWithTx>;
     /**
      * Validate if the grant has a valid reference to a community.
      */
     protected assertPayload(): boolean;
+    complete(signer: SignerOrProvider, data: IGrantUpdate, callback?: Function): Promise<AttestationWithTx>;
     static from(attestations: IGrantResponse[], network: TNetwork): Grant[];
 }

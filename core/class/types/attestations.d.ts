@@ -44,6 +44,7 @@ export interface IGrantDetails {
     type?: string;
     startDate?: number;
     programId?: string;
+    fundUsage?: string;
 }
 export declare class GrantDetails extends Attestation<IGrantDetails> implements IGrantDetails {
     title: string;
@@ -58,6 +59,7 @@ export declare class GrantDetails extends Attestation<IGrantDetails> implements 
     questions?: IGrantDetailsQuestion[];
     type: string;
     startDate?: number;
+    fundUsage?: string;
 }
 export interface IGrantRound {
     name: string;
@@ -82,10 +84,12 @@ export declare class MemberDetails extends Attestation<IMemberDetails> implement
 export interface IMilestoneCompleted {
     type?: "approved" | "rejected" | "completed" | "verified";
     reason?: string;
+    proofOfWork?: string;
 }
 export declare class MilestoneCompleted extends Attestation<IMilestoneCompleted> implements IMilestoneCompleted {
     type: "approved" | "rejected" | "completed" | "verified";
     reason?: string;
+    proofOfWork?: string;
 }
 export interface ITag {
     name: string;
@@ -149,4 +153,14 @@ export declare class ProjectEndorsement extends Attestation<IProjectEndorsement>
     comment?: string;
     type?: string;
     constructor(data: AttestationArgs<IProjectEndorsement, GapSchema>);
+}
+export interface IProjectMilestoneCompleted {
+    type?: "approved" | "rejected" | "completed" | "verified";
+    reason?: string;
+    proofOfWork?: string;
+}
+export declare class ProjectMilestoneCompleted extends Attestation<IProjectMilestoneCompleted> implements IProjectMilestoneCompleted {
+    type: "approved" | "rejected" | "completed" | "verified";
+    reason?: string;
+    proofOfWork?: string;
 }

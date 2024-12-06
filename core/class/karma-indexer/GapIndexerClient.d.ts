@@ -1,10 +1,11 @@
-import { TSchemaName, IAttestation, Hex } from 'core/types';
-import { Attestation } from '../Attestation';
-import { GapSchema } from '../GapSchema';
-import { Fetcher } from '../Fetcher';
-import { Community, Project, Grant, Milestone, MemberOf } from '../entities';
-import { Grantee } from '../types/attestations';
-import { ICommunityAdminsResponse } from './api/types';
+import { TSchemaName, IAttestation, Hex } from "core/types";
+import { Attestation } from "../Attestation";
+import { GapSchema } from "../GapSchema";
+import { Fetcher } from "../Fetcher";
+import { Community, Project, Grant, Milestone, MemberOf } from "../entities";
+import { Grantee } from "../types/attestations";
+import { ICommunityAdminsResponse } from "./api/types";
+import { ProjectMilestone } from "../entities/ProjectMilestone";
 export declare class GapIndexerClient extends Fetcher {
     private apiClient;
     constructor(params: any);
@@ -29,12 +30,13 @@ export declare class GapIndexerClient extends Fetcher {
     searchProjects(query: string): Promise<Project[]>;
     projects(name?: string): Promise<Project[]>;
     projectsOf(grantee: `0x${string}`): Promise<Project[]>;
+    projectMilestones(uidOrSlug: string): Promise<ProjectMilestone[]>;
     grantee(address: `0x${string}`): Promise<Grantee>;
     grantees(): Promise<Grantee[]>;
     grantsOf(grantee: `0x${string}`, withCommunity?: boolean): Promise<Grant[]>;
     grantsFor(projects: Project[], withCommunity?: boolean): Promise<Grant[]>;
     grantsForExtProject(projectExtId: string): Promise<Grant[]>;
-    grantsByCommunity(uid: `0x${string}`): Promise<Grant[]>;
+    grantsByCommunity(uid: `0x${string}`, page?: number, pageLimit?: number): Promise<Grant[]>;
     milestonesOf(grants: Grant[]): Promise<Milestone[]>;
     membersOf(projects: Project[]): Promise<MemberOf[]>;
     slugExists(slug: string): Promise<boolean>;

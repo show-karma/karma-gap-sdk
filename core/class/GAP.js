@@ -81,18 +81,23 @@ class GAP extends types_1.Facade {
         this.generateSlug = async (text) => {
             let slug = text
                 .toLowerCase()
+                // Remove emojis
+                .replace(/([\uE000-\uF8FF]|\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDDFF])/g, '')
+                // Remove basic text emoticons
+                .replace(/[:;=][()DP]/g, '')
                 .replace(/ /g, "-")
-                .replace(/[^\w-]+/g, "");
-            const slugExists = await this.fetch.slugExists(slug);
-            if (slugExists) {
-                const parts = slug.split("-");
-                const counter = parts.pop();
-                slug = /\d+/g.test(counter) ? parts.join("-") : slug;
-                // eslint-disable-next-line no-param-reassign
-                const nextSlug = `${slug}-${counter && /\d+/g.test(counter) ? +counter + 1 : 1}`;
-                return this.generateSlug(nextSlug);
-            }
-            return slug.toLowerCase();
+                .replace(/[^\w-]+/g, "")
+                .trim()
+                .replace(/^-+|-+$/g, ''); // Remove leading and trailing hyphens
+            const checkSlug = async (currentSlug, counter = 0) => {
+                const slugToCheck = counter === 0 ? currentSlug : `${currentSlug}-${counter}`;
+                const slugExists = await this.fetch.slugExists(slugToCheck);
+                if (slugExists) {
+                    return checkSlug(currentSlug, counter + 1);
+                }
+                return slugToCheck.toLowerCase();
+            };
+            return checkSlug(slug);
         };
         const schemas = args.schemas || Object.values((0, consts_1.MountEntities)(consts_1.Networks[args.network]));
         this.network = args.network;

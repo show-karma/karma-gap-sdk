@@ -27,8 +27,8 @@ export interface AttestArgs<T = unknown> {
     signer: SignerOrProvider;
     callback?: (status: CallbackStatus) => void;
 }
-export type TSchemaName = "Community" | "CommunityDetails" | "Grant" | "GrantDetails" | "GrantVerified" | "MemberOf" | "MemberDetails" | "Milestone" | "MilestoneCompleted" | "MilestoneApproved" | "Project" | "ProjectDetails" | "Details" | "ProjectImpact" | "ProjectUpdate" | "ProjectUpdateStatus" | "ProjectPointer" | "GrantUpdate" | "GrantUpdateStatus" | "ProjectEndorsement";
-export type TResolvedSchemaNames = "Community" | "Grant" | "GrantVerified" | "MemberOf" | "MilestoneCompleted" | "MilestoneApproved" | "Project" | "Details" | "ProjectUpdateStatus" | "GrantUpdateStatus" | "ProjectUpdateStatus";
+export type TSchemaName = "Community" | "CommunityDetails" | "Grant" | "GrantDetails" | "GrantVerified" | "MemberOf" | "MemberDetails" | "Milestone" | "MilestoneCompleted" | "MilestoneApproved" | "Project" | "ProjectDetails" | "Details" | "ProjectImpact" | "ProjectUpdate" | "ProjectUpdateStatus" | "ProjectPointer" | "GrantUpdate" | "GrantUpdateStatus" | "ProjectEndorsement" | "ProjectMilestone" | "ProjectMilestoneStatus" | "ContributorProfile";
+export type TResolvedSchemaNames = "Community" | "Grant" | "GrantVerified" | "MemberOf" | "MilestoneCompleted" | "MilestoneApproved" | "Project" | "Details" | "ProjectUpdateStatus" | "GrantUpdateStatus" | "ProjectUpdateStatus" | "ProjectMilestoneStatus" | "ContributorProfile";
 export type TExternalLink = "twitter" | "github" | "website" | "linkedin" | "discord";
 export type TNetwork = "optimism" | "celo" | "optimism-sepolia" | "arbitrum" | "sepolia" | "sei" | "sei-testnet" | "base-sepolia";
 /**
@@ -70,6 +70,7 @@ export interface EASNetworkConfig {
         projectResolver: Hex;
         communityResolver: Hex;
         donations: Hex;
+        airdropNFT: Hex;
     };
     /**
      * A tuple containing the schema name and it's UID for that network

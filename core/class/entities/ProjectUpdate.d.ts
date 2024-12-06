@@ -11,10 +11,12 @@ type IStatus = "verified";
 export interface IProjectUpdateStatus {
     type?: `project-update-${IStatus}`;
     reason?: string;
+    proofOfWork?: string;
 }
 export declare class ProjectUpdateStatus extends Attestation<IProjectUpdateStatus> implements IProjectUpdateStatus {
     type: `project-update-${IStatus}`;
     reason?: string;
+    proofOfWork?: string;
 }
 export declare class ProjectUpdate extends Attestation<IProjectUpdate> implements IProjectUpdate {
     title: string;

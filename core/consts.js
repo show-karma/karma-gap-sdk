@@ -47,6 +47,7 @@ exports.Networks = {
             projectResolver: "0x7177AdC0f924b695C0294A40C4C5FEFf5EE1E141",
             communityResolver: "0x6dC1D6b864e8BEf815806f9e4677123496e12026",
             donations: "0x021896771412C1D3f31BC7B01fFA3a6A17c5dA30",
+            airdropNFT: "0x2bB9aB0084477c1306A7da80f5DCDdBca4139112",
         },
         schemas: {
             Community: "0x721c17b065dccc5c916e0c2708d0ef50f1810591b76d0402ff6fe5accbd8488f",
@@ -59,6 +60,8 @@ exports.Networks = {
             GrantUpdateStatus: "0xdc3f4d0938b1d029d825c01b3c53ad955e0ef3eabc1f57c1ebde90de2bf527ae",
             Project: "0x5b873b6e7a16207b526dde366e8164e95bcda2f009272306519667c5e94d2191",
             ProjectUpdateStatus: "0xdc3f4d0938b1d029d825c01b3c53ad955e0ef3eabc1f57c1ebde90de2bf527ae",
+            ProjectMilestoneStatus: "0xdc3f4d0938b1d029d825c01b3c53ad955e0ef3eabc1f57c1ebde90de2bf527ae",
+            ContributorProfile: "0x3b4d5890c1613be229b9f0f20e8244e1b46dab4d01fc18373d2570483c552ce4"
         },
         oldSchemas: [
             {
@@ -99,6 +102,7 @@ exports.Networks = {
             projectResolver: "0x832931F23ea4e3c70957DA71a7eB50F5B7efA93D",
             schema: "0x4200000000000000000000000000000000000020",
             donations: "0x3caF83Ed040501f1f439fb22E198bB5a67Bc2884",
+            airdropNFT: "0x57d6A954E051145D7E9dD81decaeA6d7Feb640ee",
         },
         schemas: {
             Community: "0x314bb1c3c9b5311c1b813a3ad123b6ac5a03902b987795056dd2e4ff38e833ea",
@@ -111,6 +115,8 @@ exports.Networks = {
             GrantUpdateStatus: "0x6f8e6a1394bdc398f8d93a99b0ecca326d04470a4f0ee5c379bb85a458a322e4",
             Project: "0xf9bbd118dd100459a7d093403af21c6e7f847fd7f331b7a4e6bfb94a1366bd76",
             ProjectUpdateStatus: "0x6f8e6a1394bdc398f8d93a99b0ecca326d04470a4f0ee5c379bb85a458a322e4",
+            ProjectMilestoneStatus: "0x6f8e6a1394bdc398f8d93a99b0ecca326d04470a4f0ee5c379bb85a458a322e4",
+            ContributorProfile: "0x18f95014ea1249287fa962a42bc5a1d023b42133ee28ec90730939ec082f8daf"
         },
         oldSchemas: [
             {
@@ -151,6 +157,7 @@ exports.Networks = {
             projectResolver: "0x28BE0b0515be8BB8822aF1467A6613795E74717b",
             communityResolver: "0xD534C4704F82494aBbc901560046fB62Ac63E9C4",
             donations: "0x475F3E915601d975c792E6116791FBe9ACdBE902",
+            airdropNFT: "0xe957aFd24F91e6A14F4d47E801d70b876176772a",
         },
         schemas: {
             Community: "0xc604f0661cfd522583835ed2b2c644b80e068139d287f93c7f1680888894bacc",
@@ -163,6 +170,8 @@ exports.Networks = {
             GrantUpdateStatus: "0x93391c496898c63995f23797835c8e0468be338f0dbc2df62edfd70856cde1d4",
             Project: "0xac2a06e955a7e25e6729efe1a6532237e3435b21ccd3dc827ae3c94e624d25b3",
             ProjectUpdateStatus: "0x93391c496898c63995f23797835c8e0468be338f0dbc2df62edfd70856cde1d4",
+            ProjectMilestoneStatus: "0x93391c496898c63995f23797835c8e0468be338f0dbc2df62edfd70856cde1d4",
+            ContributorProfile: "0xb2c86dba2ae6850162914ba13ccfb7ac51dd0cbdf96cac38ec41386bad3a3720"
         },
         oldSchemas: [
             {
@@ -203,6 +212,7 @@ exports.Networks = {
             projectResolver: "0x099787D5a5aC92779A519CfD925ACB0Dc7E8bd23",
             communityResolver: "0xa9E55D9F52d7B47792d2Db15F6A9674c56ccc5C9",
             donations: "0xb2021F7550b8B07cA71696159B592C1F713593e4",
+            airdropNFT: "0x11f48e68Ff894D417956839263337a2989822703",
         },
         schemas: {
             Community: "0xf3d790c7fdab6c1b1f25ffcc9289e5be2792eb596d2851a4d059c8aae1bc8b2e",
@@ -216,6 +226,8 @@ exports.Networks = {
             GrantUpdateStatus: "0xcdef0e492d2e7ad25d0b0fdb868f6dcd1f5e5c30e42fd5fa0debdc12f7618322",
             Project: "0xec77990a252b54b17673955c774b9712766de5eecb22ca5aa2c440e0e93257fb",
             ProjectUpdateStatus: "0xcdef0e492d2e7ad25d0b0fdb868f6dcd1f5e5c30e42fd5fa0debdc12f7618322",
+            ProjectMilestoneStatus: "0xcdef0e492d2e7ad25d0b0fdb868f6dcd1f5e5c30e42fd5fa0debdc12f7618322",
+            ContributorProfile: "0x"
         },
     },
     "base-sepolia": {
@@ -229,6 +241,7 @@ exports.Networks = {
             projectResolver: "0xC891F8eBA218f5034bf3a472528408BE19E1130E",
             communityResolver: "0x009dC7dF3Ea3b23CE80Fd3Ba811d5bA5675934A1",
             donations: "0x61eD6D070EE996698fB35B909e45111402336645",
+            airdropNFT: "0xa9c31794385A217832D4C8E200CfA6A8da9c7B32",
         },
         schemas: {
             Community: "0xe130107659909d20cbd75a2c82e1988b09b1c08fd39ad6f4397ce27c089e0e95",
@@ -241,6 +254,8 @@ exports.Networks = {
             GrantUpdateStatus: "0xe9cce07bd9295aafc78faa7afdd88a6fad6fd61834a048fb8c3dbc86cb471f81",
             Project: "0x5ddd6b7a11406771308431ca9bd146cc717848b74b52993a532dc1aad0ccc83f",
             ProjectUpdateStatus: "0xe9cce07bd9295aafc78faa7afdd88a6fad6fd61834a048fb8c3dbc86cb471f81",
+            ProjectMilestoneStatus: "0xe9cce07bd9295aafc78faa7afdd88a6fad6fd61834a048fb8c3dbc86cb471f81",
+            ContributorProfile: "0x18a987f800645fb6ae7fa0398da5cf5a67c866b0628774f16f485b320111416a"
         },
     },
     celo: {
@@ -254,6 +269,7 @@ exports.Networks = {
             projectResolver: "0x6dC1D6b864e8BEf815806f9e4677123496e12026",
             communityResolver: "0xfddb660F2F1C27d219372210745BB9f73431856E",
             donations: "0xf373467c21841DF20529FAA8bE49381106DBc258",
+            airdropNFT: "0x884F839fA169B5ECfF5d65CA600C2B43C1F6f668",
         },
         schemas: {
             Community: "0x3c2231024f4f17f3718b5bd9ed9ff29cc323dea5449f9ceba11a9888bfbdd0e1",
@@ -266,6 +282,8 @@ exports.Networks = {
             GrantUpdateStatus: "0x80f0701853e862d920f87e8ae5b359a1625ad417a9523af2ed12bc3504b04088",
             Project: "0xf3f753b41e04d1052b5a5ec7624d1dfdb6c2da288a985120e477ddbcac071022",
             ProjectUpdateStatus: "0x80f0701853e862d920f87e8ae5b359a1625ad417a9523af2ed12bc3504b04088",
+            ProjectMilestoneStatus: "0x80f0701853e862d920f87e8ae5b359a1625ad417a9523af2ed12bc3504b04088",
+            ContributorProfile: "0x349e661a7546b08be1f1f6a738fbde4af2be7549e7817d26f06e0c53c3544108"
         },
         oldSchemas: [
             {
@@ -306,6 +324,7 @@ exports.Networks = {
             projectResolver: "0x96f36F25C6bD648d9bdBbd8C3E029CfB2394754d",
             communityResolver: "0x61d519C99279DC91fC2FC56B177f42B90B35050E",
             donations: "0xB80D85690747C3E2ceCc0f8529594C6602b642D5",
+            airdropNFT: "0xfced53EA1b05F0ef10f86757933cbD4A4e6D9c6e",
         },
         schemas: {
             Community: "0x57dee0b7e1aa8e5c6280c27fecf2edeb225f1b87b47e2750f9dc7eaebe57a2ba",
@@ -318,6 +337,8 @@ exports.Networks = {
             GrantUpdateStatus: "0xc3b9bee0be3a6ea92f76fa459922a088824e29798becdc82d81f6b2309442563",
             Project: "0xf6b89107f8096220051240b89a48abb66e0a23e529c914953b80f5a2bc5ea44c",
             ProjectUpdateStatus: "0xc3b9bee0be3a6ea92f76fa459922a088824e29798becdc82d81f6b2309442563",
+            ProjectMilestoneStatus: "0xc3b9bee0be3a6ea92f76fa459922a088824e29798becdc82d81f6b2309442563",
+            ContributorProfile: "0x3d26bc89de1e6b5c6d4430758ed2b595d9265a392e735c6f3cd795e8c200d744"
         },
         oldSchemas: [
             {
@@ -358,6 +379,7 @@ exports.Networks = {
             projectResolver: "0xdA2c62101851365EEdC5A1f7087d92Ffde7345B4",
             communityResolver: "0x50fb4a65CE924D29b9AC8C508c376a5a21Fda1BC",
             donations: "0xB80D85690747C3E2ceCc0f8529594C6602b642D5",
+            airdropNFT: "0x00933B581765d638369cd8A10a4583c275a857A6",
         },
         schemas: {
             Community: "0x968fe3d635bbf22b6253596df6290d1b6da1f192da9e2b5b41ae3595a965dbc2",
@@ -370,6 +392,8 @@ exports.Networks = {
             GrantUpdateStatus: "0xb25551d21dc886be83a07c241c46de318704cb6f485191fdedcf80f4b8b28188",
             Project: "0x9de9294fbb62391b393332a33bfc28b4e0e728dd094aee4bda3955df62f8401a5",
             ProjectUpdateStatus: "0xb25551d21dc886be83a07c241c46de318704cb6f485191fdedcf80f4b8b28188",
+            ProjectMilestoneStatus: "0xb25551d21dc886be83a07c241c46de318704cb6f485191fdedcf80f4b8b28188",
+            ContributorProfile: "0x"
         },
     },
 };
@@ -517,6 +541,26 @@ const MountEntities = (network) => ({
         uid: network.schemas.Details,
         references: "Project",
         oldSchemas: network.oldSchemas?.filter(s => s.name === "ProjectPointer")?.map(s => ({ uid: s.uid, raw: s.raw }))
+    },
+    ProjectMilestone: {
+        name: "ProjectMilestone",
+        schema: DetailsSchema,
+        uid: network.schemas.Details,
+        references: "Project",
+        oldSchemas: network.oldSchemas?.filter(s => s.name === "ProjectMilestone")?.map(s => ({ uid: s.uid, raw: s.raw }))
+    },
+    ProjectMilestoneStatus: {
+        name: "ProjectMilestoneStatus",
+        schema: DetailsSchema,
+        uid: network.schemas.ProjectUpdateStatus,
+        references: "ProjectMilestone",
+        oldSchemas: network.oldSchemas?.filter(s => s.name === "ProjectMilestoneStatus")?.map(s => ({ uid: s.uid, raw: s.raw }))
+    },
+    ContributorProfile: {
+        name: "ContributorProfile",
+        schema: DetailsSchema,
+        uid: network.schemas.ContributorProfile,
+        oldSchemas: network.oldSchemas?.filter(s => s.name === "ContributorProfile")?.map(s => ({ uid: s.uid, raw: s.raw }))
     },
 });
 exports.MountEntities = MountEntities;
