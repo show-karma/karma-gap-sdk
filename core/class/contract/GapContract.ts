@@ -384,7 +384,7 @@ export class GapContract {
     publicAddress?: string
   ): Promise<boolean> {
     const contract = await GAP.getProjectResolver(signer, projectChainId);
-    const address = publicAddress || await this.getSignerAddress(signer);
+    const address = publicAddress || (await this.getSignerAddress(signer));
     const isOwner = await contract.isOwner(projectUID, address);
     return isOwner;
   }
@@ -404,11 +404,10 @@ export class GapContract {
     publicAddress?: string
   ): Promise<boolean> {
     const contract = await GAP.getProjectResolver(signer, projectChainId);
-    const address =  publicAddress || await this.getSignerAddress(signer);
+    const address = publicAddress || (await this.getSignerAddress(signer));
     const isAdmin = await contract.isAdmin(projectUID, address);
     return isAdmin;
   }
-
 
   private static async getTransactionLogs(
     signer: SignerOrProvider,
@@ -452,7 +451,7 @@ export class GapContract {
     oldAdmin: Hex
   ) {
     const contract = await GAP.getProjectResolver(signer);
-    const tx = await contract.addAdmin(projectUID, oldAdmin);
+    const tx = await contract.removeAdmin(projectUID, oldAdmin);
     return tx.wait?.();
   }
 }
