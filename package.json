@@ -10,7 +10,7 @@
   "license": "MIT",
   "private": false,
   "repository": {
-    "url": "https://github.com/show-karma/karma-gap-sdk",
+    "url": "git+https://github.com/show-karma/karma-gap-sdk.git",
     "type": "git"
   },
   "scripts": {
