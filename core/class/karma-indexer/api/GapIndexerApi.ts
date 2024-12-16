@@ -12,42 +12,61 @@ import {
 
 const Endpoints = {
   attestations: {
-    all: () => "/attestations",
-    byUid: (uid: Hex) => `/attestations/${uid}`,
+    all: (prune: boolean = false) => `/attestations?prune=${prune}`,
+    byUid: (uid: Hex, prune: boolean = false) =>
+      `/attestations/${uid}?prune=${prune}`,
   },
   communities: {
-    all: () => "/communities",
-    admins: (uid: string) => `/communities/${uid}/admins`,
-    byUidOrSlug: (uidOrSlug: string) => `/communities/${uidOrSlug}`,
-    grants: (uidOrSlug: string, page: number = 0, pageLimit: number = 100) =>
-      `/communities/${uidOrSlug}/grants?${page ? `page=${page}` : ""}${
-        pageLimit ? `&pageLimit=${pageLimit}` : ""
-      }`,
+    all: (prune: boolean = false) => `/communities?prune=${prune}`,
+    admins: (uid: string, prune: boolean = false) =>
+      `/communities/${uid}/admins?prune=${prune}`,
+    byUidOrSlug: (uidOrSlug: string, prune: boolean = false) =>
+      `/communities/${uidOrSlug}?prune=${prune}`,
+    grants: (
+      uidOrSlug: string,
+      page: number = 0,
+      pageLimit: number = 100,
+      prune: boolean = false
+    ) =>
+      `/communities/${uidOrSlug}/grants?prune=${prune}${
+        page ? `&page=${page}` : ""
+      }${pageLimit ? `&pageLimit=${pageLimit}` : ""}`,
   },
   grantees: {
-    all: () => "/grantees",
-    byAddress: (address: Hex) => `/grantees/${address}`,
-    grants: (address: Hex) => `/grantees/${address}/grants`,
-    projects: (address: Hex) => `/grantees/${address}/projects`,
-    communities: (address: Hex, withGrants) =>
-      `/grantees/${address}/communities${withGrants ? "?withGrants=true" : ""}`,
-    adminOf: (address: Hex) => `/grantees/${address}/communities/admin`,
+    all: (prune: boolean = false) => `/grantees?prune=${prune}`,
+    byAddress: (address: Hex, prune: boolean = false) =>
+      `/grantees/${address}?prune=${prune}`,
+    grants: (address: Hex, prune: boolean = false) =>
+      `/grantees/${address}/grants?prune=${prune}`,
+    projects: (address: Hex, prune: boolean = false) =>
+      `/grantees/${address}/projects?prune=${prune}`,
+    communities: (address: Hex, withGrants: boolean, prune: boolean = false) =>
+      `/grantees/${address}/communities?prune=${prune}${
+        withGrants ? "&withGrants=true" : ""
+      }`,
+    adminOf: (address: Hex, prune: boolean = false) =>
+      `/grantees/${address}/communities/admin?prune=${prune}`,
   },
   grants: {
-    all: () => "/grants",
-    byUid: (uid: Hex) => `/grants/${uid}`,
-    byExternalId: (id: string) => `/grants/external-id/${id}`,
+    all: (prune: boolean = false) => `/grants?prune=${prune}`,
+    byUid: (uid: Hex, prune: boolean = false) =>
+      `/grants/${uid}?prune=${prune}`,
+    byExternalId: (id: string, prune: boolean = false) =>
+      `/grants/external-id/${id}?prune=${prune}`,
   },
   project: {
-    all: () => "/projects",
-    byUidOrSlug: (uidOrSlug: string) => `/projects/${uidOrSlug}`,
-    grants: (uidOrSlug: string) => `/projects/${uidOrSlug}/grants`,
-    milestones: (uidOrSlug: string) => `/projects/${uidOrSlug}/milestones`,
-    projectMilestones: (uidOrSlug: string) =>
-      `/projects/${uidOrSlug}/project-milestones`,
+    all: (prune: boolean = false) => `/projects?prune=${prune}`,
+    byUidOrSlug: (uidOrSlug: string, prune: boolean = false) =>
+      `/projects/${uidOrSlug}?prune=${prune}`,
+    grants: (uidOrSlug: string, prune: boolean = false) =>
+      `/projects/${uidOrSlug}/grants?prune=${prune}`,
+    milestones: (uidOrSlug: string, prune: boolean = false) =>
+      `/projects/${uidOrSlug}/milestones?prune=${prune}`,
+    projectMilestones: (uidOrSlug: string, prune: boolean = false) =>
+      `/projects/${uidOrSlug}/project-milestones?prune=${prune}`,
   },
   search: {
-    all: () => "/search",
+    all: (prune: boolean = false) => `/search?prune=${prune}`,
   },
 };
 
@@ -56,17 +75,21 @@ export class GapIndexerApi extends AxiosGQL {
     super(url);
   }
 
-  async attestation(uid: Hex) {
+  async attestation(uid: Hex, prune: boolean = false) {
     const response = await this.client.get<IAttestationResponse>(
-      Endpoints.attestations.byUid(uid)
+      Endpoints.attestations.byUid(uid, prune)
     );
 
     return response;
   }
 
-  async attestations(schemaUID: string, search?: string) {
+  async attestations(
+    schemaUID: string,
+    search?: string,
+    prune: boolean = false
+  ) {
     const response = await this.client.get<IAttestationResponse[]>(
-      Endpoints.attestations.all(),
+      Endpoints.attestations.all(prune),
       {
         params: {
           "filter[schemaUID]": schemaUID,
@@ -78,9 +101,13 @@ export class GapIndexerApi extends AxiosGQL {
     return response;
   }
 
-  async attestationsOf(schemaUID: string, attester: Hex) {
+  async attestationsOf(
+    schemaUID: string,
+    attester: Hex,
+    prune: boolean = false
+  ) {
     const response = await this.client.get<IAttestationResponse[]>(
-      Endpoints.attestations.all(),
+      Endpoints.attestations.all(prune),
       {
         params: {
           "filter[schemaUID]": schemaUID,
@@ -96,9 +123,9 @@ export class GapIndexerApi extends AxiosGQL {
    * Community
    */
 
-  async communities(search?: string) {
+  async communities(search?: string, prune: boolean = false) {
     const response = await this.client.get<ICommunityResponse[]>(
-      Endpoints.communities.all(),
+      Endpoints.communities.all(prune),
       {
         params: {
           "filter[name]": search,
@@ -109,31 +136,35 @@ export class GapIndexerApi extends AxiosGQL {
     return response;
   }
 
-  async communitiesOf(address: Hex, withGrants: boolean) {
+  async communitiesOf(
+    address: Hex,
+    withGrants: boolean,
+    prune: boolean = false
+  ) {
     const response = await this.client.get<ICommunityResponse[]>(
-      Endpoints.grantees.communities(address, withGrants)
+      Endpoints.grantees.communities(address, withGrants, prune)
     );
     return response;
   }
 
-  async adminOf(address: Hex) {
+  async adminOf(address: Hex, prune: boolean = false) {
     const response = await this.client.get<ICommunityResponse[]>(
-      Endpoints.grantees.adminOf(address)
+      Endpoints.grantees.adminOf(address, prune)
     );
     return response;
   }
 
-  async communityBySlug(slug: string) {
+  async communityBySlug(slug: string, prune: boolean = false) {
     const response = await this.client.get<ICommunityResponse>(
-      Endpoints.communities.byUidOrSlug(slug)
+      Endpoints.communities.byUidOrSlug(slug, prune)
     );
 
     return response;
   }
 
-  async communityAdmins(uid: Hex) {
+  async communityAdmins(uid: Hex, prune: boolean = false) {
     const response = await this.client.get<ICommunityAdminsResponse>(
-      Endpoints.communities.admins(uid)
+      Endpoints.communities.admins(uid, prune)
     );
 
     return response;
@@ -143,17 +174,17 @@ export class GapIndexerApi extends AxiosGQL {
    * Project
    */
 
-  async projectBySlug(slug: string) {
+  async projectBySlug(slug: string, prune: boolean = false) {
     const response = await this.client.get<IProjectResponse>(
-      Endpoints.project.byUidOrSlug(slug)
+      Endpoints.project.byUidOrSlug(slug, prune)
     );
 
     return response;
   }
 
-  async search(query: string) {
+  async search(query: string, prune: boolean = false) {
     const response = await this.client.get<ISearchResponse>(
-      Endpoints.search.all(),
+      Endpoints.search.all(prune),
       {
         params: {
           q: query,
@@ -164,9 +195,9 @@ export class GapIndexerApi extends AxiosGQL {
     return response;
   }
 
-  async searchProjects(query: string) {
+  async searchProjects(query: string, prune: boolean = false) {
     const response = await this.client.get<IProjectResponse[]>(
-      Endpoints.project.all(),
+      Endpoints.project.all(prune),
       {
         params: {
           q: query,
@@ -177,9 +208,9 @@ export class GapIndexerApi extends AxiosGQL {
     return response;
   }
 
-  async projects(name?: string) {
+  async projects(name?: string, prune: boolean = false) {
     const response = await this.client.get<IProjectResponse[]>(
-      Endpoints.project.all(),
+      Endpoints.project.all(prune),
       {
         params: {
           "filter[title]": name,
@@ -190,16 +221,16 @@ export class GapIndexerApi extends AxiosGQL {
     return response;
   }
 
-  async projectsOf(grantee: Hex) {
+  async projectsOf(grantee: Hex, prune: boolean = false) {
     const response = await this.client.get<IProjectResponse[]>(
-      Endpoints.grantees.projects(grantee)
+      Endpoints.grantees.projects(grantee, prune)
     );
 
     return response;
   }
-  async projectMilestones(uidOrSlug: string) {
+  async projectMilestones(uidOrSlug: string, prune: boolean = false) {
     const response = await this.client.get<IProjectMilestoneResponse[]>(
-      Endpoints.project.projectMilestones(uidOrSlug)
+      Endpoints.project.projectMilestones(uidOrSlug, prune)
     );
 
     return response;
@@ -209,18 +240,18 @@ export class GapIndexerApi extends AxiosGQL {
    * Grantee
    */
 
-  async grantee(address: Hex) {
+  async grantee(address: Hex, prune: boolean = false) {
     // TODO: update response type when the endpoint works
     const response = await this.client.get<any>(
-      Endpoints.grantees.byAddress(address)
+      Endpoints.grantees.byAddress(address, prune)
     );
     return response;
   }
 
-  async grantees() {
+  async grantees(prune: boolean = false) {
     const response = await this.client.get<{
       [key: Hex]: { grants: number; projects: number };
-    }>(Endpoints.grantees.all());
+    }>(Endpoints.grantees.all(prune));
 
     return response;
   }
@@ -229,40 +260,53 @@ export class GapIndexerApi extends AxiosGQL {
    * Grant
    */
 
-  async grantsOf(grantee: Hex, withCommunity?: boolean) {
+  async grantsOf(
+    grantee: Hex,
+    withCommunity?: boolean,
+    prune: boolean = false
+  ) {
     const response = await this.client.get<IGrantResponse[]>(
-      Endpoints.grantees.grants(grantee)
+      Endpoints.grantees.grants(grantee, prune)
     );
 
     return response;
   }
 
-  async grantsFor(uid: string, withCommunity?: boolean) {
+  async grantsFor(
+    uid: string,
+    withCommunity?: boolean,
+    prune: boolean = false
+  ) {
     const response = await this.client.get<IGrantResponse[]>(
-      Endpoints.project.grants(uid)
+      Endpoints.project.grants(uid, prune)
     );
 
     return response;
   }
 
-  async grantsForExtProject(projectExtId: string) {
+  async grantsForExtProject(projectExtId: string, prune: boolean = false) {
     const response = await this.client.get<IGrantResponse[]>(
-      Endpoints.grants.byExternalId(projectExtId)
+      Endpoints.grants.byExternalId(projectExtId, prune)
     );
 
     return response;
   }
-  async grantBySlug(slug: Hex) {
+  async grantBySlug(slug: Hex, prune: boolean = false) {
     const response = await this.client.get<IGrantResponse>(
-      Endpoints.grants.byUid(slug)
+      Endpoints.grants.byUid(slug, prune)
     );
 
     return response;
   }
 
-  async grantsByCommunity(uid: Hex, page: number = 0, pageLimit: number = 100) {
+  async grantsByCommunity(
+    uid: Hex,
+    page: number = 0,
+    pageLimit: number = 100,
+    prune: boolean = false
+  ) {
     const response = await this.client.get<{ data: IGrantResponse[] }>(
-      Endpoints.communities.grants(uid, page, pageLimit)
+      Endpoints.communities.grants(uid, page, pageLimit, prune)
     );
 
     return response;
@@ -272,16 +316,18 @@ export class GapIndexerApi extends AxiosGQL {
    * Milestone
    */
 
-  async milestonesOf(uid: Hex) {
-    const response = await this.client.get(Endpoints.project.milestones(uid));
+  async milestonesOf(uid: Hex, prune: boolean = false) {
+    const response = await this.client.get(
+      Endpoints.project.milestones(uid, prune)
+    );
 
     return response;
   }
 
-  async slugExists(slug: string) {
+  async slugExists(slug: string, prune: boolean = false) {
     try {
       await this.client.get<IProjectResponse>(
-        Endpoints.project.byUidOrSlug(slug)
+        Endpoints.project.byUidOrSlug(slug, prune)
       );
       return true;
     } catch (err) {
