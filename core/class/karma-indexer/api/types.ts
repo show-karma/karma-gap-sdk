@@ -252,3 +252,12 @@ export interface ISearchResponse {
   projects: IProjectResponse[];
   communities: ICommunityResponse[];
 }
+
+export interface IBaseResponse {
+  uid: Hex;
+  createdBy: Hex;
+  chainID: number;
+  createdAt: string;
+  updatedAt: string;
+  data?: any;
+}
