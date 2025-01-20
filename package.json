@@ -3,14 +3,14 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "0.4.01",
+  "version": "0.4.5",
   "description": "Simple and easy interface between EAS and Karma GAP.",
   "main": "./index.js",
   "author": "KarmaHQ",
   "license": "MIT",
   "private": false,
   "repository": {
-    "url": "https://github.com/show-karma/karma-gap-sdk",
+    "url": "git+https://github.com/show-karma/karma-gap-sdk.git",
     "type": "git"
   },
   "scripts": {

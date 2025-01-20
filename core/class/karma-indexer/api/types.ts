@@ -148,6 +148,9 @@ export interface IGrantResponse extends IAttestationResponse {
   externalAddresses?: {
     [key: string]: string;
   };
+  external?: {
+    [key: string]: string[];
+  };
 }
 
 export interface IMemberDetails extends IAttestationResponse {
