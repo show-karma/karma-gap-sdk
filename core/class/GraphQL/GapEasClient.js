@@ -1,18 +1,18 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GapEasClient = void 0;
-const consts_1 = require("../../consts");
-const utils_1 = require("../../utils");
+const Attestation_1 = require("../Attestation");
 const gql_queries_1 = require("../../utils/gql-queries");
 const to_unix_1 = require("../../utils/to-unix");
-const Attestation_1 = require("../Attestation");
-const Fetcher_1 = require("../Fetcher");
+const attestations_1 = require("../types/attestations");
 const GapSchema_1 = require("../GapSchema");
 const Schema_1 = require("../Schema");
 const SchemaError_1 = require("../SchemaError");
 const entities_1 = require("../entities");
 const Community_1 = require("../entities/Community");
-const attestations_1 = require("../types/attestations");
+const utils_1 = require("../../utils");
+const Fetcher_1 = require("../Fetcher");
+const consts_1 = require("../../consts");
 // TODO: Split this class into small ones
 class GapEasClient extends Fetcher_1.Fetcher {
     constructor(args) {
@@ -406,7 +406,9 @@ class GapEasClient extends Fetcher_1.Fetcher {
         return milestones.map((milestone) => {
             const refs = deps.filter((ref) => ref.refUID === milestone.uid);
             milestone.endsAt = (0, to_unix_1.toUnix)(milestone.endsAt);
-            milestone.completed = refs.filter((dep) => dep.type === "completed" && dep.refUID === milestone.uid);
+            milestone.completed = refs.find((dep) => dep.type === "completed" && dep.refUID === milestone.uid);
+            milestone.approved = refs.find((dep) => dep.type === "approved" && dep.refUID === milestone.uid);
+            milestone.rejected = refs.find((dep) => dep.type === "rejected" && dep.refUID === milestone.uid);
             return milestone;
         });
     }

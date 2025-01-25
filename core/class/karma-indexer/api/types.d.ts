@@ -41,9 +41,9 @@ export interface IMilestoneCompleted extends IAttestationResponse {
 }
 export interface IMilestoneResponse extends IAttestationResponse {
     type: "Milestone";
-    completed?: IMilestoneCompleted[];
-    approved?: IMilestoneCompleted[];
-    rejected?: IMilestoneCompleted[];
+    completed?: IMilestoneCompleted;
+    approved?: IMilestoneCompleted;
+    rejected?: IMilestoneCompleted;
     verified?: IMilestoneCompleted[];
     data: {
         title: string;

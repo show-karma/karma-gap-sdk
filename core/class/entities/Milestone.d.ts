@@ -17,10 +17,41 @@ export declare class Milestone extends Attestation<IMilestone> implements IMiles
     startsAt?: number;
     endsAt: number;
     description: string;
-    completed: MilestoneCompleted[];
+    completed: MilestoneCompleted;
+    approved: MilestoneCompleted;
+    rejected: MilestoneCompleted;
     verified: MilestoneCompleted[];
     type: string;
     priority?: number;
+    /**
+     * Approves this milestone. If the milestone is not completed or already approved,
+     * it will throw an error.
+     * @param signer
+     * @param reason
+     */
+    approve(signer: SignerOrProvider, data?: IMilestoneCompleted, callback?: Function): Promise<void>;
+    /**
+     * Revokes the approved status of the milestone. If the milestone is not approved,
+     * it will throw an error.
+     * @param signer
+     */
+    revokeApproval(signer: SignerOrProvider): Promise<void>;
+    /**
+     * Reject a completed milestone. If the milestone is not completed or already rejected,
+     * it will throw an error.
+     * @param signer
+     * @param reason
+     */
+    reject(signer: SignerOrProvider, reason?: string): Promise<void>;
+    /**
+     * Revokes the rejected status of the milestone. If the milestone is not rejected,
+     * it will throw an error.
+     * @param signer
+     */
+    revokeRejection(signer: SignerOrProvider): Promise<{
+        tx: Transaction[];
+        uids: `0x${string}`[];
+    }>;
     /**
      * Marks a milestone as completed. If the milestone is already completed,
      * it will throw an error.
