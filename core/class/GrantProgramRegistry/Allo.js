@@ -81,9 +81,9 @@ class AlloBase {
             const receipt = await tx.wait();
             callback?.("confirmed");
             // Get ProfileCreated event
-            const poolId = receipt.logs[receipt.logs.length - 1].topics[0];
+            const poolId = receipt.logs[receipt.logs.length - 1].topics[1];
             return {
-                poolId: poolId,
+                poolId: BigInt(poolId).toString(),
                 txHash: tx.hash,
             };
         }

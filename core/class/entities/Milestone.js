@@ -10,94 +10,9 @@ const attestations_1 = require("../types/attestations");
 class Milestone extends Attestation_1.Attestation {
     constructor() {
         super(...arguments);
+        this.completed = [];
         this.verified = [];
         this.type = "milestone";
-    }
-    /**
-     * Approves this milestone. If the milestone is not completed or already approved,
-     * it will throw an error.
-     * @param signer
-     * @param reason
-     */
-    async approve(signer, data, callback) {
-        if (!this.completed)
-            throw new SchemaError_1.AttestationError("ATTEST_ERROR", "Milestone is not completed");
-        const schema = this.schema.gap.findSchema("MilestoneCompleted");
-        if (this.schema.isJsonSchema()) {
-            schema.setValue("json", JSON.stringify({
-                type: "approved",
-                ...data,
-            }));
-        }
-        else {
-            schema.setValue("type", "approved");
-            schema.setValue("reason", data?.reason || "");
-            schema.setValue("proofOfWork", data?.proofOfWork || "");
-        }
-        await this.attestStatus(signer, schema, callback);
-        this.approved = new attestations_1.MilestoneCompleted({
-            data: {
-                type: "approved",
-                reason: data?.reason || "",
-            },
-            refUID: this.uid,
-            schema: schema,
-            recipient: this.recipient,
-        });
-    }
-    /**
-     * Revokes the approved status of the milestone. If the milestone is not approved,
-     * it will throw an error.
-     * @param signer
-     */
-    async revokeApproval(signer) {
-        if (!this.approved)
-            throw new SchemaError_1.AttestationError("ATTEST_ERROR", "Milestone is not approved");
-        await this.approved.schema.multiRevoke(signer, [
-            {
-                schemaId: this.completed.schema.uid,
-                uid: this.completed.uid,
-            },
-        ]);
-    }
-    /**
-     * Reject a completed milestone. If the milestone is not completed or already rejected,
-     * it will throw an error.
-     * @param signer
-     * @param reason
-     */
-    async reject(signer, reason = "") {
-        if (!this.completed)
-            throw new SchemaError_1.AttestationError("ATTEST_ERROR", "Milestone is not completed");
-        const schema = this.schema.gap.findSchema("MilestoneCompleted");
-        schema.setValue("type", "rejected");
-        schema.setValue("reason", reason);
-        await this.attestStatus(signer, schema);
-        this.rejected = new attestations_1.MilestoneCompleted({
-            data: {
-                type: "rejected",
-                reason,
-            },
-            refUID: this.uid,
-            schema: schema,
-            recipient: this.recipient,
-        });
-    }
-    /**
-     * Revokes the rejected status of the milestone. If the milestone is not rejected,
-     * it will throw an error.
-     * @param signer
-     */
-    async revokeRejection(signer) {
-        if (!this.rejected)
-            throw new SchemaError_1.AttestationError("ATTEST_ERROR", "Milestone is not rejected");
-        const { tx, uids } = await this.rejected.schema.multiRevoke(signer, [
-            {
-                schemaId: this.completed.schema.uid,
-                uid: this.completed.uid,
-            },
-        ]);
-        return { tx, uids };
     }
     /**
      * Marks a milestone as completed. If the milestone is already completed,
@@ -119,7 +34,7 @@ class Milestone extends Attestation_1.Attestation {
             schema.setValue("proofOfWork", data?.proofOfWork || "");
         }
         const { tx, uids } = await this.attestStatus(signer, schema, callback);
-        this.completed = new attestations_1.MilestoneCompleted({
+        this.completed.push(new attestations_1.MilestoneCompleted({
             data: {
                 type: "completed",
                 ...data,
@@ -127,7 +42,7 @@ class Milestone extends Attestation_1.Attestation {
             refUID: this.uid,
             schema,
             recipient: this.recipient,
-        });
+        }));
         return { tx, uids };
     }
     /**
@@ -136,14 +51,12 @@ class Milestone extends Attestation_1.Attestation {
      * @param signer
      */
     async revokeCompletion(signer, callback) {
-        if (!this.completed)
+        if (!this.completed.length)
             throw new SchemaError_1.AttestationError("ATTEST_ERROR", "Milestone is not completed");
-        const { tx, uids } = await this.completed.schema.multiRevoke(signer, [
-            {
-                schemaId: this.completed.schema.uid,
-                uid: this.completed.uid,
-            },
-        ], callback);
+        const { tx, uids } = await this.completed[0].schema.multiRevoke(signer, this.completed.map((c) => ({
+            schemaId: c.schema.uid,
+            uid: c.uid,
+        })), callback);
         return { tx, uids };
     }
     /**
@@ -160,10 +73,10 @@ class Milestone extends Attestation_1.Attestation {
         this.assertPayload();
         const payload = [...currentPayload];
         const milestoneIdx = payload.push([this, await this.payloadFor(grantIdx)]) - 1;
-        if (this.completed) {
+        if (this.completed.length > 0) {
             payload.push([
-                this.completed,
-                await this.completed.payloadFor(milestoneIdx),
+                this.completed[0],
+                await this.completed[0].payloadFor(milestoneIdx),
             ]);
         }
         if (this.verified.length > 0) {
@@ -240,34 +153,14 @@ class Milestone extends Attestation_1.Attestation {
                 chainID: attestation.chainID,
             });
             if (attestation.completed) {
-                milestone.completed = new attestations_1.MilestoneCompleted({
-                    ...attestation.completed,
+                milestone.completed = attestation.completed.map((c) => new attestations_1.MilestoneCompleted({
+                    ...c,
                     data: {
-                        ...attestation.completed.data,
+                        ...c.data,
                     },
                     schema: new AllGapSchemas_1.AllGapSchemas().findSchema("MilestoneCompleted", consts_1.chainIdToNetwork[attestation.chainID]),
                     chainID: attestation.chainID,
-                });
-            }
-            if (attestation.approved) {
-                milestone.approved = new attestations_1.MilestoneCompleted({
-                    ...attestation.approved,
-                    data: {
-                        ...attestation.completed.data,
-                    },
-                    schema: new AllGapSchemas_1.AllGapSchemas().findSchema("MilestoneCompleted", consts_1.chainIdToNetwork[attestation.chainID]),
-                    chainID: attestation.chainID,
-                });
-            }
-            if (attestation.rejected) {
-                milestone.rejected = new attestations_1.MilestoneCompleted({
-                    ...attestation.rejected,
-                    data: {
-                        ...attestation.completed.data,
-                    },
-                    schema: new AllGapSchemas_1.AllGapSchemas().findSchema("MilestoneCompleted", consts_1.chainIdToNetwork[attestation.chainID]),
-                    chainID: attestation.chainID,
-                });
+                }));
             }
             if (attestation.verified?.length > 0) {
                 milestone.verified = attestation.verified.map((m) => new attestations_1.MilestoneCompleted({

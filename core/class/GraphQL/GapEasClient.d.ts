@@ -1,10 +1,10 @@
-import { Attestation } from "../Attestation";
 import { EASNetworkConfig, Hex, IAttestation, TNetwork, TSchemaName } from "../../types";
-import { Grantee } from "../types/attestations";
-import { GapSchema } from "../GapSchema";
-import { Grant, Milestone, Project, MemberOf } from "../entities";
-import { Community } from "../entities/Community";
+import { Attestation } from "../Attestation";
 import { Fetcher } from "../Fetcher";
+import { GapSchema } from "../GapSchema";
+import { Grant, MemberOf, Milestone, Project } from "../entities";
+import { Community } from "../entities/Community";
+import { Grantee } from "../types/attestations";
 interface EASClientProps {
     network: TNetwork;
 }
