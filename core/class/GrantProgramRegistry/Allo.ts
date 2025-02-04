@@ -8,6 +8,9 @@ import { CreatePoolArgs } from "@allo-team/allo-v2-sdk/dist/Allo/types";
 import { TransactionData } from "@allo-team/allo-v2-sdk/dist/Common/types";
 import axios from "axios";
 
+// ABI fragment for the Initialized event
+const INITIALIZED_EVENT = ["event Initialized(uint256 poolId, bytes data)"];
+
 export class AlloBase {
   private signer: ethers.Signer;
   private contract: ethers.Contract;
@@ -125,8 +128,29 @@ export class AlloBase {
       callback?.("pending");
       const receipt = await tx.wait();
       callback?.("confirmed");
-      // Get ProfileCreated event
-      const poolId = receipt.logs[receipt.logs.length - 1].topics[1];
+
+      // Create interface to parse the logs
+      const iface = new ethers.Interface(INITIALIZED_EVENT);
+      let poolId;
+
+      // Find the Initialized event in the logs
+      const initializedLog = receipt.logs.find((log) => {
+        try {
+          const parsed = iface.parseLog(log);
+          return parsed.name === "Initialized";
+        } catch {
+          return false;
+        }
+      });
+
+      if (initializedLog) {
+        const parsedLog = iface.parseLog(initializedLog);
+        poolId = parsedLog.args.poolId.toString();
+        console.log(`Transaction ${tx.hash} - Found poolId: ${poolId}`);
+      } else {
+        poolId = receipt.logs[receipt.logs.length - 1].topics[1]; // Fallback to Initialized order logic
+        console.log(`No Initialized event found in tx ${tx.hash}`);
+      }
 
       return {
         poolId: BigInt(poolId).toString(),
