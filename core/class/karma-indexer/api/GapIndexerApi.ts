@@ -40,6 +40,7 @@ const Endpoints = {
   },
   project: {
     all: () => "/projects",
+    checkSlug: (slug: string) => `/projects/check-slug/${slug}`,
     byUidOrSlug: (uidOrSlug: string) => `/projects/${uidOrSlug}`,
     grants: (uidOrSlug: string) => `/projects/${uidOrSlug}/grants`,
     milestones: (uidOrSlug: string) => `/projects/${uidOrSlug}/milestones`,
@@ -281,7 +282,7 @@ export class GapIndexerApi extends AxiosGQL {
   async slugExists(slug: string) {
     try {
       await this.client.get<IProjectResponse>(
-        Endpoints.project.byUidOrSlug(slug)
+        Endpoints.project.checkSlug(slug)
       );
       return true;
     } catch (err) {
