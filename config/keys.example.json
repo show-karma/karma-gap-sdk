@@ -1,6 +1,33 @@
 {
-    "sepolia": "0xabc",
-    "optimismGoerli": "0xabc",
-    "gelatoKey": "l_abx_l1",
-    "alchemy": "alchemy provider URL"
+    "gapAccessToken": "",
+    "optimism-sepolia": {
+      "privateKey": "",
+      "rpcURL": "",
+      "gelatoApiKey": "",
+      "gapAPI": "https://gapstagapi.karmahq.xyz",
+      "ipfsURL": "https://gapstagapi.karmahq.xyz/ipfs"
+    },
+    "optimism": {
+      "privateKey": "",
+      "rpcURL": "",
+      "gelatoApiKey": "",
+      "gapAPI": "https://gapapi.karmahq.xyz",
+      "ipfsURL": "https://gapapi.karmahq.xyz/ipfs"
+    },
+    "arbitrum": {
+      "privateKey": "",
+      "rpcURL": "",
+      "gelatoApiKey": "",
+      "gapAPI": "https://gapapi.karmahq.xyz",
+      "ipfsURL": "https://gapapi.karmahq.xyz/ipfs"
+    },
+    "sepolia": {
+      "privateKey": "",
+      "rpcURL": "",
+      "gelatoApiKey": "",
+      "gapAPI": "https://gapstagapi.karmahq.xyz",
+      "ipfsURL": "https://gapstagapi.karmahq.xyz/ipfs"
+    }
+
 }
+
