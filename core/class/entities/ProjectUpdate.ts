@@ -12,7 +12,21 @@ export interface _IProjectUpdate extends ProjectUpdate {}
 export interface IProjectUpdate {
   title: string;
   text: string;
+  startDate?: Date;
+  endDate?: Date;
+  grantsLinked?: string[];
+  indicatorsLinked?: string[];
   type?: string;
+  grants?: string[];
+  outputs?: {
+    name: string;
+    indicatorId: string;
+  }[];
+  deliverables?: {
+    name: string;
+    proof: string;
+    description: string;
+  }[];
 }
 
 type IStatus = "verified";
