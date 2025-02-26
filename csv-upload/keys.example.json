@@ -1,0 +1,8 @@
+{
+    "optimism": {
+        "privateKey": "your_private_key_here",
+        "rpcURL": "your_rpc_url_here",
+        "ipfsKey": "your_ipfs_key_here"
+    },
+    "gapAccessToken": "your_gap_access_token_here"
+}

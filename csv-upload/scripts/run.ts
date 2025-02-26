@@ -1,93 +1,93 @@
 import * as fs from "fs";
 import * as csv from "fast-csv";
-import { GapSchema, Hex, Project, nullRef, toUnix } from "../../core";
+import { GapSchema, Hex, Project, nullRef, toUnix, TNetwork } from "../../core";
 import { isAddress, ethers } from "ethers";
-import {
-  GAP,
-  Grant,
-  MemberOf,
-} from "../../core";
+import { GAP, Grant, MemberOf } from "../../core";
 import {
   ProjectDetails,
   GrantDetails,
 } from "../../core/class/types/attestations";
-
 import axios from "axios";
 import { GapIndexerClient, GrantUpdate, IpfsStorage } from "../../core/class";
+import {
+  CHAIN_IDS,
+  DEFAULT_CONFIG,
+  API_ENDPOINTS,
+  LINK_TYPES,
+  GRANT_UPDATE_TYPES,
+} from "../config";
+import { ChainConfig, Link } from "../types";
 
 const [, , fileName, communityUID] = process.argv;
 
-const ChainID = {
-  optimism: 10,
-  "optimism-sepolia": 11155420,
-  sepolia: 11155111,
-  arbitrum: 42161,
-};
+interface Keys {
+  privateKey: string;
+  rpcURL: string;
+  gapAPI: string;
+  ipfsKey: string;
+}
 
+interface Config {
+  [key: string]: Keys | string;
+  optimism: Keys;
+  "optimism-sepolia": Keys;
+  sepolia: Keys;
+  arbitrum: Keys;
+  "base-sepolia": Keys;
+  celo: Keys;
+  sei: Keys;
+  "sei-testnet": Keys;
+  gapAccessToken: string;
+}
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
-const networkName = "optimism";
-const network: keyof typeof ChainID = networkName;
+interface NetworkConfig {
+  networkName: TNetwork;
+  rpcURL: string;
+  gapAPI: string;
+  ipfsURL: string;
+  privateKey: string;
+  ipfsKey: string;
+  gapAccessToken: string;
+}
 
-/**
- * Secret keys
- */
-const { "optimism": keys, gapAccessToken } = require(__dirname +
-  "/../../config/keys.json");
+function loadConfig(): NetworkConfig {
+  const networkName = DEFAULT_CONFIG.DEFAULT_NETWORK as TNetwork;
+  const { [networkName]: keys, gapAccessToken } = require(__dirname +
+    "/../keys.json") as Config;
 
-//////////////////////////////////////////////////////////////////////////////////////////////////
-const privateKey = keys.privateKey;
-// const gelatoApiKey = keys.gelatoApiKey;
-const rpcURL = keys.rpcURL;
-const gapAPI = keys.gapAPI;
-const ipfsKey = keys.ipfsKey;
-const ipfsURL = `${gapAPI}/ipfs`;
-const mainnetURL =
-  "https://eth-mainnet.g.alchemy.com/v2/dRC43zHg8eyn83eR5GOiO7sfFYW8sl6t";
+  return {
+    networkName,
+    rpcURL: keys.rpcURL,
+    gapAPI:
+      DEFAULT_CONFIG.DEFAULT_NETWORK === "optimism-sepolia"
+        ? "https://gapstagapi.karmahq.xyz"
+        : "https://gapapi.karmahq.xyz",
+    ipfsURL: `${keys.gapAPI}/ipfs`,
+    privateKey: keys.privateKey,
+    ipfsKey: keys.ipfsKey,
+    gapAccessToken: gapAccessToken,
+  };
+}
 
-/**
- * web3 provider to build wallet and sign transactions
- */
-const web3 = new ethers.JsonRpcProvider(rpcURL);
+const config = loadConfig();
 
-/**
- * Wallet to sign transactions
- */
-const wallet = new ethers.Wallet(privateKey, web3);
-
-/**
- * GAP client
- */
-
-const ipfsClient = new IpfsStorage(
-  {
-    token: ipfsKey,
-  },
-  {
-    url: ipfsURL,
-    responseParser: (res) => res.cid,
-  }
-);
+const web3 = new ethers.JsonRpcProvider(config.rpcURL);
+const wallet = new ethers.Wallet(config.privateKey, web3);
 
 const gap = new GAP({
   globalSchemas: false,
-  network: networkName,
-  apiClient: new GapIndexerClient(gapAPI),
-  remoteStorage: ipfsClient,
+  network: config.networkName,
+  apiClient: new GapIndexerClient(config.gapAPI),
 });
 
-/**
- * Ethers client to resolve ens names
- */
-const ens = new ethers.JsonRpcProvider(mainnetURL);
-
 interface CSV {
-  ProposalURL: string;
   Project: string;
+  ProposalURL: string;
   Owner: string;
   Twitter: string;
   Github: string;
   Website: string;
+  FundingMapID: string;
   GrantTitle: string;
   "Project Description": string;
   "Grant Update": string;
@@ -99,6 +99,8 @@ interface CSV {
   "Grant Objective": string;
   "Grant Size Justification": string;
   Updates: string;
+  Problem: string;
+  Solution: string;
 }
 
 const duplicatedGrants: {
@@ -133,12 +135,8 @@ export function parseCsv<T>(
   });
 }
 
-const isEns = (str: string) => /^\w+\.(eth)$/.test(str);
-const isHex = (str: string): str is Hex => /^0x[a-fA-F0-9]{64}$/.test(str);
-
-function truncateWithEllipsis(input: string, limit: number = 100): string {
-  return input.length > limit ? `${input.substr(0, limit)}...` : input;
-}
+const isEns = (str: string) => DEFAULT_CONFIG.ENS_REGEX.test(str);
+const isHex = (str: string): str is Hex => DEFAULT_CONFIG.HEX_REGEX.test(str);
 
 type DbAttestation = {
   attester: string;
@@ -155,39 +153,17 @@ type DbAttestation = {
   externalId?: string;
 };
 
-async function sendToIndexer(attestations: DbAttestation[]) {
-  await axios.post(`${gapAPI}/attestations`, attestations, {
-    headers: { "x-access-token": gapAccessToken },
-  });
-}
-
 async function checkProjectExists(projectDetails: DbAttestation) {
   try {
     const { data } = await axios.post(
-      `${gapAPI}/projects/check`,
+      `${config.gapAPI}${API_ENDPOINTS.PROJECTS.CHECK}`,
       projectDetails
     );
-
     return data;
   } catch (e) {
     return undefined;
   }
 }
-
-/*
-async function getProject(title: string) {
-  try {
-    const { data } = await axios.post(
-      `${gapAPI}/projects/check`,
-      projectDetails
-    );
-
-    return data;
-  } catch {
-    return undefined;
-  }
-}
-*/
 
 async function updateExternalIds(
   projectUID: string,
@@ -195,7 +171,7 @@ async function updateExternalIds(
   externalId: string
 ) {
   await axios.put(
-    `${gapAPI}/grants/external-id/bulk-update`,
+    `${config.gapAPI}${API_ENDPOINTS.GRANTS.EXTERNAL_ID.BULK_UPDATE}`,
     {
       projectUID,
       communityUID,
@@ -203,211 +179,234 @@ async function updateExternalIds(
     },
     {
       headers: {
-        "x-access-token": gapAccessToken,
+        "x-access-token": config.gapAccessToken,
       },
     }
   );
 }
 
-async function bootstrap() {
-  let missedGrants = [];
-  let uids: Hex[] = [];
-
-  if (!fileName || !fileName.endsWith(".csv"))
+async function validateInputs() {
+  if (!fileName || !fileName.endsWith(".csv")) {
     throw new Error("Please provide a valid csv file name");
+  }
 
-  if (!communityUID || !isHex(communityUID))
+  if (!communityUID || !isHex(communityUID)) {
     throw new Error("Please provide a valid community UID");
+  }
 
-  const file = __dirname + `/../${fileName}`;
+  if (!fs.existsSync(__dirname + `/../${fileName}`)) {
+    throw new Error(`File ${fileName} does not exist`);
+  }
+}
 
-  const data = await parseCsv<CSV>(file);
-  const filtered = data.filter((d) => isAddress(d.Owner) || isEns(d.Owner));
+async function bootstrap() {
+  try {
+    await validateInputs();
 
-  let count = 0;
+    let missedGrants: string[] = [];
+    let uids: Hex[] = [];
 
-  for (const item of data) {
-    console.log(`${count} - ${item.Project.trim()}`);
-    count += 1;
-    await new Promise((f) => setTimeout(f, 2000));
+    const file = __dirname + `/../${fileName}`;
+    const data = await parseCsv<CSV>(file);
+    const filtered = data.filter((d) => isAddress(d.Owner) || isEns(d.Owner));
 
-    let address = item.Owner.trim() || "0x23B7A53ecfd93803C63b97316D7362eae59C55B6";
-    //if (isEns(item.Owner)) {
-    //  address = (await ens.resolveName(item.Owner)) || address;
-    // }
+    let count = 0;
 
-    const slug = await gap.generateSlug(item.Project.trim());
-    const project = new Project({
-      data: { project: true },
-      recipient: address as Hex,
-      schema: gap.findSchema("Project"),
-      uid: nullRef,
-    });
+    for (const item of data) {
+      try {
+        console.log(`${count} - ${item.Project.trim()}`);
+        count += 1;
+        await new Promise((f) =>
+          setTimeout(f, DEFAULT_CONFIG.CSV_PROCESSING.DELAY_BETWEEN_ITEMS_MS)
+        );
 
-    project.details = new ProjectDetails({
-      data: {
-        description: item["Project Description"],
-        imageURL: "",
-        title: item.Project.trim(),
-        links: [
+        let address =
+          item?.Owner?.trim() || DEFAULT_CONFIG.DEFAULT_OWNER_ADDRESS;
+
+        const slug = await gap.generateSlug(item.Project.trim());
+        const project = new Project({
+          data: { project: true },
+          recipient: address as Hex,
+          schema: gap.findSchema("Project"),
+          uid: nullRef,
+        });
+
+        const links: Link[] = [
           {
-            type: "website",
+            type: LINK_TYPES.WEBSITE,
             url: item.Website,
           },
           {
-            type: "twitter",
+            type: LINK_TYPES.TWITTER,
             url: item.Twitter,
           },
           {
-            type: "github",
+            type: LINK_TYPES.GITHUB,
             url: item.Github,
           },
-        ],
-        slug: slug,
-      },
-      refUID: project.uid,
-      recipient: project.recipient,
-      schema: gap.findSchema("ProjectDetails"),
-      uid: nullRef,
-    });
+        ];
 
-    const member = new MemberOf({
-      data: { memberOf: true },
-      recipient: project.recipient,
-      schema: gap.findSchema("MemberOf"),
-      refUID: project.uid,
-      uid: nullRef,
-    });
+        project.details = new ProjectDetails({
+          data: {
+            description: item["Project Description"],
+            imageURL: "",
+            title: item.Project.trim(),
+            links,
+            slug,
+            problem: item.Problem,
+            solution: item.Solution,
+          },
+          refUID: project.uid,
+          recipient: project.recipient,
+          schema: gap.findSchema("ProjectDetails"),
+          uid: nullRef,
+        });
 
-    //project.members.push(member);
+        const member = new MemberOf({
+          data: { memberOf: true },
+          recipient: project.recipient,
+          schema: gap.findSchema("MemberOf"),
+          refUID: project.uid,
+          uid: nullRef,
+        });
 
-    const grant = new Grant({
-      data: { communityUID },
-      recipient: project.recipient,
-      schema: gap.findSchema("Grant"),
-    });
+        project.members.push(member);
 
-    grant.details = new GrantDetails({
-      data: {
-        proposalURL: item.ProposalURL,
-        title: item.GrantTitle,
-        description: item.GrantDescription,
-        amount: item.Amount,
-        payoutAddress: project.recipient,
-      },
-      recipient: project.recipient,
-      schema: gap.findSchema("GrantDetails"),
-    });
+        const grant = new Grant({
+          data: { communityUID: communityUID as Hex },
+          recipient: project.recipient,
+          schema: gap.findSchema("Grant"),
+        });
 
-    grant.updates.push(
-      new GrantUpdate({
-        data: {
-          text: "Updates can be found here: " + item.ProposalURL,
-          type: "grant-update",
-          title: "",
-        },
-        recipient: project.recipient,
-        schema: gap.findSchema("GrantDetails"),
-      })
+        grant.details = new GrantDetails({
+          data: {
+            proposalURL: item.ProposalURL,
+            title: item.GrantTitle,
+            description: item.GrantDescription,
+            ...(item.Amount && { amount: item.Amount }),
+            payoutAddress: project.recipient,
+            programId: item.FundingMapID,
+          },
+          recipient: project.recipient,
+          schema: gap.findSchema("GrantDetails"),
+        });
+
+        grant.updates.push(
+          new GrantUpdate({
+            data: {
+              text: "Updates can be found here: " + item.ProposalURL,
+              type: GRANT_UPDATE_TYPES.GRANT_UPDATE,
+              title: "",
+            },
+            recipient: project.recipient,
+            schema: gap.findSchema("GrantDetails"),
+          })
+        );
+
+        project.grants.push(grant);
+
+        const defaultValues = {
+          recipient: project.recipient,
+          attester: project.recipient,
+          chainID: CHAIN_IDS[config.networkName],
+          createdAt: new Date(),
+          revocationTime: 0,
+          revoked: false,
+        };
+
+        const projectDetails: DbAttestation = {
+          data: {
+            description: item["Project Description"],
+            imageURL: "",
+            title: item.Project.trim(),
+            slug: slug,
+          },
+          type: "ProjectDetails",
+          refUID: project.uid,
+          schemaUID: gap.findSchema("ProjectDetails").uid,
+          uid: nullRef,
+          ...defaultValues,
+        };
+
+        // avoid duplicate projects
+        const hasProject = await checkProjectExists(projectDetails);
+
+        if (hasProject) {
+          const concurrentGrant = hasProject.grants.find(
+            (g) => g.details?.data?.title === item.GrantTitle
+          );
+
+          if (!concurrentGrant) {
+            console.log(`Didn't find grant for project ${item.Project}`);
+            Object.assign(grant, { refUID: hasProject.uid });
+            missedGrants.push(item.Project);
+            await grant.attest(wallet as any, hasProject.chainID);
+          } else {
+            console.log(`Found grant for project ${item.Project}`);
+          }
+
+          if (
+            item.externalId &&
+            concurrentGrant &&
+            concurrentGrant.externalId &&
+            concurrentGrant.externalId !== item.externalId
+          ) {
+            duplicatedGrants.push({
+              project: {
+                uid: hasProject.uid,
+                name: hasProject.details?.title,
+              },
+              grant: {
+                uid: concurrentGrant.uid,
+                title: concurrentGrant.details?.title,
+              },
+              currentExtId: concurrentGrant.externalId,
+              candidateExtId: item.externalId,
+            });
+          } else if (item.externalId) {
+            await updateExternalIds(
+              hasProject.uid,
+              communityUID,
+              item.externalId
+            );
+          }
+          continue;
+        }
+
+        try {
+          console.log(project.details.data);
+          console.log(project.grants?.[0]?.details?.data);
+          await project.attest(wallet as any);
+          uids.push(project.uid);
+        } catch (e) {
+          console.log(`Failed to save for ${item.Project}`);
+        }
+      } catch (error) {
+        console.error(`Error processing project ${item.Project}:`, error);
+        missedGrants.push(item.Project);
+        continue;
+      }
+    }
+
+    console.log("Attested projects: ", uids.length);
+    console.log(uids);
+
+    console.log("Found concurrent grants for external ids: ");
+    console.log(duplicatedGrants);
+    const concurrentGrantFile = `${__dirname}/${Date.now()}-concurrent-grants.json`;
+    fs.writeFileSync(
+      concurrentGrantFile,
+      JSON.stringify(duplicatedGrants, null, 2)
+    );
+    console.log(
+      `\x1b[36mConcurrent grants saved to ${concurrentGrantFile}\x1b[0m`
     );
 
-    project.grants.push(grant);
-
-    const defaultValues = {
-      recipient: project.recipient,
-      attester: project.recipient,
-      chainID: ChainID[network],
-      createdAt: new Date(),
-      revocationTime: 0,
-      revoked: false,
-    };
-
-    const projectDetails: DbAttestation = {
-      data: {
-        description: item["Project Description"],
-        imageURL: "",
-        title: item.Project.trim(),
-        slug: slug,
-      },
-      type: "ProjectDetails",
-      refUID: project.uid,
-      schemaUID: gap.findSchema("ProjectDetails").uid,
-      uid: nullRef,
-      ...defaultValues,
-    };
-
-    // avoid duplicate attestations
-    const hasProject = await checkProjectExists(projectDetails);
-
-    if (hasProject) {
-      const concurrentGrant = hasProject.grants.find(
-        (g) => g.details?.data?.title === item.GrantTitle
-      );
-
-      if (!concurrentGrant) {
-        console.log(`Didn't find grant for project ${item.Project}`);
-        Object.assign(grant, { refUID: hasProject.uid });
-        missedGrants.push(item.Project);
-        await grant.attest(wallet as any, hasProject.chainID);
-        /*grantDetails.refUID = grant.uid;
-        grantDetails.uid = `ref_${grant.uid}`;
-        await sendToIndexer([
-          toDbAttestation(grant, item.externalId),
-          grantDetails,
-        ]);
-       */
-      } else {
-        console.log(`Found grant for project ${item.Project}`);
-      }
-
-      if (
-        item.externalId &&
-        concurrentGrant &&
-        concurrentGrant.externalId &&
-        concurrentGrant.externalId !== item.externalId
-      ) {
-        duplicatedGrants.push({
-          project: {
-            uid: hasProject.uid,
-            name: hasProject.details?.title,
-          },
-          grant: {
-            uid: concurrentGrant.uid,
-            title: concurrentGrant.details?.title,
-          },
-          currentExtId: concurrentGrant.externalId,
-          candidateExtId: item.externalId,
-        });
-      } else if (item.externalId) {
-        await updateExternalIds(hasProject.uid, communityUID, item.externalId);
-      }
-      continue;
-    }
-
-    try {
-    await project.attest(wallet as any);
-    uids.push(project.uid);
-    } catch (e) {
-      console.log(`Failed to save for ${item.Project}`);
-    }
+    console.log("Missed grants:", missedGrants);
+  } catch (error) {
+    console.error("Fatal error:", error);
+    process.exit(1);
   }
-
-  console.log("Attesting...");
-  console.log("Attested projects: ", uids.length);
-  console.log(uids);
-
-  console.log("Found concurrent grants for external ids: ");
-  console.log(duplicatedGrants);
-  const concurrentGrantFile = `${__dirname}/${Date.now()}-concurrent-grants.json`;
-  fs.writeFileSync(
-    concurrentGrantFile,
-    JSON.stringify(duplicatedGrants, null, 2)
-  );
-  console.log(
-    `\xb1[36mConcurrent grants saved to ${concurrentGrantFile}\x1b[0m`
-  );
-
-  console.log(missedGrants);
 }
 
 bootstrap();
