@@ -14,11 +14,9 @@ export interface IProjectUpdate {
   text: string;
   startDate?: Date;
   endDate?: Date;
-  grantsLinked?: string[];
-  indicatorsLinked?: string[];
   type?: string;
   grants?: string[];
-  outputs?: {
+  indicators?: {
     name: string;
     indicatorId: string;
   }[];

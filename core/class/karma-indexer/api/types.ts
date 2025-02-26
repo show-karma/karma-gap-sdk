@@ -84,8 +84,20 @@ export interface IProjectUpdateStatus extends IAttestationResponse {
 }
 export interface IProjectUpdate extends IAttestationResponse {
   data: {
-    text: string;
     title: string;
+    text: string;
+    startDate?: Date;
+    endDate?: Date;
+    grants?: string[];
+    indicators?: {
+      name: string;
+      indicatorId: string;
+    }[];
+    deliverables?: {
+      name: string;
+      proof: string;
+      description: string;
+    }[];
     type: "project-update";
   };
   verified?: IProjectUpdateStatus[];
