@@ -1,0 +1,43 @@
+# Karma GAP SDK - Cursor Rules
+
+## Project Overview
+The Karma GAP SDK is a library for easy integration with the Grantee Accountability Protocol. It provides tools to fetch and display Communities, Projects, Members, Grants, Milestones, and their dependencies, as well as create, update, and delete these entities. The SDK also supports gasless transactions with Gelato Relay and custom API endpoints for faster queries.
+
+## Architecture Guidelines
+When working with this codebase, understand that it follows a modular architecture with these key components:
+
+1. **GAP Facade** - Centralizes resources within the SDK, providing tools and methods to retrieve attestations and convert them into concrete objects.
+2. **Attestations** - Base module for handling various types of attestations available at EAS. Can be inherited for specific attestation types.
+3. **Schemas** - Abstract module that establishes connection with the EAS infrastructure. Contains parameters, methods, and interactions for blockchain communication.
+4. **Entities** - Represents specific attestation types customized for specific requirements. Always extends the Attestation module.
+5. **Fetcher** - Abstract module for interacting with EAS or custom API to retrieve attestations and transform them into Attestation instances.
+6. **Contract** - Custom intermediary contract to add an abstraction layer to the original EAS contracts.
+
+## Entity Types
+The SDK supports various entity types that represent different attestation types in the Grantee Accountability Protocol: Use the `gap-schema.yaml` file to understand the different types of attestations and their relationships.
+
+## Code Style Guidelines
+- Use TypeScript for all new code
+- Follow the existing module pattern when adding new features
+- Maintain proper inheritance hierarchy for new entities (extend from Attestation)
+- Document all public methods and classes with JSDoc comments
+- Use async/await for asynchronous operations
+- Implement proper error handling with custom error classes
+
+## Integration Features
+The SDK includes several integration features:
+
+- **Gelato Integration** - For gasless transactions
+- **GraphQL** - For data fetching
+- **Remote Storage** - For storing data remotely
+- **Karma Indexer** - For efficient data retrieval
+
+## Testing Guidelines
+- Write unit tests for all new functionality
+- Ensure backward compatibility when modifying existing code
+- Test with both custom API and direct blockchain access
+
+## Documentation
+- Update the README.md when adding new features
+- Include examples for new functionality
+- Document any breaking changes 
