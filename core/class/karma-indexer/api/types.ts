@@ -1,3 +1,5 @@
+import { IGrantUpdateBase } from "core/shared/types";
+
 export type Hex = `0x${string}`;
 export type JSONStr = string;
 export type ExternalLink = { type: string; url: string };
@@ -65,12 +67,8 @@ export interface IGrantUpdateStatus extends IAttestationResponse {
   };
 }
 export interface IGrantUpdate extends IAttestationResponse {
-  data: {
-    text: string;
-    title: string;
+  data: IGrantUpdateBase & {
     type: "grant-update";
-    proofOfWork?: string;
-    completionPercentage?: string;
   };
   verified?: IGrantUpdateStatus[];
 }

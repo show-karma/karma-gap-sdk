@@ -1,18 +1,16 @@
+import { IGrantUpdateBase } from "core/shared/types";
+import { Transaction } from "ethers";
+import { chainIdToNetwork } from "../../../core/consts";
 import { SignerOrProvider, TNetwork } from "../../../core/types";
+import { AllGapSchemas } from "../AllGapSchemas";
 import { Attestation } from "../Attestation";
 import { GapSchema } from "../GapSchema";
-import { AttestationError } from "../SchemaError";
-import { AllGapSchemas } from "../AllGapSchemas";
-import { chainIdToNetwork } from "../../../core/consts";
-import { Transaction } from "ethers";
 import { Hex } from "../karma-indexer/api/types";
+import { AttestationError } from "../SchemaError";
 
 export interface _IGrantUpdate extends GrantUpdate {}
-export interface IGrantUpdate {
-  title: string;
-  text: string;
+export interface IGrantUpdate extends IGrantUpdateBase {
   type?: string;
-  proofOfWork?: string;
 }
 
 type IStatus = "verified";
