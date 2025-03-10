@@ -70,6 +70,7 @@ export interface IGrantUpdate extends IAttestationResponse {
     title: string;
     type: "grant-update";
     proofOfWork?: string;
+    completionPercentage?: string;
   };
   verified?: IGrantUpdateStatus[];
 }
