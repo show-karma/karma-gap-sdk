@@ -20,19 +20,17 @@ import { GapContract } from "../contract/GapContract";
 import { Community } from "./Community";
 import { Project } from "./Project";
 import { AllGapSchemas } from "../AllGapSchemas";
-import { IGrantResponse } from "../karma-indexer/api/types";
+import {
+  IGrantResponse,
+  IProjectResponse,
+  ISummaryProject,
+} from "../karma-indexer/api/types";
 import { GrantUpdate, IGrantUpdate, _IGrantUpdate } from "./GrantUpdate";
 
 interface _Grant extends Grant {}
 
 export interface IGrant {
   communityUID: Hex;
-}
-
-export interface ISummaryProject {
-  title: string;
-  slug?: string;
-  uid: Hex;
 }
 
 export class Grant extends Attestation<IGrant> {
@@ -45,7 +43,7 @@ export class Grant extends Attestation<IGrant> {
   updates: GrantUpdate[] = [];
   members: string[] = [];
   completed?: GrantCompleted;
-  project?: ISummaryProject;
+  project?: IProjectResponse | ISummaryProject;
   categories?: string[] = [];
 
   async verify(signer: SignerOrProvider) {
