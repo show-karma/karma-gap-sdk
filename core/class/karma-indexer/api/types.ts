@@ -151,7 +151,7 @@ export interface IGrantResponse extends IAttestationResponse {
   details?: IGrantDetails;
   milestones: IMilestoneResponse[];
   completed?: IGrantUpdate;
-  project: ISummaryProject;
+  project: IProjectResponse;
   updates: IGrantUpdate[];
   community: ICommunityResponse;
   members: Hex[];

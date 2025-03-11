@@ -29,6 +29,7 @@ import { mapFilter } from "../../utils";
 import { Fetcher } from "../Fetcher";
 import { Networks } from "../../consts";
 import { GrantUpdate } from "../entities/GrantUpdate";
+import { ISummaryProject } from "../karma-indexer/api/types";
 
 interface EASClientProps {
   network: TNetwork;
@@ -632,7 +633,7 @@ export class GapEasClient extends Fetcher {
 
     const milestones = await this.milestonesOf(grants);
 
-    const getSummaryProject = (project: Project) => ({
+    const getSummaryProject = (project: Project): ISummaryProject => ({
       title: project.details?.title,
       uid: project.uid,
       slug: project.details?.slug,
