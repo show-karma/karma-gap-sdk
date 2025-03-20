@@ -23,7 +23,7 @@ export interface SchemaInterface<T extends string = string> {
   references?: T;
   uid: Hex;
   revocable?: boolean;
-  oldSchemas?: {uid: string; raw: SchemaItem[]}[]; 
+  oldSchemas?: { uid: string; raw: SchemaItem[] }[];
 }
 
 export interface MultiRevokeArgs {
@@ -86,7 +86,10 @@ export type TExternalLink =
   | "github"
   | "website"
   | "linkedin"
-  | "discord";
+  | "discord"
+  | "pitchDeck"
+  | "demoVideo"
+  | "farcaster";
 
 export type TNetwork =
   // | "mainnet"
@@ -156,7 +159,7 @@ export interface EASNetworkConfig {
   oldSchemas?: {
     name: string;
     uid: string;
-    raw: SchemaItem[]
+    raw: SchemaItem[];
   }[];
 }
 
