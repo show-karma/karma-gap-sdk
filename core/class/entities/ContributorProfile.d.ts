@@ -8,6 +8,7 @@ export interface IContributorProfile {
     github?: string;
     twitter?: string;
     linkedin?: string;
+    farcaster?: string;
 }
 export declare class ContributorProfile extends Attestation<IContributorProfile> implements IContributorProfile {
     name: string;
@@ -15,6 +16,7 @@ export declare class ContributorProfile extends Attestation<IContributorProfile>
     github?: string;
     twitter?: string;
     linkedin?: string;
+    farcaster?: string;
     constructor(data: AttestationArgs<IContributorProfile, GapSchema>);
     /**
      * Creates the payload for a multi-attestation.
