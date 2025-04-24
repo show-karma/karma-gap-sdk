@@ -100,6 +100,21 @@ export interface IProjectUpdate extends IAttestationResponse {
     type: "project-update";
   };
   verified?: IProjectUpdateStatus[];
+  indicators: Array<{
+    indicatorId: string;
+    name: string;
+    datapoints: Array<{
+      value: string;
+      proof: string;
+      startDate: string;
+      endDate: string;
+      projectUID: string;
+      impactIndicatorId: string;
+      createdAt: string;
+      updatedAt: string;
+      projectUpdateUID: string;
+    }>;
+  }>;
 }
 
 export interface IProjectMilestoneStatus extends IAttestationResponse {
