@@ -8,6 +8,9 @@ import {
   IProjectResponse,
   ISearchResponse,
   IProjectMilestoneResponse,
+  ITrackResponse,
+  ITrackAssignmentResponse,
+  IProjectTrackResponse,
 } from "./types";
 
 const Endpoints = {
@@ -48,6 +51,30 @@ const Endpoints = {
   },
   search: {
     all: () => "/search",
+  },
+  tracks: {
+    all: () => "/tracks",
+    byId: (id: string) => `/tracks/${id}`,
+    byCommunity: (communityUID: string, includeArchived: boolean = false) => 
+      `/tracks?communityUID=${communityUID}${includeArchived ? '&includeArchived=true' : ''}`,
+  },
+  programs: {
+    tracks: {
+      all: (programId: string, chainID: number) => `/programs/${programId}/tracks?chainID=${chainID}`,
+      assign: (programId: string, chainID: number) => `/programs/${programId}/tracks?chainID=${chainID}`,
+      remove: (programId: string, chainID: number, trackId: string) => 
+        `/programs/${programId}/tracks/${trackId}?chainID=${chainID}`,
+    }
+  },
+  projectTracks: {
+    all: (projectId: string, chainID: number, activeOnly: boolean = true) => 
+      `/projects/${projectId}/tracks?chainID=${chainID}${activeOnly ? '' : '&activeOnly=false'}`,
+    assign: (projectId: string, chainID: number) => 
+      `/projects/${projectId}/tracks?chainID=${chainID}`,
+  },
+  community: {
+    programProjects: (communityId: string, programId: string, trackId?: string) =>
+      `/community/${communityId}/program/${programId}/projects${trackId ? `?trackId=${trackId}` : ''}`,
   },
 };
 
@@ -287,5 +314,90 @@ export class GapIndexerApi extends AxiosGQL {
     } catch (err) {
       return false;
     }
+  }
+
+  /**
+   * Tracks
+   */
+
+  async getTracks(communityUID: string, includeArchived: boolean = false) {
+    const response = await this.client.get<ITrackResponse[]>(
+      Endpoints.tracks.byCommunity(communityUID, includeArchived)
+    );
+    return response;
+  }
+
+  async getTrackById(id: string) {
+    const response = await this.client.get<ITrackResponse>(
+      Endpoints.tracks.byId(id)
+    );
+    return response;
+  }
+
+  async createTrack(data: { name: string; description?: string; communityUID: string }) {
+    const response = await this.client.post<ITrackResponse>(
+      Endpoints.tracks.all(),
+      data
+    );
+    return response;
+  }
+
+  async updateTrack(id: string, data: { name?: string; description?: string; communityUID?: string }) {
+    const response = await this.client.put<ITrackResponse>(
+      Endpoints.tracks.byId(id),
+      data
+    );
+    return response;
+  }
+
+  async archiveTrack(id: string) {
+    const response = await this.client.delete<ITrackResponse>(
+      Endpoints.tracks.byId(id)
+    );
+    return response;
+  }
+
+  async assignTracksToProgram(programId: string, chainID: number, trackIds: string[]) {
+    const response = await this.client.post<ITrackAssignmentResponse[]>(
+      Endpoints.programs.tracks.assign(programId, chainID),
+      { trackIds }
+    );
+    return response;
+  }
+
+  async unassignTrackFromProgram(programId: string, chainID: number, trackId: string) {
+    const response = await this.client.delete<ITrackAssignmentResponse>(
+      Endpoints.programs.tracks.remove(programId, chainID, trackId)
+    );
+    return response;
+  }
+
+  async getTracksForProgram(programId: string, chainID: number) {
+    const response = await this.client.get<ITrackResponse[]>(
+      Endpoints.programs.tracks.all(programId, chainID)
+    );
+    return response;
+  }
+
+  async getTracksForProject(projectId: string, chainID: number, activeOnly: boolean = true) {
+    const response = await this.client.get<ITrackResponse[]>(
+      Endpoints.projectTracks.all(projectId, chainID, activeOnly)
+    );
+    return response;
+  }
+
+  async assignTracksToProject(projectId: string, chainID: number, programId: string, trackIds: string[]) {
+    const response = await this.client.post<any[]>(
+      Endpoints.projectTracks.assign(projectId, chainID),
+      { trackIds, programId }
+    );
+    return response;
+  }
+
+  async getProjectsByTrack(communityId: string, programId: string, trackId?: string) {
+    const response = await this.client.get<IProjectTrackResponse[]>(
+      Endpoints.community.programProjects(communityId, programId, trackId)
+    );
+    return response;
   }
 }
