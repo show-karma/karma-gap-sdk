@@ -1,4 +1,3 @@
-import { IGrantUpdateBase } from "core/shared/types";
 export type Hex = `0x${string}`;
 export type JSONStr = string;
 export type ExternalLink = {
@@ -64,8 +63,11 @@ export interface IGrantUpdateStatus extends IAttestationResponse {
     };
 }
 export interface IGrantUpdate extends IAttestationResponse {
-    data: IGrantUpdateBase & {
+    data: {
+        text: string;
+        title: string;
         type: "grant-update";
+        proofOfWork?: string;
     };
     verified?: IGrantUpdateStatus[];
 }
@@ -79,20 +81,8 @@ export interface IProjectUpdateStatus extends IAttestationResponse {
 }
 export interface IProjectUpdate extends IAttestationResponse {
     data: {
-        title: string;
         text: string;
-        startDate?: Date;
-        endDate?: Date;
-        grants?: string[];
-        indicators?: {
-            name: string;
-            indicatorId: string;
-        }[];
-        deliverables?: {
-            name: string;
-            proof: string;
-            description: string;
-        }[];
+        title: string;
         type: "project-update";
     };
     verified?: IProjectUpdateStatus[];
@@ -148,7 +138,7 @@ export interface IGrantResponse extends IAttestationResponse {
     details?: IGrantDetails;
     milestones: IMilestoneResponse[];
     completed?: IGrantUpdate;
-    project: IProjectResponse;
+    project: ISummaryProject;
     updates: IGrantUpdate[];
     community: ICommunityResponse;
     members: Hex[];
@@ -260,5 +250,35 @@ export interface ICommunityAdminsResponse {
 export interface ISearchResponse {
     projects: IProjectResponse[];
     communities: ICommunityResponse[];
+}
+export interface ITrackResponse {
+    id: string;
+    name: string;
+    description?: string;
+    communityUID: string;
+    isArchived: boolean;
+    createdAt: string;
+    updatedAt: string;
+    programId?: string;
+    isActive?: boolean;
+    chainID?: number;
+}
+export interface ITrackAssignmentResponse {
+    id: string;
+    programId: string;
+    chainID: number;
+    trackId: string;
+    track: ITrackResponse;
+}
+export interface IProjectTrackResponse {
+    projectUID: string;
+    chainID: number;
+    programId: string;
+    track: ITrackResponse;
+    project: {
+        uid: string;
+        chainID: number;
+        details: any;
+    };
 }
 export {};

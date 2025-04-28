@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GrantUpdate = exports.GrantUpdateStatus = void 0;
-const consts_1 = require("../../../core/consts");
-const AllGapSchemas_1 = require("../AllGapSchemas");
 const Attestation_1 = require("../Attestation");
 const SchemaError_1 = require("../SchemaError");
+const AllGapSchemas_1 = require("../AllGapSchemas");
+const consts_1 = require("../../../core/consts");
 class GrantUpdateStatus extends Attestation_1.Attestation {
 }
 exports.GrantUpdateStatus = GrantUpdateStatus;

@@ -5,19 +5,7 @@ export interface _IProjectUpdate extends ProjectUpdate {
 export interface IProjectUpdate {
     title: string;
     text: string;
-    startDate?: Date;
-    endDate?: Date;
     type?: string;
-    grants?: string[];
-    indicators?: {
-        name: string;
-        indicatorId: string;
-    }[];
-    deliverables?: {
-        name: string;
-        proof: string;
-        description: string;
-    }[];
 }
 type IStatus = "verified";
 export interface IProjectUpdateStatus {

@@ -4,10 +4,15 @@ import { IMilestone, Milestone } from "./Milestone";
 import { GapSchema } from "../GapSchema";
 import { Hex, MultiAttestPayload, SignerOrProvider, TNetwork } from "core/types";
 import { Community } from "./Community";
-import { IGrantResponse, IProjectResponse, ISummaryProject } from "../karma-indexer/api/types";
+import { IGrantResponse } from "../karma-indexer/api/types";
 import { GrantUpdate, IGrantUpdate } from "./GrantUpdate";
 export interface IGrant {
     communityUID: Hex;
+}
+export interface ISummaryProject {
+    title: string;
+    slug?: string;
+    uid: Hex;
 }
 export declare class Grant extends Attestation<IGrant> {
     details?: GrantDetails;
@@ -19,7 +24,7 @@ export declare class Grant extends Attestation<IGrant> {
     updates: GrantUpdate[];
     members: string[];
     completed?: GrantCompleted;
-    project?: IProjectResponse | ISummaryProject;
+    project?: ISummaryProject;
     categories?: string[];
     verify(signer: SignerOrProvider): Promise<void>;
     /**
