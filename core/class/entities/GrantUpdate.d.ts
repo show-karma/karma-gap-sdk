@@ -1,13 +1,11 @@
+import { IGrantUpdateBase } from "core/shared/types";
+import { Transaction } from "ethers";
 import { SignerOrProvider, TNetwork } from "../../../core/types";
 import { Attestation } from "../Attestation";
-import { Transaction } from "ethers";
 export interface _IGrantUpdate extends GrantUpdate {
 }
-export interface IGrantUpdate {
-    title: string;
-    text: string;
+export interface IGrantUpdate extends IGrantUpdateBase {
     type?: string;
-    proofOfWork?: string;
 }
 type IStatus = "verified";
 export interface IGrantUpdateStatus {
