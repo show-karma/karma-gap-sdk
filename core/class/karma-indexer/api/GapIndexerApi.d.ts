@@ -63,9 +63,9 @@ export declare class GapIndexerApi extends AxiosGQL {
         communityUID?: string;
     }): Promise<import("axios").AxiosResponse<ITrackResponse, any>>;
     archiveTrack(id: string): Promise<import("axios").AxiosResponse<ITrackResponse, any>>;
-    assignTracksToProgram(programId: string, chainID: number, trackIds: string[]): Promise<import("axios").AxiosResponse<ITrackAssignmentResponse[], any>>;
-    unassignTrackFromProgram(programId: string, chainID: number, trackId: string): Promise<import("axios").AxiosResponse<ITrackAssignmentResponse, any>>;
-    getTracksForProgram(programId: string, chainID: number): Promise<import("axios").AxiosResponse<ITrackResponse[], any>>;
+    assignTracksToProgram(programId: string, trackIds: string[]): Promise<import("axios").AxiosResponse<ITrackAssignmentResponse[], any>>;
+    unassignTrackFromProgram(programId: string, trackId: string): Promise<import("axios").AxiosResponse<ITrackAssignmentResponse, any>>;
+    getTracksForProgram(programId: string): Promise<import("axios").AxiosResponse<ITrackResponse[], any>>;
     getTracksForProject(projectId: string, programId: string, activeOnly?: boolean): Promise<import("axios").AxiosResponse<ITrackResponse[], any>>;
     assignTracksToProject(projectId: string, programId: string, trackIds: string[]): Promise<import("axios").AxiosResponse<any[], any>>;
     unassignTracksFromProject(projectId: string, programId: string, trackIds: string[]): Promise<import("axios").AxiosResponse<any[], any>>;

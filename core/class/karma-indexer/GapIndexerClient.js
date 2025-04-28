@@ -175,16 +175,16 @@ class GapIndexerClient extends Fetcher_1.Fetcher {
         const { data } = await this.apiClient.archiveTrack(id);
         return entities_1.Track.from([data], this.gap.network)[0];
     }
-    async assignTracksToProgram(programId, chainID, trackIds) {
-        const { data } = await this.apiClient.assignTracksToProgram(programId, chainID, trackIds);
+    async assignTracksToProgram(programId, trackIds) {
+        const { data } = await this.apiClient.assignTracksToProgram(programId, trackIds);
         return data;
     }
-    async unassignTrackFromProgram(programId, chainID, trackId) {
-        const { data } = await this.apiClient.unassignTrackFromProgram(programId, chainID, trackId);
+    async unassignTrackFromProgram(programId, trackId) {
+        const { data } = await this.apiClient.unassignTrackFromProgram(programId, trackId);
         return data;
     }
-    async getTracksForProgram(programId, chainID) {
-        const { data } = await this.apiClient.getTracksForProgram(programId, chainID);
+    async getTracksForProgram(programId) {
+        const { data } = await this.apiClient.getTracksForProgram(programId);
         return entities_1.Track.from(data, this.gap.network);
     }
     async getTracksForProject(projectId, programId, activeOnly = true) {

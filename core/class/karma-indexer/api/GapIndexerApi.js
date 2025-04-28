@@ -43,9 +43,9 @@ const Endpoints = {
     },
     programs: {
         tracks: {
-            all: (programId, chainID) => `/programs/${programId}/tracks?chainID=${chainID}`,
-            assign: (programId, chainID) => `/programs/${programId}/tracks?chainID=${chainID}`,
-            remove: (programId, chainID, trackId) => `/programs/${programId}/tracks/${trackId}?chainID=${chainID}`,
+            all: (programId) => `/programs/${programId}/tracks`,
+            assign: (programId) => `/programs/${programId}/tracks`,
+            remove: (programId, trackId) => `/programs/${programId}/tracks/${trackId}`,
         },
     },
     projectTracks: {
@@ -223,16 +223,16 @@ class GapIndexerApi extends AxiosGQL_1.AxiosGQL {
         const response = await this.client.delete(Endpoints.tracks.byId(id));
         return response;
     }
-    async assignTracksToProgram(programId, chainID, trackIds) {
-        const response = await this.client.post(Endpoints.programs.tracks.assign(programId, chainID), { trackIds });
+    async assignTracksToProgram(programId, trackIds) {
+        const response = await this.client.post(Endpoints.programs.tracks.assign(programId), { trackIds });
         return response;
     }
-    async unassignTrackFromProgram(programId, chainID, trackId) {
-        const response = await this.client.delete(Endpoints.programs.tracks.remove(programId, chainID, trackId));
+    async unassignTrackFromProgram(programId, trackId) {
+        const response = await this.client.delete(Endpoints.programs.tracks.remove(programId, trackId));
         return response;
     }
-    async getTracksForProgram(programId, chainID) {
-        const response = await this.client.get(Endpoints.programs.tracks.all(programId, chainID));
+    async getTracksForProgram(programId) {
+        const response = await this.client.get(Endpoints.programs.tracks.all(programId));
         return response;
     }
     async getTracksForProject(projectId, programId, activeOnly = true) {

@@ -56,9 +56,9 @@ export declare class GapIndexerClient extends Fetcher {
         communityUID?: string;
     }): Promise<Track>;
     archiveTrack(id: string): Promise<Track>;
-    assignTracksToProgram(programId: string, chainID: number, trackIds: string[]): Promise<any[]>;
-    unassignTrackFromProgram(programId: string, chainID: number, trackId: string): Promise<any>;
-    getTracksForProgram(programId: string, chainID: number): Promise<Track[]>;
+    assignTracksToProgram(programId: string, trackIds: string[]): Promise<any[]>;
+    unassignTrackFromProgram(programId: string, trackId: string): Promise<any>;
+    getTracksForProgram(programId: string): Promise<Track[]>;
     getTracksForProject(projectId: string, programId: string, activeOnly?: boolean): Promise<Track[]>;
     assignTracksToProject(projectId: string, programId: string, trackIds: string[]): Promise<any[]>;
     unassignTracksFromProject(projectId: string, programId: string, trackIds: string[]): Promise<any[]>;
