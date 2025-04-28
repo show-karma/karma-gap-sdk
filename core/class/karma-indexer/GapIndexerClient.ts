@@ -2,7 +2,14 @@ import { TSchemaName, IAttestation, TNetwork, Hex } from "core/types";
 import { Attestation } from "../Attestation";
 import { GapSchema } from "../GapSchema";
 import { Fetcher } from "../Fetcher";
-import { Community, Project, Grant, Milestone, MemberOf, Track } from "../entities";
+import {
+  Community,
+  Project,
+  Grant,
+  Milestone,
+  MemberOf,
+  Track,
+} from "../entities";
 import { Grantee } from "../types/attestations";
 import { GapIndexerApi } from "./api/GapIndexerApi";
 import { ICommunityAdminsResponse, ICommunityResponse } from "./api/types";
@@ -256,9 +263,15 @@ export class GapIndexerClient extends Fetcher {
   /**
    * Track related methods
    */
-  
-  async getTracks(communityUID: string, includeArchived: boolean = false): Promise<Track[]> {
-    const { data } = await this.apiClient.getTracks(communityUID, includeArchived);
+
+  async getTracks(
+    communityUID: string,
+    includeArchived: boolean = false
+  ): Promise<Track[]> {
+    const { data } = await this.apiClient.getTracks(
+      communityUID,
+      includeArchived
+    );
     return Track.from(data, this.gap.network);
   }
 
@@ -267,12 +280,19 @@ export class GapIndexerClient extends Fetcher {
     return Track.from([data], this.gap.network)[0];
   }
 
-  async createTrack(trackData: { name: string; description?: string; communityUID: string }): Promise<Track> {
+  async createTrack(trackData: {
+    name: string;
+    description?: string;
+    communityUID: string;
+  }): Promise<Track> {
     const { data } = await this.apiClient.createTrack(trackData);
     return Track.from([data], this.gap.network)[0];
   }
 
-  async updateTrack(id: string, trackData: { name?: string; description?: string; communityUID?: string }): Promise<Track> {
+  async updateTrack(
+    id: string,
+    trackData: { name?: string; description?: string; communityUID?: string }
+  ): Promise<Track> {
     const { data } = await this.apiClient.updateTrack(id, trackData);
     return Track.from([data], this.gap.network)[0];
   }
@@ -282,33 +302,82 @@ export class GapIndexerClient extends Fetcher {
     return Track.from([data], this.gap.network)[0];
   }
 
-  async assignTracksToProgram(programId: string, chainID: number, trackIds: string[]): Promise<any[]> {
-    const { data } = await this.apiClient.assignTracksToProgram(programId, chainID, trackIds);
+  async assignTracksToProgram(
+    programId: string,
+    trackIds: string[]
+  ): Promise<any[]> {
+    const { data } = await this.apiClient.assignTracksToProgram(
+      programId,
+      trackIds
+    );
     return data;
   }
 
-  async unassignTrackFromProgram(programId: string, chainID: number, trackId: string): Promise<any> {
-    const { data } = await this.apiClient.unassignTrackFromProgram(programId, chainID, trackId);
+  async unassignTrackFromProgram(
+    programId: string,
+    trackId: string
+  ): Promise<any> {
+    const { data } = await this.apiClient.unassignTrackFromProgram(
+      programId,
+      trackId
+    );
     return data;
   }
 
-  async getTracksForProgram(programId: string, chainID: number): Promise<Track[]> {
-    const { data } = await this.apiClient.getTracksForProgram(programId, chainID);
+  async getTracksForProgram(programId: string): Promise<Track[]> {
+    const { data } = await this.apiClient.getTracksForProgram(programId);
     return Track.from(data, this.gap.network);
   }
 
-  async getTracksForProject(projectId: string, chainID: number, activeOnly: boolean = true): Promise<Track[]> {
-    const { data } = await this.apiClient.getTracksForProject(projectId, chainID, activeOnly);
+  async getTracksForProject(
+    projectId: string,
+    programId: string,
+    activeOnly: boolean = true
+  ): Promise<Track[]> {
+    const { data } = await this.apiClient.getTracksForProject(
+      projectId,
+      programId,
+      activeOnly
+    );
     return Track.from(data, this.gap.network);
   }
 
-  async assignTracksToProject(projectId: string, chainID: number, programId: string, trackIds: string[]): Promise<any[]> {
-    const { data } = await this.apiClient.assignTracksToProject(projectId, chainID, programId, trackIds);
+  async assignTracksToProject(
+    projectId: string,
+    programId: string,
+    trackIds: string[]
+  ): Promise<any[]> {
+    const { data } = await this.apiClient.assignTracksToProject(
+      projectId,
+      programId,
+      trackIds
+    );
     return data;
   }
 
-  async getProjectsByTrack(communityId: string, programId: string, trackId?: string): Promise<any[]> {
-    const { data } = await this.apiClient.getProjectsByTrack(communityId, programId, trackId);
+  async unassignTracksFromProject(
+    projectId: string,
+    programId: string,
+    trackIds: string[]
+  ): Promise<any[]> {
+    const { data } = await this.apiClient.unassignTracksFromProject(
+      projectId,
+      programId,
+      trackIds
+    );
+    return data;
+  }
+
+  async getProjectsByTrack(
+    communityId: string,
+    programId: string,
+    trackId?: string
+  ): Promise<any[]> {
+    const { data } = await this.apiClient.getProjectsByTrack(
+      communityId,
+      programId,
+      trackId
+    );
     return data;
   }
 }
