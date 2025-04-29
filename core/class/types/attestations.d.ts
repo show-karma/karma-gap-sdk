@@ -45,6 +45,7 @@ export interface IGrantDetails {
     startDate?: number;
     programId?: string;
     fundUsage?: string;
+    selectedTrackIds?: string[];
 }
 export declare class GrantDetails extends Attestation<IGrantDetails> implements IGrantDetails {
     title: string;
@@ -60,6 +61,7 @@ export declare class GrantDetails extends Attestation<IGrantDetails> implements 
     type: string;
     startDate?: number;
     fundUsage?: string;
+    selectedTrackIds?: string[];
 }
 export interface IGrantRound {
     name: string;
