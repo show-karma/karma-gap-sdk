@@ -142,6 +142,7 @@ export interface IGrantDetails extends IAttestationResponse {
     programId?: string;
     type: "grant-details";
     fundUsage?: string;
+    selectedTrackIds?: string[];
   };
 }
 
