@@ -283,23 +283,30 @@ export class GAP extends Facade {
     let slug = text
       .toLowerCase()
       // Remove emojis
-      .replace(/([\uE000-\uF8FF]|\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDDFF])/g, '')
+      .replace(
+        /([\uE000-\uF8FF]|\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDDFF])/g,
+        ""
+      )
       // Remove basic text emoticons
-      .replace(/[:;=][()DP]/g, '')
+      .replace(/[:;=][()DP]/g, "")
       .replace(/ /g, "-")
       .replace(/[^\w-]+/g, "")
       .trim()
-      .replace(/^-+|-+$/g, ''); // Remove leading and trailing hyphens
-    
-    const checkSlug = async (currentSlug: string, counter: number = 0): Promise<string> => {
-      const slugToCheck = counter === 0 ? currentSlug : `${currentSlug}-${counter}`;
+      .replace(/^-+|-+$/g, ""); // Remove leading and trailing hyphens
+
+    const checkSlug = async (
+      currentSlug: string,
+      counter: number = 0
+    ): Promise<string> => {
+      const slugToCheck =
+        counter === 0 ? currentSlug : `${currentSlug}-${counter}`;
       const slugExists = await this.fetch.slugExists(slugToCheck);
-      
+
       if (slugExists) {
         return checkSlug(currentSlug, counter + 1);
       }
-      
-      return slugToCheck.toLowerCase(); 
+
+      return slugToCheck.toLowerCase();
     };
 
     return checkSlug(slug);

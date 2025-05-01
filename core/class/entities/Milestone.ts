@@ -255,14 +255,37 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
       );
     }
 
-    // Use the schema of this milestone to perform the revocation
-    const { tx, uids } = await this.schema.multiRevoke(
-      signer,
-      attestationsToRevoke,
-      callback
+    // Group the attestations by schema ID
+    const groupedAttestations = attestationsToRevoke.reduce(
+      (acc, { schemaId, uid }) => {
+        if (!acc[schemaId]) {
+          acc[schemaId] = [];
+        }
+        acc[schemaId].push(uid);
+        return acc;
+      },
+      {} as Record<Hex, Hex[]>
     );
 
-    return { tx, uids };
+    // Convert to the format expected by GapContract.multiRevoke
+    const revocationPayload = Object.entries(groupedAttestations).map(
+      ([schemaId, uids]) => ({
+        schema: schemaId,
+        data: uids.map((uid) => ({
+          uid,
+          value: 0n, // EAS contract requires a value field as BigInt
+        })),
+      })
+    );
+
+    // Use GapContract.multiRevoke directly with the correct payload format
+    const result = await GapContract.multiRevoke(signer, revocationPayload);
+
+    if (callback) {
+      callback("confirmed");
+    }
+
+    return result;
   }
 
   /**
@@ -308,23 +331,37 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
    * Marks a milestone as completed across multiple grants. If the milestone is already completed,
    * it will throw an error.
    * @param signer - The signer to use for attestation
-   * @param grantIndices - Array of grant indices to attest this milestone to
+   * @param grantIndices - Array of grant indices to attest this milestone to, or array of milestone UIDs
    * @param data - Optional completion data
    * @param callback - Optional callback function for status updates
    * @returns Promise with transaction and UIDs
    */
   async completeForMultipleGrants(
     signer: SignerOrProvider,
-    grantIndices: number[] = [0],
+    grantIndicesOrMilestoneUIDs: number[] | Hex[] = [0],
     data?: IMilestoneCompleted,
     callback?: Function
   ): Promise<AttestationWithTx> {
-    // First attest the milestone to multiple grants if not already attested
-    const attestResult = await this.attestToMultipleGrants(
-      signer,
-      grantIndices,
-      callback
-    );
+    // Check if we're dealing with UIDs instead of indices
+    const isUids =
+      grantIndicesOrMilestoneUIDs.length > 0 &&
+      typeof grantIndicesOrMilestoneUIDs[0] === "string";
+
+    let milestoneUIDs: Hex[] = [];
+
+    if (isUids) {
+      // We already have milestone UIDs
+      milestoneUIDs = grantIndicesOrMilestoneUIDs as Hex[];
+    } else {
+      // First attest the milestone to multiple grants if not already attested
+      const attestResult = await this.attestToMultipleGrants(
+        signer,
+        grantIndicesOrMilestoneUIDs as number[],
+        callback
+      );
+
+      milestoneUIDs = attestResult.uids;
+    }
 
     // Now complete the milestone for each attested milestone
     const schema = this.schema.gap.findSchema("MilestoneCompleted");
@@ -346,9 +383,13 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
     // Create completion attestations for each milestone
     const completionPayloads: MultiAttestPayload = [];
 
-    for (let i = 0; i < attestResult.uids.length; i++) {
-      const milestoneUID = attestResult.uids[i];
-      this.uid = milestoneUID; // Set the current UID to the milestone being completed
+    for (let i = 0; i < milestoneUIDs.length; i++) {
+      const milestoneUID = milestoneUIDs[i];
+
+      // Only set this.uid if we're dealing with indices and need to update the current milestone
+      if (!isUids) {
+        this.uid = milestoneUID; // Set the current UID to the milestone being completed
+      }
 
       const completed = new MilestoneCompleted({
         data: {
@@ -372,23 +413,28 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
     );
 
     // Save the first completion to this milestone instance
-    if (completionResult.uids.length > 0) {
+    if (completionResult.uids.length > 0 && !isUids) {
       this.completed = new MilestoneCompleted({
         data: {
           type: "completed",
           ...data,
         },
-        refUID: attestResult.uids[0],
+        refUID: milestoneUIDs[0],
         uid: completionResult.uids[0],
         schema,
         recipient: this.recipient,
       });
     }
 
-    return {
-      tx: [...attestResult.tx, ...completionResult.tx],
-      uids: [...attestResult.uids, ...completionResult.uids],
-    };
+    return isUids
+      ? completionResult // If we're using UIDs directly, just return completion result
+      : {
+          tx: [
+            ...(milestoneUIDs.length ? [{ hash: "" } as Transaction] : []),
+            ...completionResult.tx,
+          ],
+          uids: [...milestoneUIDs, ...completionResult.uids],
+        };
   }
 
   /**
@@ -506,31 +552,70 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
    * Attests this milestone to multiple grants in a single transaction.
    *
    * @param signer - The signer to use for attestation
-   * @param grantIndices - Array of grant indices to attest this milestone to
+   * @param grantIndices - Array of grant indices to attest this milestone to, or array of grant UIDs
    * @param callback - Optional callback function for status updates
    * @returns Promise with transaction and UIDs
    */
   async attestToMultipleGrants(
     signer: SignerOrProvider,
-    grantIndices: number[] = [0],
+    grantIndices: number[] | Hex[] = [0],
     callback?: Function
   ): Promise<AttestationWithTx> {
     this.assertPayload();
-    const payload = await this.multiGrantAttestPayload([], grantIndices);
 
-    const { uids, tx } = await GapContract.multiAttest(
-      signer,
-      payload.map((p) => p[1]),
-      callback
-    );
+    // Check if we're dealing with Hex UIDs instead of indices
+    const isUids =
+      grantIndices.length > 0 && typeof grantIndices[0] === "string";
 
-    if (Array.isArray(uids)) {
-      uids.forEach((uid, index) => {
-        payload[index][0].uid = uid;
-      });
+    if (isUids) {
+      // Direct approach - create individual milestone instances for each grant UID
+      const grantUIDs = grantIndices as Hex[];
+      const allPayloads: any[] = [];
+
+      for (const grantUID of grantUIDs) {
+        // Create a new milestone for each grant with direct reference
+        const grantMilestone = new Milestone({
+          schema: this.schema,
+          recipient: this.recipient,
+          data: this.data,
+          refUID: grantUID,
+        });
+
+        // Generate payload for this grant
+        const payload = await grantMilestone.multiAttestPayload();
+        // Add each item from payload to allPayloads
+        payload.forEach((item) => allPayloads.push(item));
+      }
+
+      // Attest all milestones in a single transaction
+      const result = await GapContract.multiAttest(
+        signer,
+        allPayloads.map((p) => p[1]),
+        callback
+      );
+
+      return result;
+    } else {
+      // Original implementation using grantIndices
+      const payload = await this.multiGrantAttestPayload(
+        [],
+        grantIndices as number[]
+      );
+
+      const { uids, tx } = await GapContract.multiAttest(
+        signer,
+        payload.map((p) => p[1]),
+        callback
+      );
+
+      if (Array.isArray(uids)) {
+        uids.forEach((uid, index) => {
+          payload[index][0].uid = uid;
+        });
+      }
+
+      return { tx, uids };
     }
-
-    return { tx, uids };
   }
 
   /**

@@ -16,6 +16,8 @@
   "scripts": {
     "deploy": "npx ts-node ./core/scripts/deploy.ts",
     "csv-upload": "npx ts-node ./csv-upload/scripts/run.ts",
+    "test-file": "npx ts-node ./test-file-indexer-api.ts",
+    "test-milestone": "npx ts-node ./milestone-workflow-example.ts",
     "publish-npm": "npm version patch && tsc && cd .dist && npm publish --scope=@show-karma/karma-gap-sdk --access public"
   },
   "dependencies": {
