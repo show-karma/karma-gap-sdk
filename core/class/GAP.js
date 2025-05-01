@@ -82,13 +82,13 @@ class GAP extends types_1.Facade {
             let slug = text
                 .toLowerCase()
                 // Remove emojis
-                .replace(/([\uE000-\uF8FF]|\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDDFF])/g, '')
+                .replace(/([\uE000-\uF8FF]|\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDDFF])/g, "")
                 // Remove basic text emoticons
-                .replace(/[:;=][()DP]/g, '')
+                .replace(/[:;=][()DP]/g, "")
                 .replace(/ /g, "-")
                 .replace(/[^\w-]+/g, "")
                 .trim()
-                .replace(/^-+|-+$/g, ''); // Remove leading and trailing hyphens
+                .replace(/^-+|-+$/g, ""); // Remove leading and trailing hyphens
             const checkSlug = async (currentSlug, counter = 0) => {
                 const slugToCheck = counter === 0 ? currentSlug : `${currentSlug}-${counter}`;
                 const slugExists = await this.fetch.slugExists(slugToCheck);

@@ -138,7 +138,6 @@ export interface IGrantDetails extends IAttestationResponse {
         programId?: string;
         type: "grant-details";
         fundUsage?: string;
-        selectedTrackIds?: string[];
     };
 }
 export interface IGrantResponse extends IAttestationResponse {
@@ -261,35 +260,5 @@ export interface ICommunityAdminsResponse {
 export interface ISearchResponse {
     projects: IProjectResponse[];
     communities: ICommunityResponse[];
-}
-export interface ITrackResponse {
-    id: string;
-    name: string;
-    description?: string;
-    communityUID: string;
-    isArchived: boolean;
-    createdAt: string;
-    updatedAt: string;
-    programId?: string;
-    isActive?: boolean;
-    chainID?: number;
-}
-export interface ITrackAssignmentResponse {
-    id: string;
-    programId: string;
-    chainID: number;
-    trackId: string;
-    track: ITrackResponse;
-}
-export interface IProjectTrackResponse {
-    projectUID: string;
-    chainID: number;
-    programId: string;
-    track: ITrackResponse;
-    project: {
-        uid: string;
-        chainID: number;
-        details: any;
-    };
 }
 export {};
