@@ -72,18 +72,42 @@ async function main() {
         endsAt: Math.floor(Date.now() / 1000) + 86400 * 14, // 14 days from now
         priority: 1,
       },
-      //   {
-      //     title: "Development Phase",
-      //     description: "Implement core functionality",
-      //     endsAt: Math.floor(Date.now() / 1000) + 86400 * 30, // 30 days from now
-      //     priority: 2,
-      //   },
-      //   {
-      //     title: "Testing Phase",
-      //     description: "Comprehensive testing and bug fixes",
-      //     endsAt: Math.floor(Date.now() / 1000) + 86400 * 45, // 45 days from now
-      //     priority: 3,
-      //   },
+      {
+        title: "Development Phase",
+        description: "Implement core functionality",
+        endsAt: Math.floor(Date.now() / 1000) + 86400 * 30, // 30 days from now
+        priority: 2,
+      },
+      {
+        title: "Testing Phase",
+        description: "Comprehensive testing and bug fixes",
+        endsAt: Math.floor(Date.now() / 1000) + 86400 * 45, // 45 days from now
+        priority: 3,
+      },
+      {
+        title: "Fasd Phase",
+        description: "Implement core functionality",
+        endsAt: Math.floor(Date.now() / 1000) + 86400 * 30, // 30 days from now
+        priority: 2,
+      },
+      {
+        title: "FEFSAD Phase",
+        description: "Comprehensive testing and bug fixes",
+        endsAt: Math.floor(Date.now() / 1000) + 86400 * 45, // 45 days from now
+        priority: 3,
+      },
+      {
+        title: "XCZCZXlopment Phase",
+        description: "Implement core functionality",
+        endsAt: Math.floor(Date.now() / 1000) + 86400 * 30, // 30 days from now
+        priority: 2,
+      },
+      {
+        title: "ADAqewq123 Phase",
+        description: "Comprehensive testing and bug fixes",
+        endsAt: Math.floor(Date.now() / 1000) + 86400 * 45, // 45 days from now
+        priority: 3,
+      },
     ];
 
     console.log("Creating milestones for all grants in batches...");
@@ -186,6 +210,7 @@ async function main() {
           uid,
         }));
 
+        console.log(revocationArgs);
         // Use the improved revokeMultipleAttestations method
         const revokeResult = await milestone.revokeMultipleAttestations(
           signer,
@@ -213,6 +238,107 @@ async function main() {
     console.error("Error in workflow:", error);
   }
 }
+async function deleteMilestones(milestoneUIDs: Hex[]) {
+  try {
+    // Initialize provider and signer
+    const provider = new ethers.JsonRpcProvider(RPC_URL);
+    const signer = new ethers.Wallet(PRIVATE_KEY, provider);
+    const signerAddress = (await signer.getAddress()) as `0x${string}`;
+
+    console.log(`Using signer address: ${signerAddress}`);
+
+    // Initialize GAP SDK
+    const gap = new GAP({
+      globalSchemas: false,
+      network: "optimism-sepolia", // Change to your target network
+      apiClient: new GapIndexerClient(API_URL),
+    });
+
+    // 1. Fetch a project by ID or slug
+    console.log(`Fetching project: ${PROJECT_ID}`);
+    const project = await (PROJECT_ID.startsWith("0x")
+      ? gap.fetch.projectById(PROJECT_ID as Hex)
+      : gap.fetch.projectBySlug(PROJECT_ID));
+
+    if (!project) {
+      throw new Error(`Project not found: ${PROJECT_ID}`);
+    }
+
+    // Project may have details with title, or we can use UID
+    const projectName = project.details?.title || project.uid;
+    console.log(`Project found: ${projectName}`);
+
+    // 2. Fetch grants associated with the project
+    console.log("Fetching grants for the project...");
+    const grants = await gap.fetch.grantsFor([project], true);
+
+    if (!grants || grants.length === 0) {
+      throw new Error("No grants found for this project");
+    }
+
+    const milestoneInstances = grants
+      .filter((grant) => grant.milestones.length > 0)
+      .flatMap((grant) => grant.milestones)
+      .filter((milestone) => milestoneUIDs.includes(milestone.uid));
+
+    const groupedByChain = milestoneInstances.reduce(
+      (acc, instance) => {
+        const chainId = instance.chainID;
+        if (!acc[chainId]) {
+          acc[chainId] = [];
+        }
+        acc[chainId].push(instance);
+        return acc;
+      },
+      {} as Record<number, Milestone[]>
+    );
+    const arrayOfChains = Object.keys(groupedByChain).map(Number);
+
+    for (const chainId of arrayOfChains) {
+      const firstInstance = groupedByChain[chainId][0];
+      try {
+        console.log(
+          "Demonstrating milestone revocation using improved method..."
+        );
+
+        // Get the milestone schema
+        const milestoneSchema = gap.findSchema("Milestone");
+        console.log(`Milestone schema UID: ${milestoneSchema.uid}`);
+
+        // Prepare the revocation arguments
+        const revocationArgs: MultiRevokeArgs[] = milestoneUIDs.map((uid) => ({
+          schemaId: milestoneSchema.uid,
+          uid,
+        }));
+
+        console.log(revocationArgs);
+        // Use the improved revokeMultipleAttestations method
+        const revokeResult = await firstInstance.revokeMultipleAttestations(
+          signer,
+          revocationArgs,
+          (status) => console.log(`Revocation status: ${status}`)
+        );
+
+        console.log(
+          `Successfully revoked ${
+            revokeResult.tx.length
+          } milestone attestations. Transaction hash: ${
+            revokeResult.tx[0].hash || "unknown"
+          }`
+        );
+      } catch (error) {
+        console.error(
+          `Error processing milestone "${firstInstance.title}":`,
+          error
+        );
+      }
+    }
+
+    console.log("All milestone operations completed!");
+  } catch (error) {
+    console.error("Error in workflow:", error);
+  }
+}
 
 // Run the script
 main()
@@ -221,3 +347,7 @@ main()
     console.error(error);
     process.exit(1);
   });
+// deleteMilestones([
+//   "0x1b78c2e7babceddd4c23cd7c6e50e513a0bc265a4d2c6f6b278189ca6ab17cbd",
+//   "0x7e0b1712fcee46f36a32ba826233beba9cb79c163500e93855ee440a141512f8",
+// ]);
