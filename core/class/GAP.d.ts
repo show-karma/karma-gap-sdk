@@ -1,7 +1,7 @@
-import { AttestArgs, Facade, SchemaInterface, TNetwork, TSchemaName, SignerOrProvider } from "../types";
-import { GapSchema } from "./GapSchema";
 import { ethers } from "ethers";
+import { AttestArgs, Facade, SchemaInterface, SignerOrProvider, TNetwork, TSchemaName } from "../types";
 import { Fetcher } from "./Fetcher";
+import { GapSchema } from "./GapSchema";
 import { RemoteStorage } from "./remote-storage/RemoteStorage";
 interface GAPArgs {
     network: TNetwork;
@@ -101,7 +101,8 @@ interface GAPArgs {
  *
  * This is the main class that is used to interact with the GAP SDK.
  *
- * This class can behave as a singleton or as a regular class.
+ * This class implements the singleton pattern to ensure only one instance exists
+ * throughout the application lifecycle.
  *
  * Using this class, the user will be able to:
  *
@@ -136,11 +137,15 @@ interface GAPArgs {
  *
  * const schemas = MountEntities(Networks.sepolia);
  *
- * const gap = new GAP({
+ * // Initialize the singleton instance
+ * const gap = GAP.getInstance({
  *   network: "sepolia",
  *   owner: "0xd7d1DB401EA825b0325141Cd5e6cd7C2d01825f2",
  *   schemas: Object.values(schemas),
  * });
+ *
+ * // Later in the code, get the same instance
+ * const sameGap = GAP.getInstance();
  *
  * gap.fetcher
  *   .fetchProjects()
@@ -152,10 +157,23 @@ interface GAPArgs {
  */
 export declare class GAP extends Facade {
     private static remoteStorage?;
+    private static instances;
     readonly fetch: Fetcher;
     readonly network: TNetwork;
     private _schemas;
     private static _gelatoOpts;
+    /**
+     * Get the singleton instance of GAP for a specific network.
+     * If no instance exists for the network, creates one with the provided args.
+     * @param args Optional initialization arguments
+     * @returns The singleton instance of GAP for the specified network
+     */
+    static getInstance(args?: GAPArgs): GAP;
+    /**
+     * Creates a new instance of GAP.
+     * You can either use this constructor directly or use the singleton pattern via getInstance().
+     * @param args Initialization arguments
+     */
     constructor(args: GAPArgs);
     private assertGelatoOpts;
     /**

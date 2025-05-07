@@ -1,5 +1,5 @@
-import { SchemaInterface, TNetwork, TSchemaName } from '../types';
-import { GapSchema } from './GapSchema';
+import { SchemaInterface, TNetwork, TSchemaName } from "../types";
+import { GapSchema } from "./GapSchema";
 export declare class AllGapSchemas {
     allSchemas: {
         [network: string]: SchemaInterface<TSchemaName>[];
