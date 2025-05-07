@@ -1,22 +1,29 @@
-import * as fs from "fs";
-import * as csv from "fast-csv";
-import { GapSchema, Hex, Project, nullRef, toUnix, TNetwork } from "../../core";
-import { isAddress, ethers } from "ethers";
-import { GAP, Grant, MemberOf } from "../../core";
-import {
-  ProjectDetails,
-  GrantDetails,
-} from "../../core/class/types/attestations";
 import axios from "axios";
-import { GapIndexerClient, GrantUpdate, IpfsStorage } from "../../core/class";
+import { ethers, isAddress } from "ethers";
+import * as csv from "fast-csv";
+import * as fs from "fs";
 import {
+  GAP,
+  Grant,
+  Hex,
+  MemberOf,
+  Project,
+  TNetwork,
+  nullRef,
+} from "../../core";
+import { GrantUpdate, IGrantUpdate } from "../../core/class";
+import {
+  GrantDetails,
+  ProjectDetails,
+} from "../../core/class/types/attestations";
+import {
+  API_ENDPOINTS,
   CHAIN_IDS,
   DEFAULT_CONFIG,
-  API_ENDPOINTS,
-  LINK_TYPES,
   GRANT_UPDATE_TYPES,
+  LINK_TYPES,
 } from "../config";
-import { ChainConfig, Link } from "../types";
+import { Link } from "../types";
 
 const [, , fileName, communityUID] = process.argv;
 
@@ -74,11 +81,7 @@ const config = loadConfig();
 const web3 = new ethers.JsonRpcProvider(config.rpcURL);
 const wallet = new ethers.Wallet(config.privateKey, web3);
 
-const gap = new GAP({
-  globalSchemas: false,
-  network: config.networkName,
-  apiClient: new GapIndexerClient(config.gapAPI),
-});
+const gap = GAP.getInstance({ network: config.networkName });
 
 interface CSV {
   Project: string;
@@ -297,7 +300,7 @@ async function bootstrap() {
               text: "Updates can be found here: " + item.ProposalURL,
               type: GRANT_UPDATE_TYPES.GRANT_UPDATE,
               title: "",
-            },
+            } as IGrantUpdate,
             recipient: project.recipient,
             schema: gap.findSchema("GrantDetails"),
           })
