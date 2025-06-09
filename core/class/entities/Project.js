@@ -206,13 +206,14 @@ class Project extends Attestation_1.Attestation {
         this.members.splice(0, this.members.length);
     }
     static from(attestations, network) {
+        const allSchemas = new AllGapSchemas_1.AllGapSchemas();
         return attestations.map((attestation) => {
             const project = new Project({
                 ...attestation,
                 data: {
                     project: true,
                 },
-                schema: new AllGapSchemas_1.AllGapSchemas().findSchema("Project", consts_1.chainIdToNetwork[attestation.chainID]),
+                schema: allSchemas.findSchema("Project", consts_1.chainIdToNetwork[attestation.chainID]),
                 chainID: attestation.chainID,
             });
             if (attestation.details) {
@@ -222,7 +223,7 @@ class Project extends Attestation_1.Attestation {
                     data: {
                         ...details.data,
                     },
-                    schema: new AllGapSchemas_1.AllGapSchemas().findSchema("ProjectDetails", consts_1.chainIdToNetwork[attestation.chainID]),
+                    schema: allSchemas.findSchema("ProjectDetails", consts_1.chainIdToNetwork[attestation.chainID]),
                     chainID: attestation.chainID,
                 });
                 project.details.links = details.data.links || [];
@@ -241,7 +242,7 @@ class Project extends Attestation_1.Attestation {
                         data: {
                             memberOf: true,
                         },
-                        schema: new AllGapSchemas_1.AllGapSchemas().findSchema("MemberOf", consts_1.chainIdToNetwork[attestation.chainID]),
+                        schema: allSchemas.findSchema("MemberOf", consts_1.chainIdToNetwork[attestation.chainID]),
                         chainID: attestation.chainID,
                     });
                     if (m.details) {
@@ -251,7 +252,7 @@ class Project extends Attestation_1.Attestation {
                             data: {
                                 ...details.data,
                             },
-                            schema: new AllGapSchemas_1.AllGapSchemas().findSchema("MemberDetails", consts_1.chainIdToNetwork[attestation.chainID]),
+                            schema: allSchemas.findSchema("MemberDetails", consts_1.chainIdToNetwork[attestation.chainID]),
                             chainID: attestation.chainID,
                         });
                     }
@@ -280,7 +281,7 @@ class Project extends Attestation_1.Attestation {
                         data: {
                             ...pi.data,
                         },
-                        schema: new AllGapSchemas_1.AllGapSchemas().findSchema("ProjectDetails", consts_1.chainIdToNetwork[attestation.chainID]),
+                        schema: allSchemas.findSchema("ProjectDetails", consts_1.chainIdToNetwork[attestation.chainID]),
                         chainID: attestation.chainID,
                     });
                     return endorsement;
