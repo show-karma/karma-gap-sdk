@@ -502,9 +502,9 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
   },
   lisk: {
     chainId: 1135,
-    url: "https://arbitrum.easscan.org/graphql",
+    url: "https://lisk.easscan.org/graphql",
     rpcUrl:
-      "https://arb-mainnet.g.alchemy.com/v2/okcKBSKXvLuSCbas6QWGvKuh-IcHHSOr",
+      "https://lisk.drpc.org",
     contracts: {
       eas: "0x4200000000000000000000000000000000000021",
       schema: "0x4200000000000000000000000000000000000020",
