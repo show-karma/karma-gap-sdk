@@ -42,6 +42,7 @@ Required structure:
 - celo
 - sei
 - sei-testnet
+- lisk
 
 ## Setup
 
