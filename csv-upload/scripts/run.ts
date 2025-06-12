@@ -44,6 +44,7 @@ interface Config {
   celo: Keys;
   sei: Keys;
   "sei-testnet": Keys;
+  lisk: Keys;
   gapAccessToken: string;
 }
 

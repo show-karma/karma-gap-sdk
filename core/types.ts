@@ -101,7 +101,8 @@ export type TNetwork =
   | "sepolia"
   | "sei"
   | "sei-testnet"
-  | "base-sepolia";
+  | "base-sepolia"
+  | "lisk";
 
 /**
  * Generic GAP Facade interface.
