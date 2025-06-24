@@ -43,6 +43,7 @@ Required structure:
 - sei
 - sei-testnet
 - lisk
+- scroll
 
 ## Setup
 

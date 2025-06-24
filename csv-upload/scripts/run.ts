@@ -45,6 +45,7 @@ interface Config {
   sei: Keys;
   "sei-testnet": Keys;
   lisk: Keys;
+  scroll: Keys;
   gapAccessToken: string;
 }
 
