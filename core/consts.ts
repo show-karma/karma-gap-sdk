@@ -33,6 +33,7 @@ export const chainIdToNetwork = {
   1328: "sei-testnet",
   1329: "sei",
   1135: "lisk",
+  534352: "scroll",
 };
 
 export const nullRef =
@@ -538,6 +539,45 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       ProjectMilestoneStatus:
         "0xd88faddf8df50a07a4130fbe2131354831261440b2ca695c4e9b8f2ca9985346",
       ContributorProfile: "0x80f0701853e862d920f87e8ae5b359a1625ad417a9523af2ed12bc3504b04088"
+    },
+  },
+  scroll: {
+    chainId: 534352,
+    url: "https://scroll.easscan.org/graphql",
+    rpcUrl: "https://rpc.ankr.com/scroll",
+    contracts: {
+      eas: "0xC47300428b6AD2c7D03BB76D05A176058b47E6B0",
+      schema: "0xD2CDF46556543316e7D34e8eDc4624e2bB95e3B6",
+      multicall: "0x8791Ac8c099314bB1D1514D76de13a1E80275950", //proxy,
+      projectResolver: "0xAFaE7aA6118D75Fe7FDB3eF8c1623cAaF8C8a653",
+      communityResolver: "0xfddb660F2F1C27d219372210745BB9f73431856E",
+      donations: "0x8791Ac8c099314bB1D1514D76de13a1E80275950",
+      airdropNFT: null,
+    },
+    schemas: {
+      Community:
+        "0x3c2231024f4f17f3718b5bd9ed9ff29cc323dea5449f9ceba11a9888bfbdd0e1",
+      Details:
+        "0x9895e82115987d8e3e02b35ced92e6a0509293890333f58f50ec291b34853dac",
+      Grant:
+        "0x7afa603a89cee2d8f93d30007e2c64efddc6509fd76aa95d2ccd97b6e34acc71",
+      GrantVerified:
+        "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
+      MemberOf:
+        "0xb4186a2401f40a4c78768941ef9140e1fbe5fe595053a65d44f31d6df180b712",
+      MilestoneApproved:
+        "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
+      MilestoneCompleted:
+        "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
+      GrantUpdateStatus:
+        "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
+      Project:
+        "0x1194f9cd3ed5979434b16edce46715ca87d28510b6b2df1534250c52decc966a",
+      ProjectUpdateStatus:
+        "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
+      ProjectMilestoneStatus:
+        "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
+      ContributorProfile: null
     },
   },
 };
