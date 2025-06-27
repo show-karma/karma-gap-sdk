@@ -544,7 +544,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
   scroll: {
     chainId: 534352,
     url: "https://scroll.easscan.org/graphql",
-    rpcUrl: "https://rpc.ankr.com/scroll",
+    rpcUrl: "https://scroll-mainnet.g.alchemy.com/v2/SsQRSwtqtBMGmXQCDH9lYb4U8p9QnqXK",
     contracts: {
       eas: "0xC47300428b6AD2c7D03BB76D05A176058b47E6B0",
       schema: "0xD2CDF46556543316e7D34e8eDc4624e2bB95e3B6",
@@ -572,7 +572,7 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       GrantUpdateStatus:
         "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
       Project:
-        "0x1194f9cd3ed5979434b16edce46715ca87d28510b6b2df1534250c52decc966a",
+        "0x672fbaa8a1fb6e1f73a89c84a8e97a808da0750003a9d1d18aba3d39fa165945",
       ProjectUpdateStatus:
         "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
       ProjectMilestoneStatus:
