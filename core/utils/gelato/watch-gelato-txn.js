@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.watchGelatoTxn = void 0;
+exports.watchGelatoTxn = watchGelatoTxn;
 const relay_sdk_1 = require("@gelatonetwork/relay-sdk");
 var TaskState;
 (function (TaskState) {
@@ -60,4 +60,3 @@ async function watchGelatoTxn(taskId, ttl = 500) {
         loop();
     });
 }
-exports.watchGelatoTxn = watchGelatoTxn;

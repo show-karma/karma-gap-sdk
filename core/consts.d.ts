@@ -13,6 +13,8 @@ export declare const chainIdToNetwork: {
     42220: string;
     1328: string;
     1329: string;
+    1135: string;
+    534352: string;
 };
 export declare const nullRef = "0x0000000000000000000000000000000000000000000000000000000000000000";
 export declare const nullResolver = "0x0000000000000000000000000000000000000000";

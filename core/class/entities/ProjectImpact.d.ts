@@ -1,7 +1,7 @@
 import { SignerOrProvider, TNetwork } from "../../types";
 import { Attestation, AttestationArgs } from "../Attestation";
 import { GapSchema } from "../GapSchema";
-import { Transaction } from "ethers";
+import { Transaction } from "../../utils/unified-types";
 export interface _IProjectImpact extends ProjectImpact {
 }
 type IStatus = "verified";

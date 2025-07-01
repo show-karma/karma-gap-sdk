@@ -4,13 +4,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AlloRegistry = void 0;
-const ethers_1 = require("ethers");
+const viem_contracts_1 = require("../../utils/viem-contracts");
 const AlloRegistry_json_1 = __importDefault(require("../../abi/AlloRegistry.json"));
 const consts_1 = require("../../consts");
 const axios_1 = __importDefault(require("axios"));
 class AlloRegistry {
-    constructor(signer, pinataJWTToken) {
-        this.contract = new ethers_1.ethers.Contract(consts_1.AlloContracts.registry, AlloRegistry_json_1.default, signer);
+    constructor(signer, pinataJWTToken, chainId) {
+        this.signer = signer;
+        this.contract = new viem_contracts_1.UniversalContract(consts_1.AlloContracts[chainId], AlloRegistry_json_1.default, signer);
         this.pinataJWTToken = pinataJWTToken;
     }
     async saveAndGetCID(data, pinataMetadata = { name: "via karma-gap-sdk" }) {
@@ -38,7 +39,13 @@ class AlloRegistry {
                 protocol: 1,
                 pointer: metadata_cid,
             };
-            const tx = await this.contract.createProfile(nonce, name, metadata, owner, members);
+            const tx = await this.contract.write("createProfile", [
+                nonce,
+                name,
+                metadata,
+                owner,
+                members,
+            ]);
             const receipt = await tx.wait();
             // Get ProfileCreated event
             const profileCreatedEvent = receipt.logs.find((event) => event.eventName === "ProfileCreated");
@@ -58,7 +65,10 @@ class AlloRegistry {
                 protocol: 1,
                 pointer: metadata_cid,
             };
-            const tx = await this.contract.updateProfileMetadata(profileId, metadata);
+            const tx = await this.contract.write("updateProfileMetadata", [
+                profileId,
+                metadata,
+            ]);
             const receipt = await tx.wait();
             return receipt;
         }

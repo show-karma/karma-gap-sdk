@@ -2,8 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GapContract = void 0;
 const eas_sdk_1 = require("@ethereum-attestation-service/eas-sdk");
+const unified_types_1 = require("../../utils/unified-types");
 const send_gelato_txn_1 = require("../../utils/gelato/send-gelato-txn");
 const serialize_bigint_1 = require("../../utils/serialize-bigint");
+const utils_1 = require("../../utils");
 const GAP_1 = require("../GAP");
 const AttestationDataTypes = {
     Attest: [
@@ -15,22 +17,53 @@ const AttestationDataTypes = {
 class GapContract {
     /**
      * Signs a message for the delegated attestation.
+     * Supports both ethers and viem signers.
      * @param signer
      * @param payload
      * @returns r,s,v signature
      */
     static async signAttestation(signer, payload, expiry) {
         let { nonce } = await this.getNonce(signer);
-        const { chainId } = await signer.provider.getNetwork();
+        const contract = await GAP_1.GAP.getMulticall(signer);
+        const contractAddress = contract.address || contract.contractAddress;
+        // Get chain ID based on signer type
+        let chainId;
+        if ((0, utils_1.isEthersWallet)(signer)) {
+            const network = await signer.provider.getNetwork();
+            chainId = BigInt(network.chainId);
+        }
+        else if ((0, utils_1.isViemWalletClient)(signer)) {
+            chainId = BigInt(signer.chain?.id || 1);
+        }
+        else {
+            // Fallback for providers
+            const { chainId: id } = await signer.provider.getNetwork();
+            chainId = BigInt(id);
+        }
         const domain = {
             chainId,
             name: "gap-attestation",
             version: "1",
-            verifyingContract: (await GAP_1.GAP.getMulticall(signer)).address,
+            verifyingContract: contractAddress,
         };
         const data = { payloadHash: payload, nonce, expiry };
         console.log({ domain, AttestationDataTypes, data });
-        const signature = await signer._signTypedData(domain, AttestationDataTypes, data);
+        let signature;
+        if ((0, utils_1.isEthersWallet)(signer)) {
+            signature = await signer._signTypedData(domain, AttestationDataTypes, data);
+        }
+        else if ((0, utils_1.isViemWalletClient)(signer)) {
+            signature = await signer.signTypedData({
+                account: signer.account,
+                domain: domain,
+                types: AttestationDataTypes,
+                primaryType: "Attest",
+                message: data,
+            });
+        }
+        else {
+            throw new Error("Unsupported signer type for signing");
+        }
         const { r, s, v } = this.getRSV(signature);
         return { r, s, v, nonce, chainId };
     }
@@ -46,10 +79,7 @@ class GapContract {
         return { r, s, v };
     }
     static async getSignerAddress(signer) {
-        const address = signer.address || signer._address || (await signer.getAddress());
-        if (!address)
-            throw new Error("Signer does not provider either address or getAddress().");
-        return address;
+        return (0, utils_1.getSignerAddress)(signer);
     }
     /**
      * Get nonce for the transaction
@@ -60,7 +90,15 @@ class GapContract {
         const contract = await GAP_1.GAP.getMulticall(signer);
         const address = await this.getSignerAddress(signer);
         console.log({ address });
-        const nonce = await contract.nonces(address);
+        let nonce;
+        if (contract.read) {
+            // UniversalContract
+            nonce = (await contract.read("nonces", [address]));
+        }
+        else {
+            // ethers Contract
+            nonce = await contract.nonces(address);
+        }
         return {
             nonce: Number(nonce),
             next: Number(nonce + 1n),
@@ -78,23 +116,47 @@ class GapContract {
             return this.attestBySig(signer, payload);
         }
         callback?.("preparing");
-        const tx = await contract
-            .attest({
-            schema: payload.schema,
-            data: payload.data.payload,
-        })
-            .then((res) => {
+        let tx;
+        let result;
+        if (contract.write) {
+            // UniversalContract
+            const txHash = await contract.write("attest", [
+                {
+                    schema: payload.schema,
+                    data: payload.data.payload,
+                },
+            ]);
             callback?.("pending");
-            return res;
-        });
-        const result = await tx.wait?.();
-        callback?.("confirmed");
-        const attestations = (0, eas_sdk_1.getUIDsFromAttestReceipt)(result)[0];
-        const resultArray = [result].flat();
-        return {
-            tx: resultArray,
-            uids: [attestations],
-        };
+            // Wait for transaction using the provider adapter
+            let provider = signer;
+            result = await (0, utils_1.waitForTransaction)(provider, txHash);
+            callback?.("confirmed");
+            const attestations = (0, eas_sdk_1.getUIDsFromAttestReceipt)(result)[0];
+            return {
+                tx: [(0, unified_types_1.createTransaction)(txHash)],
+                uids: [attestations],
+            };
+        }
+        else {
+            // ethers Contract
+            tx = await contract
+                .attest({
+                schema: payload.schema,
+                data: payload.data.payload,
+            })
+                .then((res) => {
+                callback?.("pending");
+                return res;
+            });
+            result = await tx.wait?.();
+            callback?.("confirmed");
+            const attestations = (0, eas_sdk_1.getUIDsFromAttestReceipt)(result)[0];
+            const resultArray = [result].flat();
+            return {
+                tx: resultArray,
+                uids: [attestations],
+            };
+        }
     }
     static async attestBySig(signer, payload) {
         const contract = await GAP_1.GAP.getMulticall(signer);
@@ -105,20 +167,41 @@ class GapContract {
             data: payload.data.raw,
         });
         const { r, s, v, nonce, chainId } = await this.signAttestation(signer, payloadHash, expiry);
-        const { data: populatedTxn } = await contract.attestBySig.populateTransaction({
-            data: payload.data.payload,
-            schema: payload.schema,
-        }, payloadHash, address, nonce, expiry, v, r, s);
+        let populatedTxn;
+        let contractAddress;
+        if (contract.encodeFunctionData) {
+            // UniversalContract
+            populatedTxn = contract.encodeFunctionData("attestBySig", [
+                {
+                    data: payload.data.payload,
+                    schema: payload.schema,
+                },
+                payloadHash,
+                address,
+                nonce,
+                expiry,
+                v,
+                r,
+                s,
+            ]);
+            contractAddress = contract.contractAddress;
+        }
+        else {
+            // ethers Contract
+            const tx = await contract.attestBySig.populateTransaction({
+                data: payload.data.payload,
+                schema: payload.schema,
+            }, payloadHash, address, nonce, expiry, v, r, s);
+            populatedTxn = tx.data;
+            contractAddress = await contract.getAddress();
+        }
         if (!populatedTxn)
             throw new Error("Transaction data is empty");
-        let contractAddress = await contract.getAddress();
         const txn = await (0, send_gelato_txn_1.sendGelatoTxn)(...send_gelato_txn_1.Gelato.buildArgs(populatedTxn, chainId, contractAddress));
         const attestations = await this.getTransactionLogs(signer, txn);
         return {
             tx: [
-                {
-                    hash: txn,
-                },
+                (0, unified_types_1.createTransaction)(txn),
             ],
             uids: attestations,
         };
@@ -135,21 +218,43 @@ class GapContract {
         }
         if (callback)
             callback("preparing");
-        const tx = await contract.multiSequentialAttest(payload.map((p) => p.payload));
-        if (callback)
-            callback("pending");
-        const result = await tx.wait?.();
-        if (callback)
-            callback("confirmed");
-        const attestations = (0, eas_sdk_1.getUIDsFromAttestReceipt)(result);
-        const resultArray = [result].flat();
-        return {
-            tx: resultArray,
-            uids: attestations,
-        };
+        let tx;
+        let result;
+        if (contract.write) {
+            // UniversalContract
+            const txHash = await contract.write("multiSequentialAttest", [
+                payload.map((p) => p.payload),
+            ]);
+            if (callback)
+                callback("pending");
+            let provider = signer;
+            result = await (0, utils_1.waitForTransaction)(provider, txHash);
+            if (callback)
+                callback("confirmed");
+            const attestations = (0, eas_sdk_1.getUIDsFromAttestReceipt)(result);
+            return {
+                tx: [(0, unified_types_1.createTransaction)(txHash)],
+                uids: attestations,
+            };
+        }
+        else {
+            // ethers Contract
+            tx = await contract.multiSequentialAttest(payload.map((p) => p.payload));
+            if (callback)
+                callback("pending");
+            result = await tx.wait?.();
+            if (callback)
+                callback("confirmed");
+            const attestations = (0, eas_sdk_1.getUIDsFromAttestReceipt)(result);
+            const resultArray = [result].flat();
+            return {
+                tx: resultArray,
+                uids: attestations,
+            };
+        }
     }
     /**
-     * Performs a referenced multi attestation.
+     * Performs a referenced multi attestation by signature.
      *
      * @returns an array with the attestation UIDs.
      */
@@ -160,17 +265,35 @@ class GapContract {
         const payloadHash = (0, serialize_bigint_1.serializeWithBigint)(payload.map((p) => p.raw));
         const { r, s, v, nonce, chainId } = await this.signAttestation(signer, payloadHash, expiry);
         console.info({ r, s, v, nonce, chainId, payloadHash, address });
-        const { data: populatedTxn } = await contract.multiSequentialAttestBySig.populateTransaction(payload.map((p) => p.payload), payloadHash, address, nonce, expiry, v, r, s);
+        let populatedTxn;
+        let contractAddress;
+        if (contract.encodeFunctionData) {
+            // UniversalContract
+            populatedTxn = contract.encodeFunctionData("multiSequentialAttestBySig", [
+                payload.map((p) => p.payload),
+                payloadHash,
+                address,
+                nonce,
+                expiry,
+                v,
+                r,
+                s,
+            ]);
+            contractAddress = contract.contractAddress;
+        }
+        else {
+            // ethers Contract
+            const tx = await contract.multiSequentialAttestBySig.populateTransaction(payload.map((p) => p.payload), payloadHash, address, nonce, expiry, v, r, s);
+            populatedTxn = tx.data;
+            contractAddress = await contract.getAddress();
+        }
         if (!populatedTxn)
             throw new Error("Transaction data is empty");
-        let contractAddress = await contract.getAddress();
         const txn = await (0, send_gelato_txn_1.sendGelatoTxn)(...send_gelato_txn_1.Gelato.buildArgs(populatedTxn, chainId, contractAddress));
         const attestations = await this.getTransactionLogs(signer, txn);
         return {
             tx: [
-                {
-                    hash: txn,
-                },
+                (0, unified_types_1.createTransaction)(txn),
             ],
             uids: attestations,
         };
@@ -180,14 +303,25 @@ class GapContract {
         if (GAP_1.GAP.gelatoOpts?.useGasless) {
             return this.multiRevokeBySig(signer, payload);
         }
-        const tx = await contract.multiRevoke(payload);
-        return {
-            tx: [tx],
-            uids: [],
-        };
+        if (contract.write) {
+            // UniversalContract
+            const txHash = await contract.write("multiRevoke", [payload]);
+            return {
+                tx: [(0, unified_types_1.createTransaction)(txHash)],
+                uids: [],
+            };
+        }
+        else {
+            // ethers Contract
+            const tx = await contract.multiRevoke(payload);
+            return {
+                tx: [tx],
+                uids: [],
+            };
+        }
     }
     /**
-     * Performs a referenced multi attestation.
+     * Performs a multi revocation by signature.
      *
      * @returns an array with the attestation UIDs.
      */
@@ -198,13 +332,33 @@ class GapContract {
         const payloadHash = (0, serialize_bigint_1.serializeWithBigint)(payload);
         const { r, s, v, nonce, chainId } = await this.signAttestation(signer, payloadHash, expiry);
         console.info({ r, s, v, nonce, chainId, payloadHash, address });
-        const { data: populatedTxn } = await contract.multiRevokeBySig.populateTransaction(payload, payloadHash, address, nonce, expiry, v, r, s);
+        let populatedTxn;
+        let contractAddress;
+        if (contract.encodeFunctionData) {
+            // UniversalContract
+            populatedTxn = contract.encodeFunctionData("multiRevokeBySig", [
+                payload,
+                payloadHash,
+                address,
+                nonce,
+                expiry,
+                v,
+                r,
+                s,
+            ]);
+            contractAddress = contract.contractAddress;
+        }
+        else {
+            // ethers Contract
+            const tx = await contract.multiRevokeBySig.populateTransaction(payload, payloadHash, address, nonce, expiry, v, r, s);
+            populatedTxn = tx.data;
+            contractAddress = await contract.getAddress();
+        }
         if (!populatedTxn)
             throw new Error("Transaction data is empty");
-        let contractAddress = await contract.getAddress();
         const txn = await (0, send_gelato_txn_1.sendGelatoTxn)(...send_gelato_txn_1.Gelato.buildArgs(populatedTxn, chainId, contractAddress));
         return {
-            tx: [{ hash: txn }],
+            tx: [(0, unified_types_1.createTransaction)(txn)],
             uids: [],
         };
     }
@@ -217,8 +371,20 @@ class GapContract {
      */
     static async transferProjectOwnership(signer, projectUID, newOwner) {
         const contract = await GAP_1.GAP.getProjectResolver(signer);
-        const tx = await contract.transferProjectOwnership(projectUID, newOwner);
-        return tx.wait?.();
+        if (contract.write) {
+            // UniversalContract
+            const txHash = await contract.write("transferProjectOwnership", [
+                projectUID,
+                newOwner,
+            ]);
+            let provider = signer;
+            return (0, utils_1.waitForTransaction)(provider, txHash);
+        }
+        else {
+            // ethers Contract
+            const tx = await contract.transferProjectOwnership(projectUID, newOwner);
+            return tx.wait?.();
+        }
     }
     /**
      * Check if the signer is the owner of the project
@@ -231,8 +397,19 @@ class GapContract {
     static async isProjectOwner(signer, projectUID, projectChainId, publicAddress) {
         const contract = await GAP_1.GAP.getProjectResolver(signer, projectChainId);
         const address = publicAddress || (await this.getSignerAddress(signer));
-        const isOwner = await contract.isOwner(projectUID, address);
-        return isOwner;
+        if (contract.read) {
+            // UniversalContract
+            const isOwner = await contract.read("isOwner", [
+                projectUID,
+                address,
+            ]);
+            return isOwner;
+        }
+        else {
+            // ethers Contract
+            const isOwner = await contract.isOwner(projectUID, address);
+            return isOwner;
+        }
     }
     /**
      * Check if the signer is admin of the project
@@ -245,16 +422,27 @@ class GapContract {
     static async isProjectAdmin(signer, projectUID, projectChainId, publicAddress) {
         const contract = await GAP_1.GAP.getProjectResolver(signer, projectChainId);
         const address = publicAddress || (await this.getSignerAddress(signer));
-        const isAdmin = await contract.isAdmin(projectUID, address);
-        return isAdmin;
+        if (contract.read) {
+            // UniversalContract
+            const isAdmin = await contract.read("isAdmin", [
+                projectUID,
+                address,
+            ]);
+            return isAdmin;
+        }
+        else {
+            // ethers Contract
+            const isAdmin = await contract.isAdmin(projectUID, address);
+            return isAdmin;
+        }
     }
     static async getTransactionLogs(signer, txnHash) {
-        const txn = await signer.provider.getTransactionReceipt(txnHash);
-        if (!txn || !txn.logs.length)
+        let provider = signer;
+        const receipt = await (0, utils_1.waitForTransaction)(provider, txnHash);
+        if (!receipt || !receipt.logs?.length)
             throw new Error("Transaction not found");
-        // Returns the txn logs with the attestation results. Tha last two logs are the
-        // the ones from the GelatoRelay contract.
-        return (0, eas_sdk_1.getUIDsFromAttestReceipt)(txn);
+        // Returns the txn logs with the attestation results
+        return (0, eas_sdk_1.getUIDsFromAttestReceipt)(receipt);
     }
     /**
      * Add Project Admin
@@ -265,20 +453,44 @@ class GapContract {
      */
     static async addProjectAdmin(signer, projectUID, newAdmin) {
         const contract = await GAP_1.GAP.getProjectResolver(signer);
-        const tx = await contract.addAdmin(projectUID, newAdmin);
-        return tx.wait?.();
+        if (contract.write) {
+            // UniversalContract
+            const txHash = await contract.write("addAdmin", [
+                projectUID,
+                newAdmin,
+            ]);
+            let provider = signer;
+            return (0, utils_1.waitForTransaction)(provider, txHash);
+        }
+        else {
+            // ethers Contract
+            const tx = await contract.addAdmin(projectUID, newAdmin);
+            return tx.wait?.();
+        }
     }
     /**
-     * RemoveProject Admin
+     * Remove Project Admin
      * @param signer
      * @param projectUID
-     * @param newAdmin
+     * @param oldAdmin
      * @returns
      */
     static async removeProjectAdmin(signer, projectUID, oldAdmin) {
         const contract = await GAP_1.GAP.getProjectResolver(signer);
-        const tx = await contract.removeAdmin(projectUID, oldAdmin);
-        return tx.wait?.();
+        if (contract.write) {
+            // UniversalContract
+            const txHash = await contract.write("removeAdmin", [
+                projectUID,
+                oldAdmin,
+            ]);
+            let provider = signer;
+            return (0, utils_1.waitForTransaction)(provider, txHash);
+        }
+        else {
+            // ethers Contract
+            const tx = await contract.removeAdmin(projectUID, oldAdmin);
+            return tx.wait?.();
+        }
     }
 }
 exports.GapContract = GapContract;

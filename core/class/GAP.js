@@ -7,12 +7,13 @@ exports.GAP = void 0;
 const CommunityResolverABI_json_1 = __importDefault(require("../abi/CommunityResolverABI.json"));
 const MultiAttester_json_1 = __importDefault(require("../abi/MultiAttester.json"));
 const ProjectResolver_json_1 = __importDefault(require("../abi/ProjectResolver.json"));
-const eas_sdk_1 = require("@ethereum-attestation-service/eas-sdk");
-const ethers_1 = require("ethers");
+const utils_1 = require("../utils");
+// import { ethers } from "ethers"; // Removed - using viem-compatible utilities
 const package_json_1 = require("../../package.json");
 const consts_1 = require("../consts");
 const types_1 = require("../types");
 const get_web3_provider_1 = require("../utils/get-web3-provider");
+const utils_2 = require("../utils");
 const GapSchema_1 = require("./GapSchema");
 const GraphQL_1 = require("./GraphQL");
 const Schema_1 = require("./Schema");
@@ -132,7 +133,7 @@ class GAP extends types_1.Facade {
         };
         const schemas = args.schemas || Object.values((0, consts_1.MountEntities)(consts_1.Networks[args.network]));
         this.network = args.network;
-        this._eas = new eas_sdk_1.EAS(consts_1.Networks[args.network].contracts.eas);
+        this._eas = (0, utils_1.createEASInstance)(consts_1.Networks[args.network].contracts.eas);
         this.fetch =
             args.apiClient ||
                 new GraphQL_1.GapEasClient({
@@ -209,41 +210,71 @@ class GAP extends types_1.Facade {
     }
     /**
      * Get the multicall contract
+     * Supports both ethers and viem signers/providers
      * @param signer
      */
     static async getMulticall(signer) {
-        const chain = (await signer.provider.getNetwork()) || signer.provider.network;
-        const network = Object.values(consts_1.Networks).find((n) => +n.chainId === Number(chain.chainId));
+        const chainId = await (0, utils_2.getChainId)(signer);
+        const network = Object.values(consts_1.Networks).find((n) => +n.chainId === chainId);
         if (!network)
-            throw new Error(`Network ${chain.name || chain.chainId} not supported.`);
+            throw new Error(`Network ${chainId} not supported.`);
         const address = network.contracts.multicall;
-        return new ethers_1.ethers.Contract(address, MultiAttester_json_1.default, signer);
+        // Return UniversalContract which works with both ethers and viem
+        return new utils_2.UniversalContract(address, MultiAttester_json_1.default, signer);
     }
     /**
-     * Get the multicall contract
+     * Get the project resolver contract
+     * Supports both ethers and viem signers/providers
      * @param signer
+     * @param chainId
      */
     static async getProjectResolver(signer, chainId) {
-        const currentChainId = chainId ||
-            Number((await signer.provider.getNetwork())?.chainId ||
-                (await signer.getChainId()));
-        const provider = chainId ? (0, get_web3_provider_1.getWeb3Provider)(chainId) : signer;
+        const currentChainId = chainId || (await (0, utils_2.getChainId)(signer));
+        // If chainId is provided and signer is ethers, use ethers provider
+        // Otherwise use the provided signer
+        let provider;
+        if (chainId && (0, utils_2.isEthersProvider)(signer)) {
+            provider = (0, get_web3_provider_1.getWeb3Provider)(chainId);
+        }
+        else if (chainId && !(0, utils_2.isEthersProvider)(signer)) {
+            provider = (0, utils_2.getPublicClient)(chainId);
+        }
+        else {
+            provider = signer;
+        }
         const network = Object.values(consts_1.Networks).find((n) => +n.chainId === Number(currentChainId));
+        if (!network)
+            throw new Error(`Network ${currentChainId} not supported.`);
         const address = network.contracts.projectResolver;
-        return new ethers_1.ethers.Contract(address, ProjectResolver_json_1.default, provider);
+        // Return UniversalContract which works with both ethers and viem
+        return new utils_2.UniversalContract(address, ProjectResolver_json_1.default, provider);
     }
     /**
-     * Get the multicall contract
+     * Get the community resolver contract
+     * Supports both ethers and viem signers/providers
      * @param signer
+     * @param chainId
      */
     static async getCommunityResolver(signer, chainId) {
-        const currentChainId = chainId ||
-            Number((await signer.provider.getNetwork())?.chainId ||
-                (await signer.getChainId()));
-        const provider = chainId ? (0, get_web3_provider_1.getWeb3Provider)(chainId) : signer;
+        const currentChainId = chainId || (await (0, utils_2.getChainId)(signer));
+        // If chainId is provided and signer is ethers, use ethers provider
+        // Otherwise use the provided signer
+        let provider;
+        if (chainId && (0, utils_2.isEthersProvider)(signer)) {
+            provider = (0, get_web3_provider_1.getWeb3Provider)(chainId);
+        }
+        else if (chainId && !(0, utils_2.isEthersProvider)(signer)) {
+            provider = (0, utils_2.getPublicClient)(chainId);
+        }
+        else {
+            provider = signer;
+        }
         const network = Object.values(consts_1.Networks).find((n) => +n.chainId === Number(currentChainId));
+        if (!network)
+            throw new Error(`Network ${currentChainId} not supported.`);
         const address = network.contracts.communityResolver;
-        return new ethers_1.ethers.Contract(address, CommunityResolverABI_json_1.default, provider);
+        // Return UniversalContract which works with both ethers and viem
+        return new utils_2.UniversalContract(address, CommunityResolverABI_json_1.default, provider);
     }
     get schemas() {
         return this._schemas;

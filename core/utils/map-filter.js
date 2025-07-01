@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.mapFilter = void 0;
+exports.mapFilter = mapFilter;
 /**
  * Filters an array by its condition then maps it to the desired format.
  * @param arr
@@ -17,4 +17,3 @@ function mapFilter(arr, condition, mapTo) {
     }
     return newArray;
 }
-exports.mapFilter = mapFilter;

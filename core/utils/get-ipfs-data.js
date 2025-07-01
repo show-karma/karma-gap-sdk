@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getIPFSData = void 0;
+exports.getIPFSData = getIPFSData;
 const axios_1 = __importDefault(require("axios"));
 async function getIPFSData(cid) {
     try {
@@ -17,4 +17,3 @@ async function getIPFSData(cid) {
         throw new Error(`Error to retrive data for CID: ${cid}`);
     }
 }
-exports.getIPFSData = getIPFSData;

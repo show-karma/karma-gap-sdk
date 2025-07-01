@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.handler = void 0;
+exports.handler = handler;
 const send_gelato_txn_1 = require("./send-gelato-txn");
 const assertionObj = [
     {
@@ -57,4 +57,3 @@ async function handler(req, res, env_gelatoApiKey) {
         res.send(error.message);
     }
 }
-exports.handler = handler;

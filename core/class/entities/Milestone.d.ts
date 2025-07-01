@@ -1,4 +1,4 @@
-import { Transaction } from "ethers";
+import { Transaction } from "../../utils/unified-types";
 import { Hex, MultiAttestPayload, MultiRevokeArgs, SignerOrProvider, TNetwork } from "../../types";
 import { Attestation } from "../Attestation";
 import { GapSchema } from "../GapSchema";

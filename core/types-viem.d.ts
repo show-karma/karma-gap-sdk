@@ -1,8 +1,8 @@
-import { BytesLike } from "./utils/unified-types";
+import { Hex } from "viem";
 import { AttestationRequestData, EAS, MultiAttestationRequest, SchemaItem } from "@ethereum-attestation-service/eas-sdk";
 import { Attestation } from "./class";
 import { Fetcher } from "./class/Fetcher";
-export type Hex = `0x${string}`;
+export type { Hex } from "viem";
 export type SignerOrProvider = any;
 export interface SchemaInterface<T extends string = string> {
     name: string;
@@ -94,7 +94,7 @@ export interface SchemataRes {
 export interface IAttestation {
     uid: Hex;
     attester: Hex;
-    data: BytesLike;
+    data: Hex;
     decodedDataJson: JSONStr;
     recipient: Hex;
     revoked: boolean;

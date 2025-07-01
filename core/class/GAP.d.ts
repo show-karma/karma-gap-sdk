@@ -1,5 +1,5 @@
-import { ethers } from "ethers";
 import { AttestArgs, Facade, SchemaInterface, SignerOrProvider, TNetwork, TSchemaName } from "../types";
+import { UniversalContract, type UniversalProvider } from "../utils";
 import { Fetcher } from "./Fetcher";
 import { GapSchema } from "./GapSchema";
 import { RemoteStorage } from "./remote-storage/RemoteStorage";
@@ -216,23 +216,24 @@ export declare class GAP extends Facade {
     findManySchemas(names: TSchemaName[]): GapSchema[];
     /**
      * Get the multicall contract
+     * Supports both ethers and viem signers/providers
      * @param signer
      */
-    static getMulticall(signer: SignerOrProvider): Promise<ethers.Contract>;
+    static getMulticall(signer: SignerOrProvider | UniversalProvider): Promise<UniversalContract>;
     /**
-     * Get the multicall contract
+     * Get the project resolver contract
+     * Supports both ethers and viem signers/providers
      * @param signer
+     * @param chainId
      */
-    static getProjectResolver(signer: SignerOrProvider & {
-        getChainId?: () => Promise<number>;
-    }, chainId?: number): Promise<ethers.Contract>;
+    static getProjectResolver(signer: SignerOrProvider | UniversalProvider, chainId?: number): Promise<UniversalContract>;
     /**
-     * Get the multicall contract
+     * Get the community resolver contract
+     * Supports both ethers and viem signers/providers
      * @param signer
+     * @param chainId
      */
-    static getCommunityResolver(signer: SignerOrProvider & {
-        getChainId?: () => Promise<number>;
-    }, chainId?: number): Promise<ethers.Contract>;
+    static getCommunityResolver(signer: SignerOrProvider | UniversalProvider, chainId?: number): Promise<UniversalContract>;
     get schemas(): GapSchema[];
     /**
      * Defined if the transactions will be gasless or not.

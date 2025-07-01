@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.toUnix = void 0;
+exports.toUnix = toUnix;
 function toUnix(value) {
     switch (typeof value) {
         case "number":
@@ -22,4 +22,3 @@ function toUnix(value) {
             return null;
     }
 }
-exports.toUnix = toUnix;

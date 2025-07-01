@@ -1,9 +1,10 @@
-import { ethers } from "ethers";
+import type { SignerOrProvider } from "../../types";
 import { ProfileMetadata } from "../types/allo";
 export declare class AlloRegistry {
     private contract;
     private pinataJWTToken;
-    constructor(signer: ethers.Signer, pinataJWTToken: string);
+    private signer;
+    constructor(signer: SignerOrProvider, pinataJWTToken: string, chainId: number);
     saveAndGetCID(data: any, pinataMetadata?: {
         name: string;
     }): Promise<any>;

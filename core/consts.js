@@ -26,6 +26,8 @@ exports.chainIdToNetwork = {
     42220: "celo",
     1328: "sei-testnet",
     1329: "sei",
+    1135: "lisk",
+    534352: "scroll",
 };
 exports.nullRef = "0x0000000000000000000000000000000000000000000000000000000000000000";
 // TODO: Remove null resolver and change usage to zero address
@@ -43,7 +45,7 @@ exports.Networks = {
         contracts: {
             eas: "0x4200000000000000000000000000000000000021",
             schema: "0x4200000000000000000000000000000000000020",
-            multicall: "0xd2eD366393FDfd243931Fe48e9fb65A192B0018c",
+            multicall: "0xd2eD366393FDfd243931Fe48e9fb65A192B0018c", //proxy,
             projectResolver: "0x7177AdC0f924b695C0294A40C4C5FEFf5EE1E141",
             communityResolver: "0x6dC1D6b864e8BEf815806f9e4677123496e12026",
             donations: "0x021896771412C1D3f31BC7B01fFA3a6A17c5dA30",
@@ -153,7 +155,7 @@ exports.Networks = {
         contracts: {
             eas: "0xbD75f629A22Dc1ceD33dDA0b68c546A1c035c458",
             schema: "0xA310da9c5B885E7fb3fbA9D66E9Ba6Df512b78eB",
-            multicall: "0x6dC1D6b864e8BEf815806f9e4677123496e12026",
+            multicall: "0x6dC1D6b864e8BEf815806f9e4677123496e12026", //proxy,
             projectResolver: "0x28BE0b0515be8BB8822aF1467A6613795E74717b",
             communityResolver: "0xD534C4704F82494aBbc901560046fB62Ac63E9C4",
             donations: "0x475F3E915601d975c792E6116791FBe9ACdBE902",
@@ -215,10 +217,10 @@ exports.Networks = {
             airdropNFT: "0x11f48e68Ff894D417956839263337a2989822703",
         },
         schemas: {
-            Community: "0xf3d790c7fdab6c1b1f25ffcc9289e5be2792eb596d2851a4d059c8aae1bc8b2e",
+            Community: "0xf3d790c7fdab6c1b1f25ffcc9289e5be2792eb596d2851a4d059c8aae1bc8b2e", //test with resolver
             // "0x1954572e3fe21bf4334afdaf1358ed7098af1ed136e76dc93c2fdc25e83934c1", // original without resolver
             Details: "0x2c270e35bfcdc4d611f0e9d3d2ab6924ec6c673505abc22a1dd07e19b67211af",
-            Grant: "0x09697aeeb3ae71de1cc19e388fd74264f11af5fba3016094764553ac341fdc72",
+            Grant: "0x09697aeeb3ae71de1cc19e388fd74264f11af5fba3016094764553ac341fdc72", // with communityUID/resolver
             GrantVerified: "0x0be8952e2dd74ffd63a02f4d55b20b603fe7a60130cb9d70de31feb9c52fdd37",
             MemberOf: "0xdd87b3500457931252424f4439365534ba72a367503a8805ff3482353fb90301",
             MilestoneApproved: "0xcdef0e492d2e7ad25d0b0fdb868f6dcd1f5e5c30e42fd5fa0debdc12f7618322",
@@ -394,6 +396,62 @@ exports.Networks = {
             ProjectUpdateStatus: "0xb25551d21dc886be83a07c241c46de318704cb6f485191fdedcf80f4b8b28188",
             ProjectMilestoneStatus: "0xb25551d21dc886be83a07c241c46de318704cb6f485191fdedcf80f4b8b28188",
             ContributorProfile: "0x"
+        },
+    },
+    lisk: {
+        chainId: 1135,
+        url: "https://lisk.easscan.org/graphql",
+        rpcUrl: "https://lisk.drpc.org",
+        contracts: {
+            eas: "0x4200000000000000000000000000000000000021",
+            schema: "0x4200000000000000000000000000000000000020",
+            multicall: "0x28BE0b0515be8BB8822aF1467A6613795E74717b", //proxy,
+            projectResolver: "0x6dC1D6b864e8BEf815806f9e4677123496e12026",
+            communityResolver: "0xfddb660F2F1C27d219372210745BB9f73431856E",
+            donations: "0x28BE0b0515be8BB8822aF1467A6613795E74717b",
+            airdropNFT: null,
+        },
+        schemas: {
+            Community: "0x3c2231024f4f17f3718b5bd9ed9ff29cc323dea5449f9ceba11a9888bfbdd0e1",
+            Details: "0x16bfe4783b7a9c743c401222c56a07ecb77ed42afc84b61ff1f62f5936c0b9d7",
+            Grant: "0xea02ab33f9f4c92ba02c9bb21614b7410b98c940a0d8eb8ad3a20204d8b4bda5",
+            GrantVerified: "0xd88faddf8df50a07a4130fbe2131354831261440b2ca695c4e9b8f2ca9985346",
+            MemberOf: "0x5f430aec9d04f0dcb3729775c5dfe10752e436469a7607f8c64ae44ef996e477",
+            MilestoneApproved: "0xd88faddf8df50a07a4130fbe2131354831261440b2ca695c4e9b8f2ca9985346",
+            MilestoneCompleted: "0xd88faddf8df50a07a4130fbe2131354831261440b2ca695c4e9b8f2ca9985346",
+            GrantUpdateStatus: "0xd88faddf8df50a07a4130fbe2131354831261440b2ca695c4e9b8f2ca9985346",
+            Project: "0xf3f753b41e04d1052b5a5ec7624d1dfdb6c2da288a985120e477ddbcac071022",
+            ProjectUpdateStatus: "0xd88faddf8df50a07a4130fbe2131354831261440b2ca695c4e9b8f2ca9985346",
+            ProjectMilestoneStatus: "0xd88faddf8df50a07a4130fbe2131354831261440b2ca695c4e9b8f2ca9985346",
+            ContributorProfile: "0x80f0701853e862d920f87e8ae5b359a1625ad417a9523af2ed12bc3504b04088"
+        },
+    },
+    scroll: {
+        chainId: 534352,
+        url: "https://scroll.easscan.org/graphql",
+        rpcUrl: "https://scroll-mainnet.g.alchemy.com/v2/SsQRSwtqtBMGmXQCDH9lYb4U8p9QnqXK",
+        contracts: {
+            eas: "0xC47300428b6AD2c7D03BB76D05A176058b47E6B0",
+            schema: "0xD2CDF46556543316e7D34e8eDc4624e2bB95e3B6",
+            multicall: "0x8791Ac8c099314bB1D1514D76de13a1E80275950", //proxy,
+            projectResolver: "0xAFaE7aA6118D75Fe7FDB3eF8c1623cAaF8C8a653",
+            communityResolver: "0xfddb660F2F1C27d219372210745BB9f73431856E",
+            donations: "0x8791Ac8c099314bB1D1514D76de13a1E80275950",
+            airdropNFT: null,
+        },
+        schemas: {
+            Community: "0x3c2231024f4f17f3718b5bd9ed9ff29cc323dea5449f9ceba11a9888bfbdd0e1",
+            Details: "0x9895e82115987d8e3e02b35ced92e6a0509293890333f58f50ec291b34853dac",
+            Grant: "0x7afa603a89cee2d8f93d30007e2c64efddc6509fd76aa95d2ccd97b6e34acc71",
+            GrantVerified: "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
+            MemberOf: "0xb4186a2401f40a4c78768941ef9140e1fbe5fe595053a65d44f31d6df180b712",
+            MilestoneApproved: "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
+            MilestoneCompleted: "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
+            GrantUpdateStatus: "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
+            Project: "0x672fbaa8a1fb6e1f73a89c84a8e97a808da0750003a9d1d18aba3d39fa165945",
+            ProjectUpdateStatus: "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
+            ProjectMilestoneStatus: "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
+            ContributorProfile: null
         },
     },
 };

@@ -1,5 +1,5 @@
 import { IGrantUpdateBase } from "core/shared/types";
-import { Transaction } from "ethers";
+import { Transaction } from "../../utils/unified-types";
 import { SignerOrProvider, TNetwork } from "../../../core/types";
 import { Attestation } from "../Attestation";
 export interface _IGrantUpdate extends GrantUpdate {
