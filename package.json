@@ -26,9 +26,11 @@
     "@gelatonetwork/relay-sdk": "^5.2.0",
     "@types/sha256": "^0.2.0",
     "axios": "^1.4.0",
-    "ethers": "6.11.0",
     "sha256": "^0.2.0",
-    "simple-ts-job-runner": "^1.0.12"
+    "simple-ts-job-runner": "^1.0.12",
+    "viem": "^2.21.54",
+    "@dynamic-labs/sdk-react-core": "^3.7.3",
+    "@dynamic-labs/ethereum": "^3.7.3"
   },
   "devDependencies": {
     "@types/node": "^20.5.0",

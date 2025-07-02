@@ -1,5 +1,5 @@
 import { IGrantUpdateBase } from "core/shared/types";
-import { Transaction } from "ethers";
+import { Transaction, createTransaction } from "../../utils/unified-types";
 import { chainIdToNetwork } from "../../../core/consts";
 import { SignerOrProvider, TNetwork } from "../../../core/types";
 import { AllGapSchemas } from "../AllGapSchemas";
@@ -45,7 +45,8 @@ export class GrantUpdate
     schema: GapSchema,
     callback?: Function
   ) {
-    const eas = this.schema.gap.eas.connect(signer);
+    const { connectEAS } = await import("../../utils/eas-wrapper");
+    const eas = connectEAS(this.schema.gap.eas, signer);
     try {
       if (callback) callback("preparing");
       const tx = await eas.attest({
@@ -65,11 +66,7 @@ export class GrantUpdate
 
       console.log(uid);
       return {
-        tx: [
-          {
-            hash: tx.tx.hash as Hex,
-          } as Transaction,
-        ],
+        tx: [createTransaction(tx.tx.hash as string)],
         uids: [uid as `0x${string}`],
       };
     } catch (error: any) {

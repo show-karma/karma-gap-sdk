@@ -18,12 +18,12 @@ import {
   TNetwork,
 } from "../types";
 import { AttestationError, SchemaError } from "./SchemaError";
-import { ethers, Transaction } from "ethers";
+import { Transaction, createTransaction } from "../utils/unified-types";
 import { useDefaultAttestation, zeroAddress } from "../consts";
 import { GAP } from "./GAP";
 import { Attestation } from "./Attestation";
 import { GapContract } from "./contract/GapContract";
-import { isAddress } from "ethers";
+import { isAddress } from "../utils/migration-helpers";
 import { IpfsStorage } from "./remote-storage/IpfsStorage";
 import { AttestationWithTx } from "./types/attestations";
 /**
@@ -119,7 +119,7 @@ export abstract class Schema<T extends string = string>
 
   readonly gap: GAP;
 
-  readonly oldSchemas?: {uid: string; raw: SchemaItem[]}[]; 
+  readonly oldSchemas?: { uid: string; raw: SchemaItem[] }[];
   /**
    * Creates a new schema instance
    * @param args
@@ -269,7 +269,9 @@ export abstract class Schema<T extends string = string>
    * @returns
    */
   async attestOffchain({ data, signer, to, refUID }: AttestArgs) {
-    const eas = await this.gap.eas.getOffchain();
+    const { connectEAS } = await import("../utils/eas-wrapper");
+    const connectedEas = connectEAS(this.gap.eas, signer);
+    const eas = await connectedEas.getOffchain();
     const payload = <OffchainAttestationParams>{
       data,
       version: eas.version,
@@ -290,7 +292,8 @@ export abstract class Schema<T extends string = string>
    * @returns
    */
   async revokeOffchain(uid: Hex, signer: SignerOrProvider) {
-    const eas = this.gap.eas.connect(signer);
+    const { connectEAS } = await import("../utils/eas-wrapper");
+    const eas = connectEAS(this.gap.eas, signer);
     return eas.revokeOffchain(uid);
   }
 
@@ -301,7 +304,8 @@ export abstract class Schema<T extends string = string>
    * @returns
    */
   async multiRevokeOffchain(uids: Hex[], signer: SignerOrProvider) {
-    const eas = this.gap.eas.connect(signer);
+    const { connectEAS } = await import("../utils/eas-wrapper");
+    const eas = connectEAS(this.gap.eas, signer);
     return eas.multiRevokeOffchain(uids);
   }
 
@@ -326,7 +330,8 @@ export abstract class Schema<T extends string = string>
     refUID,
     callback,
   }: AttestArgs<T>): Promise<AttestationWithTx> {
-    const eas = this.gap.eas.connect(signer);
+    const { connectEAS } = await import("../utils/eas-wrapper");
+    const eas = connectEAS(this.gap.eas, signer);
 
     if (this.references && !refUID)
       throw new AttestationError(
@@ -378,11 +383,7 @@ export abstract class Schema<T extends string = string>
       callback?.("confirmed");
 
       return {
-        tx: [
-          {
-            hash: uidResult as Hex,
-          } as Transaction,
-        ],
+        tx: [createTransaction(uidResult as string)],
         uids: [uidResult as Hex],
       };
     }
@@ -413,7 +414,8 @@ export abstract class Schema<T extends string = string>
         );
     });
 
-    const eas = this.gap.eas.connect(signer);
+    const { connectEAS } = await import("../utils/eas-wrapper");
+    const eas = connectEAS(this.gap.eas, signer);
 
     const entityBySchema = entities.reduce(
       (acc, entity) => {
@@ -444,7 +446,7 @@ export abstract class Schema<T extends string = string>
       return res;
     });
 
-    const tx = txResult.map((item) => ({ hash: item }) as Transaction);
+    const tx = txResult.map((item) => createTransaction(item as string));
 
     return {
       tx,
@@ -473,7 +475,8 @@ export abstract class Schema<T extends string = string>
       {} as Record<string, Hex[]>
     );
 
-    const eas = this.gap.eas.connect(signer);
+    const { connectEAS } = await import("../utils/eas-wrapper");
+    const eas = connectEAS(this.gap.eas, signer);
     const payload = Object.entries(groupBySchema).map(([schema, uids]) => ({
       schema,
       data: uids.map((uid) => ({ uid })),
@@ -485,9 +488,9 @@ export abstract class Schema<T extends string = string>
     callback?.("pending");
     await tx.wait();
     callback?.("confirmed");
-    
+
     return {
-      tx: [{ hash: tx.tx.hash } as Transaction],
+      tx: [createTransaction(tx.tx.hash as string)],
       uids: payload.map((p) => p.data.map((d) => d.uid)).flat(),
     };
   }
@@ -655,5 +658,4 @@ export abstract class Schema<T extends string = string>
       this.setValue(item.name, item.value);
     });
   }
-
 }

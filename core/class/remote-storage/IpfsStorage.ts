@@ -1,13 +1,19 @@
 import { RemoteStorage } from "./RemoteStorage";
 import { RemoteStorageError } from "../SchemaError";
 import { getIPFSData } from "../../utils";
-import { STORAGE_TYPE, TRemoteStorageOutput } from "core/types";
+import { STORAGE_TYPE, TRemoteStorageOutput } from "../../types";
 import axios from "axios";
 
 export interface IpfsStorageOptions {
   token: string;
 }
 
+/**
+ * IPFS Storage implementation
+ *
+ * This class is provider-agnostic as it doesn't interact with the blockchain.
+ * It only handles IPFS storage operations.
+ */
 export class IpfsStorage extends RemoteStorage {
   private pinataJWTToken: string;
 
@@ -25,7 +31,14 @@ export class IpfsStorage extends RemoteStorage {
     this.pinataJWTToken = opts.token;
   }
 
-  private assert(opts: IpfsStorageOptions) {}
+  private assert(opts: IpfsStorageOptions) {
+    if (!opts.token) {
+      throw new RemoteStorageError(
+        "MISSING_FIELD",
+        "IPFS storage requires a Pinata JWT token"
+      );
+    }
+  }
 
   async save<T = unknown>(data: T): Promise<string> {
     try {
@@ -34,7 +47,7 @@ export class IpfsStorage extends RemoteStorage {
     } catch (error) {
       throw new RemoteStorageError(
         "REMOTE_STORAGE_UPLOAD",
-        `Error adding data to IPFS`
+        `Error adding data to IPFS: ${error.message}`
       );
     }
   }
@@ -69,7 +82,7 @@ export class IpfsStorage extends RemoteStorage {
     } catch (error) {
       throw new RemoteStorageError(
         "REMOTE_STORAGE_UPLOAD",
-        `Error adding data to IPFS`
+        `Error adding data to IPFS: ${error.message}`
       );
     }
   }

@@ -4,7 +4,7 @@ import { GapSchema } from "../GapSchema";
 import { AttestationError } from "../SchemaError";
 import { AllGapSchemas } from "../AllGapSchemas";
 import { chainIdToNetwork } from "../../consts";
-import { Transaction } from "ethers";
+import { Transaction, createTransaction } from "../../utils/unified-types";
 
 export interface _IProjectImpact extends ProjectImpact {}
 
@@ -58,7 +58,8 @@ export class ProjectImpact
     schema: GapSchema,
     callback?: Function
   ) {
-    const eas = this.schema.gap.eas.connect(signer);
+    const { connectEAS } = await import("../../utils/eas-wrapper");
+    const eas = connectEAS(this.schema.gap.eas, signer);
     try {
       if (callback) callback("preparing");
       const tx = await eas.attest({
@@ -78,11 +79,7 @@ export class ProjectImpact
 
       console.log(uid);
       return {
-        tx: [
-          {
-            hash: tx.tx.hash as Hex,
-          } as Transaction,
-        ],
+        tx: [createTransaction(tx.tx.hash as string)],
         uids: [uid as `0x${string}`],
       };
     } catch (error: any) {
@@ -97,18 +94,25 @@ export class ProjectImpact
    * @param signer
    * @param reason
    */
-  async verify(signer: SignerOrProvider, data?: IProjectImpactStatus, callback?: Function) {
+  async verify(
+    signer: SignerOrProvider,
+    data?: IProjectImpactStatus,
+    callback?: Function
+  ) {
     console.log("Verifying ProjectImpact");
 
     const schema = this.schema.gap.findSchema("GrantUpdateStatus");
     if (this.schema.isJsonSchema()) {
-      schema.setValue("json", JSON.stringify({
-        type: "project-impact-verified",
-        reason: data?.reason || '',
-      }))
+      schema.setValue(
+        "json",
+        JSON.stringify({
+          type: "project-impact-verified",
+          reason: data?.reason || "",
+        })
+      );
     } else {
       schema.setValue("type", "project-impact-verified");
-      schema.setValue("reason", data?.reason || '');
+      schema.setValue("reason", data?.reason || "");
     }
 
     console.log("Before attest project impact verified");
@@ -119,7 +123,7 @@ export class ProjectImpact
       new ProjectImpactStatus({
         data: {
           type: "project-impact-verified",
-          reason: data?.reason || '',
+          reason: data?.reason || "",
         },
         refUID: this.uid,
         schema: schema,

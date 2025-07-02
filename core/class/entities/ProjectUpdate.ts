@@ -4,7 +4,7 @@ import { GapSchema } from "../GapSchema";
 import { AttestationError } from "../SchemaError";
 import { AllGapSchemas } from "../AllGapSchemas";
 import { chainIdToNetwork } from "../../../core/consts";
-import { Transaction } from "ethers";
+import { Transaction, createTransaction } from "../../utils/unified-types";
 import { Hex } from "../karma-indexer/api/types";
 import { AttestationWithTx } from "../types/attestations";
 
@@ -60,7 +60,8 @@ export class ProjectUpdate
     schema: GapSchema,
     callback?: Function
   ): Promise<AttestationWithTx> {
-    const eas = this.schema.gap.eas.connect(signer);
+    const { connectEAS } = await import("../../utils/eas-wrapper");
+    const eas = connectEAS(this.schema.gap.eas, signer);
     try {
       if (callback) callback("preparing");
       const tx = await eas.attest({
@@ -80,11 +81,7 @@ export class ProjectUpdate
 
       console.log(uid);
       return {
-        tx: [
-          {
-            hash: tx.tx.hash as Hex,
-          } as Transaction,
-        ],
+        tx: [createTransaction(tx.tx.hash as string)],
         uids: [uid as `0x${string}`],
       };
     } catch (error: any) {

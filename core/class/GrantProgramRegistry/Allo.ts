@@ -1,31 +1,71 @@
-import { ethers, formatEther } from "ethers";
+import { formatUnits } from "../../utils/migration-helpers";
 import AlloContractABI from "../../abi/Allo.json";
 import { AlloContracts } from "../../consts";
 import { Address } from "../types/allo";
-import { AbiCoder } from "ethers";
+import {
+  encodeAbiParameters,
+  parseAbiParameters,
+  type WalletClient,
+  decodeEventLog,
+  type Hex,
+} from "viem";
+import {
+  createUniversalContract,
+  type UniversalContract,
+} from "../../utils/viem-contracts";
+import { isEthersSigner, isWalletClient } from "../../utils";
 import { Allo } from "@allo-team/allo-v2-sdk/";
 import { CreatePoolArgs } from "@allo-team/allo-v2-sdk/dist/Allo/types";
 import { TransactionData } from "@allo-team/allo-v2-sdk/dist/Common/types";
+import { SignerOrProvider } from "../../types";
 import axios from "axios";
 
 // ABI fragment for the Initialized event
-const INITIALIZED_EVENT = ["event Initialized(uint256 poolId, bytes data)"];
+const INITIALIZED_EVENT = [
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "uint256",
+        name: "poolId",
+        type: "uint256",
+      },
+      { indexed: false, internalType: "bytes", name: "data", type: "bytes" },
+    ],
+    name: "Initialized",
+    type: "event",
+  },
+];
 
-export class AlloBase {
-  private signer: ethers.Signer;
-  private contract: ethers.Contract;
+export class AlloV2 {
   private allo: Allo;
   private pinataJWTToken: string;
+  private signer: SignerOrProvider;
+  private contract: UniversalContract | Promise<UniversalContract>;
+  private chainId: number;
 
-  constructor(signer: ethers.Signer, pinataJWTToken: string, chainId: number) {
+  constructor(
+    signer: SignerOrProvider,
+    pinataJWTToken: string,
+    chainId: number
+  ) {
     this.signer = signer;
-    this.contract = new ethers.Contract(
-      AlloContracts.alloProxy,
-      AlloContractABI,
-      signer
+    this.contract = createUniversalContract(
+      AlloContracts[chainId],
+      AlloContractABI as any,
+      signer as any
     );
     this.allo = new Allo({ chain: chainId });
     this.pinataJWTToken = pinataJWTToken;
+    this.chainId = chainId;
+  }
+
+  private async getContract(): Promise<UniversalContract> {
+    if (this.contract instanceof Promise) {
+      this.contract = await this.contract;
+    }
+    return this.contract;
   }
 
   async saveAndGetCID(
@@ -58,108 +98,178 @@ export class AlloBase {
     roundStart: number,
     roundEnd: number,
     payoutToken: string
-  ) {
-    const encoder = new AbiCoder();
-    const initStrategyData = encoder.encode(
-      ["bool", "bool", "uint256", "uint256", "uint256", "uint256", "address[]"],
+  ): Promise<Hex> {
+    const initStrategyData = encodeAbiParameters(
+      parseAbiParameters(
+        "bool, bool, uint256, uint256, uint256, uint256, address[]"
+      ),
       [
         false, // useRegistryAnchor
         true, // metadataRequired
-        applicationStart, // Eg. Curr + 1 hour later   registrationStartTime
-        applicationEnd, // Eg. Curr +  5 days later   registrationEndTime
-        roundStart, // Eg. Curr + 2 hours later  allocationStartTime
-        roundEnd, // Eg. Curr + 10 days later  allocaitonEndTime
-        [payoutToken],
+        BigInt(applicationStart), // registrationStartTime
+        BigInt(applicationEnd), // registrationEndTime
+        BigInt(roundStart), // allocationStartTime
+        BigInt(roundEnd), // allocationEndTime
+        [payoutToken as Address],
       ]
     );
 
-    return initStrategyData;
+    return initStrategyData as Hex;
   }
 
-  async createGrant(args: any, callback?: Function) {
-    console.log("Creating grant...");
-    const walletBalance = await this.signer.provider.getBalance(
-      await this.signer.getAddress()
-    );
+  async encodeFundPool(poolId: number, amount: bigint): Promise<Hex> {
+    const encodedData = encodeAbiParameters(
+      parseAbiParameters("uint256 poolId, uint256 amount"),
+      [BigInt(poolId), amount]
+    ) as Hex;
+    return encodedData;
+  }
+
+  async estimateCreateProgramGas(
+    createPoolArgs: CreatePoolArgs
+  ): Promise<bigint> {
+    const address = await this.getSignerAddress();
+    const txData = this.allo.createPool(createPoolArgs);
+    const gas = await this.estimateGas({
+      to: txData.to,
+      from: address,
+      data: txData.data,
+      value: txData.value,
+    });
+    return gas;
+  }
+
+  async getWalletBalance(): Promise<string> {
+    const address = await this.getSignerAddress();
+    const walletBalance = await this.getBalance(address);
+    return formatUnits(walletBalance.toString(), 18); // ETH has 18 decimals
+  }
+
+  async createProgram(createPoolArgs: CreatePoolArgs): Promise<bigint> {
+    const address = await this.getSignerAddress();
+    const walletBalance = await this.getBalance(address);
 
     console.log(
-      "Wallet balance:",
-      formatEther(walletBalance.toString()),
-      " ETH"
+      "Wallet Balance Before Create Pool TX:",
+      formatUnits(walletBalance.toString(), 18),
+      "ETH"
     );
 
-    try {
-      const metadata_cid = await this.saveAndGetCID({
-        round: args.roundMetadata,
-        application: args.applicationMetadata,
-      });
+    console.log(createPoolArgs);
 
-      const metadata = {
-        protocol: BigInt(1),
-        pointer: metadata_cid,
-      };
+    const encodedData = encodeAbiParameters(
+      parseAbiParameters(
+        "uint256 _profileId, address _strategy, bytes _initStrategyData, address _token, uint256 _amount, (uint256 protocol, uint256 pointer) _metadata, address[] _managers"
+      ),
+      [
+        BigInt(createPoolArgs.profileId),
+        createPoolArgs.strategy as Address,
+        createPoolArgs.initStrategyData as Hex,
+        createPoolArgs.token as Address,
+        createPoolArgs.amount as bigint,
+        {
+          protocol: BigInt(createPoolArgs.metadata.protocol),
+          pointer: BigInt(createPoolArgs.metadata.pointer),
+        } as any,
+        createPoolArgs.managers as Address[],
+      ]
+    ) as Hex;
 
-      const initStrategyData = (await this.encodeStrategyInitData(
-        args.applicationStart,
-        args.applicationEnd,
-        args.roundStart,
-        args.roundEnd,
-        args.payoutToken
-      )) as Address;
+    console.log("Encoded data:", encodedData);
 
-      const createPoolArgs: CreatePoolArgs = {
-        profileId: args.profileId,
-        strategy: args.strategy,
-        initStrategyData: initStrategyData, // unique to the strategy
-        token: args.payoutToken,
-        amount: BigInt(args.matchingFundAmt),
-        metadata: metadata,
-        managers: args.managers,
-      };
+    const txData: TransactionData = this.allo.createPool(createPoolArgs);
 
-      callback?.("preparing");
-      const txData: TransactionData = this.allo.createPool(createPoolArgs);
+    const tx = await this.sendTransaction({
+      from: address,
+      to: txData.to,
+      data: txData.data,
+      value: txData.value,
+    });
 
-      const tx = await this.signer.sendTransaction({
-        data: txData.data,
-        to: txData.to,
-        value: BigInt(txData.value),
-      });
-      callback?.("pending");
-      const receipt = await tx.wait();
-      callback?.("confirmed");
+    const receipt = await tx.wait();
 
-      // Create interface to parse the logs
-      const iface = new ethers.Interface(INITIALIZED_EVENT);
-      let poolId;
-
-      // Find the Initialized event in the logs
-      const initializedLog = receipt.logs.find((log) => {
-        try {
-          const parsed = iface.parseLog(log);
-          return parsed.name === "Initialized";
-        } catch {
-          return false;
-        }
-      });
-
-      if (initializedLog) {
-        const parsedLog = iface.parseLog(initializedLog);
-        poolId = parsedLog.args.poolId.toString();
-        console.log(`Transaction ${tx.hash} - Found poolId: ${poolId}`);
-      } else {
-        poolId = receipt.logs[receipt.logs.length - 1].topics[1]; // Fallback to Initialized order logic
-        console.log(`No Initialized event found in tx ${tx.hash}`);
-      }
-
-      return {
-        poolId: BigInt(poolId).toString(),
-        txHash: tx.hash,
-      };
-    } catch (error) {
-      console.error(`Failed to create pool: ${error}`);
-      throw new Error(`Failed to create pool metadata: ${error}`);
+    if (!receipt) {
+      throw new Error("Transaction failed");
     }
+
+    // Find the pool ID from the logs
+    const poolId = await this.getPoolIdFromReceipt(receipt);
+    if (!poolId) {
+      throw new Error("Pool ID not found in transaction receipt");
+    }
+
+    console.log(`Transaction ${tx.hash} - Found poolId: ${poolId}`);
+
+    const walletBalanceAfter = await this.getBalance(address);
+    console.log(
+      "Wallet Balance After Create Pool TX:",
+      formatUnits(walletBalanceAfter.toString(), 18),
+      "ETH"
+    );
+
+    return poolId;
+  }
+
+  private async getPoolIdFromReceipt(receipt: any): Promise<bigint | null> {
+    const logs = receipt.logs || [];
+
+    for (const log of logs) {
+      try {
+        const decoded = decodeEventLog({
+          abi: INITIALIZED_EVENT,
+          data: log.data,
+          topics: log.topics,
+        });
+
+        if (
+          decoded.eventName === "Initialized" &&
+          (decoded.args as any)?.poolId
+        ) {
+          return (decoded.args as any).poolId as bigint;
+        }
+      } catch (e) {
+        // Skip logs that don't match the event
+        continue;
+      }
+    }
+
+    return null;
+  }
+
+  private async getSignerAddress(): Promise<string> {
+    if (isEthersSigner(this.signer)) {
+      return (this.signer as any).getAddress();
+    } else if (isWalletClient(this.signer)) {
+      return (this.signer as any).account?.address;
+    }
+    throw new Error("Unable to get signer address");
+  }
+
+  private async getBalance(address: string): Promise<bigint> {
+    if (isEthersSigner(this.signer)) {
+      const provider = (this.signer as any).provider;
+      return provider.getBalance(address);
+    } else if (isWalletClient(this.signer)) {
+      return (this.signer as any).getBalance({ address });
+    }
+    throw new Error("Unable to get balance");
+  }
+
+  private async estimateGas(tx: any): Promise<bigint> {
+    if (isEthersSigner(this.signer)) {
+      const provider = (this.signer as any).provider;
+      return provider.estimateGas(tx);
+    } else if (isWalletClient(this.signer)) {
+      return (this.signer as any).estimateGas(tx);
+    }
+    throw new Error("Unable to estimate gas");
+  }
+
+  private async sendTransaction(tx: any): Promise<any> {
+    if (isEthersSigner(this.signer) || isWalletClient(this.signer)) {
+      return (this.signer as any).sendTransaction(tx);
+    }
+    throw new Error("Unable to send transaction");
   }
 
   async updatePoolMetadata(
@@ -175,7 +285,10 @@ export class AlloBase {
         pointer: metadata_cid,
       };
 
-      const tx = await this.contract.updatePoolMetadata(poolId, metadata);
+      const tx = await ((await this.getContract()) as any).write(
+        "updatePoolMetadata",
+        [poolId, metadata]
+      );
       callback?.("pending");
       const receipt = await tx.wait();
       callback?.("confirmed");

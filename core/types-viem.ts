@@ -1,13 +1,4 @@
-import type {
-  Hash,
-  Address,
-  WalletClient,
-  PublicClient,
-  Transport,
-  Chain,
-  Account,
-  Hex as ViemHex,
-} from "viem";
+import { Hex } from "viem";
 import {
   AttestationRequestData,
   EAS,
@@ -17,19 +8,11 @@ import {
 import { Attestation, GAP } from "./class";
 import { Fetcher } from "./class/Fetcher";
 
-// Re-export viem types for convenience
-export type Hex = ViemHex;
-export type BytesLike = Hex | Uint8Array;
+// Re-export Hex from viem
+export type { Hex } from "viem";
 
-// Strong typing for SignerOrProvider - now viem only
-export type SignerOrProvider =
-  | WalletClient<Transport, Chain, Account>
-  | PublicClient<Transport, Chain>;
-// EASSigner & {
-//   address?: Hex;
-//   _address?: Hex;
-//   getAddress?: () => Promise<Hex>;
-// };
+// Define SignerOrProvider for viem compatibility
+export type SignerOrProvider = any; // Will be updated to support both ethers and viem during transition
 
 export interface SchemaInterface<T extends string = string> {
   name: string;
@@ -195,7 +178,7 @@ export interface SchemataRes {
 export interface IAttestation {
   uid: Hex;
   attester: Hex;
-  data: BytesLike;
+  data: Hex;
   decodedDataJson: JSONStr;
   recipient: Hex;
   revoked: boolean;

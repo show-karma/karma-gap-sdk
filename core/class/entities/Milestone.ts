@@ -1,4 +1,4 @@
-import { Transaction } from "ethers";
+import { Transaction, createTransaction } from "../../utils/unified-types";
 import { chainIdToNetwork } from "../../consts";
 import {
   Hex,
@@ -430,7 +430,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
       ? completionResult // If we're using UIDs directly, just return completion result
       : {
           tx: [
-            ...(milestoneUIDs.length ? [{ hash: "" } as Transaction] : []),
+            ...(milestoneUIDs.length ? [createTransaction("" as string)] : []),
             ...completionResult.tx,
           ],
           uids: [...milestoneUIDs, ...completionResult.uids],
@@ -651,7 +651,8 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
     schema: GapSchema,
     callback?: Function
   ): Promise<AttestationWithTx> {
-    const eas = this.schema.gap.eas.connect(signer);
+    const { connectEAS } = await import("../../utils/eas-wrapper");
+    const eas = connectEAS(this.schema.gap.eas, signer);
     try {
       if (callback) callback("preparing");
       const tx = await eas.attest({
@@ -671,11 +672,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
       console.log(uid);
 
       return {
-        tx: [
-          {
-            hash: tx.tx.hash as Hex,
-          } as Transaction,
-        ],
+        tx: [createTransaction(tx.tx.hash as string)],
         uids: [uid as `0x${string}`],
       };
     } catch (error: any) {

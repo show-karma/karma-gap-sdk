@@ -3,7 +3,7 @@ import MulticallABI from "../abi/MultiAttester.json";
 import ProjectResolverABI from "../abi/ProjectResolver.json";
 
 import { EAS } from "@ethereum-attestation-service/eas-sdk";
-import { ethers } from "ethers";
+import { createEASInstance } from "../utils";
 import { version } from "../../package.json";
 import { MountEntities, Networks } from "../consts";
 import {
@@ -15,6 +15,19 @@ import {
   TSchemaName,
 } from "../types";
 import { getWeb3Provider } from "../utils/get-web3-provider";
+import {
+  getPublicClient,
+  createUniversalContract,
+  isEthersProvider,
+  type UniversalContract,
+} from "../utils";
+import type {
+  PublicClient,
+  WalletClient,
+  Transport,
+  Chain,
+  Account,
+} from "viem";
 import { Fetcher } from "./Fetcher";
 import { GapSchema } from "./GapSchema";
 import { GapEasClient } from "./GraphQL";
@@ -222,7 +235,7 @@ export class GAP extends Facade {
 
     this.network = args.network;
 
-    this._eas = new EAS(Networks[args.network].contracts.eas);
+    this._eas = createEASInstance(Networks[args.network].contracts.eas);
 
     this.fetch =
       args.apiClient ||
@@ -372,65 +385,126 @@ export class GAP extends Facade {
 
   /**
    * Get the multicall contract
-   * @param signer
+   * @param signer - Viem client or ethers provider/signer for backward compatibility
    */
-  static async getMulticall(signer: SignerOrProvider) {
-    const chain =
-      (await signer.provider.getNetwork()) || (signer.provider as any).network;
-    const network = Object.values(Networks).find(
-      (n) => +n.chainId === Number(chain.chainId)
-    );
-    if (!network)
-      throw new Error(`Network ${chain.name || chain.chainId} not supported.`);
+  static async getMulticall(
+    signer:
+      | SignerOrProvider
+      | PublicClient<Transport, Chain>
+      | WalletClient<Transport, Chain, Account>
+  ): Promise<UniversalContract> {
+    // Get chain ID based on provider type
+    let chainId: number;
+
+    chainId = (signer as any).chain?.id || 1;
+
+    const network = Object.values(Networks).find((n) => +n.chainId === chainId);
+    if (!network) throw new Error(`Network ${chainId} not supported.`);
 
     const address = network.contracts.multicall;
-    return new ethers.Contract(address, MulticallABI, signer as any);
+
+    // Return UniversalContract which works with both ethers and viem
+    return createUniversalContract(address, MulticallABI as any, signer);
   }
 
   /**
-   * Get the multicall contract
-   * @param signer
+   * Get the project resolver contract
+   * @param signer - Viem client or ethers provider/signer for backward compatibility
+   * @param chainId - Optional chain ID
    */
   static async getProjectResolver(
-    signer: SignerOrProvider & { getChainId?: () => Promise<number> },
+    signer:
+      | SignerOrProvider
+      | PublicClient<Transport, Chain>
+      | WalletClient<Transport, Chain, Account>,
     chainId?: number
-  ) {
-    const currentChainId =
-      chainId ||
-      Number(
-        (await signer.provider.getNetwork())?.chainId ||
-          (await signer.getChainId())
-      );
+  ): Promise<UniversalContract> {
+    // Get chain ID if not provided
+    let currentChainId: number;
+    if (chainId) {
+      currentChainId = chainId;
+    } else if (isEthersProvider(signer) || (signer as any).getNetwork) {
+      const network = await (signer as any).getNetwork();
+      currentChainId = Number(network.chainId);
+    } else {
+      // Viem client
+      currentChainId = (signer as any).chain?.id || 1;
+    }
 
-    const provider = chainId ? getWeb3Provider(chainId) : signer;
+    // If chainId is provided and signer is ethers, use ethers provider
+    // Otherwise use the provided signer
+    let provider: any;
+    if (chainId && isEthersProvider(signer)) {
+      provider = getWeb3Provider(chainId);
+    } else if (chainId && !isEthersProvider(signer)) {
+      provider = getPublicClient(chainId);
+    } else {
+      provider = signer;
+    }
+
     const network = Object.values(Networks).find(
       (n) => +n.chainId === Number(currentChainId)
     );
+    if (!network) throw new Error(`Network ${currentChainId} not supported.`);
+
     const address = network.contracts.projectResolver;
-    return new ethers.Contract(address, ProjectResolverABI, provider as any);
+
+    // Return UniversalContract which works with both ethers and viem
+    return createUniversalContract(
+      address,
+      ProjectResolverABI as any,
+      provider
+    );
   }
 
   /**
-   * Get the multicall contract
-   * @param signer
+   * Get the community resolver contract
+   * @param signer - Viem client or ethers provider/signer for backward compatibility
+   * @param chainId - Optional chain ID
    */
   static async getCommunityResolver(
-    signer: SignerOrProvider & { getChainId?: () => Promise<number> },
+    signer:
+      | SignerOrProvider
+      | PublicClient<Transport, Chain>
+      | WalletClient<Transport, Chain, Account>,
     chainId?: number
-  ) {
-    const currentChainId =
-      chainId ||
-      Number(
-        (await signer.provider.getNetwork())?.chainId ||
-          (await signer.getChainId())
-      );
+  ): Promise<UniversalContract> {
+    // Get chain ID if not provided
+    let currentChainId: number;
+    if (chainId) {
+      currentChainId = chainId;
+    } else if (isEthersProvider(signer) || (signer as any).getNetwork) {
+      const network = await (signer as any).getNetwork();
+      currentChainId = Number(network.chainId);
+    } else {
+      // Viem client
+      currentChainId = (signer as any).chain?.id || 1;
+    }
 
-    const provider = chainId ? getWeb3Provider(chainId) : signer;
+    // If chainId is provided and signer is ethers, use ethers provider
+    // Otherwise use the provided signer
+    let provider: any;
+    if (chainId && isEthersProvider(signer)) {
+      provider = getWeb3Provider(chainId);
+    } else if (chainId && !isEthersProvider(signer)) {
+      provider = getPublicClient(chainId);
+    } else {
+      provider = signer;
+    }
+
     const network = Object.values(Networks).find(
       (n) => +n.chainId === Number(currentChainId)
     );
+    if (!network) throw new Error(`Network ${currentChainId} not supported.`);
+
     const address = network.contracts.communityResolver;
-    return new ethers.Contract(address, CommunityResolverABI, provider as any);
+
+    // Return UniversalContract which works with both ethers and viem
+    return createUniversalContract(
+      address,
+      CommunityResolverABI as any,
+      provider
+    );
   }
 
   get schemas() {

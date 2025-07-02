@@ -3,7 +3,7 @@ import { Hex, SignerOrProvider, TExternalLink } from "core/types";
 import { Project } from "../entities/Project";
 import { GapSchema } from "../GapSchema";
 import { GrantUpdate } from "../entities/GrantUpdate";
-import { Transaction } from "ethers";
+import { Transaction } from "../../utils/unified-types";
 
 /** Attestation interfaces */
 

@@ -1,21 +1,39 @@
-import { ethers } from "ethers";
+import { encodeAbiParameters, parseAbiParameters, type Hex } from "viem";
+import {
+  createUniversalContract,
+  type UniversalContract,
+} from "../../utils/viem-contracts";
+import type { SignerOrProvider } from "../../types";
 import AlloRegistryABI from "../../abi/AlloRegistry.json";
 import { AlloContracts } from "../../consts";
 import { ProfileMetadata } from "../types/allo";
 import axios from "axios";
 
 export class AlloRegistry {
-  private contract: ethers.Contract;
+  private contract: UniversalContract | Promise<UniversalContract>;
   private pinataJWTToken: string;
+  private signer: SignerOrProvider;
 
-  constructor(signer: ethers.Signer, pinataJWTToken: string) {
-    this.contract = new ethers.Contract(
-      AlloContracts.registry,
-      AlloRegistryABI,
-      signer
+  constructor(
+    signer: SignerOrProvider,
+    pinataJWTToken: string,
+    chainId: number
+  ) {
+    this.signer = signer;
+    this.contract = createUniversalContract(
+      AlloContracts[chainId],
+      AlloRegistryABI as any,
+      signer as any
     );
 
     this.pinataJWTToken = pinataJWTToken;
+  }
+
+  private async getContract(): Promise<UniversalContract> {
+    if (this.contract instanceof Promise) {
+      this.contract = await this.contract;
+    }
+    return this.contract;
   }
 
   async saveAndGetCID(
@@ -57,12 +75,9 @@ export class AlloRegistry {
         pointer: metadata_cid,
       };
 
-      const tx = await this.contract.createProfile(
-        nonce,
-        name,
-        metadata,
-        owner,
-        members
+      const tx = await ((await this.getContract()) as any).write(
+        "createProfile",
+        [nonce, name, metadata, owner, members]
       );
       const receipt = await tx.wait();
 
@@ -91,7 +106,10 @@ export class AlloRegistry {
         pointer: metadata_cid,
       };
 
-      const tx = await this.contract.updateProfileMetadata(profileId, metadata);
+      const tx = await ((await this.getContract()) as any).write(
+        "updateProfileMetadata",
+        [profileId, metadata]
+      );
       const receipt = await tx.wait();
       return receipt;
     } catch (error) {

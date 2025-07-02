@@ -1,10 +1,10 @@
-import axios from 'axios';
-import { GelatoRelay } from '@gelatonetwork/relay-sdk';
-import { watchGelatoTxn } from './watch-gelato-txn';
-import { GAP } from '../../class/GAP';
-import { Hex } from '../../types';
+import axios from "axios";
+import { GelatoRelay } from "@gelatonetwork/relay-sdk";
+import { watchGelatoTxn } from "./watch-gelato-txn";
+import { GAP } from "../../class/GAP";
+import { Hex } from "../../types";
 
-async function sendByUrl(...params: Parameters<GelatoRelay['sponsoredCall']>) {
+async function sendByUrl(...params: Parameters<GelatoRelay["sponsoredCall"]>) {
   const { data } = await axios.post<string>(GAP.gelatoOpts.sponsorUrl, params);
   return data;
 }
@@ -18,14 +18,14 @@ async function sendByUrl(...params: Parameters<GelatoRelay['sponsoredCall']>) {
  * @returns Gelato's task id and a wait function.
  */
 async function sendByApiKey(
-  ...params: Parameters<GelatoRelay['sponsoredCall']>
+  ...params: Parameters<GelatoRelay["sponsoredCall"]>
 ) {
   const { apiKey } = GAP?.gelatoOpts || {};
 
-  if (!apiKey && params[1] === '{apiKey}')
-    throw new Error('No api key provided.');
+  if (!apiKey && params[1] === "{apiKey}")
+    throw new Error("No api key provided.");
 
-  if (apiKey && params[1] === '{apiKey}') params[1] = apiKey;
+  if (apiKey && params[1] === "{apiKey}") params[1] = apiKey;
 
   const client = new GelatoRelay();
   const relayResponse = await client.sponsoredCall(...params);
@@ -47,13 +47,13 @@ async function sendByApiKey(
  * @returns txn hash
  */
 async function sendGelatoTxn(
-  ...params: Parameters<GelatoRelay['sponsoredCall']>
+  ...params: Parameters<GelatoRelay["sponsoredCall"]>
 ) {
-  if (!GAP.gelatoOpts) throw new Error('Gelato opts not set.');
+  if (!GAP.gelatoOpts) throw new Error("Gelato opts not set.");
   const { env_gelatoApiKey, sponsorUrl, useGasless, contained } =
     GAP.gelatoOpts;
 
-  if (!useGasless) throw new Error('Gasless is not enabled.');
+  if (!useGasless) throw new Error("Gasless is not enabled.");
 
   if (
     (sponsorUrl && contained && env_gelatoApiKey) ||
@@ -68,6 +68,7 @@ async function sendGelatoTxn(
 
 /**
  * Builds the arguments for a sponsored call using GelatoRelay
+ * Compatible with both ethers and viem chain IDs
  * @param data Populated contract call.
  * @param chainId
  * @param target target contract address (Hex)
@@ -89,16 +90,16 @@ function buildArgs(
    * Populated transaction data.
    */
   data: string,
-  chainId: bigint,
+  chainId: bigint | number,
   target: Hex
-): Parameters<GelatoRelay['sponsoredCall']> {
+): Parameters<GelatoRelay["sponsoredCall"]> {
   return [
     {
       data,
-      chainId,
+      chainId: BigInt(chainId), // Convert to bigint for Gelato SDK
       target,
     },
-    '{apiKey}', // filled in the api
+    "{apiKey}", // filled in the api
     {
       retries: 3,
     },

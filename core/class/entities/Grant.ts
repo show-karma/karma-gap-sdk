@@ -47,7 +47,8 @@ export class Grant extends Attestation<IGrant> {
   categories?: string[] = [];
 
   async verify(signer: SignerOrProvider) {
-    const eas = this.schema.gap.eas.connect(signer);
+    const { connectEAS } = await import("../../utils/eas-wrapper");
+    const eas = connectEAS(this.schema.gap.eas, signer);
     const schema = this.schema.gap.findSchema("MilestoneApproved");
     schema.setValue("approved", true);
 
