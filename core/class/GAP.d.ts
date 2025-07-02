@@ -1,5 +1,6 @@
 import { AttestArgs, Facade, SchemaInterface, SignerOrProvider, TNetwork, TSchemaName } from "../types";
-import { UniversalContract, type UniversalProvider } from "../utils";
+import { type UniversalContract } from "../utils";
+import type { PublicClient, WalletClient, Transport, Chain, Account } from "viem";
 import { Fetcher } from "./Fetcher";
 import { GapSchema } from "./GapSchema";
 import { RemoteStorage } from "./remote-storage/RemoteStorage";
@@ -216,24 +217,21 @@ export declare class GAP extends Facade {
     findManySchemas(names: TSchemaName[]): GapSchema[];
     /**
      * Get the multicall contract
-     * Supports both ethers and viem signers/providers
-     * @param signer
+     * @param signer - Viem client or ethers provider/signer for backward compatibility
      */
-    static getMulticall(signer: SignerOrProvider | UniversalProvider): Promise<UniversalContract>;
+    static getMulticall(signer: SignerOrProvider | PublicClient<Transport, Chain> | WalletClient<Transport, Chain, Account>): Promise<UniversalContract>;
     /**
      * Get the project resolver contract
-     * Supports both ethers and viem signers/providers
-     * @param signer
-     * @param chainId
+     * @param signer - Viem client or ethers provider/signer for backward compatibility
+     * @param chainId - Optional chain ID
      */
-    static getProjectResolver(signer: SignerOrProvider | UniversalProvider, chainId?: number): Promise<UniversalContract>;
+    static getProjectResolver(signer: SignerOrProvider | PublicClient<Transport, Chain> | WalletClient<Transport, Chain, Account>, chainId?: number): Promise<UniversalContract>;
     /**
      * Get the community resolver contract
-     * Supports both ethers and viem signers/providers
-     * @param signer
-     * @param chainId
+     * @param signer - Viem client or ethers provider/signer for backward compatibility
+     * @param chainId - Optional chain ID
      */
-    static getCommunityResolver(signer: SignerOrProvider | UniversalProvider, chainId?: number): Promise<UniversalContract>;
+    static getCommunityResolver(signer: SignerOrProvider | PublicClient<Transport, Chain> | WalletClient<Transport, Chain, Account>, chainId?: number): Promise<UniversalContract>;
     get schemas(): GapSchema[];
     /**
      * Defined if the transactions will be gasless or not.

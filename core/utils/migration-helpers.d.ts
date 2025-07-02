@@ -1,19 +1,66 @@
-import { type Hex, type TransactionReceipt as ViemTransactionReceipt } from "viem";
-import { Transaction as EthersTransaction } from "ethers";
 /**
- * Convert ethers transaction to viem format
+ * Migration helpers for converting ethers types to viem
+ * Provides utilities for backward compatibility
  */
-export declare function ethersToViemTransaction(tx: EthersTransaction): any;
+import type { Hex, Address, TransactionRequest as ViemTransactionRequest, TransactionReceipt as ViemTransactionReceipt } from "viem";
 /**
- * Convert viem transaction receipt to ethers format
+ * Convert ethers BigNumber to bigint
+ * @param value - Ethers BigNumber or compatible value
+ * @returns bigint value
  */
-export declare function viemToEthersReceipt(receipt: ViemTransactionReceipt): any;
+export declare function ethersBigNumberToBigInt(value: any): bigint;
 /**
- * Unified parseUnits function that works with both ethers and viem
+ * Convert ethers address to viem Address
+ * @param address - Ethers address format
+ * @returns Viem Address type
+ */
+export declare function ethersAddressToViem(address: string | undefined | null): Address | undefined;
+/**
+ * Convert ethers transaction to viem TransactionRequest
+ * @param tx - Ethers transaction object
+ * @returns Viem TransactionRequest
+ */
+export declare function ethersTransactionToViem(tx: any): ViemTransactionRequest;
+/**
+ * Convert ethers transaction receipt to viem format
+ * @param receipt - Ethers transaction receipt
+ * @returns Viem-compatible receipt
+ */
+export declare function ethersReceiptToViem(receipt: any): ViemTransactionReceipt;
+/**
+ * Convert ethers hex string to viem Hex type
+ * @param hex - Ethers hex string
+ * @returns Viem Hex type
+ */
+export declare function ethersHexToViem(hex: string | undefined | null): Hex | undefined;
+/**
+ * Convert ethers units to viem
+ * @param value - Value in ethers format
+ * @param unit - Unit name (ether, gwei, etc.)
+ * @returns bigint value in wei
+ */
+export declare function ethersUnitsToViem(value: string | number, unit?: string): bigint;
+/**
+ * Format bigint to human-readable format
+ * @param value - bigint value in wei
+ * @param unit - Unit to format to
+ * @returns Formatted string
+ */
+export declare function formatBigInt(value: bigint, unit?: string): string;
+/**
+ * Type guard to check if value is an ethers BigNumber
+ */
+export declare function isEthersBigNumber(value: any): boolean;
+/**
+ * Type guard to check if value is an ethers transaction
+ */
+export declare function isEthersTransaction(tx: any): boolean;
+/**
+ * Unified parseUnits function
  */
 export declare function parseUnits(value: string, decimals: number): bigint;
 /**
- * Unified formatUnits function that works with both ethers and viem
+ * Unified formatUnits function
  */
 export declare function formatUnits(value: bigint | string, decimals: number): string;
 /**
@@ -24,19 +71,3 @@ export declare function isAddress(address: string): boolean;
  * Unified getAddress function (checksum address)
  */
 export declare function getAddress(address: string): Hex;
-/**
- * Get chain ID from any provider type
- */
-export declare function getChainId(provider: any): Promise<number>;
-/**
- * Get block number from any provider type
- */
-export declare function getBlockNumber(provider: any): Promise<number>;
-/**
- * Send transaction using any signer type
- */
-export declare function sendTransaction(signer: any, tx: any): Promise<Hex>;
-/**
- * Wait for transaction confirmation
- */
-export declare function waitForTransaction(provider: any, hash: Hex, confirmations?: number): Promise<ViemTransactionReceipt>;

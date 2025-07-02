@@ -1,68 +1,205 @@
 "use strict";
+/**
+ * Migration helpers for converting ethers types to viem
+ * Provides utilities for backward compatibility
+ */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ethersToViemTransaction = ethersToViemTransaction;
-exports.viemToEthersReceipt = viemToEthersReceipt;
+exports.ethersBigNumberToBigInt = ethersBigNumberToBigInt;
+exports.ethersAddressToViem = ethersAddressToViem;
+exports.ethersTransactionToViem = ethersTransactionToViem;
+exports.ethersReceiptToViem = ethersReceiptToViem;
+exports.ethersHexToViem = ethersHexToViem;
+exports.ethersUnitsToViem = ethersUnitsToViem;
+exports.formatBigInt = formatBigInt;
+exports.isEthersBigNumber = isEthersBigNumber;
+exports.isEthersTransaction = isEthersTransaction;
 exports.parseUnits = parseUnits;
 exports.formatUnits = formatUnits;
 exports.isAddress = isAddress;
 exports.getAddress = getAddress;
-exports.getChainId = getChainId;
-exports.getBlockNumber = getBlockNumber;
-exports.sendTransaction = sendTransaction;
-exports.waitForTransaction = waitForTransaction;
 const viem_1 = require("viem");
-const ethers_1 = require("ethers");
-const provider_adapter_1 = require("./provider-adapter");
 /**
- * Convert ethers transaction to viem format
+ * Convert ethers BigNumber to bigint
+ * @param value - Ethers BigNumber or compatible value
+ * @returns bigint value
  */
-function ethersToViemTransaction(tx) {
-    const viemTx = {
-        to: tx.to,
-        from: tx.from,
-        value: tx.value ? BigInt(tx.value.toString()) : undefined,
-        data: tx.data,
-        nonce: tx.nonce,
-    };
-    if (tx.gasLimit)
-        viemTx.gas = BigInt(tx.gasLimit.toString());
+function ethersBigNumberToBigInt(value) {
+    if (typeof value === "bigint") {
+        return value;
+    }
+    if (value?._isBigNumber || value?.type === "BigNumber") {
+        return BigInt(value.toString());
+    }
+    if (typeof value === "string" || typeof value === "number") {
+        return BigInt(value);
+    }
+    return 0n;
+}
+/**
+ * Convert ethers address to viem Address
+ * @param address - Ethers address format
+ * @returns Viem Address type
+ */
+function ethersAddressToViem(address) {
+    if (!address)
+        return undefined;
+    // Ensure it's a valid hex address
+    if (!/^0x[0-9a-fA-F]{40}$/.test(address)) {
+        throw new Error(`Invalid address format: ${address}`);
+    }
+    return address;
+}
+/**
+ * Convert ethers transaction to viem TransactionRequest
+ * @param tx - Ethers transaction object
+ * @returns Viem TransactionRequest
+ */
+function ethersTransactionToViem(tx) {
+    const viemTx = {};
+    if (tx.to)
+        viemTx.to = ethersAddressToViem(tx.to);
+    if (tx.from)
+        viemTx.from = ethersAddressToViem(tx.from);
+    if (tx.data)
+        viemTx.data = tx.data;
+    if (tx.value)
+        viemTx.value = ethersBigNumberToBigInt(tx.value);
+    if (tx.gasLimit || tx.gas)
+        viemTx.gas = ethersBigNumberToBigInt(tx.gasLimit || tx.gas);
     if (tx.gasPrice)
-        viemTx.gasPrice = BigInt(tx.gasPrice.toString());
+        viemTx.gasPrice = ethersBigNumberToBigInt(tx.gasPrice);
     if (tx.maxFeePerGas)
-        viemTx.maxFeePerGas = BigInt(tx.maxFeePerGas.toString());
+        viemTx.maxFeePerGas = ethersBigNumberToBigInt(tx.maxFeePerGas);
     if (tx.maxPriorityFeePerGas)
-        viemTx.maxPriorityFeePerGas = BigInt(tx.maxPriorityFeePerGas.toString());
+        viemTx.maxPriorityFeePerGas = ethersBigNumberToBigInt(tx.maxPriorityFeePerGas);
+    if (tx.nonce !== undefined)
+        viemTx.nonce = Number(tx.nonce);
     return viemTx;
 }
 /**
- * Convert viem transaction receipt to ethers format
+ * Convert ethers transaction receipt to viem format
+ * @param receipt - Ethers transaction receipt
+ * @returns Viem-compatible receipt
  */
-function viemToEthersReceipt(receipt) {
+function ethersReceiptToViem(receipt) {
     return {
-        to: receipt.to || null,
-        from: receipt.from,
-        contractAddress: receipt.contractAddress || null,
         blockHash: receipt.blockHash,
+        blockNumber: BigInt(receipt.blockNumber || 0),
+        contractAddress: ethersAddressToViem(receipt.contractAddress),
+        cumulativeGasUsed: ethersBigNumberToBigInt(receipt.cumulativeGasUsed),
+        effectiveGasPrice: ethersBigNumberToBigInt(receipt.effectiveGasPrice || receipt.gasPrice),
+        from: ethersAddressToViem(receipt.from),
+        gasUsed: ethersBigNumberToBigInt(receipt.gasUsed),
+        logs: receipt.logs?.map((log) => ({
+            address: ethersAddressToViem(log.address),
+            blockHash: log.blockHash,
+            blockNumber: BigInt(log.blockNumber || 0),
+            data: log.data,
+            logIndex: Number(log.logIndex || 0),
+            removed: Boolean(log.removed),
+            topics: log.topics,
+            transactionHash: log.transactionHash,
+            transactionIndex: Number(log.transactionIndex || 0),
+        })) || [],
+        logsBloom: receipt.logsBloom,
+        status: receipt.status === 1 ? "success" : "reverted",
+        to: ethersAddressToViem(receipt.to),
         transactionHash: receipt.transactionHash,
-        blockNumber: Number(receipt.blockNumber),
-        status: receipt.status === "success" ? 1 : 0,
-        gasUsed: receipt.gasUsed.toString(),
-        cumulativeGasUsed: receipt.cumulativeGasUsed.toString(),
-        effectiveGasPrice: receipt.effectiveGasPrice?.toString() || "0",
+        transactionIndex: Number(receipt.transactionIndex || 0),
+        type: receipt.type || "legacy",
     };
 }
 /**
- * Unified parseUnits function that works with both ethers and viem
+ * Convert ethers hex string to viem Hex type
+ * @param hex - Ethers hex string
+ * @returns Viem Hex type
+ */
+function ethersHexToViem(hex) {
+    if (!hex)
+        return undefined;
+    // Ensure it starts with 0x
+    if (!hex.startsWith("0x")) {
+        hex = "0x" + hex;
+    }
+    // Validate hex format
+    if (!/^0x[0-9a-fA-F]*$/.test(hex)) {
+        throw new Error(`Invalid hex format: ${hex}`);
+    }
+    return hex;
+}
+/**
+ * Convert ethers units to viem
+ * @param value - Value in ethers format
+ * @param unit - Unit name (ether, gwei, etc.)
+ * @returns bigint value in wei
+ */
+function ethersUnitsToViem(value, unit = "ether") {
+    const stringValue = value.toString();
+    switch (unit.toLowerCase()) {
+        case "ether":
+            return (0, viem_1.parseEther)(stringValue);
+        case "gwei":
+            return (0, viem_1.parseUnits)(stringValue, 9);
+        case "wei":
+            return BigInt(stringValue);
+        default:
+            // Try to parse decimals from unit name
+            const decimals = parseInt(unit);
+            if (!isNaN(decimals)) {
+                return (0, viem_1.parseUnits)(stringValue, decimals);
+            }
+            throw new Error(`Unknown unit: ${unit}`);
+    }
+}
+/**
+ * Format bigint to human-readable format
+ * @param value - bigint value in wei
+ * @param unit - Unit to format to
+ * @returns Formatted string
+ */
+function formatBigInt(value, unit = "ether") {
+    switch (unit.toLowerCase()) {
+        case "ether":
+            return (0, viem_1.formatEther)(value);
+        case "gwei":
+            return (0, viem_1.formatUnits)(value, 9);
+        case "wei":
+            return value.toString();
+        default:
+            const decimals = parseInt(unit);
+            if (!isNaN(decimals)) {
+                return (0, viem_1.formatUnits)(value, decimals);
+            }
+            throw new Error(`Unknown unit: ${unit}`);
+    }
+}
+/**
+ * Type guard to check if value is an ethers BigNumber
+ */
+function isEthersBigNumber(value) {
+    return value?._isBigNumber === true || value?.type === "BigNumber";
+}
+/**
+ * Type guard to check if value is an ethers transaction
+ */
+function isEthersTransaction(tx) {
+    return (tx &&
+        (isEthersBigNumber(tx.gasLimit) ||
+            isEthersBigNumber(tx.value) ||
+            isEthersBigNumber(tx.gasPrice) ||
+            tx._isBigNumber !== undefined));
+}
+/**
+ * Unified parseUnits function
  */
 function parseUnits(value, decimals) {
-    // Always return bigint for consistency with viem
-    if (typeof value === "string" && decimals === 18) {
+    if (decimals === 18) {
         return (0, viem_1.parseEther)(value);
     }
     return (0, viem_1.parseUnits)(value, decimals);
 }
 /**
- * Unified formatUnits function that works with both ethers and viem
+ * Unified formatUnits function
  */
 function formatUnits(value, decimals) {
     if (decimals === 18) {
@@ -81,86 +218,4 @@ function isAddress(address) {
  */
 function getAddress(address) {
     return (0, viem_1.getAddress)(address);
-}
-/**
- * Get chain ID from any provider type
- */
-async function getChainId(provider) {
-    if ((0, provider_adapter_1.isEthersProvider)(provider)) {
-        const network = await provider.getNetwork();
-        return Number(network.chainId);
-    }
-    if ((0, provider_adapter_1.isViemPublicClient)(provider) || (0, provider_adapter_1.isViemWalletClient)(provider)) {
-        return provider.chain?.id || 1;
-    }
-    throw new Error("Unsupported provider type");
-}
-/**
- * Get block number from any provider type
- */
-async function getBlockNumber(provider) {
-    if ((0, provider_adapter_1.isEthersProvider)(provider)) {
-        return provider.getBlockNumber();
-    }
-    if ((0, provider_adapter_1.isViemPublicClient)(provider)) {
-        const block = await provider.getBlockNumber();
-        return Number(block);
-    }
-    throw new Error("Unsupported provider type");
-}
-/**
- * Send transaction using any signer type
- */
-async function sendTransaction(signer, tx) {
-    if (signer instanceof ethers_1.Wallet) {
-        const ethTx = {
-            to: tx.to,
-            value: tx.value?.toString(),
-            data: tx.data,
-            gasLimit: tx.gas?.toString(),
-            gasPrice: tx.gasPrice?.toString(),
-            maxFeePerGas: tx.maxFeePerGas?.toString(),
-            maxPriorityFeePerGas: tx.maxPriorityFeePerGas?.toString(),
-            nonce: tx.nonce,
-        };
-        const response = await signer.sendTransaction(ethTx);
-        return response.hash;
-    }
-    if ((0, provider_adapter_1.isViemWalletClient)(signer)) {
-        return signer.sendTransaction(tx);
-    }
-    throw new Error("Unsupported signer type");
-}
-/**
- * Wait for transaction confirmation
- */
-async function waitForTransaction(provider, hash, confirmations) {
-    if ((0, provider_adapter_1.isEthersProvider)(provider)) {
-        const receipt = await provider.waitForTransaction(hash, confirmations);
-        if (!receipt)
-            throw new Error("Transaction failed");
-        return {
-            blockHash: receipt.blockHash,
-            blockNumber: BigInt(receipt.blockNumber),
-            contractAddress: receipt.contractAddress,
-            cumulativeGasUsed: BigInt(receipt.cumulativeGasUsed.toString()),
-            effectiveGasPrice: BigInt(receipt.gasPrice?.toString() || "0"),
-            from: receipt.from,
-            gasUsed: BigInt(receipt.gasUsed.toString()),
-            logs: receipt.logs,
-            logsBloom: receipt.logsBloom,
-            status: receipt.status === 1 ? "success" : "reverted",
-            to: receipt.to,
-            transactionHash: receipt.hash,
-            transactionIndex: receipt.index || 0,
-            type: "legacy",
-        };
-    }
-    if ((0, provider_adapter_1.isViemPublicClient)(provider)) {
-        return provider.waitForTransactionReceipt({
-            hash,
-            confirmations,
-        });
-    }
-    throw new Error("Unsupported provider type");
 }

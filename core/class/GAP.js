@@ -8,7 +8,6 @@ const CommunityResolverABI_json_1 = __importDefault(require("../abi/CommunityRes
 const MultiAttester_json_1 = __importDefault(require("../abi/MultiAttester.json"));
 const ProjectResolver_json_1 = __importDefault(require("../abi/ProjectResolver.json"));
 const utils_1 = require("../utils");
-// import { ethers } from "ethers"; // Removed - using viem-compatible utilities
 const package_json_1 = require("../../package.json");
 const consts_1 = require("../consts");
 const types_1 = require("../types");
@@ -210,26 +209,38 @@ class GAP extends types_1.Facade {
     }
     /**
      * Get the multicall contract
-     * Supports both ethers and viem signers/providers
-     * @param signer
+     * @param signer - Viem client or ethers provider/signer for backward compatibility
      */
     static async getMulticall(signer) {
-        const chainId = await (0, utils_2.getChainId)(signer);
+        // Get chain ID based on provider type
+        let chainId;
+        chainId = signer.chain?.id || 1;
         const network = Object.values(consts_1.Networks).find((n) => +n.chainId === chainId);
         if (!network)
             throw new Error(`Network ${chainId} not supported.`);
         const address = network.contracts.multicall;
         // Return UniversalContract which works with both ethers and viem
-        return new utils_2.UniversalContract(address, MultiAttester_json_1.default, signer);
+        return (0, utils_2.createUniversalContract)(address, MultiAttester_json_1.default, signer);
     }
     /**
      * Get the project resolver contract
-     * Supports both ethers and viem signers/providers
-     * @param signer
-     * @param chainId
+     * @param signer - Viem client or ethers provider/signer for backward compatibility
+     * @param chainId - Optional chain ID
      */
     static async getProjectResolver(signer, chainId) {
-        const currentChainId = chainId || (await (0, utils_2.getChainId)(signer));
+        // Get chain ID if not provided
+        let currentChainId;
+        if (chainId) {
+            currentChainId = chainId;
+        }
+        else if ((0, utils_2.isEthersProvider)(signer) || signer.getNetwork) {
+            const network = await signer.getNetwork();
+            currentChainId = Number(network.chainId);
+        }
+        else {
+            // Viem client
+            currentChainId = signer.chain?.id || 1;
+        }
         // If chainId is provided and signer is ethers, use ethers provider
         // Otherwise use the provided signer
         let provider;
@@ -247,16 +258,27 @@ class GAP extends types_1.Facade {
             throw new Error(`Network ${currentChainId} not supported.`);
         const address = network.contracts.projectResolver;
         // Return UniversalContract which works with both ethers and viem
-        return new utils_2.UniversalContract(address, ProjectResolver_json_1.default, provider);
+        return (0, utils_2.createUniversalContract)(address, ProjectResolver_json_1.default, provider);
     }
     /**
      * Get the community resolver contract
-     * Supports both ethers and viem signers/providers
-     * @param signer
-     * @param chainId
+     * @param signer - Viem client or ethers provider/signer for backward compatibility
+     * @param chainId - Optional chain ID
      */
     static async getCommunityResolver(signer, chainId) {
-        const currentChainId = chainId || (await (0, utils_2.getChainId)(signer));
+        // Get chain ID if not provided
+        let currentChainId;
+        if (chainId) {
+            currentChainId = chainId;
+        }
+        else if ((0, utils_2.isEthersProvider)(signer) || signer.getNetwork) {
+            const network = await signer.getNetwork();
+            currentChainId = Number(network.chainId);
+        }
+        else {
+            // Viem client
+            currentChainId = signer.chain?.id || 1;
+        }
         // If chainId is provided and signer is ethers, use ethers provider
         // Otherwise use the provided signer
         let provider;
@@ -274,7 +296,7 @@ class GAP extends types_1.Facade {
             throw new Error(`Network ${currentChainId} not supported.`);
         const address = network.contracts.communityResolver;
         // Return UniversalContract which works with both ethers and viem
-        return new utils_2.UniversalContract(address, CommunityResolverABI_json_1.default, provider);
+        return (0, utils_2.createUniversalContract)(address, CommunityResolverABI_json_1.default, provider);
     }
     get schemas() {
         return this._schemas;

@@ -8,6 +8,7 @@ export declare class AlloV2 {
     private contract;
     private chainId;
     constructor(signer: SignerOrProvider, pinataJWTToken: string, chainId: number);
+    private getContract;
     saveAndGetCID(data: any, pinataMetadata?: {
         name: string;
     }): Promise<any>;

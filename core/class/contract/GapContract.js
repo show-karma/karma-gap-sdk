@@ -28,11 +28,11 @@ class GapContract {
         const contractAddress = contract.address || contract.contractAddress;
         // Get chain ID based on signer type
         let chainId;
-        if ((0, utils_1.isEthersWallet)(signer)) {
+        if ((0, utils_1.isEthersSigner)(signer)) {
             const network = await signer.provider.getNetwork();
             chainId = BigInt(network.chainId);
         }
-        else if ((0, utils_1.isViemWalletClient)(signer)) {
+        else if ((0, utils_1.isWalletClient)(signer)) {
             chainId = BigInt(signer.chain?.id || 1);
         }
         else {
@@ -49,12 +49,13 @@ class GapContract {
         const data = { payloadHash: payload, nonce, expiry };
         console.log({ domain, AttestationDataTypes, data });
         let signature;
-        if ((0, utils_1.isEthersWallet)(signer)) {
+        if ((0, utils_1.isEthersSigner)(signer)) {
             signature = await signer._signTypedData(domain, AttestationDataTypes, data);
         }
-        else if ((0, utils_1.isViemWalletClient)(signer)) {
-            signature = await signer.signTypedData({
-                account: signer.account,
+        else if ((0, utils_1.isWalletClient)(signer)) {
+            const walletClient = signer;
+            signature = await walletClient.signTypedData({
+                account: walletClient.account,
                 domain: domain,
                 types: AttestationDataTypes,
                 primaryType: "Attest",
@@ -79,7 +80,16 @@ class GapContract {
         return { r, s, v };
     }
     static async getSignerAddress(signer) {
-        return (0, utils_1.getSignerAddress)(signer);
+        if ((0, utils_1.isEthersSigner)(signer)) {
+            return (await signer.getAddress());
+        }
+        else if ((0, utils_1.isWalletClient)(signer)) {
+            const walletClient = signer;
+            return walletClient.account?.address;
+        }
+        else {
+            throw new Error("Unsupported signer type");
+        }
     }
     /**
      * Get nonce for the transaction
@@ -127,9 +137,17 @@ class GapContract {
                 },
             ]);
             callback?.("pending");
-            // Wait for transaction using the provider adapter
-            let provider = signer;
-            result = await (0, utils_1.waitForTransaction)(provider, txHash);
+            // Wait for transaction using viem
+            if ((0, utils_1.isWalletClient)(signer)) {
+                const walletClient = signer;
+                const publicClient = walletClient; // Wallet clients can read too
+                result = await publicClient.waitForTransactionReceipt({ hash: txHash });
+            }
+            else {
+                // For ethers, use the provider's wait method
+                const provider = signer.provider || signer;
+                result = await provider.waitForTransaction(txHash);
+            }
             callback?.("confirmed");
             const attestations = (0, eas_sdk_1.getUIDsFromAttestReceipt)(result)[0];
             return {
@@ -200,9 +218,7 @@ class GapContract {
         const txn = await (0, send_gelato_txn_1.sendGelatoTxn)(...send_gelato_txn_1.Gelato.buildArgs(populatedTxn, chainId, contractAddress));
         const attestations = await this.getTransactionLogs(signer, txn);
         return {
-            tx: [
-                (0, unified_types_1.createTransaction)(txn),
-            ],
+            tx: [(0, unified_types_1.createTransaction)(txn)],
             uids: attestations,
         };
     }
@@ -227,8 +243,17 @@ class GapContract {
             ]);
             if (callback)
                 callback("pending");
-            let provider = signer;
-            result = await (0, utils_1.waitForTransaction)(provider, txHash);
+            // Wait for transaction using viem
+            if ((0, utils_1.isWalletClient)(signer)) {
+                const walletClient = signer;
+                const publicClient = walletClient; // Wallet clients can read too
+                result = await publicClient.waitForTransactionReceipt({ hash: txHash });
+            }
+            else {
+                // For ethers, use the provider's wait method
+                const provider = signer.provider || signer;
+                result = await provider.waitForTransaction(txHash);
+            }
             if (callback)
                 callback("confirmed");
             const attestations = (0, eas_sdk_1.getUIDsFromAttestReceipt)(result);
@@ -292,9 +317,7 @@ class GapContract {
         const txn = await (0, send_gelato_txn_1.sendGelatoTxn)(...send_gelato_txn_1.Gelato.buildArgs(populatedTxn, chainId, contractAddress));
         const attestations = await this.getTransactionLogs(signer, txn);
         return {
-            tx: [
-                (0, unified_types_1.createTransaction)(txn),
-            ],
+            tx: [(0, unified_types_1.createTransaction)(txn)],
             uids: attestations,
         };
     }
@@ -377,8 +400,16 @@ class GapContract {
                 projectUID,
                 newOwner,
             ]);
-            let provider = signer;
-            return (0, utils_1.waitForTransaction)(provider, txHash);
+            // Wait for transaction
+            if ((0, utils_1.isWalletClient)(signer)) {
+                const walletClient = signer;
+                const publicClient = walletClient;
+                return publicClient.waitForTransactionReceipt({ hash: txHash });
+            }
+            else {
+                const provider = signer.provider || signer;
+                return provider.waitForTransaction(txHash);
+            }
         }
         else {
             // ethers Contract
@@ -437,8 +468,19 @@ class GapContract {
         }
     }
     static async getTransactionLogs(signer, txnHash) {
-        let provider = signer;
-        const receipt = await (0, utils_1.waitForTransaction)(provider, txnHash);
+        let receipt;
+        // Wait for transaction
+        if ((0, utils_1.isWalletClient)(signer)) {
+            const walletClient = signer;
+            const publicClient = walletClient;
+            receipt = await publicClient.waitForTransactionReceipt({
+                hash: txnHash,
+            });
+        }
+        else {
+            const provider = signer.provider || signer;
+            receipt = await provider.waitForTransaction(txnHash);
+        }
         if (!receipt || !receipt.logs?.length)
             throw new Error("Transaction not found");
         // Returns the txn logs with the attestation results
@@ -459,8 +501,16 @@ class GapContract {
                 projectUID,
                 newAdmin,
             ]);
-            let provider = signer;
-            return (0, utils_1.waitForTransaction)(provider, txHash);
+            // Wait for transaction
+            if ((0, utils_1.isWalletClient)(signer)) {
+                const walletClient = signer;
+                const publicClient = walletClient;
+                return publicClient.waitForTransactionReceipt({ hash: txHash });
+            }
+            else {
+                const provider = signer.provider || signer;
+                return provider.waitForTransaction(txHash);
+            }
         }
         else {
             // ethers Contract
@@ -483,8 +533,16 @@ class GapContract {
                 projectUID,
                 oldAdmin,
             ]);
-            let provider = signer;
-            return (0, utils_1.waitForTransaction)(provider, txHash);
+            // Wait for transaction
+            if ((0, utils_1.isWalletClient)(signer)) {
+                const walletClient = signer;
+                const publicClient = walletClient;
+                return publicClient.waitForTransactionReceipt({ hash: txHash });
+            }
+            else {
+                const provider = signer.provider || signer;
+                return provider.waitForTransaction(txHash);
+            }
         }
         else {
             // ethers Contract

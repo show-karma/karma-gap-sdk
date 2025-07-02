@@ -1,9 +1,10 @@
-import { BytesLike } from "./utils/unified-types";
+import type { WalletClient, PublicClient, Transport, Chain, Account, Hex as ViemHex } from "viem";
 import { AttestationRequestData, EAS, MultiAttestationRequest, SchemaItem } from "@ethereum-attestation-service/eas-sdk";
 import { Attestation } from "./class";
 import { Fetcher } from "./class/Fetcher";
-export type Hex = `0x${string}`;
-export type SignerOrProvider = any;
+export type Hex = ViemHex;
+export type BytesLike = Hex | Uint8Array;
+export type SignerOrProvider = WalletClient<Transport, Chain, Account> | PublicClient<Transport, Chain>;
 export interface SchemaInterface<T extends string = string> {
     name: string;
     schema: SchemaItem[];

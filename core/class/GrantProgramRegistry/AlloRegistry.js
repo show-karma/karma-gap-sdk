@@ -11,8 +11,14 @@ const axios_1 = __importDefault(require("axios"));
 class AlloRegistry {
     constructor(signer, pinataJWTToken, chainId) {
         this.signer = signer;
-        this.contract = new viem_contracts_1.UniversalContract(consts_1.AlloContracts[chainId], AlloRegistry_json_1.default, signer);
+        this.contract = (0, viem_contracts_1.createUniversalContract)(consts_1.AlloContracts[chainId], AlloRegistry_json_1.default, signer);
         this.pinataJWTToken = pinataJWTToken;
+    }
+    async getContract() {
+        if (this.contract instanceof Promise) {
+            this.contract = await this.contract;
+        }
+        return this.contract;
     }
     async saveAndGetCID(data, pinataMetadata = { name: "via karma-gap-sdk" }) {
         try {
@@ -39,13 +45,7 @@ class AlloRegistry {
                 protocol: 1,
                 pointer: metadata_cid,
             };
-            const tx = await this.contract.write("createProfile", [
-                nonce,
-                name,
-                metadata,
-                owner,
-                members,
-            ]);
+            const tx = await (await this.getContract()).write("createProfile", [nonce, name, metadata, owner, members]);
             const receipt = await tx.wait();
             // Get ProfileCreated event
             const profileCreatedEvent = receipt.logs.find((event) => event.eventName === "ProfileCreated");
@@ -65,10 +65,7 @@ class AlloRegistry {
                 protocol: 1,
                 pointer: metadata_cid,
             };
-            const tx = await this.contract.write("updateProfileMetadata", [
-                profileId,
-                metadata,
-            ]);
+            const tx = await (await this.getContract()).write("updateProfileMetadata", [profileId, metadata]);
             const receipt = await tx.wait();
             return receipt;
         }

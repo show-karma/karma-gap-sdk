@@ -12,3 +12,4 @@ export * from "./viem-contracts";
 export * from "./account-abstraction";
 export * from "./compatibility";
 export * from "./eas-wrapper";
+export * from "./unified-types";

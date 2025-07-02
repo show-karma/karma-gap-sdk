@@ -1,32 +1,32 @@
-import { PublicClient, WalletClient } from "viem";
-import { JsonRpcProvider, Wallet } from "ethers";
+import { type PublicClient, type WalletClient, type Transport, type Chain, type Account } from "viem";
 /**
- * Provider adapter to support both ethers and viem during migration
+ * Provider adapter for backward compatibility
+ * Converts ethers providers to viem clients
+ * This allows existing code using ethers to work with the viem-based SDK
  */
-export type ProviderAdapter = EthersProviderAdapter | ViemProviderAdapter;
-export interface EthersProviderAdapter {
-    type: "ethers";
-    provider: JsonRpcProvider;
-    signer?: Wallet;
-}
-export interface ViemProviderAdapter {
-    type: "viem";
-    publicClient: PublicClient;
-    walletClient?: WalletClient;
-}
 /**
- * Check if the provider is an ethers provider
+ * Type guard to check if provider is an ethers provider
  */
-export declare function isEthersProvider(provider: any): provider is JsonRpcProvider;
+export declare function isEthersProvider(provider: any): boolean;
 /**
- * Check if the provider is a viem public client
+ * Type guard to check if signer is an ethers signer
  */
-export declare function isViemPublicClient(client: any): client is PublicClient;
+export declare function isEthersSigner(signer: any): boolean;
 /**
- * Check if the provider is a viem wallet client
+ * Convert ethers provider to viem public client
+ * @param provider - Ethers provider instance
+ * @returns Viem public client
  */
-export declare function isViemWalletClient(client: any): client is WalletClient;
+export declare function ethersProviderToViemClient(provider: any): Promise<PublicClient<Transport, Chain>>;
 /**
- * Adapter factory to create a unified provider interface
+ * Convert ethers signer to viem wallet client
+ * @param signer - Ethers signer instance
+ * @returns Viem wallet client
  */
-export declare function createProviderAdapter(provider: any): ProviderAdapter;
+export declare function ethersSignerToViemClient(signer: any): Promise<WalletClient<Transport, Chain, Account>>;
+/**
+ * Unified adapter that handles both providers and signers
+ * @param providerOrSigner - Ethers provider or signer
+ * @returns Viem client (public or wallet)
+ */
+export declare function adaptEthersToViem(providerOrSigner: any): Promise<PublicClient<Transport, Chain> | WalletClient<Transport, Chain, Account>>;

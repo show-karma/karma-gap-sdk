@@ -74,9 +74,7 @@ class ProjectImpact extends Attestation_1.Attestation {
                 callback("confirmed");
             console.log(uid);
             return {
-                tx: [
-                    (0, unified_types_1.createTransaction)(tx.tx.hash),
-                ],
+                tx: [(0, unified_types_1.createTransaction)(tx.tx.hash)],
                 uids: [uid],
             };
         }

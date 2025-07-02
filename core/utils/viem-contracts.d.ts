@@ -1,43 +1,45 @@
-import { type Abi, type Hex } from "viem";
 /**
- * Universal contract interface that works with both ethers and viem
+ * Universal contract interface for viem
+ * Provides a unified way to interact with contracts using viem
  */
-export declare class UniversalContract {
-    private ethersContract?;
-    private viemContract?;
-    private abi;
-    private address;
-    constructor(address: string, abi: Abi | any[], signerOrProvider: any);
+import { type Abi, type Address, type Hash, type Hex } from "viem";
+/**
+ * Universal contract interface that works with viem
+ * Provides strong typing for contract interactions
+ */
+export interface UniversalContract {
+    address: Address;
+    abi: Abi;
     /**
-     * Call a read-only function
+     * Read data from the contract (view/pure functions)
      */
-    read(functionName: string, args?: any[]): Promise<any>;
+    read(functionName: string, args?: readonly unknown[]): Promise<unknown>;
     /**
-     * Call a write function
+     * Write data to the contract (non-payable functions)
      */
-    write(functionName: string, args?: any[], options?: any): Promise<Hex>;
+    write(functionName: string, args?: readonly unknown[], options?: any): Promise<Hash>;
     /**
-     * Estimate gas for a function call
+     * Estimate gas for contract functions
      */
-    estimateGas(functionName: string, args?: any[], options?: any): Promise<bigint>;
+    estimateGas(functionName: string, args?: readonly unknown[]): Promise<bigint>;
     /**
      * Encode function data
      */
-    encodeFunctionData(functionName: string, args?: any[]): Hex;
+    encodeFunctionData(functionName: string, args?: readonly unknown[]): Hex;
     /**
      * Decode function result
      */
-    decodeFunctionResult(functionName: string, data: Hex): any;
-    /**
-     * Get the contract address
-     */
-    get contractAddress(): Hex;
-    /**
-     * Check if using ethers
-     */
-    get isEthers(): boolean;
-    /**
-     * Check if using viem
-     */
-    get isViem(): boolean;
+    decodeFunctionResult(functionName: string, data: Hex): unknown;
 }
+/**
+ * Create a universal contract instance
+ * @param address - Contract address
+ * @param abi - Contract ABI
+ * @param provider - Viem client or ethers provider/signer
+ * @returns Universal contract instance
+ */
+export declare function createUniversalContract(address: string, abi: Abi, provider: any): Promise<UniversalContract>;
+/**
+ * Helper to check if a provider supports write operations
+ */
+export declare function supportsWrites(provider: any): boolean;

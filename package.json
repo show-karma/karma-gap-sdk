@@ -32,22 +32,9 @@
         "@dynamic-labs/sdk-react-core": "^3.7.3",
         "@dynamic-labs/ethereum": "^3.7.3"
     },
-    "peerDependencies": {
-        "ethers": "^6.0.0",
-        "viem": "^2.0.0"
-    },
-    "peerDependenciesMeta": {
-        "ethers": {
-            "optional": true
-        },
-        "viem": {
-            "optional": true
-        }
-    },
     "devDependencies": {
         "@types/node": "^20.5.0",
         "eslint": "^8.47.0",
-        "ethers": "^6.11.0",
         "fast-csv": "^4.3.6",
         "husky": "^8.0.3",
         "prettier": "^3.0.1",

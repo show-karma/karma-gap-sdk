@@ -5,6 +5,7 @@ export declare class AlloRegistry {
     private pinataJWTToken;
     private signer;
     constructor(signer: SignerOrProvider, pinataJWTToken: string, chainId: number);
+    private getContract;
     saveAndGetCID(data: any, pinataMetadata?: {
         name: string;
     }): Promise<any>;

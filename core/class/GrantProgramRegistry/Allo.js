@@ -9,6 +9,7 @@ const Allo_json_1 = __importDefault(require("../../abi/Allo.json"));
 const consts_1 = require("../../consts");
 const viem_1 = require("viem");
 const viem_contracts_1 = require("../../utils/viem-contracts");
+const utils_1 = require("../../utils");
 const allo_v2_sdk_1 = require("@allo-team/allo-v2-sdk/");
 const axios_1 = __importDefault(require("axios"));
 // ABI fragment for the Initialized event
@@ -31,10 +32,16 @@ const INITIALIZED_EVENT = [
 class AlloV2 {
     constructor(signer, pinataJWTToken, chainId) {
         this.signer = signer;
-        this.contract = new viem_contracts_1.UniversalContract(consts_1.AlloContracts[chainId], Allo_json_1.default, signer);
+        this.contract = (0, viem_contracts_1.createUniversalContract)(consts_1.AlloContracts[chainId], Allo_json_1.default, signer);
         this.allo = new allo_v2_sdk_1.Allo({ chain: chainId });
         this.pinataJWTToken = pinataJWTToken;
         this.chainId = chainId;
+    }
+    async getContract() {
+        if (this.contract instanceof Promise) {
+            this.contract = await this.contract;
+        }
+        return this.contract;
     }
     async saveAndGetCID(data, pinataMetadata = { name: "via karma-gap-sdk" }) {
         try {
@@ -146,36 +153,36 @@ class AlloV2 {
         return null;
     }
     async getSignerAddress() {
-        if ("getAddress" in this.signer) {
+        if ((0, utils_1.isEthersSigner)(this.signer)) {
             return this.signer.getAddress();
         }
-        else if ("account" in this.signer && this.signer.account) {
-            return this.signer.account.address;
+        else if ((0, utils_1.isWalletClient)(this.signer)) {
+            return this.signer.account?.address;
         }
         throw new Error("Unable to get signer address");
     }
     async getBalance(address) {
-        if (this.signer &&
-            "provider" in this.signer &&
-            "getBalance" in this.signer.provider) {
-            return this.signer.provider.getBalance(address);
+        if ((0, utils_1.isEthersSigner)(this.signer)) {
+            const provider = this.signer.provider;
+            return provider.getBalance(address);
         }
-        else if ("getBalance" in this.signer) {
+        else if ((0, utils_1.isWalletClient)(this.signer)) {
             return this.signer.getBalance({ address });
         }
         throw new Error("Unable to get balance");
     }
     async estimateGas(tx) {
-        if ("estimateGas" in this.signer.provider) {
-            return this.signer.provider.estimateGas(tx);
+        if ((0, utils_1.isEthersSigner)(this.signer)) {
+            const provider = this.signer.provider;
+            return provider.estimateGas(tx);
         }
-        else if ("estimateGas" in this.signer) {
+        else if ((0, utils_1.isWalletClient)(this.signer)) {
             return this.signer.estimateGas(tx);
         }
         throw new Error("Unable to estimate gas");
     }
     async sendTransaction(tx) {
-        if ("sendTransaction" in this.signer) {
+        if ((0, utils_1.isEthersSigner)(this.signer) || (0, utils_1.isWalletClient)(this.signer)) {
             return this.signer.sendTransaction(tx);
         }
         throw new Error("Unable to send transaction");
@@ -188,10 +195,7 @@ class AlloV2 {
                 protocol: 1,
                 pointer: metadata_cid,
             };
-            const tx = await this.contract.write("updatePoolMetadata", [
-                poolId,
-                metadata,
-            ]);
+            const tx = await (await this.getContract()).write("updatePoolMetadata", [poolId, metadata]);
             callback?.("pending");
             const receipt = await tx.wait();
             callback?.("confirmed");
