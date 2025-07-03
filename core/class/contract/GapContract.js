@@ -1,4 +1,37 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GapContract = void 0;
 const eas_sdk_1 = require("@ethereum-attestation-service/eas-sdk");
@@ -238,21 +271,35 @@ class GapContract {
         let result;
         if (contract.write) {
             // UniversalContract
+            const mappedPayload = payload.map((p) => ({
+                uid: p.payload.uid,
+                refIdx: Number(p.payload.refIdx), // Ensure refIdx is a number, not BigInt
+                multiRequest: p.payload.multiRequest,
+            }));
             const txHash = await contract.write("multiSequentialAttest", [
-                payload.map((p) => p.payload),
+                [mappedPayload],
             ]);
             if (callback)
                 callback("pending");
-            // Wait for transaction using viem
-            if ((0, utils_1.isWalletClient)(signer)) {
-                const walletClient = signer;
-                const publicClient = walletClient; // Wallet clients can read too
-                result = await publicClient.waitForTransactionReceipt({ hash: txHash });
+            // Viem wallet client - create a public client for reading receipt
+            const walletClient = signer;
+            try {
+                const { createPublicClient, http } = await Promise.resolve().then(() => __importStar(require("viem")));
+                const publicClient = createPublicClient({
+                    chain: walletClient.chain,
+                    transport: http(walletClient.transport.url ||
+                        walletClient.transport.url_ ||
+                        walletClient.transport._url),
+                });
+                result = await publicClient.waitForTransactionReceipt({
+                    hash: txHash,
+                });
             }
-            else {
-                // For ethers, use the provider's wait method
-                const provider = signer.provider || signer;
-                result = await provider.waitForTransaction(txHash);
+            catch (error) {
+                console.warn("Public client approach failed, using basic wait:", error.message);
+                // Simple wait and poll approach
+                await new Promise((resolve) => setTimeout(resolve, 3000));
+                result = await walletClient.getTransactionReceipt({ hash: txHash });
             }
             if (callback)
                 callback("confirmed");
@@ -264,7 +311,9 @@ class GapContract {
         }
         else {
             // ethers Contract
-            tx = await contract.multiSequentialAttest(payload.map((p) => p.payload));
+            tx = await contract.multiSequentialAttest([
+                payload.map((p) => p.payload),
+            ]);
             if (callback)
                 callback("pending");
             result = await tx.wait?.();
@@ -294,21 +343,17 @@ class GapContract {
         let contractAddress;
         if (contract.encodeFunctionData) {
             // UniversalContract
-            populatedTxn = contract.encodeFunctionData("multiSequentialAttestBySig", [
-                payload.map((p) => p.payload),
-                payloadHash,
-                address,
-                nonce,
-                expiry,
-                v,
-                r,
-                s,
-            ]);
+            const mappedPayload = payload.map((p) => ({
+                uid: p.payload.uid,
+                refIdx: Number(p.payload.refIdx), // Ensure refIdx is a number, not BigInt
+                multiRequest: p.payload.multiRequest,
+            }));
+            populatedTxn = contract.encodeFunctionData("multiSequentialAttestBySig", [[mappedPayload], payloadHash, address, nonce, expiry, v, r, s]);
             contractAddress = contract.contractAddress;
         }
         else {
             // ethers Contract
-            const tx = await contract.multiSequentialAttestBySig.populateTransaction(payload.map((p) => p.payload), payloadHash, address, nonce, expiry, v, r, s);
+            const tx = await contract.multiSequentialAttestBySig.populateTransaction([payload.map((p) => p.payload)], payloadHash, address, nonce, expiry, v, r, s);
             populatedTxn = tx.data;
             contractAddress = await contract.getAddress();
         }

@@ -18,6 +18,7 @@
         "csv-upload": "npx ts-node ./csv-upload/scripts/run.ts",
         "test-file": "npx ts-node ./test-file-indexer-api.ts",
         "test-milestone": "npx ts-node ./milestone-workflow-example.ts",
+        "test-viem": "npx ts-node ./viem-test-example.ts",
         "publish-npm": "npm version patch && tsc && cd .dist && npm publish --scope=@show-karma/karma-gap-sdk --access public"
     },
     "dependencies": {
