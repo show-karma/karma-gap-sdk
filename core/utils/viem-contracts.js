@@ -21,7 +21,7 @@ async function createUniversalContract(address, abi, provider) {
     // Handle ethers providers/signers
     if ((0, provider_adapter_1.isEthersProvider)(provider) || (0, provider_adapter_1.isEthersSigner)(provider)) {
         const viemClient = await (0, provider_adapter_1.adaptEthersToViem)(provider);
-        if ("mode" in viemClient && viemClient.mode === "walletClient") {
+        if ("mode" in viemClient && viemClient.mode !== "publicClient") {
             walletClient = viemClient;
             publicClient = viemClient; // Wallet clients can also read
         }
@@ -31,7 +31,7 @@ async function createUniversalContract(address, abi, provider) {
     }
     else {
         // Already viem clients
-        if (provider.mode === "walletClient") {
+        if (provider.mode !== "publicClient") {
             walletClient = provider;
             publicClient = provider; // Wallet clients can also read
         }
