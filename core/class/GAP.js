@@ -167,13 +167,8 @@ class GAP extends types_1.Facade {
         }
     }
     assertZeroDevOpts(args) {
-        if (args.zeroDevOpts &&
-            args.gelatoOpts?.useGasless &&
-            args.zeroDevOpts.enabled) {
+        if (args.gelatoOpts?.useGasless && args.zeroDevOpts?.enabled) {
             throw new Error("Cannot use both Gelato and ZeroDev for gasless transactions. Choose one.");
-        }
-        if (args.zeroDevOpts?.enabled) {
-            console.warn("GAP::You are using ZeroDev but paymaster is not enabled. This may result in users paying gas.");
         }
     }
     /**
