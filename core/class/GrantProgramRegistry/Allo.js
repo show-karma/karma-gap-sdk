@@ -10,7 +10,7 @@ const consts_1 = require("../../consts");
 const viem_1 = require("viem");
 const viem_contracts_1 = require("../../utils/viem-contracts");
 const utils_1 = require("../../utils");
-const allo_v2_sdk_1 = require("@allo-team/allo-v2-sdk/");
+const allo_v2_sdk_1 = require("@allo-team/allo-v2-sdk");
 const axios_1 = __importDefault(require("axios"));
 // ABI fragment for the Initialized event
 const INITIALIZED_EVENT = [

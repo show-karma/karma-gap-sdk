@@ -2,19 +2,10 @@ import type { WalletClient, PublicClient, Transport, Chain, Account, Hex as Viem
 import { AttestationRequestData, EAS, MultiAttestationRequest, SchemaItem } from "@ethereum-attestation-service/eas-sdk";
 import { Attestation } from "./class";
 import { Fetcher } from "./class/Fetcher";
+import { KernelAccountClient } from "@zerodev/sdk";
 export type Hex = ViemHex;
 export type BytesLike = Hex | Uint8Array;
-export interface KernelClient extends WalletClient<Transport, Chain, Account> {
-    kernelVersion?: string;
-    paymaster?: {
-        sponsor?: boolean;
-        gasPolicy?: any;
-        enabled?: boolean;
-    };
-    sponsorUserOperation?: (args: any) => Promise<any>;
-    sendUserOperation?: (args: any) => Promise<Hex>;
-}
-export type SignerOrProvider = WalletClient<Transport, Chain, Account> | PublicClient<Transport, Chain> | KernelClient;
+export type SignerOrProvider = WalletClient<Transport, Chain, Account> | PublicClient<Transport, Chain> | KernelAccountClient;
 export interface ZeroDevPaymasterConfig {
     /** Enable paymaster for gas sponsorship */
     enabled: boolean;

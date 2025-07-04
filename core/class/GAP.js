@@ -343,7 +343,6 @@ class GAP extends types_1.Facade {
         if (!network)
             throw new Error(`Network ${currentChainId} not supported.`);
         const address = network.contracts.communityResolver;
-        // Return UniversalContract which works with both ethers and viem
         return (0, utils_2.createUniversalContract)(address, CommunityResolverABI_json_1.default, provider);
     }
     get schemas() {

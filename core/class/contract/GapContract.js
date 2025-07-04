@@ -643,7 +643,6 @@ class GapContract {
         const contract = await GAP_1.GAP.getProjectResolver(signer, projectChainId);
         const address = publicAddress || (await this.getSignerAddress(signer));
         if (contract.read) {
-            // UniversalContract
             const isOwner = await contract.read("isOwner", [
                 projectUID,
                 address,
