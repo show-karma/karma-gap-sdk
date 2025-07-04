@@ -14,5 +14,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-__exportStar(require("./core"), exports);
-__exportStar(require("./utils"), exports);
+exports.getKernelClient = void 0;
+var getKernelClient_1 = require("./getKernelClient");
+Object.defineProperty(exports, "getKernelClient", { enumerable: true, get: function () { return getKernelClient_1.getKernelClient; } });
+__exportStar(require("./kernel"), exports);
