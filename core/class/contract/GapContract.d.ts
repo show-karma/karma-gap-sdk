@@ -34,6 +34,13 @@ export declare class GapContract {
      * @returns
      */
     static attest(signer: SignerOrProvider, payload: RawAttestationPayload, callback?: ((status: CallbackStatus) => void) & ((status: string) => void)): Promise<AttestationWithTx>;
+    /**
+     * Send a single attestation using ZeroDev paymaster
+     * @param signer
+     * @param payload
+     * @returns
+     */
+    private static attestWithPaymaster;
     static attestBySig(signer: SignerOrProvider, payload: RawAttestationPayload): Promise<{
         tx: Transaction[];
         uids: `0x${string}`[];
@@ -44,6 +51,13 @@ export declare class GapContract {
      * @returns an array with the attestation UIDs.
      */
     static multiAttest(signer: SignerOrProvider, payload: RawMultiAttestPayload[], callback?: Function): Promise<AttestationWithTx>;
+    /**
+     * Performs a referenced multi attestation using ZeroDev paymaster.
+     * Uses smart account capabilities for gasless transactions.
+     *
+     * @returns an array with the attestation UIDs.
+     */
+    private static multiAttestWithPaymaster;
     /**
      * Performs a referenced multi attestation by signature.
      *

@@ -4,7 +4,25 @@ import { Attestation } from "./class";
 import { Fetcher } from "./class/Fetcher";
 export type Hex = ViemHex;
 export type BytesLike = Hex | Uint8Array;
-export type SignerOrProvider = WalletClient<Transport, Chain, Account> | PublicClient<Transport, Chain>;
+export interface KernelClient extends WalletClient<Transport, Chain, Account> {
+    kernelVersion?: string;
+    paymaster?: {
+        sponsor?: boolean;
+        gasPolicy?: any;
+        enabled?: boolean;
+    };
+    sponsorUserOperation?: (args: any) => Promise<any>;
+    sendUserOperation?: (args: any) => Promise<Hex>;
+}
+export type SignerOrProvider = WalletClient<Transport, Chain, Account> | PublicClient<Transport, Chain> | KernelClient;
+export interface ZeroDevPaymasterConfig {
+    /** Enable paymaster for gas sponsorship */
+    enabled: boolean;
+}
+export interface ZeroDevConfig {
+    /** Use ZeroDev for gasless transactions instead of Gelato */
+    enabled: boolean;
+}
 export interface SchemaInterface<T extends string = string> {
     name: string;
     schema: SchemaItem[];

@@ -277,7 +277,7 @@ class Schema {
                     recipient: to,
                     expirationTime: 0n,
                     revocable: true,
-                    data: this.schema,
+                    data: this.encode(this.schema), // Use encoded data for raw payload as well
                     refUID,
                     value: 0n,
                 },

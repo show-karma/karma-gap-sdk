@@ -140,7 +140,9 @@ class GAP extends types_1.Facade {
                 });
         this.fetch.gapInstance = this;
         this.assertGelatoOpts(args);
+        this.assertZeroDevOpts(args);
         GAP._gelatoOpts = args.gelatoOpts;
+        GAP._zeroDevOpts = args.zeroDevOpts;
         GAP.remoteStorage = args.remoteStorage;
         this._schemas = schemas.map((schema) => new GapSchema_1.GapSchema(schema, this, false, args.globalSchemas ? !args.globalSchemas : false));
         Schema_1.Schema.validate(this.network);
@@ -162,6 +164,16 @@ class GAP extends types_1.Facade {
             args.gelatoOpts?.sponsorUrl) &&
             !args.gelatoOpts?.useGasless) {
             console.warn("GAP::You are using gelatoOpts but not setting useGasless to true. This will send transactions through the normal provider.");
+        }
+    }
+    assertZeroDevOpts(args) {
+        if (args.zeroDevOpts &&
+            args.gelatoOpts?.useGasless &&
+            args.zeroDevOpts.enabled) {
+            throw new Error("Cannot use both Gelato and ZeroDev for gasless transactions. Choose one.");
+        }
+        if (args.zeroDevOpts?.enabled) {
+            console.warn("GAP::You are using ZeroDev but paymaster is not enabled. This may result in users paying gas.");
         }
     }
     /**
@@ -214,13 +226,54 @@ class GAP extends types_1.Facade {
     static async getMulticall(signer) {
         // Get chain ID based on provider type
         let chainId;
-        chainId = signer.chain?.id || 1;
+        // Try multiple ways to extract chain ID for different client types
+        if (signer.chain?.id) {
+            chainId = signer.chain.id;
+        }
+        else if (signer.getChainId) {
+            chainId = await signer.getChainId();
+        }
+        else if (signer._network?.chainId) {
+            chainId = signer._network.chainId;
+        }
+        else if (signer.network?.chainId) {
+            chainId = signer.network.chainId;
+        }
+        else {
+            console.warn("Unable to detect chain ID from signer, defaulting to 1 (mainnet)");
+            chainId = 1;
+        }
+        console.log("🔧 GAP.getMulticall debug:", {
+            chainId,
+            signerType: typeof signer,
+            hasChain: !!signer.chain,
+            hasGetChainId: !!signer.getChainId,
+        });
         const network = Object.values(consts_1.Networks).find((n) => +n.chainId === chainId);
-        if (!network)
+        if (!network) {
+            console.error("Available networks:", Object.entries(consts_1.Networks).map(([key, n]) => ({
+                network: key,
+                chainId: n.chainId,
+            })));
             throw new Error(`Network ${chainId} not supported.`);
+        }
         const address = network.contracts.multicall;
+        console.log("🔧 Network found:", {
+            chainId: network.chainId,
+            contracts: Object.keys(network.contracts),
+            multicallAddress: address,
+        });
+        if (!address) {
+            throw new Error(`Multicall contract address not found for chainId ${chainId}`);
+        }
+        console.log("🔧 Creating contract with address:", address, "for chainId:", chainId);
         // Return UniversalContract which works with both ethers and viem
-        return (0, utils_2.createUniversalContract)(address, MultiAttester_json_1.default, signer);
+        const contract = (0, utils_2.createUniversalContract)(address, MultiAttester_json_1.default, signer);
+        console.log("🔧 Contract created:", {
+            address: contract.address,
+            contractAddress: contract.contractAddress,
+        });
+        return contract;
     }
     /**
      * Get the project resolver contract
@@ -333,6 +386,35 @@ class GAP extends types_1.Facade {
         }
         this._gelatoOpts.useGasless = useGasLess;
     }
+    /**
+     * ZeroDev configuration for smart account and paymaster support.
+     */
+    static set zeroDevOpts(zeroDevOpts) {
+        if (typeof this._zeroDevOpts === "undefined" ||
+            this._zeroDevOpts === null) {
+            this._zeroDevOpts = zeroDevOpts;
+        }
+        else {
+            throw new Error("Cannot change a readonly value zeroDevOpts.");
+        }
+    }
+    /**
+     * ZeroDev configuration for smart account and paymaster support.
+     */
+    static get zeroDevOpts() {
+        return this._zeroDevOpts;
+    }
+    /**
+     * Set whether to use ZeroDev for gasless transactions
+     */
+    static set enabled(enabled) {
+        if (enabled) {
+            console.warn("GAP::You are enabling ZeroDev but paymaster is not configured. Users may still pay gas.");
+        }
+        if (this._zeroDevOpts) {
+            this._zeroDevOpts.enabled = enabled;
+        }
+    }
     static get remoteClient() {
         return this.remoteStorage;
     }
@@ -340,3 +422,4 @@ class GAP extends types_1.Facade {
 exports.GAP = GAP;
 GAP.instances = new Map();
 GAP._gelatoOpts = null;
+GAP._zeroDevOpts = null;

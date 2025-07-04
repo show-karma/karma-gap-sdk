@@ -13,6 +13,9 @@ exports.normalizeAddress = normalizeAddress;
 exports.normalizeHex = normalizeHex;
 exports.getViemClient = getViemClient;
 exports.isWalletClient = isWalletClient;
+exports.isKernelClient = isKernelClient;
+exports.isSmartAccountClient = isSmartAccountClient;
+exports.supportsPaymaster = supportsPaymaster;
 exports.isPublicClient = isPublicClient;
 exports.bigIntToHex = bigIntToHex;
 exports.hexToBigInt = hexToBigInt;
@@ -107,6 +110,36 @@ async function getViemClient(provider) {
  */
 function isWalletClient(provider) {
     return provider?.mode === "walletClient" || (0, provider_adapter_1.isEthersSigner)(provider);
+}
+/**
+ * Check if provider is a KernelClient from ZeroDev
+ * @param provider - Provider to check
+ * @returns True if KernelClient
+ */
+function isKernelClient(provider) {
+    return !!(provider &&
+        typeof provider === "object" &&
+        (provider.kernelVersion ||
+            provider.account?.type === "kernel" ||
+            provider.paymaster ||
+            (provider.account && provider.sendTransaction && provider.writeContract)));
+}
+/**
+ * Check if provider supports smart account features (KernelClient)
+ * @param provider - Provider to check
+ * @returns True if smart account client
+ */
+function isSmartAccountClient(provider) {
+    return isKernelClient(provider);
+}
+/**
+ * Check if provider supports paymaster (gas sponsorship)
+ * @param provider - Provider to check
+ * @returns True if supports paymaster
+ */
+function supportsPaymaster(provider) {
+    return !!(isKernelClient(provider) &&
+        (provider.paymaster || provider.account?.paymaster));
 }
 /**
  * Check if provider is a public client

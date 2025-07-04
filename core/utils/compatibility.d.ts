@@ -57,6 +57,24 @@ export declare function getViemClient(provider: any): Promise<PublicClient<Trans
  */
 export declare function isWalletClient(provider: any): provider is WalletClient<Transport, Chain, Account>;
 /**
+ * Check if provider is a KernelClient from ZeroDev
+ * @param provider - Provider to check
+ * @returns True if KernelClient
+ */
+export declare function isKernelClient(provider: any): boolean;
+/**
+ * Check if provider supports smart account features (KernelClient)
+ * @param provider - Provider to check
+ * @returns True if smart account client
+ */
+export declare function isSmartAccountClient(provider: any): boolean;
+/**
+ * Check if provider supports paymaster (gas sponsorship)
+ * @param provider - Provider to check
+ * @returns True if supports paymaster
+ */
+export declare function supportsPaymaster(provider: any): boolean;
+/**
  * Check if provider is a public client
  * @param provider - Provider to check
  * @returns True if public client
