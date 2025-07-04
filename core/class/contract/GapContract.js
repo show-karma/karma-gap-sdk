@@ -137,7 +137,7 @@ class GapContract {
         const address = await this.getSignerAddress(signer);
         console.log({ address });
         let nonce;
-        // GetContractReturnType
+        // UniversalContract
         nonce = (await contract.read("nonces", [address]));
         return {
             nonce: Number(nonce),
@@ -165,7 +165,7 @@ class GapContract {
         let tx;
         let result;
         if (contract.write) {
-            // GetContractReturnType
+            // UniversalContract
             const txHash = await contract.write("attest", [
                 {
                     schema: payload.schema,
@@ -262,7 +262,7 @@ class GapContract {
         let populatedTxn;
         let contractAddress;
         if (contract.encodeFunctionData) {
-            // GetContractReturnType
+            // UniversalContract
             populatedTxn = contract.encodeFunctionData("attestBySig", [
                 {
                     data: payload.data.payload,
@@ -317,7 +317,7 @@ class GapContract {
         let tx;
         let result;
         if (contract.write) {
-            // GetContractReturnType
+            // UniversalContract
             const mappedPayload = payload.map((p) => ({
                 uid: p.payload.uid,
                 refIdx: Number(p.payload.refIdx), // Ensure refIdx is a number, not BigInt
@@ -433,34 +433,6 @@ class GapContract {
             };
         });
         try {
-            // Debug logging to see exactly what we're sending
-            console.log("🔧 ZeroDev payload debug:");
-            console.log("- Contract address:", contract.address);
-            console.log("- Payload count:", mappedPayload.length);
-            console.log("- First payload UID:", mappedPayload[0]?.uid);
-            console.log("- First payload refIdx:", mappedPayload[0]?.refIdx);
-            // Deep inspection of the first data item to find undefined values
-            if (mappedPayload[0]?.multiRequest?.data?.[0]) {
-                const firstDataItem = mappedPayload[0].multiRequest.data[0];
-                console.log("🔍 First data item field-by-field:");
-                console.log("  - recipient:", typeof firstDataItem.recipient, firstDataItem.recipient);
-                console.log("  - expirationTime:", typeof firstDataItem.expirationTime, firstDataItem.expirationTime);
-                console.log("  - revocable:", typeof firstDataItem.revocable, firstDataItem.revocable);
-                console.log("  - refUID:", typeof firstDataItem.refUID, firstDataItem.refUID);
-                console.log("  - data:", typeof firstDataItem.data, firstDataItem.data);
-                console.log("  - value:", typeof firstDataItem.value, firstDataItem.value);
-                // Check for any undefined values
-                Object.entries(firstDataItem).forEach(([key, value]) => {
-                    if (value === undefined) {
-                        console.log(`🚨 UNDEFINED VALUE FOUND: ${key} = undefined`);
-                    }
-                    if (typeof value === "object" &&
-                        value !== null &&
-                        typeof value !== "bigint") {
-                        console.log(`🚨 UNEXPECTED OBJECT: ${key} =`, value);
-                    }
-                });
-            }
             // Use ZeroDev's writeContract with paymaster for gasless transactions
             const txHash = await kernelClient.writeContract({
                 account: kernelClient.account,
@@ -505,7 +477,7 @@ class GapContract {
         let populatedTxn;
         let contractAddress;
         if (contract.encodeFunctionData) {
-            // GetContractReturnType
+            // UniversalContract
             const mappedPayload = payload.map((p) => ({
                 uid: p.payload.uid,
                 refIdx: Number(p.payload.refIdx), // Ensure refIdx is a number, not BigInt
@@ -535,7 +507,7 @@ class GapContract {
             return this.multiRevokeBySig(signer, payload);
         }
         if (contract.write) {
-            // GetContractReturnType
+            // UniversalContract
             const txHash = await contract.write("multiRevoke", [payload]);
             return {
                 tx: [(0, unified_types_1.createTransaction)(txHash)],
@@ -566,7 +538,7 @@ class GapContract {
         let populatedTxn;
         let contractAddress;
         if (contract.encodeFunctionData) {
-            // GetContractReturnType
+            // UniversalContract
             populatedTxn = contract.encodeFunctionData("multiRevokeBySig", [
                 payload,
                 payloadHash,
@@ -603,7 +575,7 @@ class GapContract {
     static async transferProjectOwnership(signer, projectUID, newOwner) {
         const contract = await GAP_1.GAP.getProjectResolver(signer);
         if (contract.write) {
-            // GetContractReturnType
+            // UniversalContract
             const txHash = await contract.write("transferProjectOwnership", [
                 projectUID,
                 newOwner,
@@ -636,10 +608,7 @@ class GapContract {
     static async isProjectOwner(signer, projectUID, projectChainId, publicAddress) {
         const contract = await GAP_1.GAP.getProjectResolver(signer, projectChainId);
         const address = publicAddress || (await this.getSignerAddress(signer));
-        const isOwner = await contract.read("isOwner", [
-            projectUID,
-            address,
-        ]);
+        const isOwner = await contract.read("isOwner", [projectUID, address]);
         return isOwner;
     }
     /**
@@ -652,9 +621,8 @@ class GapContract {
      */
     static async isProjectAdmin(signer, projectUID, projectChainId, publicAddress) {
         const contract = await GAP_1.GAP.getProjectResolver(signer, projectChainId);
-        console.log({ contract });
         const address = publicAddress || (await this.getSignerAddress(signer));
-        // GetContractReturnType
+        // UniversalContract
         const isAdmin = await contract.read("isAdmin", [
             projectUID,
             address,
@@ -690,7 +658,7 @@ class GapContract {
     static async addProjectAdmin(signer, projectUID, newAdmin) {
         const contract = await GAP_1.GAP.getProjectResolver(signer);
         if (contract.write) {
-            // GetContractReturnType
+            // UniversalContract
             const txHash = await contract.write("addAdmin", [
                 projectUID,
                 newAdmin,
@@ -722,7 +690,7 @@ class GapContract {
     static async removeProjectAdmin(signer, projectUID, oldAdmin) {
         const contract = await GAP_1.GAP.getProjectResolver(signer);
         if (contract.write) {
-            // GetContractReturnType
+            // UniversalContract
             const txHash = await contract.write("removeAdmin", [
                 projectUID,
                 oldAdmin,

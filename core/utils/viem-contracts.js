@@ -36,12 +36,6 @@ async function createContract(address, abi, provider) {
                 const cleanArgs = Array.isArray(args)
                     ? args.filter((arg) => arg !== undefined)
                     : [];
-                console.log("🔧 Contract read debug:", {
-                    functionName,
-                    originalArgs: args,
-                    cleanArgs,
-                    contractAddress,
-                });
                 // Use viem's readContract action directly
                 const result = await publicClient.readContract({
                     address: contractAddress,
@@ -49,11 +43,10 @@ async function createContract(address, abi, provider) {
                     functionName,
                     args: cleanArgs,
                 });
-                console.log("🔧 Contract read result:", result);
                 return result;
             }
             catch (error) {
-                console.error("🚨 Contract read error:", {
+                console.error("Contract read error:", {
                     functionName,
                     args,
                     error: error.message,

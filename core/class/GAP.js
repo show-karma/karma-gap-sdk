@@ -238,12 +238,6 @@ class GAP extends types_1.Facade {
             console.warn("Unable to detect chain ID from signer, defaulting to 1 (mainnet)");
             chainId = 1;
         }
-        console.log("🔧 GAP.getMulticall debug:", {
-            chainId,
-            signerType: typeof signer,
-            hasChain: !!signer.chain,
-            hasGetChainId: !!signer.getChainId,
-        });
         const network = Object.values(consts_1.Networks).find((n) => +n.chainId === chainId);
         if (!network) {
             console.error("Available networks:", Object.entries(consts_1.Networks).map(([key, n]) => ({
@@ -253,20 +247,10 @@ class GAP extends types_1.Facade {
             throw new Error(`Network ${chainId} not supported.`);
         }
         const address = network.contracts.multicall;
-        console.log("🔧 Network found:", {
-            chainId: network.chainId,
-            contracts: Object.keys(network.contracts),
-            multicallAddress: address,
-        });
         if (!address) {
             throw new Error(`Multicall contract address not found for chainId ${chainId}`);
         }
-        console.log("🔧 Creating contract with address:", address, "for chainId:", chainId);
         const contract = (0, utils_2.createContract)(address, MultiAttester_json_1.default, signer);
-        console.log("🔧 Contract created:", {
-            address: contract.address,
-            contractAddress: contract.contractAddress,
-        });
         return contract;
     }
     /**
@@ -280,21 +264,13 @@ class GAP extends types_1.Facade {
         if (chainId) {
             currentChainId = chainId;
         }
-        else if ((0, utils_2.isEthersProvider)(signer) || signer.getNetwork) {
-            const network = await signer.getNetwork();
-            currentChainId = Number(network.chainId);
-        }
         else {
-            // Viem client
             currentChainId = signer.chain?.id || 1;
         }
         // If chainId is provided and signer is ethers, use ethers provider
         // Otherwise use the provided signer
         let provider;
-        if (chainId && (0, utils_2.isEthersProvider)(signer)) {
-            provider = (0, get_web3_provider_1.getWeb3Provider)(chainId);
-        }
-        else if (chainId && !(0, utils_2.isEthersProvider)(signer)) {
+        if (chainId && !(0, utils_2.isEthersProvider)(signer)) {
             provider = (0, utils_2.getPublicClient)(chainId);
         }
         else {
