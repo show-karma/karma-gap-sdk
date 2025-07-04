@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AlloV2 = void 0;
+exports.AlloBase = void 0;
 const migration_helpers_1 = require("../../utils/migration-helpers");
 const Allo_json_1 = __importDefault(require("../../abi/Allo.json"));
 const consts_1 = require("../../consts");
@@ -29,7 +29,7 @@ const INITIALIZED_EVENT = [
         type: "event",
     },
 ];
-class AlloV2 {
+class AlloBase {
     constructor(signer, pinataJWTToken, chainId) {
         this.signer = signer;
         this.contract = (0, viem_contracts_1.createUniversalContract)(consts_1.AlloContracts[chainId], Allo_json_1.default, signer);
@@ -207,4 +207,4 @@ class AlloV2 {
         }
     }
 }
-exports.AlloV2 = AlloV2;
+exports.AlloBase = AlloBase;

@@ -1,7 +1,7 @@
 import { type Hex } from "viem";
 import { CreatePoolArgs } from "@allo-team/allo-v2-sdk/dist/Allo/types";
 import { SignerOrProvider } from "../../types";
-export declare class AlloV2 {
+export declare class AlloBase {
     private allo;
     private pinataJWTToken;
     private signer;
