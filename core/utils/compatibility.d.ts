@@ -3,17 +3,8 @@
  * Provides helpers for working with viem types
  */
 import type { Hex, Hash, Address, PublicClient, WalletClient, Transport, Chain, Account } from "viem";
-import { type UniversalContract } from "./viem-contracts";
 import { parseUnits, formatUnits, isAddress, getAddress } from "./migration-helpers";
 export { parseUnits, formatUnits, isAddress, getAddress };
-/**
- * Create a contract instance that works with any provider
- * @param address - Contract address
- * @param abi - Contract ABI
- * @param signerOrProvider - Ethers or viem provider/signer
- * @returns Universal contract instance
- */
-export declare function createContract(address: string, abi: any, signerOrProvider: any): Promise<UniversalContract>;
 /**
  * Check if a value is a valid address
  * @param value - Value to check

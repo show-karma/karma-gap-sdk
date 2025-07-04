@@ -11,7 +11,7 @@ const axios_1 = __importDefault(require("axios"));
 class AlloRegistry {
     constructor(signer, pinataJWTToken, chainId) {
         this.signer = signer;
-        this.contract = (0, viem_contracts_1.createUniversalContract)(consts_1.AlloContracts[chainId], AlloRegistry_json_1.default, signer);
+        this.contract = (0, viem_contracts_1.createContract)(consts_1.AlloContracts[chainId], AlloRegistry_json_1.default, signer);
         this.pinataJWTToken = pinataJWTToken;
     }
     async getContract() {

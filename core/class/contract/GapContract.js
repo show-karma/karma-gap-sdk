@@ -137,14 +137,8 @@ class GapContract {
         const address = await this.getSignerAddress(signer);
         console.log({ address });
         let nonce;
-        if (contract.read) {
-            // UniversalContract
-            nonce = (await contract.read("nonces", [address]));
-        }
-        else {
-            // ethers Contract
-            nonce = await contract.nonces(address);
-        }
+        // GetContractReturnType
+        nonce = (await contract.read("nonces", [address]));
         return {
             nonce: Number(nonce),
             next: Number(nonce + 1n),
@@ -171,7 +165,7 @@ class GapContract {
         let tx;
         let result;
         if (contract.write) {
-            // UniversalContract
+            // GetContractReturnType
             const txHash = await contract.write("attest", [
                 {
                     schema: payload.schema,
@@ -268,7 +262,7 @@ class GapContract {
         let populatedTxn;
         let contractAddress;
         if (contract.encodeFunctionData) {
-            // UniversalContract
+            // GetContractReturnType
             populatedTxn = contract.encodeFunctionData("attestBySig", [
                 {
                     data: payload.data.payload,
@@ -323,7 +317,7 @@ class GapContract {
         let tx;
         let result;
         if (contract.write) {
-            // UniversalContract
+            // GetContractReturnType
             const mappedPayload = payload.map((p) => ({
                 uid: p.payload.uid,
                 refIdx: Number(p.payload.refIdx), // Ensure refIdx is a number, not BigInt
@@ -511,7 +505,7 @@ class GapContract {
         let populatedTxn;
         let contractAddress;
         if (contract.encodeFunctionData) {
-            // UniversalContract
+            // GetContractReturnType
             const mappedPayload = payload.map((p) => ({
                 uid: p.payload.uid,
                 refIdx: Number(p.payload.refIdx), // Ensure refIdx is a number, not BigInt
@@ -541,7 +535,7 @@ class GapContract {
             return this.multiRevokeBySig(signer, payload);
         }
         if (contract.write) {
-            // UniversalContract
+            // GetContractReturnType
             const txHash = await contract.write("multiRevoke", [payload]);
             return {
                 tx: [(0, unified_types_1.createTransaction)(txHash)],
@@ -572,7 +566,7 @@ class GapContract {
         let populatedTxn;
         let contractAddress;
         if (contract.encodeFunctionData) {
-            // UniversalContract
+            // GetContractReturnType
             populatedTxn = contract.encodeFunctionData("multiRevokeBySig", [
                 payload,
                 payloadHash,
@@ -609,7 +603,7 @@ class GapContract {
     static async transferProjectOwnership(signer, projectUID, newOwner) {
         const contract = await GAP_1.GAP.getProjectResolver(signer);
         if (contract.write) {
-            // UniversalContract
+            // GetContractReturnType
             const txHash = await contract.write("transferProjectOwnership", [
                 projectUID,
                 newOwner,
@@ -642,18 +636,11 @@ class GapContract {
     static async isProjectOwner(signer, projectUID, projectChainId, publicAddress) {
         const contract = await GAP_1.GAP.getProjectResolver(signer, projectChainId);
         const address = publicAddress || (await this.getSignerAddress(signer));
-        if (contract.read) {
-            const isOwner = await contract.read("isOwner", [
-                projectUID,
-                address,
-            ]);
-            return isOwner;
-        }
-        else {
-            // ethers Contract
-            const isOwner = await contract.isOwner(projectUID, address);
-            return isOwner;
-        }
+        const isOwner = await contract.read("isOwner", [
+            projectUID,
+            address,
+        ]);
+        return isOwner;
     }
     /**
      * Check if the signer is admin of the project
@@ -665,20 +652,14 @@ class GapContract {
      */
     static async isProjectAdmin(signer, projectUID, projectChainId, publicAddress) {
         const contract = await GAP_1.GAP.getProjectResolver(signer, projectChainId);
+        console.log({ contract });
         const address = publicAddress || (await this.getSignerAddress(signer));
-        if (contract.read) {
-            // UniversalContract
-            const isAdmin = await contract.read("isAdmin", [
-                projectUID,
-                address,
-            ]);
-            return isAdmin;
-        }
-        else {
-            // ethers Contract
-            const isAdmin = await contract.isAdmin(projectUID, address);
-            return isAdmin;
-        }
+        // GetContractReturnType
+        const isAdmin = await contract.read("isAdmin", [
+            projectUID,
+            address,
+        ]);
+        return isAdmin;
     }
     static async getTransactionLogs(signer, txnHash) {
         let receipt;
@@ -709,7 +690,7 @@ class GapContract {
     static async addProjectAdmin(signer, projectUID, newAdmin) {
         const contract = await GAP_1.GAP.getProjectResolver(signer);
         if (contract.write) {
-            // UniversalContract
+            // GetContractReturnType
             const txHash = await contract.write("addAdmin", [
                 projectUID,
                 newAdmin,
@@ -741,7 +722,7 @@ class GapContract {
     static async removeProjectAdmin(signer, projectUID, oldAdmin) {
         const contract = await GAP_1.GAP.getProjectResolver(signer);
         if (contract.write) {
-            // UniversalContract
+            // GetContractReturnType
             const txHash = await contract.write("removeAdmin", [
                 projectUID,
                 oldAdmin,

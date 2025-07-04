@@ -262,8 +262,7 @@ class GAP extends types_1.Facade {
             throw new Error(`Multicall contract address not found for chainId ${chainId}`);
         }
         console.log("🔧 Creating contract with address:", address, "for chainId:", chainId);
-        // Return UniversalContract which works with both ethers and viem
-        const contract = (0, utils_2.createUniversalContract)(address, MultiAttester_json_1.default, signer);
+        const contract = (0, utils_2.createContract)(address, MultiAttester_json_1.default, signer);
         console.log("🔧 Contract created:", {
             address: contract.address,
             contractAddress: contract.contractAddress,
@@ -305,8 +304,7 @@ class GAP extends types_1.Facade {
         if (!network)
             throw new Error(`Network ${currentChainId} not supported.`);
         const address = network.contracts.projectResolver;
-        // Return UniversalContract which works with both ethers and viem
-        return (0, utils_2.createUniversalContract)(address, ProjectResolver_json_1.default, provider);
+        return (0, utils_2.createContract)(address, ProjectResolver_json_1.default, provider);
     }
     /**
      * Get the community resolver contract
@@ -343,7 +341,7 @@ class GAP extends types_1.Facade {
         if (!network)
             throw new Error(`Network ${currentChainId} not supported.`);
         const address = network.contracts.communityResolver;
-        return (0, utils_2.createUniversalContract)(address, CommunityResolverABI_json_1.default, provider);
+        return (0, utils_2.createContract)(address, CommunityResolverABI_json_1.default, provider);
     }
     get schemas() {
         return this._schemas;

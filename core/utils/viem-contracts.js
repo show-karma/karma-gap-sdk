@@ -4,7 +4,7 @@
  * Provides a unified way to interact with contracts using viem
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createUniversalContract = createUniversalContract;
+exports.createContract = createContract;
 exports.supportsWrites = supportsWrites;
 const viem_1 = require("viem");
 const provider_adapter_1 = require("./provider-adapter");
@@ -15,59 +15,78 @@ const provider_adapter_1 = require("./provider-adapter");
  * @param provider - Viem client or ethers provider/signer
  * @returns Universal contract instance
  */
-async function createUniversalContract(address, abi, provider) {
+async function createContract(address, abi, provider) {
     let publicClient;
     let walletClient;
-    // Handle ethers providers/signers
-    if ((0, provider_adapter_1.isEthersProvider)(provider) || (0, provider_adapter_1.isEthersSigner)(provider)) {
-        const viemClient = await (0, provider_adapter_1.adaptEthersToViem)(provider);
-        if ("mode" in viemClient && viemClient.mode !== "publicClient") {
-            walletClient = viemClient;
-            publicClient = viemClient; // Wallet clients can also read
-        }
-        else {
-            publicClient = viemClient;
-        }
+    if (provider.mode !== "publicClient") {
+        walletClient = provider;
+        publicClient = provider; // Wallet clients can also read
     }
     else {
-        // Already viem clients
-        if (provider.mode !== "publicClient") {
-            walletClient = provider;
-            publicClient = provider; // Wallet clients can also read
-        }
-        else {
-            publicClient = provider;
-        }
+        publicClient = provider;
     }
     const contractAddress = address;
-    // Create viem contract instances
-    const readContract = (0, viem_1.getContract)({
-        address: contractAddress,
-        abi,
-        client: publicClient,
-    });
-    const writeContract = walletClient
-        ? (0, viem_1.getContract)({
-            address: contractAddress,
-            abi,
-            client: walletClient,
-        })
-        : null;
     // Create the contract interface
     const contract = {
         address: contractAddress,
         abi,
         async read(functionName, args = []) {
-            return readContract.read[functionName](...args);
+            try {
+                // Ensure args is an array and filter out undefined values
+                const cleanArgs = Array.isArray(args)
+                    ? args.filter((arg) => arg !== undefined)
+                    : [];
+                console.log("🔧 Contract read debug:", {
+                    functionName,
+                    originalArgs: args,
+                    cleanArgs,
+                    contractAddress,
+                });
+                // Use viem's readContract action directly
+                const result = await publicClient.readContract({
+                    address: contractAddress,
+                    abi,
+                    functionName,
+                    args: cleanArgs,
+                });
+                console.log("🔧 Contract read result:", result);
+                return result;
+            }
+            catch (error) {
+                console.error("🚨 Contract read error:", {
+                    functionName,
+                    args,
+                    error: error.message,
+                    contractAddress,
+                });
+                throw error;
+            }
         },
         async write(functionName, args = [], options = {}) {
-            if (!writeContract) {
+            if (!walletClient) {
                 throw new Error("Wallet client required for write operations");
             }
-            return writeContract.write[functionName](...args, options);
+            const cleanArgs = Array.isArray(args)
+                ? args.filter((arg) => arg !== undefined)
+                : [];
+            return await walletClient.writeContract({
+                address: contractAddress,
+                abi,
+                functionName,
+                args: cleanArgs,
+                ...options,
+            });
         },
         async estimateGas(functionName, args = []) {
-            return readContract.estimateGas[functionName](...args);
+            const cleanArgs = Array.isArray(args)
+                ? args.filter((arg) => arg !== undefined)
+                : [];
+            return await publicClient.estimateContractGas({
+                address: contractAddress,
+                abi,
+                functionName,
+                args: cleanArgs,
+            });
         },
         encodeFunctionData(functionName, args = []) {
             return (0, viem_1.encodeFunctionData)({

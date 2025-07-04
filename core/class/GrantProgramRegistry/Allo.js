@@ -32,7 +32,7 @@ const INITIALIZED_EVENT = [
 class AlloBase {
     constructor(signer, pinataJWTToken, chainId) {
         this.signer = signer;
-        this.contract = (0, viem_contracts_1.createUniversalContract)(consts_1.AlloContracts[chainId], Allo_json_1.default, signer);
+        this.contract = (0, viem_contracts_1.createContract)(consts_1.AlloContracts[chainId], Allo_json_1.default, signer);
         this.allo = new allo_v2_sdk_1.Allo({ chain: chainId });
         this.pinataJWTToken = pinataJWTToken;
         this.chainId = chainId;

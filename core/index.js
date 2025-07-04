@@ -14,7 +14,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isHash = exports.isHex = exports.normalizeReceipt = exports.createTransaction = exports.safeParseInt = exports.hexToBigInt = exports.bigIntToHex = exports.isPublicClient = exports.isWalletClient = exports.getViemClient = exports.normalizeHex = exports.normalizeAddress = exports.isValidHash = exports.isValidHex = exports.isValidAddress = exports.createContract = exports.connectEAS = exports.createEASInstance = exports.supportsWrites = exports.createUniversalContract = exports.getAddress = exports.isAddress = exports.formatUnits = exports.parseUnits = exports.isEthersTransaction = exports.isEthersBigNumber = exports.formatBigInt = exports.ethersUnitsToViem = exports.ethersHexToViem = exports.ethersReceiptToViem = exports.ethersTransactionToViem = exports.ethersAddressToViem = exports.ethersBigNumberToBigInt = exports.adaptEthersToViem = exports.isEthersSigner = exports.isEthersProvider = exports.getChain = exports.getPublicClient = exports.getIPFSData = exports.toUnix = exports.serializeWithBigint = exports.mapFilter = exports.gqlQueries = exports.getDate = exports.handler = exports.Gelato = exports.sendGelatoTxn = void 0;
+exports.isHash = exports.isHex = exports.normalizeReceipt = exports.createTransaction = exports.safeParseInt = exports.hexToBigInt = exports.bigIntToHex = exports.isPublicClient = exports.isWalletClient = exports.getViemClient = exports.normalizeHex = exports.normalizeAddress = exports.isValidHash = exports.isValidHex = exports.isValidAddress = exports.connectEAS = exports.createEASInstance = exports.supportsWrites = exports.createContract = exports.getAddress = exports.isAddress = exports.formatUnits = exports.parseUnits = exports.isEthersTransaction = exports.isEthersBigNumber = exports.formatBigInt = exports.ethersUnitsToViem = exports.ethersHexToViem = exports.ethersReceiptToViem = exports.ethersTransactionToViem = exports.ethersAddressToViem = exports.ethersBigNumberToBigInt = exports.adaptEthersToViem = exports.isEthersSigner = exports.isEthersProvider = exports.getChain = exports.getPublicClient = exports.getIPFSData = exports.toUnix = exports.serializeWithBigint = exports.mapFilter = exports.gqlQueries = exports.getDate = exports.handler = exports.Gelato = exports.sendGelatoTxn = void 0;
 __exportStar(require("./consts"), exports);
 __exportStar(require("./types"), exports);
 // Export utils but exclude BytesLike which is already exported from types
@@ -54,11 +54,10 @@ Object.defineProperty(exports, "parseUnits", { enumerable: true, get: function (
 Object.defineProperty(exports, "formatUnits", { enumerable: true, get: function () { return utils_1.formatUnits; } });
 Object.defineProperty(exports, "isAddress", { enumerable: true, get: function () { return utils_1.isAddress; } });
 Object.defineProperty(exports, "getAddress", { enumerable: true, get: function () { return utils_1.getAddress; } });
-Object.defineProperty(exports, "createUniversalContract", { enumerable: true, get: function () { return utils_1.createUniversalContract; } });
+Object.defineProperty(exports, "createContract", { enumerable: true, get: function () { return utils_1.createContract; } });
 Object.defineProperty(exports, "supportsWrites", { enumerable: true, get: function () { return utils_1.supportsWrites; } });
 Object.defineProperty(exports, "createEASInstance", { enumerable: true, get: function () { return utils_1.createEASInstance; } });
 Object.defineProperty(exports, "connectEAS", { enumerable: true, get: function () { return utils_1.connectEAS; } });
-Object.defineProperty(exports, "createContract", { enumerable: true, get: function () { return utils_1.createContract; } });
 Object.defineProperty(exports, "isValidAddress", { enumerable: true, get: function () { return utils_1.isValidAddress; } });
 Object.defineProperty(exports, "isValidHex", { enumerable: true, get: function () { return utils_1.isValidHex; } });
 Object.defineProperty(exports, "isValidHash", { enumerable: true, get: function () { return utils_1.isValidHash; } });

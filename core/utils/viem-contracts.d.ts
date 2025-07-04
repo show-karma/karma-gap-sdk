@@ -38,7 +38,7 @@ export interface UniversalContract {
  * @param provider - Viem client or ethers provider/signer
  * @returns Universal contract instance
  */
-export declare function createUniversalContract(address: string, abi: Abi, provider: any): Promise<UniversalContract>;
+export declare function createContract(address: string, abi: Abi, provider: any): Promise<UniversalContract>;
 /**
  * Helper to check if a provider supports write operations
  */

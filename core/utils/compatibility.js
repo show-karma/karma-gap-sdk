@@ -5,7 +5,6 @@
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getAddress = exports.isAddress = exports.formatUnits = exports.parseUnits = void 0;
-exports.createContract = createContract;
 exports.isValidAddress = isValidAddress;
 exports.isValidHex = isValidHex;
 exports.isValidHash = isValidHash;
@@ -22,22 +21,11 @@ exports.hexToBigInt = hexToBigInt;
 exports.safeParseInt = safeParseInt;
 const viem_1 = require("viem");
 const provider_adapter_1 = require("./provider-adapter");
-const viem_contracts_1 = require("./viem-contracts");
 const migration_helpers_1 = require("./migration-helpers");
 Object.defineProperty(exports, "parseUnits", { enumerable: true, get: function () { return migration_helpers_1.parseUnits; } });
 Object.defineProperty(exports, "formatUnits", { enumerable: true, get: function () { return migration_helpers_1.formatUnits; } });
 Object.defineProperty(exports, "isAddress", { enumerable: true, get: function () { return migration_helpers_1.isAddress; } });
 Object.defineProperty(exports, "getAddress", { enumerable: true, get: function () { return migration_helpers_1.getAddress; } });
-/**
- * Create a contract instance that works with any provider
- * @param address - Contract address
- * @param abi - Contract ABI
- * @param signerOrProvider - Ethers or viem provider/signer
- * @returns Universal contract instance
- */
-async function createContract(address, abi, signerOrProvider) {
-    return (0, viem_contracts_1.createUniversalContract)(address, abi, signerOrProvider);
-}
 /**
  * Check if a value is a valid address
  * @param value - Value to check
