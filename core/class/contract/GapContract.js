@@ -481,7 +481,6 @@ class GapContract {
                 callback("pending");
             // Wait for transaction receipt using KernelClient's built-in method
             const provider = (await (0, kernel_1.kernelToEthersSigner)(kernelClient)).provider;
-            console.log("provider", provider);
             const result = await provider.waitForTransaction(txHash);
             if (callback)
                 callback("confirmed");
