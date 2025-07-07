@@ -1,8 +1,5 @@
 import { encodeAbiParameters, parseAbiParameters, type Hex } from "viem";
-import {
-  createUniversalContract,
-  type UniversalContract,
-} from "../../utils/viem-contracts";
+import { createContract, UniversalContract } from "../../utils/viem-contracts";
 import type { SignerOrProvider } from "../../types";
 import AlloRegistryABI from "../../abi/AlloRegistry.json";
 import { AlloContracts } from "../../consts";
@@ -20,7 +17,7 @@ export class AlloRegistry {
     chainId: number
   ) {
     this.signer = signer;
-    this.contract = createUniversalContract(
+    this.contract = createContract(
       AlloContracts[chainId],
       AlloRegistryABI as any,
       signer as any

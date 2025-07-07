@@ -5,16 +5,12 @@ import { Address } from "../types/allo";
 import {
   encodeAbiParameters,
   parseAbiParameters,
-  type WalletClient,
   decodeEventLog,
   type Hex,
 } from "viem";
-import {
-  createUniversalContract,
-  type UniversalContract,
-} from "../../utils/viem-contracts";
+import { createContract, UniversalContract } from "../../utils/viem-contracts";
 import { isEthersSigner, isWalletClient } from "../../utils";
-import { Allo } from "@allo-team/allo-v2-sdk/";
+import { Allo } from "@allo-team/allo-v2-sdk";
 import { CreatePoolArgs } from "@allo-team/allo-v2-sdk/dist/Allo/types";
 import { TransactionData } from "@allo-team/allo-v2-sdk/dist/Common/types";
 import { SignerOrProvider } from "../../types";
@@ -38,7 +34,7 @@ const INITIALIZED_EVENT = [
   },
 ];
 
-export class AlloV2 {
+export class AlloBase {
   private allo: Allo;
   private pinataJWTToken: string;
   private signer: SignerOrProvider;
@@ -51,7 +47,7 @@ export class AlloV2 {
     chainId: number
   ) {
     this.signer = signer;
-    this.contract = createUniversalContract(
+    this.contract = createContract(
       AlloContracts[chainId],
       AlloContractABI as any,
       signer as any

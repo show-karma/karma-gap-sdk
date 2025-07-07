@@ -16,20 +16,28 @@ import {
 } from "@ethereum-attestation-service/eas-sdk";
 import { Attestation, GAP } from "./class";
 import { Fetcher } from "./class/Fetcher";
+import { KernelAccountClient } from "@zerodev/sdk";
 
 // Re-export viem types for convenience
 export type Hex = ViemHex;
 export type BytesLike = Hex | Uint8Array;
 
-// Strong typing for SignerOrProvider - now viem only
 export type SignerOrProvider =
   | WalletClient<Transport, Chain, Account>
-  | PublicClient<Transport, Chain>;
-// EASSigner & {
-//   address?: Hex;
-//   _address?: Hex;
-//   getAddress?: () => Promise<Hex>;
-// };
+  | PublicClient<Transport, Chain>
+  | KernelAccountClient;
+
+// ZeroDev paymaster configuration
+export interface ZeroDevPaymasterConfig {
+  /** Enable paymaster for gas sponsorship */
+  enabled: boolean;
+}
+
+// Extended GAP configuration for ZeroDev
+export interface ZeroDevConfig {
+  /** Use ZeroDev for gasless transactions instead of Gelato */
+  enabled: boolean;
+}
 
 export interface SchemaInterface<T extends string = string> {
   name: string;

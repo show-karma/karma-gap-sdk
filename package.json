@@ -3,7 +3,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "0.4.15",
+  "version": "0.5.0",
   "description": "Simple and easy interface between EAS and Karma GAP.",
   "main": "./index.js",
   "author": "KarmaHQ",
@@ -18,19 +18,23 @@
     "csv-upload": "npx ts-node ./csv-upload/scripts/run.ts",
     "test-file": "npx ts-node ./test-file-indexer-api.ts",
     "test-milestone": "npx ts-node ./milestone-workflow-example.ts",
+    "test-viem": "npx ts-node ./viem-test-example.ts",
+    "test-zerodev": "npx ts-node ./zerodev-paymaster-example.ts",
     "publish-npm": "npm version patch && tsc && cd .dist && npm publish --scope=@show-karma/karma-gap-sdk --access public"
   },
   "dependencies": {
     "@allo-team/allo-v2-sdk": "^1.0.63",
+    "@dynamic-labs/ethereum": "^3.7.3",
+    "@dynamic-labs/sdk-react-core": "^3.7.3",
     "@ethereum-attestation-service/eas-sdk": "1.4.2",
     "@gelatonetwork/relay-sdk": "^5.2.0",
     "@types/sha256": "^0.2.0",
+    "@zerodev/ecdsa-validator": "^5.4.9",
+    "@zerodev/sdk": "^5.4.40",
     "axios": "^1.4.0",
     "sha256": "^0.2.0",
     "simple-ts-job-runner": "^1.0.12",
-    "viem": "^2.21.54",
-    "@dynamic-labs/sdk-react-core": "^3.7.3",
-    "@dynamic-labs/ethereum": "^3.7.3"
+    "viem": "^2.31.6"
   },
   "devDependencies": {
     "@types/node": "^20.5.0",

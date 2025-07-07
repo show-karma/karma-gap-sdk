@@ -354,7 +354,7 @@ export abstract class Schema<T extends string = string>
           recipient: to,
           expirationTime: 0n,
           revocable: true,
-          data: this.schema as any,
+          data: this.encode(this.schema), // Use encoded data for raw payload as well
           refUID,
           value: 0n,
         },

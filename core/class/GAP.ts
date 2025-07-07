@@ -3,7 +3,7 @@ import MulticallABI from "../abi/MultiAttester.json";
 import ProjectResolverABI from "../abi/ProjectResolver.json";
 
 import { EAS } from "@ethereum-attestation-service/eas-sdk";
-import { createEASInstance } from "../utils";
+import { createEASInstance, UniversalContract } from "../utils";
 import { version } from "../../package.json";
 import { MountEntities, Networks } from "../consts";
 import {
@@ -13,26 +13,25 @@ import {
   SignerOrProvider,
   TNetwork,
   TSchemaName,
+  ZeroDevConfig,
 } from "../types";
 import { getWeb3Provider } from "../utils/get-web3-provider";
+import { getPublicClient, createContract, isEthersProvider } from "../utils";
 import {
-  getPublicClient,
-  createUniversalContract,
-  isEthersProvider,
-  type UniversalContract,
-} from "../utils";
-import type {
-  PublicClient,
-  WalletClient,
-  Transport,
-  Chain,
-  Account,
+  type PublicClient,
+  type WalletClient,
+  type Transport,
+  type Chain,
+  type Account,
+  getContract,
+  Abi,
 } from "viem";
 import { Fetcher } from "./Fetcher";
 import { GapSchema } from "./GapSchema";
 import { GapEasClient } from "./GraphQL";
 import { RemoteStorage } from "./remote-storage/RemoteStorage";
 import { Schema } from "./Schema";
+import { KernelAccountClient } from "@zerodev/sdk";
 
 interface GAPArgs {
   network: TNetwork;
@@ -121,6 +120,13 @@ interface GAPArgs {
     useGasless?: boolean;
   };
   /**
+   * ZeroDev configuration for smart account and paymaster support.
+   * If defined, will use ZeroDev for gasless transactions instead of Gelato.
+   *
+   * @see https://docs.zerodev.app/sdk/core-api/sponsor-gas
+   */
+  zeroDevOpts?: ZeroDevConfig;
+  /**
    * Defines a remote storage client to be used to store data.
    * If defined, all the details data from an attestation will
    * be stored in the remote storage, e.g. IPFS.
@@ -196,6 +202,7 @@ export class GAP extends Facade {
 
   private _schemas: GapSchema[];
   private static _gelatoOpts = null;
+  private static _zeroDevOpts: ZeroDevConfig = null;
 
   /**
    * Get the singleton instance of GAP for a specific network.
@@ -246,7 +253,10 @@ export class GAP extends Facade {
     this.fetch.gapInstance = this;
 
     this.assertGelatoOpts(args);
+    this.assertZeroDevOpts(args);
+
     GAP._gelatoOpts = args.gelatoOpts;
+    GAP._zeroDevOpts = args.zeroDevOpts;
 
     GAP.remoteStorage = args.remoteStorage;
 
@@ -293,6 +303,14 @@ export class GAP extends Facade {
     ) {
       console.warn(
         "GAP::You are using gelatoOpts but not setting useGasless to true. This will send transactions through the normal provider."
+      );
+    }
+  }
+
+  private assertZeroDevOpts(args: GAPArgs) {
+    if (args.gelatoOpts?.useGasless && args.zeroDevOpts?.enabled) {
+      throw new Error(
+        "Cannot use both Gelato and ZeroDev for gasless transactions. Choose one."
       );
     }
   }
@@ -389,22 +407,52 @@ export class GAP extends Facade {
    */
   static async getMulticall(
     signer:
-      | SignerOrProvider
       | PublicClient<Transport, Chain>
       | WalletClient<Transport, Chain, Account>
-  ): Promise<UniversalContract> {
+      | KernelAccountClient
+  ) {
     // Get chain ID based on provider type
     let chainId: number;
 
-    chainId = (signer as any).chain?.id || 1;
+    // Try multiple ways to extract chain ID for different client types
+    if ((signer as any).chain?.id) {
+      chainId = (signer as any).chain.id;
+    } else if ((signer as any).getChainId) {
+      chainId = await (signer as any).getChainId();
+    } else if ((signer as any)._network?.chainId) {
+      chainId = (signer as any)._network.chainId;
+    } else if ((signer as any).network?.chainId) {
+      chainId = (signer as any).network.chainId;
+    } else {
+      console.warn(
+        "Unable to detect chain ID from signer, defaulting to 1 (mainnet)"
+      );
+      chainId = 1;
+    }
 
     const network = Object.values(Networks).find((n) => +n.chainId === chainId);
-    if (!network) throw new Error(`Network ${chainId} not supported.`);
+    if (!network) {
+      console.error(
+        "Available networks:",
+        Object.entries(Networks).map(([key, n]) => ({
+          network: key,
+          chainId: n.chainId,
+        }))
+      );
+      throw new Error(`Network ${chainId} not supported.`);
+    }
 
     const address = network.contracts.multicall;
 
-    // Return UniversalContract which works with both ethers and viem
-    return createUniversalContract(address, MulticallABI as any, signer);
+    if (!address) {
+      throw new Error(
+        `Multicall contract address not found for chainId ${chainId}`
+      );
+    }
+
+    const contract = createContract(address, MulticallABI as Abi, signer);
+
+    return contract;
   }
 
   /**
@@ -423,20 +471,14 @@ export class GAP extends Facade {
     let currentChainId: number;
     if (chainId) {
       currentChainId = chainId;
-    } else if (isEthersProvider(signer) || (signer as any).getNetwork) {
-      const network = await (signer as any).getNetwork();
-      currentChainId = Number(network.chainId);
     } else {
-      // Viem client
       currentChainId = (signer as any).chain?.id || 1;
     }
 
     // If chainId is provided and signer is ethers, use ethers provider
     // Otherwise use the provided signer
     let provider: any;
-    if (chainId && isEthersProvider(signer)) {
-      provider = getWeb3Provider(chainId);
-    } else if (chainId && !isEthersProvider(signer)) {
+    if (chainId && !isEthersProvider(signer)) {
       provider = getPublicClient(chainId);
     } else {
       provider = signer;
@@ -449,12 +491,7 @@ export class GAP extends Facade {
 
     const address = network.contracts.projectResolver;
 
-    // Return UniversalContract which works with both ethers and viem
-    return createUniversalContract(
-      address,
-      ProjectResolverABI as any,
-      provider
-    );
+    return createContract(address, ProjectResolverABI as Abi, provider);
   }
 
   /**
@@ -499,12 +536,7 @@ export class GAP extends Facade {
 
     const address = network.contracts.communityResolver;
 
-    // Return UniversalContract which works with both ethers and viem
-    return createUniversalContract(
-      address,
-      CommunityResolverABI as any,
-      provider
-    );
+    return createContract(address, CommunityResolverABI as any, provider);
   }
 
   get schemas() {
@@ -547,6 +579,41 @@ export class GAP extends Facade {
       );
     }
     this._gelatoOpts.useGasless = useGasLess;
+  }
+
+  /**
+   * ZeroDev configuration for smart account and paymaster support.
+   */
+  private static set zeroDevOpts(zeroDevOpts: ZeroDevConfig) {
+    if (
+      typeof this._zeroDevOpts === "undefined" ||
+      this._zeroDevOpts === null
+    ) {
+      this._zeroDevOpts = zeroDevOpts;
+    } else {
+      throw new Error("Cannot change a readonly value zeroDevOpts.");
+    }
+  }
+
+  /**
+   * ZeroDev configuration for smart account and paymaster support.
+   */
+  static get zeroDevOpts(): ZeroDevConfig {
+    return this._zeroDevOpts;
+  }
+
+  /**
+   * Set whether to use ZeroDev for gasless transactions
+   */
+  static set enabled(enabled: boolean) {
+    if (enabled) {
+      console.warn(
+        "GAP::You are enabling ZeroDev but paymaster is not configured. Users may still pay gas."
+      );
+    }
+    if (this._zeroDevOpts) {
+      this._zeroDevOpts.enabled = enabled;
+    }
   }
 
   static get remoteClient() {

@@ -20,10 +20,6 @@ import {
   adaptEthersToViem,
 } from "./provider-adapter";
 import {
-  createUniversalContract,
-  type UniversalContract,
-} from "./viem-contracts";
-import {
   parseUnits,
   formatUnits,
   isAddress,
@@ -32,21 +28,6 @@ import {
 
 // Re-export commonly used functions with unified interfaces
 export { parseUnits, formatUnits, isAddress, getAddress };
-
-/**
- * Create a contract instance that works with any provider
- * @param address - Contract address
- * @param abi - Contract ABI
- * @param signerOrProvider - Ethers or viem provider/signer
- * @returns Universal contract instance
- */
-export async function createContract(
-  address: string,
-  abi: any,
-  signerOrProvider: any
-): Promise<UniversalContract> {
-  return createUniversalContract(address, abi, signerOrProvider);
-}
 
 /**
  * Check if a value is a valid address
@@ -134,6 +115,43 @@ export function isWalletClient(
   provider: any
 ): provider is WalletClient<Transport, Chain, Account> {
   return provider?.mode === "walletClient" || isEthersSigner(provider);
+}
+
+/**
+ * Check if provider is a KernelClient from ZeroDev
+ * @param provider - Provider to check
+ * @returns True if KernelClient
+ */
+export function isKernelClient(provider: any): boolean {
+  return !!(
+    provider &&
+    typeof provider === "object" &&
+    (provider.kernelVersion ||
+      provider.account?.type === "kernel" ||
+      provider.paymaster ||
+      (provider.account && provider.sendTransaction && provider.writeContract))
+  );
+}
+
+/**
+ * Check if provider supports smart account features (KernelClient)
+ * @param provider - Provider to check
+ * @returns True if smart account client
+ */
+export function isSmartAccountClient(provider: any): boolean {
+  return isKernelClient(provider);
+}
+
+/**
+ * Check if provider supports paymaster (gas sponsorship)
+ * @param provider - Provider to check
+ * @returns True if supports paymaster
+ */
+export function supportsPaymaster(provider: any): boolean {
+  return !!(
+    isKernelClient(provider) &&
+    (provider.paymaster || provider.account?.paymaster)
+  );
 }
 
 /**

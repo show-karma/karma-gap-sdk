@@ -289,7 +289,7 @@ export class Attestation<T = unknown, S extends Schema = GapSchema>
             expirationTime: 0n,
             revocable: this.schema.revocable || true,
             value: 0n,
-            data: (encode ? this.schema.encode() : this.schema.schema) as any,
+            data: this.schema.encode(), // Always use encoded data for contract calls
             recipient: this.recipient,
           },
         ],

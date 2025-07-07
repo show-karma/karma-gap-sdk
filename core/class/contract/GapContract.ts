@@ -12,7 +12,13 @@ import {
 import { Transaction, createTransaction } from "../../utils/unified-types";
 import { Gelato, sendGelatoTxn } from "../../utils/gelato/send-gelato-txn";
 import { serializeWithBigint } from "../../utils/serialize-bigint";
-import { isEthersSigner, isWalletClient } from "../../utils";
+import {
+  isEthersSigner,
+  isWalletClient,
+  isKernelClient,
+  supportsPaymaster,
+  getPublicClient,
+} from "../../utils";
 import { GAP } from "../GAP";
 import { AttestationWithTx } from "../types/attestations";
 import type {
@@ -22,6 +28,12 @@ import type {
   Chain,
   Account,
 } from "viem";
+import { KernelAccountClient } from "@zerodev/sdk";
+import { kernelToEthersSigner } from "../../../utils/kernel";
+
+// Zero bytes32 constant for properly formatted empty UIDs
+const ZERO_BYTES32 =
+  "0x0000000000000000000000000000000000000000000000000000000000000000" as Hex;
 
 type TSignature = {
   r: string;
@@ -143,13 +155,8 @@ export class GapContract {
     console.log({ address });
 
     let nonce: bigint;
-    if ((contract as any).read) {
-      // UniversalContract
-      nonce = (await (contract as any).read("nonces", [address])) as bigint;
-    } else {
-      // ethers Contract
-      nonce = <bigint>await (contract as any).nonces(address);
-    }
+    // UniversalContract
+    nonce = (await contract.read("nonces", [address])) as bigint;
 
     return {
       nonce: Number(nonce),
@@ -169,6 +176,15 @@ export class GapContract {
     callback?: ((status: CallbackStatus) => void) & ((status: string) => void)
   ): Promise<AttestationWithTx> {
     const contract = await GAP.getMulticall(signer);
+
+    // Check if we should use ZeroDev paymaster instead of Gelato
+    if (
+      GAP.zeroDevOpts?.enabled &&
+      isKernelClient(signer) &&
+      supportsPaymaster(signer)
+    ) {
+      return this.attestWithPaymaster(signer, payload, callback);
+    }
 
     if (GAP.gelatoOpts?.useGasless) {
       return this.attestBySig(signer, payload);
@@ -206,26 +222,79 @@ export class GapContract {
         tx: [createTransaction(txHash as string)],
         uids: [attestations as Hex],
       };
-    } else {
-      // ethers Contract
-      tx = await (contract as any)
-        .attest({
-          schema: payload.schema,
-          data: payload.data.payload,
-        })
-        .then((res: any) => {
-          callback?.("pending");
-          return res;
-        });
-      result = await tx.wait?.();
+    }
+
+    // ethers Contract
+    tx = await (contract as any).attest({
+      schema: payload.schema,
+      data: payload.data.payload,
+    });
+    callback?.("pending");
+    result = await tx.wait?.();
+    callback?.("confirmed");
+
+    const attestations = getUIDsFromAttestReceipt(result)[0];
+
+    return {
+      tx: [createTransaction(result.hash as string)],
+      uids: [attestations as Hex],
+    };
+  }
+
+  /**
+   * Send a single attestation using ZeroDev paymaster
+   * @param signer
+   * @param payload
+   * @returns
+   */
+  private static async attestWithPaymaster(
+    signer: SignerOrProvider,
+    payload: RawAttestationPayload,
+    callback?: ((status: CallbackStatus) => void) & ((status: string) => void)
+  ): Promise<AttestationWithTx> {
+    callback?.("preparing");
+
+    const contract = await GAP.getMulticall(signer);
+    const kernelClient = signer as any; // KernelClient extends WalletClient
+
+    try {
+      // Only fix the refUID field if it's undefined, leave other fields intact
+      // The data field should already be properly encoded from Schema.encode()
+      const attestationData = {
+        ...payload.data.payload,
+        refUID: payload.data.payload.refUID || ZERO_BYTES32,
+      };
+
+      // Use ZeroDev's writeContract with paymaster for gasless transactions
+      const txHash = await kernelClient.writeContract({
+        address: (contract as any).contractAddress,
+        abi: (contract as any).abi,
+        functionName: "attest",
+        args: [
+          {
+            schema: payload.schema,
+            data: attestationData,
+          },
+        ],
+        // ZeroDev paymaster will automatically sponsor gas if configured
+      });
+
+      callback?.("pending");
+
+      const provider = (await kernelToEthersSigner(kernelClient)).provider;
+      const result = await provider.waitForTransaction(txHash);
+
       callback?.("confirmed");
-      const attestations = getUIDsFromAttestReceipt(result)[0];
-      const resultArray = [result].flat();
+
+      const attestations = getUIDsFromAttestReceipt(result as any)[0];
 
       return {
-        tx: resultArray,
+        tx: [createTransaction(txHash as string)],
         uids: [attestations as Hex],
       };
+    } catch (error) {
+      console.error("ZeroDev paymaster transaction failed:", error);
+      throw error;
     }
   }
 
@@ -310,56 +379,176 @@ export class GapContract {
   ): Promise<AttestationWithTx> {
     const contract = await GAP.getMulticall(signer);
 
+    // Check if we should use ZeroDev paymaster instead of Gelato
+    if (
+      GAP.zeroDevOpts?.enabled &&
+      isKernelClient(signer) &&
+      supportsPaymaster(signer)
+    ) {
+      return this.multiAttestWithPaymaster(
+        signer as unknown as KernelAccountClient,
+        payload,
+        callback
+      );
+    }
+
     if (GAP.gelatoOpts?.useGasless) {
       return this.multiAttestBySig(signer, payload);
     }
     if (callback) callback("preparing");
 
-    let tx: any;
     let result: any;
 
-    if ((contract as any).write) {
-      // UniversalContract
-      const txHash = await (contract as any).write("multiSequentialAttest", [
-        payload.map((p) => p.payload),
-      ]);
+    const mappedPayload = payload.map((p) => ({
+      uid: p.payload.uid,
+      refIdx: Number(p.payload.refIdx),
+      multiRequest: p.payload.multiRequest,
+    }));
+
+    const txHash = await (contract as any).write("multiSequentialAttest", [
+      [mappedPayload],
+    ]);
+    if (callback) callback("pending");
+
+    const walletClient = signer as any;
+    try {
+      const { createPublicClient, http } = await import("viem");
+      const publicClient = createPublicClient({
+        chain: walletClient.chain,
+        transport: http(
+          walletClient.transport.url ||
+            walletClient.transport.url_ ||
+            walletClient.transport._url
+        ),
+      });
+      result = await publicClient.waitForTransactionReceipt({
+        hash: txHash,
+      });
+    } catch (error) {
+      console.warn(
+        "Public client approach failed, using basic wait:",
+        error.message
+      );
+      // Simple wait and poll approach
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+      result = await walletClient.getTransactionReceipt({ hash: txHash });
+    }
+
+    if (callback) callback("confirmed");
+
+    const attestations = getUIDsFromAttestReceipt(result);
+
+    return {
+      tx: [createTransaction(txHash as string)],
+      uids: attestations as Hex[],
+    };
+  }
+
+  /**
+   * Performs a referenced multi attestation using ZeroDev paymaster.
+   * Uses smart account capabilities for gasless transactions.
+   *
+   * @returns an array with the attestation UIDs.
+   */
+  private static async multiAttestWithPaymaster(
+    signer: KernelAccountClient,
+    payload: RawMultiAttestPayload[],
+    callback?: Function
+  ): Promise<AttestationWithTx> {
+    if (callback) callback("preparing");
+
+    const contract = await GAP.getMulticall(signer);
+    const kernelClient = signer; // KernelClient extends WalletClient
+
+    // Ensure extremely clean payload formatting for ZeroDev/viem compatibility
+    const mappedPayload = payload.map((p) => {
+      // Extract and validate each field explicitly
+      const uid =
+        p.payload.uid && p.payload.uid !== "0x" ? p.payload.uid : ZERO_BYTES32;
+
+      const refIdx =
+        typeof p.payload.refIdx === "number" ? p.payload.refIdx : 0;
+
+      const schema = p.payload.multiRequest.schema;
+
+      // Process data array with extreme care for type conversion
+      const data = p.payload.multiRequest.data.map((item) => {
+        // Extract each field explicitly to avoid any object reference issues
+        const recipient = String(item.recipient);
+        const expirationTime =
+          typeof item.expirationTime === "bigint"
+            ? item.expirationTime
+            : BigInt(item.expirationTime || 0);
+        const revocable = Boolean(item.revocable);
+        const refUID =
+          item.refUID && item.refUID !== "0x"
+            ? String(item.refUID)
+            : ZERO_BYTES32;
+        const dataField = String(item.data);
+        const value =
+          typeof item.value === "bigint" ? item.value : BigInt(item.value || 0);
+
+        // Return a completely clean object
+        return {
+          recipient: recipient as Hex,
+          expirationTime: expirationTime,
+          revocable: revocable,
+          refUID: refUID as Hex,
+          data: dataField as Hex,
+          value: value,
+        };
+      });
+
+      // Return a completely clean payload object
+      return {
+        uid: uid as Hex,
+        refIdx: refIdx,
+        multiRequest: {
+          schema: schema as Hex,
+          data: data,
+        },
+      };
+    });
+
+    try {
+      // Use ZeroDev's writeContract with paymaster for gasless transactions
+      const txHash = await kernelClient.writeContract({
+        account: kernelClient.account,
+        chain: kernelClient.chain,
+        address: contract.address,
+        abi: contract.abi,
+        functionName: "multiSequentialAttest",
+        args: [mappedPayload],
+        // ZeroDev paymaster will automatically sponsor gas if configured
+      });
+
       if (callback) callback("pending");
 
-      // Wait for transaction using viem
-      if (isWalletClient(signer)) {
-        const walletClient = signer as WalletClient<Transport, Chain, Account>;
-        const publicClient = walletClient as any; // Wallet clients can read too
-        result = await publicClient.waitForTransactionReceipt({ hash: txHash });
-      } else {
-        // For ethers, use the provider's wait method
-        const provider = (signer as any).provider || signer;
-        result = await provider.waitForTransaction(txHash);
-      }
+      // Wait for transaction receipt using KernelClient's built-in method
+
+      const provider = (await kernelToEthersSigner(kernelClient)).provider;
+      const result = await provider.waitForTransaction(txHash);
+
       if (callback) callback("confirmed");
 
-      const attestations = getUIDsFromAttestReceipt(result);
+      const attestations = getUIDsFromAttestReceipt(result as any);
 
       return {
         tx: [createTransaction(txHash as string)],
         uids: attestations as Hex[],
       };
-    } else {
-      // ethers Contract
-      tx = await (contract as any).multiSequentialAttest(
-        payload.map((p) => p.payload)
+    } catch (error) {
+      console.error("ZeroDev paymaster transaction failed:", error);
+      console.error(
+        "Payload that caused the error:",
+        JSON.stringify(
+          mappedPayload,
+          (key, value) =>
+            typeof value === "bigint" ? value.toString() + "n" : value,
+          2
+        )
       );
-
-      if (callback) callback("pending");
-      result = await tx.wait?.();
-      if (callback) callback("confirmed");
-      const attestations = getUIDsFromAttestReceipt(result);
-
-      const resultArray = [result].flat();
-
-      return {
-        tx: resultArray,
-        uids: attestations as Hex[],
-      };
+      throw error;
     }
   }
 
@@ -391,18 +580,15 @@ export class GapContract {
 
     if ((contract as any).encodeFunctionData) {
       // UniversalContract
+      const mappedPayload = payload.map((p) => ({
+        uid: p.payload.uid,
+        refIdx: Number(p.payload.refIdx), // Ensure refIdx is a number, not BigInt
+        multiRequest: p.payload.multiRequest,
+      }));
+
       populatedTxn = (contract as any).encodeFunctionData(
         "multiSequentialAttestBySig",
-        [
-          payload.map((p) => p.payload),
-          payloadHash,
-          address,
-          nonce,
-          expiry,
-          v,
-          r,
-          s,
-        ]
+        [[mappedPayload], payloadHash, address, nonce, expiry, v, r, s]
       );
       contractAddress = (contract as any).contractAddress;
     } else {
@@ -410,7 +596,7 @@ export class GapContract {
       const tx = await (
         contract as any
       ).multiSequentialAttestBySig.populateTransaction(
-        payload.map((p) => p.payload),
+        [payload.map((p) => p.payload)],
         payloadHash,
         address,
         nonce,
@@ -586,18 +772,8 @@ export class GapContract {
     const contract = await GAP.getProjectResolver(signer, projectChainId);
     const address = publicAddress || (await this.getSignerAddress(signer));
 
-    if ((contract as any).read) {
-      // UniversalContract
-      const isOwner = await (contract as any).read("isOwner", [
-        projectUID,
-        address,
-      ]);
-      return isOwner as boolean;
-    } else {
-      // ethers Contract
-      const isOwner = await (contract as any).isOwner(projectUID, address);
-      return isOwner;
-    }
+    const isOwner = await contract.read("isOwner", [projectUID, address]);
+    return isOwner as boolean;
   }
 
   /**
@@ -617,18 +793,12 @@ export class GapContract {
     const contract = await GAP.getProjectResolver(signer, projectChainId);
     const address = publicAddress || (await this.getSignerAddress(signer));
 
-    if ((contract as any).read) {
-      // UniversalContract
-      const isAdmin = await (contract as any).read("isAdmin", [
-        projectUID,
-        address,
-      ]);
-      return isAdmin as boolean;
-    } else {
-      // ethers Contract
-      const isAdmin = await (contract as any).isAdmin(projectUID, address);
-      return isAdmin;
-    }
+    // UniversalContract
+    const isAdmin = await (contract as any).read("isAdmin", [
+      projectUID,
+      address,
+    ]);
+    return isAdmin as boolean;
   }
 
   private static async getTransactionLogs(

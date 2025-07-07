@@ -8,12 +8,12 @@ import { Grant } from "../class/entities/Grant";
 import { Hex, SignerOrProvider } from "../types";
 import { GapContract } from "../class/contract/GapContract";
 import { MultiAttestPayload } from "../types";
+import { privateKeyToAccount } from "viem/accounts";
 
 async function main() {
   // Initialize GAP with your network and signer
   // Replace with your actual RPC URL and private key
-  const provider = new ethers.JsonRpcProvider("YOUR_RPC_URL");
-  const signer = new ethers.Wallet("YOUR_PRIVATE_KEY", provider);
+  const signer = privateKeyToAccount("0xprivate-key");
   const gap = new GAP({
     network: "optimism",
     // Additional GAP options can be specified here if needed
@@ -39,7 +39,7 @@ async function main() {
     // Create a new milestone
     const milestone = new Milestone({
       schema: gap.findSchema("Milestone"),
-      recipient: (await signer.getAddress()) as `0x${string}`,
+      recipient: signer.address,
       data: {
         title: "Cross-Grant Milestone",
         description: "This milestone applies to multiple grants",
