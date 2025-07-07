@@ -314,73 +314,43 @@ class GapContract {
         }
         if (callback)
             callback("preparing");
-        let tx;
         let result;
-        if (contract.write) {
-            // UniversalContract
-            const mappedPayload = payload.map((p) => ({
-                uid: p.payload.uid,
-                refIdx: Number(p.payload.refIdx), // Ensure refIdx is a number, not BigInt
-                multiRequest: p.payload.multiRequest,
-            }));
-            const txHash = await contract.write("multiSequentialAttest", [
-                [mappedPayload],
-            ]);
-            if (callback)
-                callback("pending");
-            // Wait for transaction using viem (using createPublicClient approach)
-            if (signer?.account) {
-                // Viem wallet client - create a public client for reading receipt
-                const walletClient = signer;
-                try {
-                    const { createPublicClient, http } = await Promise.resolve().then(() => __importStar(require("viem")));
-                    const publicClient = createPublicClient({
-                        chain: walletClient.chain,
-                        transport: http(walletClient.transport.url ||
-                            walletClient.transport.url_ ||
-                            walletClient.transport._url),
-                    });
-                    result = await publicClient.waitForTransactionReceipt({
-                        hash: txHash,
-                    });
-                }
-                catch (error) {
-                    console.warn("Public client approach failed, using basic wait:", error.message);
-                    // Simple wait and poll approach
-                    await new Promise((resolve) => setTimeout(resolve, 3000));
-                    result = await walletClient.getTransactionReceipt({ hash: txHash });
-                }
-            }
-            else {
-                // Ethers provider approach
-                const provider = signer.provider || signer;
-                result = await provider.waitForTransaction(txHash);
-            }
-            if (callback)
-                callback("confirmed");
-            const attestations = (0, eas_sdk_1.getUIDsFromAttestReceipt)(result);
-            return {
-                tx: [(0, unified_types_1.createTransaction)(txHash)],
-                uids: attestations,
-            };
+        const mappedPayload = payload.map((p) => ({
+            uid: p.payload.uid,
+            refIdx: Number(p.payload.refIdx),
+            multiRequest: p.payload.multiRequest,
+        }));
+        const txHash = await contract.write("multiSequentialAttest", [
+            mappedPayload,
+        ]);
+        if (callback)
+            callback("pending");
+        const walletClient = signer;
+        try {
+            const { createPublicClient, http } = await Promise.resolve().then(() => __importStar(require("viem")));
+            const publicClient = createPublicClient({
+                chain: walletClient.chain,
+                transport: http(walletClient.transport.url ||
+                    walletClient.transport.url_ ||
+                    walletClient.transport._url),
+            });
+            result = await publicClient.waitForTransactionReceipt({
+                hash: txHash,
+            });
         }
-        else {
-            // ethers Contract
-            tx = await contract.multiSequentialAttest([
-                payload.map((p) => p.payload),
-            ]);
-            if (callback)
-                callback("pending");
-            result = await tx.wait?.();
-            if (callback)
-                callback("confirmed");
-            const attestations = (0, eas_sdk_1.getUIDsFromAttestReceipt)(result);
-            const resultArray = [result].flat();
-            return {
-                tx: resultArray,
-                uids: attestations,
-            };
+        catch (error) {
+            console.warn("Public client approach failed, using basic wait:", error.message);
+            // Simple wait and poll approach
+            await new Promise((resolve) => setTimeout(resolve, 3000));
+            result = await walletClient.getTransactionReceipt({ hash: txHash });
         }
+        if (callback)
+            callback("confirmed");
+        const attestations = (0, eas_sdk_1.getUIDsFromAttestReceipt)(result);
+        return {
+            tx: [(0, unified_types_1.createTransaction)(txHash)],
+            uids: attestations,
+        };
     }
     /**
      * Performs a referenced multi attestation using ZeroDev paymaster.
