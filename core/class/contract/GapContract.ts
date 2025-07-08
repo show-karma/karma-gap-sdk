@@ -406,7 +406,7 @@ export class GapContract {
     }));
 
     const txHash = await (contract as any).write("multiSequentialAttest", [
-      [mappedPayload],
+      mappedPayload,
     ]);
     if (callback) callback("pending");
 

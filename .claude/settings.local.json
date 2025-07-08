@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep:*)",
+      "Bash(pnpm test:*)",
+      "Bash(pnpm build:*)",
+      "Bash(timeout 30 npx ts-node ./viem-test-example.ts)",
+      "Bash(pnpm tsc:*)",
+      "Bash(git checkout:*)",
+      "Bash(npx ts-node:*)",
+      "Bash(timeout:*)",
+      "Bash(npx tsc:*)"
+    ],
+    "deny": []
+  }
+}
