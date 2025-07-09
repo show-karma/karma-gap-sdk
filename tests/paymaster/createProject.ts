@@ -1,8 +1,8 @@
-import { GAP } from "./core/class/GAP";
-import { GapIndexerClient } from "./core/class/karma-indexer/GapIndexerClient";
-import { Project } from "./core/class";
-import { ProjectDetails } from "./core/class/types/attestations";
-import { Hex } from "./core/types";
+import { GAP } from "../../core/class/GAP";
+import { GapIndexerClient } from "../../core/class/karma-indexer/GapIndexerClient";
+import { Project } from "../../core/class";
+import { ProjectDetails } from "../../core/class/types/attestations";
+import { Hex } from "../../core/types";
 import { createKernelAccount } from "@zerodev/sdk";
 import { createPublicClient, http } from "viem";
 import { optimismSepolia } from "viem/chains";
@@ -10,7 +10,7 @@ import "dotenv/config";
 import { privateKeyToAccount } from "viem/accounts";
 import { signerToEcdsaValidator } from "@zerodev/ecdsa-validator";
 import { getEntryPoint, KERNEL_V3_1 } from "@zerodev/sdk/constants";
-import { getKernelClient } from "./utils/getKernelClient";
+import { getKernelClient } from "../../utils/getKernelClient";
 
 /**
  * Example: Using ZeroDev KernelClient with Paymaster for Gasless Transactions
@@ -185,35 +185,4 @@ async function createKernelClientExample(): Promise<any> {
   return kernelClient;
 }
 
-const checkOwner = async () => {
-  const address = "0xee37ae8c477f30de832811030183f19ad562b73a";
-  const projectId = "test-op-sepolia";
-
-  const rpcClient = createPublicClient({
-    chain: optimismSepolia,
-    transport: http(
-      "https://opt-sepolia.g.alchemy.com/v2/duRh1PCchyub9TDtSaus4"
-    ),
-  });
-
-  const gap = new GAP({
-    network: "optimism-sepolia",
-    apiClient: new GapIndexerClient(API_URL),
-  });
-  const projectInstance = await gap.fetch.projectBySlug(projectId);
-
-  const [isOwnerResult, isAdminResult] = await Promise.all([
-    projectInstance?.isOwner(rpcClient as any, address).catch((error) => {
-      console.log(error);
-      return false;
-    }),
-    projectInstance?.isAdmin(rpcClient as any, address).catch((error) => {
-      console.log(error);
-      return false;
-    }),
-  ]);
-
-  console.log(isOwnerResult, isAdminResult);
-};
-
-checkOwner();
+zeroDevExample();

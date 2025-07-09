@@ -1,4 +1,11 @@
-import { encodeAbiParameters, parseAbiParameters, type Hex } from "viem";
+import {
+  Chain,
+  encodeAbiParameters,
+  parseAbiParameters,
+  PublicClient,
+  Transport,
+  type Hex,
+} from "viem";
 import { createContract, UniversalContract } from "../../utils/viem-contracts";
 import type { SignerOrProvider } from "../../types";
 import AlloRegistryABI from "../../abi/AlloRegistry.json";
@@ -76,16 +83,18 @@ export class AlloRegistry {
         "createProfile",
         [nonce, name, metadata, owner, members]
       );
-      const receipt = await tx.wait();
+      const walletClient = this.signer as PublicClient<Transport, Chain>;
+      const receipt = await walletClient.waitForTransactionReceipt({
+        hash: tx.hash,
+      });
 
       // Get ProfileCreated event
-      const profileCreatedEvent = receipt.logs.find(
-        (event) => event.eventName === "ProfileCreated"
-      );
+      // const profileCreatedEvent = receipt.logs.find(
+      //   (event) => event. === "ProfileCreated"
+      // );
 
       return {
-        profileId: profileCreatedEvent.args[0],
-        txHash: receipt.hash,
+        txHash: tx.hash,
       };
     } catch (error) {
       console.error(`Failed to register program: ${error}`);
@@ -107,7 +116,11 @@ export class AlloRegistry {
         "updateProfileMetadata",
         [profileId, metadata]
       );
-      const receipt = await tx.wait();
+      const walletClient = this.signer as PublicClient<Transport, Chain>;
+      const receipt = await walletClient.waitForTransactionReceipt({
+        hash: tx.hash,
+      });
+
       return receipt;
     } catch (error) {
       console.error(`Failed to update profile metadata: ${error}`);

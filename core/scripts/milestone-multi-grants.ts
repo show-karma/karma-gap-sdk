@@ -1,7 +1,6 @@
 /**
  * Example script demonstrating how to attest a milestone to multiple grants in a single transaction.
  */
-import { ethers } from "ethers";
 import { GAP } from "../class/GAP";
 import { Milestone } from "../class/entities/Milestone";
 import { Grant } from "../class/entities/Grant";

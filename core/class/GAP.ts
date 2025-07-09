@@ -15,7 +15,6 @@ import {
   TSchemaName,
   ZeroDevConfig,
 } from "../types";
-import { getWeb3Provider } from "../utils/get-web3-provider";
 import { getPublicClient, createContract, isEthersProvider } from "../utils";
 import {
   type PublicClient,
@@ -521,9 +520,7 @@ export class GAP extends Facade {
     // If chainId is provided and signer is ethers, use ethers provider
     // Otherwise use the provided signer
     let provider: any;
-    if (chainId && isEthersProvider(signer)) {
-      provider = getWeb3Provider(chainId);
-    } else if (chainId && !isEthersProvider(signer)) {
+    if (chainId && !isEthersProvider(signer)) {
       provider = getPublicClient(chainId);
     } else {
       provider = signer;

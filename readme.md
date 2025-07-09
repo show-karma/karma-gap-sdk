@@ -137,7 +137,7 @@ The `ipfsKey` is utilized to upload a project's data to the InterPlanetary File 
 
 The GAP SDK is built with viem as its primary Web3 library. For backward compatibility, it also supports ethers providers through automatic conversion.
 
-#### Using with Viem (Recommended)
+#### Using with Viem
 
 ```ts
 import { createWalletClient, createPublicClient, http } from "viem";
@@ -168,36 +168,6 @@ await gap.attest({
   signer: walletClient, // Native viem support
 });
 ```
-
-#### Using with Ethers (Backward Compatibility)
-
-The SDK automatically converts ethers providers to viem clients internally:
-
-```ts
-import { ethers } from "ethers";
-import { GAP } from "@show-karma/karma-gap-sdk";
-
-// Create ethers signer
-const provider = new ethers.JsonRpcProvider(RPC_URL);
-const signer = new ethers.Wallet(PRIVATE_KEY, provider);
-
-// Initialize GAP
-const gap = new GAP({
-  globalSchemas: false,
-  network: "optimism-sepolia",
-  apiClient: new GapIndexerClient("https://gapapi.karmahq.xyz"),
-});
-
-// Use the SDK with ethers signer - automatically converted to viem
-await gap.attest({
-  schemaName: "Project",
-  data: { project: true },
-  to: await signer.getAddress(),
-  signer: signer, // Ethers signer is automatically converted
-});
-```
-
-The SDK handles the conversion internally, so you can use the same methods and patterns regardless of your choice of library.
 
 ## 4. Fetching Entities
 

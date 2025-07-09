@@ -19,7 +19,10 @@
     "test-file": "npx ts-node ./test-file-indexer-api.ts",
     "test-milestone": "npx ts-node ./milestone-workflow-example.ts",
     "test-viem": "npx ts-node ./viem-test-example.ts",
-    "test-zerodev": "npx ts-node ./zerodev-paymaster-example.ts",
+    "test:paymaster:create-project": "npx ts-node ./tests/paymaster/createProject.ts",
+    "test:paymaster:create-project-activity": "npx ts-node ./tests/paymaster/project-activity/create.ts",
+    "test:paymaster:revoke-project-activity": "npx ts-node ./tests/paymaster/project-activity/revoke.ts",
+    "test:paymaster:check-owner": "npx ts-node ./tests/paymaster/checkOwner.ts",
     "publish-npm": "npm version patch && tsc && cd .dist && npm publish --scope=@show-karma/karma-gap-sdk --access public"
   },
   "dependencies": {
@@ -32,6 +35,8 @@
     "@zerodev/ecdsa-validator": "^5.4.9",
     "@zerodev/sdk": "^5.4.40",
     "axios": "^1.4.0",
+    "dotenv": "^17.1.0",
+    "ethers": "^6.15.0",
     "sha256": "^0.2.0",
     "simple-ts-job-runner": "^1.0.12",
     "viem": "^2.31.6"

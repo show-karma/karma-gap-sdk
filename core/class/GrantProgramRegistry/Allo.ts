@@ -7,6 +7,9 @@ import {
   parseAbiParameters,
   decodeEventLog,
   type Hex,
+  PublicClient,
+  Transport,
+  Chain,
 } from "viem";
 import { createContract, UniversalContract } from "../../utils/viem-contracts";
 import { isEthersSigner, isWalletClient } from "../../utils";
@@ -182,7 +185,10 @@ export class AlloBase {
       value: txData.value,
     });
 
-    const receipt = await tx.wait();
+    const walletClient = this.signer as PublicClient<Transport, Chain>;
+    const receipt = await walletClient.waitForTransactionReceipt({
+      hash: tx.hash,
+    });
 
     if (!receipt) {
       throw new Error("Transaction failed");
@@ -286,7 +292,11 @@ export class AlloBase {
         [poolId, metadata]
       );
       callback?.("pending");
-      const receipt = await tx.wait();
+      const walletClient = this.signer as PublicClient<Transport, Chain>;
+      const receipt = await walletClient.waitForTransactionReceipt({
+        hash: tx.hash,
+      });
+
       callback?.("confirmed");
       return receipt;
     } catch (error) {

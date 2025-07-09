@@ -183,7 +183,11 @@ export class GapContract {
       isKernelClient(signer) &&
       supportsPaymaster(signer)
     ) {
-      return this.attestWithPaymaster(signer, payload, callback);
+      return this.attestWithPaymaster(
+        signer as unknown as KernelAccountClient,
+        payload,
+        callback
+      );
     }
 
     if (GAP.gelatoOpts?.useGasless) {
@@ -194,49 +198,23 @@ export class GapContract {
     let tx: any;
     let result: any;
 
-    if ((contract as any).write) {
-      // UniversalContract
-      const txHash = await (contract as any).write("attest", [
-        {
-          schema: payload.schema,
-          data: payload.data.payload,
-        },
-      ]);
-      callback?.("pending");
-
-      // Wait for transaction using viem
-      if (isWalletClient(signer)) {
-        const walletClient = signer as WalletClient<Transport, Chain, Account>;
-        const publicClient = walletClient as any; // Wallet clients can read too
-        result = await publicClient.waitForTransactionReceipt({ hash: txHash });
-      } else {
-        // For ethers, use the provider's wait method
-        const provider = (signer as any).provider || signer;
-        result = await provider.waitForTransaction(txHash);
-      }
-      callback?.("confirmed");
-
-      const attestations = getUIDsFromAttestReceipt(result)[0];
-
-      return {
-        tx: [createTransaction(txHash as string)],
-        uids: [attestations as Hex],
-      };
-    }
-
-    // ethers Contract
-    tx = await (contract as any).attest({
-      schema: payload.schema,
-      data: payload.data.payload,
-    });
+    const txHash = await (contract as any).write("attest", [
+      {
+        schema: payload.schema,
+        data: payload.data.payload,
+      },
+    ]);
     callback?.("pending");
-    result = await tx.wait?.();
+
+    const walletClient = signer as PublicClient<Transport, Chain>;
+    result = await walletClient.waitForTransactionReceipt({ hash: txHash });
+
     callback?.("confirmed");
 
     const attestations = getUIDsFromAttestReceipt(result)[0];
 
     return {
-      tx: [createTransaction(result.hash as string)],
+      tx: [createTransaction(txHash as string)],
       uids: [attestations as Hex],
     };
   }
@@ -248,7 +226,7 @@ export class GapContract {
    * @returns
    */
   private static async attestWithPaymaster(
-    signer: SignerOrProvider,
+    signer: KernelAccountClient,
     payload: RawAttestationPayload,
     callback?: ((status: CallbackStatus) => void) & ((status: string) => void)
   ): Promise<AttestationWithTx> {
@@ -258,17 +236,16 @@ export class GapContract {
     const kernelClient = signer as any; // KernelClient extends WalletClient
 
     try {
-      // Only fix the refUID field if it's undefined, leave other fields intact
-      // The data field should already be properly encoded from Schema.encode()
       const attestationData = {
         ...payload.data.payload,
         refUID: payload.data.payload.refUID || ZERO_BYTES32,
       };
 
-      // Use ZeroDev's writeContract with paymaster for gasless transactions
       const txHash = await kernelClient.writeContract({
-        address: (contract as any).contractAddress,
-        abi: (contract as any).abi,
+        account: kernelClient.account,
+        chain: kernelClient.chain,
+        address: contract.address,
+        abi: contract.abi,
         functionName: "attest",
         args: [
           {
@@ -276,7 +253,6 @@ export class GapContract {
             data: attestationData,
           },
         ],
-        // ZeroDev paymaster will automatically sponsor gas if configured
       });
 
       callback?.("pending");
