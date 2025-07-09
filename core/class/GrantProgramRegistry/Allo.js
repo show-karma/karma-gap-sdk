@@ -117,7 +117,10 @@ class AlloBase {
             data: txData.data,
             value: txData.value,
         });
-        const receipt = await tx.wait();
+        const walletClient = this.signer;
+        const receipt = await walletClient.waitForTransactionReceipt({
+            hash: tx.hash,
+        });
         if (!receipt) {
             throw new Error("Transaction failed");
         }
@@ -197,7 +200,10 @@ class AlloBase {
             };
             const tx = await (await this.getContract()).write("updatePoolMetadata", [poolId, metadata]);
             callback?.("pending");
-            const receipt = await tx.wait();
+            const walletClient = this.signer;
+            const receipt = await walletClient.waitForTransactionReceipt({
+                hash: tx.hash,
+            });
             callback?.("confirmed");
             return receipt;
         }

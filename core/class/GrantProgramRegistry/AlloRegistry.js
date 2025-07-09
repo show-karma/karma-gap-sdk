@@ -46,12 +46,16 @@ class AlloRegistry {
                 pointer: metadata_cid,
             };
             const tx = await (await this.getContract()).write("createProfile", [nonce, name, metadata, owner, members]);
-            const receipt = await tx.wait();
+            const walletClient = this.signer;
+            const receipt = await walletClient.waitForTransactionReceipt({
+                hash: tx.hash,
+            });
             // Get ProfileCreated event
-            const profileCreatedEvent = receipt.logs.find((event) => event.eventName === "ProfileCreated");
+            // const profileCreatedEvent = receipt.logs.find(
+            //   (event) => event. === "ProfileCreated"
+            // );
             return {
-                profileId: profileCreatedEvent.args[0],
-                txHash: receipt.hash,
+                txHash: tx.hash,
             };
         }
         catch (error) {
@@ -66,7 +70,10 @@ class AlloRegistry {
                 pointer: metadata_cid,
             };
             const tx = await (await this.getContract()).write("updateProfileMetadata", [profileId, metadata]);
-            const receipt = await tx.wait();
+            const walletClient = this.signer;
+            const receipt = await walletClient.waitForTransactionReceipt({
+                hash: tx.hash,
+            });
             return receipt;
         }
         catch (error) {

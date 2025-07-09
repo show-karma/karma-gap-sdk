@@ -10,8 +10,7 @@ export declare class AlloRegistry {
         name: string;
     }): Promise<any>;
     createProgram(nonce: number, name: string, profileMetadata: ProfileMetadata, owner: string, members: string[]): Promise<{
-        profileId: any;
         txHash: any;
     }>;
-    updateProgramMetadata(profileId: string, profileMetadata: ProfileMetadata): Promise<any>;
+    updateProgramMetadata(profileId: string, profileMetadata: ProfileMetadata): Promise<import("viem").TransactionReceipt>;
 }

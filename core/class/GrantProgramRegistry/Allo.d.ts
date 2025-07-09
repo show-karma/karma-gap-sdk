@@ -22,5 +22,5 @@ export declare class AlloBase {
     private getBalance;
     private estimateGas;
     private sendTransaction;
-    updatePoolMetadata(poolId: string, poolMetadata: any, callback?: Function): Promise<any>;
+    updatePoolMetadata(poolId: string, poolMetadata: any, callback?: Function): Promise<import("viem").TransactionReceipt>;
 }

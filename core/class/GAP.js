@@ -11,7 +11,6 @@ const utils_1 = require("../utils");
 const package_json_1 = require("../../package.json");
 const consts_1 = require("../consts");
 const types_1 = require("../types");
-const get_web3_provider_1 = require("../utils/get-web3-provider");
 const utils_2 = require("../utils");
 const GapSchema_1 = require("./GapSchema");
 const GraphQL_1 = require("./GraphQL");
@@ -304,10 +303,7 @@ class GAP extends types_1.Facade {
         // If chainId is provided and signer is ethers, use ethers provider
         // Otherwise use the provided signer
         let provider;
-        if (chainId && (0, utils_2.isEthersProvider)(signer)) {
-            provider = (0, get_web3_provider_1.getWeb3Provider)(chainId);
-        }
-        else if (chainId && !(0, utils_2.isEthersProvider)(signer)) {
+        if (chainId && !(0, utils_2.isEthersProvider)(signer)) {
             provider = (0, utils_2.getPublicClient)(chainId);
         }
         else {
