@@ -172,7 +172,14 @@ class GapContract {
         ]);
         callback?.("pending");
         const walletClient = signer;
-        result = await walletClient.waitForTransactionReceipt({ hash: txHash });
+        const { createPublicClient, http } = await Promise.resolve().then(() => __importStar(require("viem")));
+        const publicClient = createPublicClient({
+            chain: walletClient.chain,
+            transport: http(walletClient.transport.url ||
+                walletClient.transport.url_ ||
+                walletClient.transport._url),
+        });
+        result = await publicClient.waitForTransactionReceipt({ hash: txHash });
         callback?.("confirmed");
         const attestations = (0, eas_sdk_1.getUIDsFromAttestReceipt)(result)[0];
         return {
