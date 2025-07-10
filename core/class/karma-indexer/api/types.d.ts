@@ -160,6 +160,7 @@ export interface IGrantResponse extends IAttestationResponse {
     external?: {
         [key: string]: string[];
     };
+    amount?: Hex;
 }
 export interface IMemberDetails extends IAttestationResponse {
     name: string;

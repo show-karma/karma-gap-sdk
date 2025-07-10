@@ -21,7 +21,6 @@ export declare class Project extends Attestation<IProject> {
     updates: ProjectUpdate[];
     pointers: ProjectPointer[];
     milestones: ProjectMilestone[];
-    payoutAddress?: Hex;
     /**
      * Creates the payload for a multi-attestation.
      *
