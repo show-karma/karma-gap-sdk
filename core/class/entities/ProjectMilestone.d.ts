@@ -1,7 +1,7 @@
 import { SignerOrProvider, TNetwork } from "../../../core/types";
 import { Attestation, AttestationArgs } from "../Attestation";
 import { GapSchema } from "../GapSchema";
-import { Transaction } from "../../utils/unified-types";
+import { Transaction } from "ethers";
 import { IProjectMilestoneResponse } from "../karma-indexer/api/types";
 import { MilestoneCompleted as ProjectMilestoneCompleted } from "../types/attestations";
 export interface IProjectMilestone {

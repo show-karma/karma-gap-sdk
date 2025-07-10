@@ -4,21 +4,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AlloRegistry = void 0;
-const viem_contracts_1 = require("../../utils/viem-contracts");
+const ethers_1 = require("ethers");
 const AlloRegistry_json_1 = __importDefault(require("../../abi/AlloRegistry.json"));
 const consts_1 = require("../../consts");
 const axios_1 = __importDefault(require("axios"));
 class AlloRegistry {
-    constructor(signer, pinataJWTToken, chainId) {
-        this.signer = signer;
-        this.contract = (0, viem_contracts_1.createContract)(consts_1.AlloContracts[chainId], AlloRegistry_json_1.default, signer);
+    constructor(signer, pinataJWTToken) {
+        this.contract = new ethers_1.ethers.Contract(consts_1.AlloContracts.registry, AlloRegistry_json_1.default, signer);
         this.pinataJWTToken = pinataJWTToken;
-    }
-    async getContract() {
-        if (this.contract instanceof Promise) {
-            this.contract = await this.contract;
-        }
-        return this.contract;
     }
     async saveAndGetCID(data, pinataMetadata = { name: "via karma-gap-sdk" }) {
         try {
@@ -45,17 +38,13 @@ class AlloRegistry {
                 protocol: 1,
                 pointer: metadata_cid,
             };
-            const tx = await (await this.getContract()).write("createProfile", [nonce, name, metadata, owner, members]);
-            const walletClient = this.signer;
-            const receipt = await walletClient.waitForTransactionReceipt({
-                hash: tx.hash,
-            });
+            const tx = await this.contract.createProfile(nonce, name, metadata, owner, members);
+            const receipt = await tx.wait();
             // Get ProfileCreated event
-            // const profileCreatedEvent = receipt.logs.find(
-            //   (event) => event. === "ProfileCreated"
-            // );
+            const profileCreatedEvent = receipt.logs.find((event) => event.eventName === "ProfileCreated");
             return {
-                txHash: tx.hash,
+                profileId: profileCreatedEvent.args[0],
+                txHash: receipt.hash,
             };
         }
         catch (error) {
@@ -69,11 +58,8 @@ class AlloRegistry {
                 protocol: 1,
                 pointer: metadata_cid,
             };
-            const tx = await (await this.getContract()).write("updateProfileMetadata", [profileId, metadata]);
-            const walletClient = this.signer;
-            const receipt = await walletClient.waitForTransactionReceipt({
-                hash: tx.hash,
-            });
+            const tx = await this.contract.updateProfileMetadata(profileId, metadata);
+            const receipt = await tx.wait();
             return receipt;
         }
         catch (error) {

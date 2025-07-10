@@ -1,6 +1,6 @@
 import { SchemaEncoder, SchemaItem, SchemaValue } from "@ethereum-attestation-service/eas-sdk";
 import { AttestArgs, Hex, MultiRevokeArgs, SchemaInterface, SignerOrProvider, TNetwork } from "../types";
-import { Transaction } from "../utils/unified-types";
+import { ethers } from "ethers";
 import { GAP } from "./GAP";
 import { Attestation } from "./Attestation";
 import { AttestationWithTx } from "./types/attestations";
@@ -161,7 +161,7 @@ export declare abstract class Schema<T extends string = string> implements Schem
      * @returns
      */
     multiRevoke(signer: SignerOrProvider, toRevoke: MultiRevokeArgs[], callback?: Function): Promise<{
-        tx: Transaction[];
+        tx: ethers.Transaction[];
         uids: `0x${string}`[];
     }>;
     static exists(name: string, network: TNetwork): Schema<string>;

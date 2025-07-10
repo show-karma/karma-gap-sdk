@@ -7,11 +7,12 @@ exports.GAP = void 0;
 const CommunityResolverABI_json_1 = __importDefault(require("../abi/CommunityResolverABI.json"));
 const MultiAttester_json_1 = __importDefault(require("../abi/MultiAttester.json"));
 const ProjectResolver_json_1 = __importDefault(require("../abi/ProjectResolver.json"));
-const utils_1 = require("../utils");
+const eas_sdk_1 = require("@ethereum-attestation-service/eas-sdk");
+const ethers_1 = require("ethers");
 const package_json_1 = require("../../package.json");
 const consts_1 = require("../consts");
 const types_1 = require("../types");
-const utils_2 = require("../utils");
+const get_web3_provider_1 = require("../utils/get-web3-provider");
 const GapSchema_1 = require("./GapSchema");
 const GraphQL_1 = require("./GraphQL");
 const Schema_1 = require("./Schema");
@@ -131,7 +132,7 @@ class GAP extends types_1.Facade {
         };
         const schemas = args.schemas || Object.values((0, consts_1.MountEntities)(consts_1.Networks[args.network]));
         this.network = args.network;
-        this._eas = (0, utils_1.createEASInstance)(consts_1.Networks[args.network].contracts.eas);
+        this._eas = new eas_sdk_1.EAS(consts_1.Networks[args.network].contracts.eas);
         this.fetch =
             args.apiClient ||
                 new GraphQL_1.GapEasClient({
@@ -139,9 +140,7 @@ class GAP extends types_1.Facade {
                 });
         this.fetch.gapInstance = this;
         this.assertGelatoOpts(args);
-        this.assertZeroDevOpts(args);
         GAP._gelatoOpts = args.gelatoOpts;
-        GAP._zeroDevOpts = args.zeroDevOpts;
         GAP.remoteStorage = args.remoteStorage;
         this._schemas = schemas.map((schema) => new GapSchema_1.GapSchema(schema, this, false, args.globalSchemas ? !args.globalSchemas : false));
         Schema_1.Schema.validate(this.network);
@@ -163,11 +162,6 @@ class GAP extends types_1.Facade {
             args.gelatoOpts?.sponsorUrl) &&
             !args.gelatoOpts?.useGasless) {
             console.warn("GAP::You are using gelatoOpts but not setting useGasless to true. This will send transactions through the normal provider.");
-        }
-    }
-    assertZeroDevOpts(args) {
-        if (args.gelatoOpts?.useGasless && args.zeroDevOpts?.enabled) {
-            throw new Error("Cannot use both Gelato and ZeroDev for gasless transactions. Choose one.");
         }
     }
     /**
@@ -215,105 +209,41 @@ class GAP extends types_1.Facade {
     }
     /**
      * Get the multicall contract
-     * @param signer - Viem client or ethers provider/signer for backward compatibility
+     * @param signer
      */
     static async getMulticall(signer) {
-        // Get chain ID based on provider type
-        let chainId;
-        // Try multiple ways to extract chain ID for different client types
-        if (signer.chain?.id) {
-            chainId = signer.chain.id;
-        }
-        else if (signer.getChainId) {
-            chainId = await signer.getChainId();
-        }
-        else if (signer._network?.chainId) {
-            chainId = signer._network.chainId;
-        }
-        else if (signer.network?.chainId) {
-            chainId = signer.network.chainId;
-        }
-        else {
-            console.warn("Unable to detect chain ID from signer, defaulting to 1 (mainnet)");
-            chainId = 1;
-        }
-        const network = Object.values(consts_1.Networks).find((n) => +n.chainId === chainId);
-        if (!network) {
-            console.error("Available networks:", Object.entries(consts_1.Networks).map(([key, n]) => ({
-                network: key,
-                chainId: n.chainId,
-            })));
-            throw new Error(`Network ${chainId} not supported.`);
-        }
+        const chain = (await signer.provider.getNetwork()) || signer.provider.network;
+        const network = Object.values(consts_1.Networks).find((n) => +n.chainId === Number(chain.chainId));
+        if (!network)
+            throw new Error(`Network ${chain.name || chain.chainId} not supported.`);
         const address = network.contracts.multicall;
-        if (!address) {
-            throw new Error(`Multicall contract address not found for chainId ${chainId}`);
-        }
-        const contract = (0, utils_2.createContract)(address, MultiAttester_json_1.default, signer);
-        return contract;
+        return new ethers_1.ethers.Contract(address, MultiAttester_json_1.default, signer);
     }
     /**
-     * Get the project resolver contract
-     * @param signer - Viem client or ethers provider/signer for backward compatibility
-     * @param chainId - Optional chain ID
+     * Get the multicall contract
+     * @param signer
      */
     static async getProjectResolver(signer, chainId) {
-        // Get chain ID if not provided
-        let currentChainId;
-        if (chainId) {
-            currentChainId = chainId;
-        }
-        else {
-            currentChainId = signer.chain?.id || 1;
-        }
-        // If chainId is provided and signer is ethers, use ethers provider
-        // Otherwise use the provided signer
-        let provider;
-        if (chainId && !(0, utils_2.isEthersProvider)(signer)) {
-            provider = (0, utils_2.getPublicClient)(chainId);
-        }
-        else {
-            provider = signer;
-        }
+        const currentChainId = chainId ||
+            Number((await signer.provider.getNetwork())?.chainId ||
+                (await signer.getChainId()));
+        const provider = chainId ? (0, get_web3_provider_1.getWeb3Provider)(chainId) : signer;
         const network = Object.values(consts_1.Networks).find((n) => +n.chainId === Number(currentChainId));
-        if (!network)
-            throw new Error(`Network ${currentChainId} not supported.`);
         const address = network.contracts.projectResolver;
-        return (0, utils_2.createContract)(address, ProjectResolver_json_1.default, provider);
+        return new ethers_1.ethers.Contract(address, ProjectResolver_json_1.default, provider);
     }
     /**
-     * Get the community resolver contract
-     * @param signer - Viem client or ethers provider/signer for backward compatibility
-     * @param chainId - Optional chain ID
+     * Get the multicall contract
+     * @param signer
      */
     static async getCommunityResolver(signer, chainId) {
-        // Get chain ID if not provided
-        let currentChainId;
-        if (chainId) {
-            currentChainId = chainId;
-        }
-        else if ((0, utils_2.isEthersProvider)(signer) || signer.getNetwork) {
-            const network = await signer.getNetwork();
-            currentChainId = Number(network.chainId);
-        }
-        else {
-            // Viem client
-            currentChainId = signer.chain?.id || 1;
-        }
-        // If chainId is provided and signer is ethers, use ethers provider
-        // Otherwise use the provided signer
-        let provider;
-        if (chainId && !(0, utils_2.isEthersProvider)(signer)) {
-            provider = (0, utils_2.getPublicClient)(chainId);
-        }
-        else {
-            provider = signer;
-        }
+        const currentChainId = chainId ||
+            Number((await signer.provider.getNetwork())?.chainId ||
+                (await signer.getChainId()));
+        const provider = chainId ? (0, get_web3_provider_1.getWeb3Provider)(chainId) : signer;
         const network = Object.values(consts_1.Networks).find((n) => +n.chainId === Number(currentChainId));
-        if (!network)
-            throw new Error(`Network ${currentChainId} not supported.`);
         const address = network.contracts.communityResolver;
-        return (0, utils_2.createContract)(address, CommunityResolverABI_json_1.default, provider);
+        return new ethers_1.ethers.Contract(address, CommunityResolverABI_json_1.default, provider);
     }
     get schemas() {
         return this._schemas;
@@ -350,35 +280,6 @@ class GAP extends types_1.Facade {
         }
         this._gelatoOpts.useGasless = useGasLess;
     }
-    /**
-     * ZeroDev configuration for smart account and paymaster support.
-     */
-    static set zeroDevOpts(zeroDevOpts) {
-        if (typeof this._zeroDevOpts === "undefined" ||
-            this._zeroDevOpts === null) {
-            this._zeroDevOpts = zeroDevOpts;
-        }
-        else {
-            throw new Error("Cannot change a readonly value zeroDevOpts.");
-        }
-    }
-    /**
-     * ZeroDev configuration for smart account and paymaster support.
-     */
-    static get zeroDevOpts() {
-        return this._zeroDevOpts;
-    }
-    /**
-     * Set whether to use ZeroDev for gasless transactions
-     */
-    static set enabled(enabled) {
-        if (enabled) {
-            console.warn("GAP::You are enabling ZeroDev but paymaster is not configured. Users may still pay gas.");
-        }
-        if (this._zeroDevOpts) {
-            this._zeroDevOpts.enabled = enabled;
-        }
-    }
     static get remoteClient() {
         return this.remoteStorage;
     }
@@ -386,4 +287,3 @@ class GAP extends types_1.Facade {
 exports.GAP = GAP;
 GAP.instances = new Map();
 GAP._gelatoOpts = null;
-GAP._zeroDevOpts = null;

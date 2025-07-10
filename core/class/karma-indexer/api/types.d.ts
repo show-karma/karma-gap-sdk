@@ -231,6 +231,7 @@ export interface IProjectResponse extends IAttestationResponse {
     symlinks: Hex[];
     endorsements: IProjectEndorsement[];
     milestones: IProjectMilestoneResponse[];
+    payoutAddress?: Hex;
 }
 export interface ICommunityDetails extends IAttestationResponse {
     type: "CommunityDetails";
