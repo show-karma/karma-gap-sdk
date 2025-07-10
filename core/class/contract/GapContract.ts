@@ -207,7 +207,16 @@ export class GapContract {
     callback?.("pending");
 
     const walletClient = signer as PublicClient<Transport, Chain>;
-    result = await walletClient.waitForTransactionReceipt({ hash: txHash });
+    const { createPublicClient, http } = await import("viem");
+    const publicClient = createPublicClient({
+      chain: walletClient.chain,
+      transport: http(
+        walletClient.transport.url ||
+          walletClient.transport.url_ ||
+          walletClient.transport._url
+      ),
+    });
+    result = await publicClient.waitForTransactionReceipt({ hash: txHash });
 
     callback?.("confirmed");
 
