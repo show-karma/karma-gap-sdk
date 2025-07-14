@@ -3,7 +3,7 @@ import MulticallABI from "../abi/MultiAttester.json";
 import ProjectResolverABI from "../abi/ProjectResolver.json";
 
 import { EAS } from "@ethereum-attestation-service/eas-sdk";
-import { createEASInstance, UniversalContract } from "../utils";
+import { createEASInstance, isWalletClient, UniversalContract } from "../utils";
 import { version } from "../../package.json";
 import { MountEntities, Networks } from "../consts";
 import {
@@ -15,7 +15,7 @@ import {
   TSchemaName,
   ZeroDevConfig,
 } from "../types";
-import { getPublicClient, createContract, isEthersProvider } from "../utils";
+import { getPublicClient, createContract } from "../utils";
 import {
   type PublicClient,
   type WalletClient,
@@ -477,7 +477,7 @@ export class GAP extends Facade {
     // If chainId is provided and signer is ethers, use ethers provider
     // Otherwise use the provided signer
     let provider: any;
-    if (chainId && !isEthersProvider(signer)) {
+    if (chainId && !isWalletClient(signer)) {
       provider = getPublicClient(chainId);
     } else {
       provider = signer;
@@ -509,9 +509,6 @@ export class GAP extends Facade {
     let currentChainId: number;
     if (chainId) {
       currentChainId = chainId;
-    } else if (isEthersProvider(signer) || (signer as any).getNetwork) {
-      const network = await (signer as any).getNetwork();
-      currentChainId = Number(network.chainId);
     } else {
       // Viem client
       currentChainId = (signer as any).chain?.id || 1;
@@ -520,7 +517,7 @@ export class GAP extends Facade {
     // If chainId is provided and signer is ethers, use ethers provider
     // Otherwise use the provided signer
     let provider: any;
-    if (chainId && !isEthersProvider(signer)) {
+    if (chainId && !isWalletClient(signer)) {
       provider = getPublicClient(chainId);
     } else {
       provider = signer;

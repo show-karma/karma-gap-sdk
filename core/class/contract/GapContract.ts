@@ -13,7 +13,6 @@ import { Transaction, createTransaction } from "../../utils/unified-types";
 import { Gelato, sendGelatoTxn } from "../../utils/gelato/send-gelato-txn";
 import { serializeWithBigint } from "../../utils/serialize-bigint";
 import {
-  isEthersSigner,
   isWalletClient,
   isKernelClient,
   supportsPaymaster,
@@ -55,7 +54,6 @@ export class GapContract {
   static nonces: { [key: string]: number } = {};
   /**
    * Signs a message for the delegated attestation.
-   * Supports both ethers and viem signers.
    * @param signer
    * @param payload
    * @returns r,s,v signature
@@ -72,10 +70,7 @@ export class GapContract {
 
     // Get chain ID based on signer type
     let chainId: bigint;
-    if (isEthersSigner(signer)) {
-      const network = await (signer as any).provider.getNetwork();
-      chainId = BigInt(network.chainId);
-    } else if (isWalletClient(signer)) {
+    if (isWalletClient(signer)) {
       chainId = BigInt(
         (signer as WalletClient<Transport, Chain, Account>).chain?.id || 1
       );
@@ -97,13 +92,7 @@ export class GapContract {
     console.log({ domain, AttestationDataTypes, data });
 
     let signature: string;
-    if (isEthersSigner(signer)) {
-      signature = await (signer as any)._signTypedData(
-        domain,
-        AttestationDataTypes,
-        data
-      );
-    } else if (isWalletClient(signer)) {
+    if (isWalletClient(signer)) {
       const walletClient = signer as WalletClient<Transport, Chain, Account>;
       signature = await walletClient.signTypedData({
         account: walletClient.account!,
@@ -133,9 +122,7 @@ export class GapContract {
   }
 
   public static async getSignerAddress(signer: SignerOrProvider): Promise<Hex> {
-    if (isEthersSigner(signer)) {
-      return (await (signer as any).getAddress()) as Hex;
-    } else if (isWalletClient(signer)) {
+    if (isWalletClient(signer)) {
       const walletClient = signer as WalletClient<Transport, Chain, Account>;
       return walletClient.account?.address as Hex;
     } else {

@@ -17,11 +17,6 @@ import {
   decodeFunctionResult,
   getContract,
 } from "viem";
-import {
-  isEthersProvider,
-  isEthersSigner,
-  adaptEthersToViem,
-} from "./provider-adapter";
 
 /**
  * Universal contract interface that works with viem
@@ -185,10 +180,6 @@ export async function createContract(
  * Helper to check if a provider supports write operations
  */
 export function supportsWrites(provider: any): boolean {
-  if (isEthersSigner(provider)) {
-    return true;
-  }
-
   if (provider?.mode === "walletClient") {
     return true;
   }

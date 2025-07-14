@@ -22,9 +22,6 @@ export {
   // Viem utilities
   getPublicClient,
   getChain,
-  isEthersProvider,
-  isEthersSigner,
-  adaptEthersToViem,
   ethersBigNumberToBigInt,
   ethersAddressToViem,
   ethersTransactionToViem,

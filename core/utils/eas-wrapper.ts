@@ -1,6 +1,5 @@
 import { EAS } from "@ethereum-attestation-service/eas-sdk";
 import { SignerOrProvider } from "../types";
-import { isEthersSigner } from "./provider-adapter";
 import { isWalletClient } from "./compatibility";
 
 /**
@@ -20,11 +19,6 @@ export function createEASInstance(contractAddress: string): EAS {
  * If it's already an ethers signer, it connects directly.
  */
 export function connectEAS(eas: EAS, signerOrProvider: SignerOrProvider): EAS {
-  // If it's already an ethers wallet/provider, connect directly
-  if (isEthersSigner(signerOrProvider) || (signerOrProvider as any).provider) {
-    return eas.connect(signerOrProvider as any);
-  }
-
   // If it's a viem client, we need to create an ethers-compatible wrapper
   if (isWalletClient(signerOrProvider)) {
     // Create an ethers provider that wraps the viem client

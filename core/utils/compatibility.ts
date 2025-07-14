@@ -15,11 +15,6 @@ import type {
 } from "viem";
 import { isAddress as viemIsAddress } from "viem";
 import {
-  isEthersProvider,
-  isEthersSigner,
-  adaptEthersToViem,
-} from "./provider-adapter";
-import {
   parseUnits,
   formatUnits,
   isAddress,
@@ -93,11 +88,6 @@ export async function getViemClient(
 ): Promise<
   PublicClient<Transport, Chain> | WalletClient<Transport, Chain, Account>
 > {
-  // Handle ethers providers/signers
-  if (isEthersProvider(provider) || isEthersSigner(provider)) {
-    return adaptEthersToViem(provider);
-  }
-
   // Already viem client
   if (provider?.mode === "publicClient" || provider?.mode === "walletClient") {
     return provider;
@@ -114,7 +104,7 @@ export async function getViemClient(
 export function isWalletClient(
   provider: any
 ): provider is WalletClient<Transport, Chain, Account> {
-  return provider?.mode === "walletClient" || isEthersSigner(provider);
+  return provider?.mode === "walletClient";
 }
 
 /**
@@ -162,10 +152,7 @@ export function supportsPaymaster(provider: any): boolean {
 export function isPublicClient(
   provider: any
 ): provider is PublicClient<Transport, Chain> {
-  return (
-    provider?.mode === "publicClient" ||
-    (isEthersProvider(provider) && !isEthersSigner(provider))
-  );
+  return provider?.mode === "publicClient";
 }
 
 /**

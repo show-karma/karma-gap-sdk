@@ -12,7 +12,7 @@ import {
   Chain,
 } from "viem";
 import { createContract, UniversalContract } from "../../utils/viem-contracts";
-import { isEthersSigner, isWalletClient } from "../../utils";
+import { isWalletClient } from "../../utils";
 import { Allo } from "@allo-team/allo-v2-sdk";
 import { CreatePoolArgs } from "@allo-team/allo-v2-sdk/dist/Allo/types";
 import { TransactionData } from "@allo-team/allo-v2-sdk/dist/Common/types";
@@ -239,36 +239,28 @@ export class AlloBase {
   }
 
   private async getSignerAddress(): Promise<string> {
-    if (isEthersSigner(this.signer)) {
-      return (this.signer as any).getAddress();
-    } else if (isWalletClient(this.signer)) {
+    if (isWalletClient(this.signer)) {
       return (this.signer as any).account?.address;
     }
     throw new Error("Unable to get signer address");
   }
 
   private async getBalance(address: string): Promise<bigint> {
-    if (isEthersSigner(this.signer)) {
-      const provider = (this.signer as any).provider;
-      return provider.getBalance(address);
-    } else if (isWalletClient(this.signer)) {
+    if (isWalletClient(this.signer)) {
       return (this.signer as any).getBalance({ address });
     }
     throw new Error("Unable to get balance");
   }
 
   private async estimateGas(tx: any): Promise<bigint> {
-    if (isEthersSigner(this.signer)) {
-      const provider = (this.signer as any).provider;
-      return provider.estimateGas(tx);
-    } else if (isWalletClient(this.signer)) {
+    if (isWalletClient(this.signer)) {
       return (this.signer as any).estimateGas(tx);
     }
     throw new Error("Unable to estimate gas");
   }
 
   private async sendTransaction(tx: any): Promise<any> {
-    if (isEthersSigner(this.signer) || isWalletClient(this.signer)) {
+    if (isWalletClient(this.signer)) {
       return (this.signer as any).sendTransaction(tx);
     }
     throw new Error("Unable to send transaction");
