@@ -525,6 +525,45 @@ export class GapContract {
   }
 
   /**
+   * Performs a multi revocation using ZeroDev paymaster.
+   * Uses smart account capabilities for gasless transactions.
+   *
+   * @returns an empty array since revocations don't produce UIDs.
+   */
+  private static async multiRevokeWithPaymaster(
+    signer: KernelAccountClient,
+    payload: MultiRevocationRequest[]
+  ): Promise<AttestationWithTx> {
+    const contract = await GAP.getMulticall(signer);
+    const kernelClient = signer; // KernelClient extends WalletClient
+
+    try {
+      // Use ZeroDev's writeContract with paymaster for gasless transactions
+      const txHash = await kernelClient.writeContract({
+        account: kernelClient.account,
+        chain: kernelClient.chain,
+        address: contract.address,
+        abi: contract.abi,
+        functionName: "multiRevoke",
+        args: [payload],
+        // ZeroDev paymaster will automatically sponsor gas if configured
+      });
+
+      // Wait for transaction receipt using ethers provider
+      const provider = (await kernelToEthersSigner(kernelClient)).provider;
+      const result = await provider.waitForTransaction(txHash);
+
+      return {
+        tx: [createTransaction(txHash as string)],
+        uids: [], // Revocations don't produce UIDs
+      };
+    } catch (error) {
+      console.error("ZeroDev paymaster revocation failed:", error);
+      throw error;
+    }
+  }
+
+  /**
    * Performs a referenced multi attestation by signature.
    *
    * @returns an array with the attestation UIDs.
@@ -599,6 +638,18 @@ export class GapContract {
     payload: MultiRevocationRequest[]
   ): Promise<AttestationWithTx> {
     const contract = await GAP.getMulticall(signer);
+
+    // Check if we should use ZeroDev paymaster instead of Gelato
+    if (
+      GAP.zeroDevOpts?.enabled &&
+      isKernelClient(signer) &&
+      supportsPaymaster(signer)
+    ) {
+      return this.multiRevokeWithPaymaster(
+        signer as unknown as KernelAccountClient,
+        payload
+      );
+    }
 
     if (GAP.gelatoOpts?.useGasless) {
       return this.multiRevokeBySig(signer, payload);
