@@ -160,7 +160,6 @@ export interface IGrantResponse extends IAttestationResponse {
     external?: {
         [key: string]: string[];
     };
-    amount?: Hex;
 }
 export interface IMemberDetails extends IAttestationResponse {
     name: string;
@@ -232,7 +231,6 @@ export interface IProjectResponse extends IAttestationResponse {
     symlinks: Hex[];
     endorsements: IProjectEndorsement[];
     milestones: IProjectMilestoneResponse[];
-    payoutAddress?: Hex;
 }
 export interface ICommunityDetails extends IAttestationResponse {
     type: "CommunityDetails";

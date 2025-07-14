@@ -1,8 +1,10 @@
-import { ethers } from "ethers";
-import { AttestArgs, Facade, SchemaInterface, SignerOrProvider, TNetwork, TSchemaName } from "../types";
+import { UniversalContract } from "../utils";
+import { AttestArgs, Facade, SchemaInterface, SignerOrProvider, TNetwork, TSchemaName, ZeroDevConfig } from "../types";
+import { type PublicClient, type WalletClient, type Transport, type Chain, type Account } from "viem";
 import { Fetcher } from "./Fetcher";
 import { GapSchema } from "./GapSchema";
 import { RemoteStorage } from "./remote-storage/RemoteStorage";
+import { KernelAccountClient } from "@zerodev/sdk";
 interface GAPArgs {
     network: TNetwork;
     globalSchemas?: boolean;
@@ -90,6 +92,13 @@ interface GAPArgs {
         useGasless?: boolean;
     };
     /**
+     * ZeroDev configuration for smart account and paymaster support.
+     * If defined, will use ZeroDev for gasless transactions instead of Gelato.
+     *
+     * @see https://docs.zerodev.app/sdk/core-api/sponsor-gas
+     */
+    zeroDevOpts?: ZeroDevConfig;
+    /**
      * Defines a remote storage client to be used to store data.
      * If defined, all the details data from an attestation will
      * be stored in the remote storage, e.g. IPFS.
@@ -162,6 +171,7 @@ export declare class GAP extends Facade {
     readonly network: TNetwork;
     private _schemas;
     private static _gelatoOpts;
+    private static _zeroDevOpts;
     /**
      * Get the singleton instance of GAP for a specific network.
      * If no instance exists for the network, creates one with the provided args.
@@ -176,6 +186,7 @@ export declare class GAP extends Facade {
      */
     constructor(args: GAPArgs);
     private assertGelatoOpts;
+    private assertZeroDevOpts;
     /**
      * Creates the attestation payload using a specific schema.
      * @param from
@@ -216,23 +227,21 @@ export declare class GAP extends Facade {
     findManySchemas(names: TSchemaName[]): GapSchema[];
     /**
      * Get the multicall contract
-     * @param signer
+     * @param signer - Viem client or ethers provider/signer for backward compatibility
      */
-    static getMulticall(signer: SignerOrProvider): Promise<ethers.Contract>;
+    static getMulticall(signer: PublicClient<Transport, Chain> | WalletClient<Transport, Chain, Account> | KernelAccountClient): Promise<UniversalContract>;
     /**
-     * Get the multicall contract
-     * @param signer
+     * Get the project resolver contract
+     * @param signer - Viem client or ethers provider/signer for backward compatibility
+     * @param chainId - Optional chain ID
      */
-    static getProjectResolver(signer: SignerOrProvider & {
-        getChainId?: () => Promise<number>;
-    }, chainId?: number): Promise<ethers.Contract>;
+    static getProjectResolver(signer: SignerOrProvider | PublicClient<Transport, Chain> | WalletClient<Transport, Chain, Account>, chainId?: number): Promise<UniversalContract>;
     /**
-     * Get the multicall contract
-     * @param signer
+     * Get the community resolver contract
+     * @param signer - Viem client or ethers provider/signer for backward compatibility
+     * @param chainId - Optional chain ID
      */
-    static getCommunityResolver(signer: SignerOrProvider & {
-        getChainId?: () => Promise<number>;
-    }, chainId?: number): Promise<ethers.Contract>;
+    static getCommunityResolver(signer: SignerOrProvider | PublicClient<Transport, Chain> | WalletClient<Transport, Chain, Account>, chainId?: number): Promise<UniversalContract>;
     get schemas(): GapSchema[];
     /**
      * Defined if the transactions will be gasless or not.
@@ -249,6 +258,18 @@ export declare class GAP extends Facade {
      */
     static get gelatoOpts(): GAPArgs["gelatoOpts"];
     static set useGasLess(useGasLess: boolean);
+    /**
+     * ZeroDev configuration for smart account and paymaster support.
+     */
+    private static set zeroDevOpts(value);
+    /**
+     * ZeroDev configuration for smart account and paymaster support.
+     */
+    static get zeroDevOpts(): ZeroDevConfig;
+    /**
+     * Set whether to use ZeroDev for gasless transactions
+     */
+    static set enabled(enabled: boolean);
     static get remoteClient(): RemoteStorage<unknown>;
 }
 export {};

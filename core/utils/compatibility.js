@@ -20,7 +20,6 @@ exports.bigIntToHex = bigIntToHex;
 exports.hexToBigInt = hexToBigInt;
 exports.safeParseInt = safeParseInt;
 const viem_1 = require("viem");
-const provider_adapter_1 = require("./provider-adapter");
 const migration_helpers_1 = require("./migration-helpers");
 Object.defineProperty(exports, "parseUnits", { enumerable: true, get: function () { return migration_helpers_1.parseUnits; } });
 Object.defineProperty(exports, "formatUnits", { enumerable: true, get: function () { return migration_helpers_1.formatUnits; } });
@@ -81,10 +80,6 @@ function normalizeHex(hex) {
  * @returns Viem client
  */
 async function getViemClient(provider) {
-    // Handle ethers providers/signers
-    if ((0, provider_adapter_1.isEthersProvider)(provider) || (0, provider_adapter_1.isEthersSigner)(provider)) {
-        return (0, provider_adapter_1.adaptEthersToViem)(provider);
-    }
     // Already viem client
     if (provider?.mode === "publicClient" || provider?.mode === "walletClient") {
         return provider;
@@ -97,7 +92,7 @@ async function getViemClient(provider) {
  * @returns True if wallet client
  */
 function isWalletClient(provider) {
-    return provider?.mode === "walletClient" || (0, provider_adapter_1.isEthersSigner)(provider);
+    return provider?.mode === "walletClient";
 }
 /**
  * Check if provider is a KernelClient from ZeroDev
@@ -135,8 +130,7 @@ function supportsPaymaster(provider) {
  * @returns True if public client
  */
 function isPublicClient(provider) {
-    return (provider?.mode === "publicClient" ||
-        ((0, provider_adapter_1.isEthersProvider)(provider) && !(0, provider_adapter_1.isEthersSigner)(provider)));
+    return provider?.mode === "publicClient";
 }
 /**
  * Convert bigint to hex string

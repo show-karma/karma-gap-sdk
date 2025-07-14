@@ -4,20 +4,44 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AlloBase = void 0;
-const ethers_1 = require("ethers");
+const migration_helpers_1 = require("../../utils/migration-helpers");
 const Allo_json_1 = __importDefault(require("../../abi/Allo.json"));
 const consts_1 = require("../../consts");
-const ethers_2 = require("ethers");
-const allo_v2_sdk_1 = require("@allo-team/allo-v2-sdk/");
+const viem_1 = require("viem");
+const viem_contracts_1 = require("../../utils/viem-contracts");
+const utils_1 = require("../../utils");
+const allo_v2_sdk_1 = require("@allo-team/allo-v2-sdk");
 const axios_1 = __importDefault(require("axios"));
 // ABI fragment for the Initialized event
-const INITIALIZED_EVENT = ["event Initialized(uint256 poolId, bytes data)"];
+const INITIALIZED_EVENT = [
+    {
+        anonymous: false,
+        inputs: [
+            {
+                indexed: true,
+                internalType: "uint256",
+                name: "poolId",
+                type: "uint256",
+            },
+            { indexed: false, internalType: "bytes", name: "data", type: "bytes" },
+        ],
+        name: "Initialized",
+        type: "event",
+    },
+];
 class AlloBase {
     constructor(signer, pinataJWTToken, chainId) {
         this.signer = signer;
-        this.contract = new ethers_1.ethers.Contract(consts_1.AlloContracts.alloProxy, Allo_json_1.default, signer);
+        this.contract = (0, viem_contracts_1.createContract)(consts_1.AlloContracts[chainId], Allo_json_1.default, signer);
         this.allo = new allo_v2_sdk_1.Allo({ chain: chainId });
         this.pinataJWTToken = pinataJWTToken;
+        this.chainId = chainId;
+    }
+    async getContract() {
+        if (this.contract instanceof Promise) {
+            this.contract = await this.contract;
+        }
+        return this.contract;
     }
     async saveAndGetCID(data, pinataMetadata = { name: "via karma-gap-sdk" }) {
         try {
@@ -37,82 +61,123 @@ class AlloBase {
         }
     }
     async encodeStrategyInitData(applicationStart, applicationEnd, roundStart, roundEnd, payoutToken) {
-        const encoder = new ethers_2.AbiCoder();
-        const initStrategyData = encoder.encode(["bool", "bool", "uint256", "uint256", "uint256", "uint256", "address[]"], [
+        const initStrategyData = (0, viem_1.encodeAbiParameters)((0, viem_1.parseAbiParameters)("bool, bool, uint256, uint256, uint256, uint256, address[]"), [
             false, // useRegistryAnchor
             true, // metadataRequired
-            applicationStart, // Eg. Curr + 1 hour later   registrationStartTime
-            applicationEnd, // Eg. Curr +  5 days later   registrationEndTime
-            roundStart, // Eg. Curr + 2 hours later  allocationStartTime
-            roundEnd, // Eg. Curr + 10 days later  allocaitonEndTime
+            BigInt(applicationStart), // registrationStartTime
+            BigInt(applicationEnd), // registrationEndTime
+            BigInt(roundStart), // allocationStartTime
+            BigInt(roundEnd), // allocationEndTime
             [payoutToken],
         ]);
         return initStrategyData;
     }
-    async createGrant(args, callback) {
-        console.log("Creating grant...");
-        const walletBalance = await this.signer.provider.getBalance(await this.signer.getAddress());
-        console.log("Wallet balance:", (0, ethers_1.formatEther)(walletBalance.toString()), " ETH");
-        try {
-            const metadata_cid = await this.saveAndGetCID({
-                round: args.roundMetadata,
-                application: args.applicationMetadata,
-            });
-            const metadata = {
-                protocol: BigInt(1),
-                pointer: metadata_cid,
-            };
-            const initStrategyData = (await this.encodeStrategyInitData(args.applicationStart, args.applicationEnd, args.roundStart, args.roundEnd, args.payoutToken));
-            const createPoolArgs = {
-                profileId: args.profileId,
-                strategy: args.strategy,
-                initStrategyData: initStrategyData, // unique to the strategy
-                token: args.payoutToken,
-                amount: BigInt(args.matchingFundAmt),
-                metadata: metadata,
-                managers: args.managers,
-            };
-            callback?.("preparing");
-            const txData = this.allo.createPool(createPoolArgs);
-            const tx = await this.signer.sendTransaction({
-                data: txData.data,
-                to: txData.to,
-                value: BigInt(txData.value),
-            });
-            callback?.("pending");
-            const receipt = await tx.wait();
-            callback?.("confirmed");
-            // Create interface to parse the logs
-            const iface = new ethers_1.ethers.Interface(INITIALIZED_EVENT);
-            let poolId;
-            // Find the Initialized event in the logs
-            const initializedLog = receipt.logs.find((log) => {
-                try {
-                    const parsed = iface.parseLog(log);
-                    return parsed.name === "Initialized";
-                }
-                catch {
-                    return false;
-                }
-            });
-            if (initializedLog) {
-                const parsedLog = iface.parseLog(initializedLog);
-                poolId = parsedLog.args.poolId.toString();
-                console.log(`Transaction ${tx.hash} - Found poolId: ${poolId}`);
-            }
-            else {
-                poolId = receipt.logs[receipt.logs.length - 1].topics[1]; // Fallback to Initialized order logic
-                console.log(`No Initialized event found in tx ${tx.hash}`);
-            }
-            return {
-                poolId: BigInt(poolId).toString(),
-                txHash: tx.hash,
-            };
+    async encodeFundPool(poolId, amount) {
+        const encodedData = (0, viem_1.encodeAbiParameters)((0, viem_1.parseAbiParameters)("uint256 poolId, uint256 amount"), [BigInt(poolId), amount]);
+        return encodedData;
+    }
+    async estimateCreateProgramGas(createPoolArgs) {
+        const address = await this.getSignerAddress();
+        const txData = this.allo.createPool(createPoolArgs);
+        const gas = await this.estimateGas({
+            to: txData.to,
+            from: address,
+            data: txData.data,
+            value: txData.value,
+        });
+        return gas;
+    }
+    async getWalletBalance() {
+        const address = await this.getSignerAddress();
+        const walletBalance = await this.getBalance(address);
+        return (0, migration_helpers_1.formatUnits)(walletBalance.toString(), 18); // ETH has 18 decimals
+    }
+    async createProgram(createPoolArgs) {
+        const address = await this.getSignerAddress();
+        const walletBalance = await this.getBalance(address);
+        console.log("Wallet Balance Before Create Pool TX:", (0, migration_helpers_1.formatUnits)(walletBalance.toString(), 18), "ETH");
+        console.log(createPoolArgs);
+        const encodedData = (0, viem_1.encodeAbiParameters)((0, viem_1.parseAbiParameters)("uint256 _profileId, address _strategy, bytes _initStrategyData, address _token, uint256 _amount, (uint256 protocol, uint256 pointer) _metadata, address[] _managers"), [
+            BigInt(createPoolArgs.profileId),
+            createPoolArgs.strategy,
+            createPoolArgs.initStrategyData,
+            createPoolArgs.token,
+            createPoolArgs.amount,
+            {
+                protocol: BigInt(createPoolArgs.metadata.protocol),
+                pointer: BigInt(createPoolArgs.metadata.pointer),
+            },
+            createPoolArgs.managers,
+        ]);
+        console.log("Encoded data:", encodedData);
+        const txData = this.allo.createPool(createPoolArgs);
+        const tx = await this.sendTransaction({
+            from: address,
+            to: txData.to,
+            data: txData.data,
+            value: txData.value,
+        });
+        const walletClient = this.signer;
+        const receipt = await walletClient.waitForTransactionReceipt({
+            hash: tx.hash,
+        });
+        if (!receipt) {
+            throw new Error("Transaction failed");
         }
-        catch (error) {
-            console.error(`Failed to create pool: ${error}`);
-            throw new Error(`Failed to create pool metadata: ${error}`);
+        // Find the pool ID from the logs
+        const poolId = await this.getPoolIdFromReceipt(receipt);
+        if (!poolId) {
+            throw new Error("Pool ID not found in transaction receipt");
         }
+        console.log(`Transaction ${tx.hash} - Found poolId: ${poolId}`);
+        const walletBalanceAfter = await this.getBalance(address);
+        console.log("Wallet Balance After Create Pool TX:", (0, migration_helpers_1.formatUnits)(walletBalanceAfter.toString(), 18), "ETH");
+        return poolId;
+    }
+    async getPoolIdFromReceipt(receipt) {
+        const logs = receipt.logs || [];
+        for (const log of logs) {
+            try {
+                const decoded = (0, viem_1.decodeEventLog)({
+                    abi: INITIALIZED_EVENT,
+                    data: log.data,
+                    topics: log.topics,
+                });
+                if (decoded.eventName === "Initialized" &&
+                    decoded.args?.poolId) {
+                    return decoded.args.poolId;
+                }
+            }
+            catch (e) {
+                // Skip logs that don't match the event
+                continue;
+            }
+        }
+        return null;
+    }
+    async getSignerAddress() {
+        if ((0, utils_1.isWalletClient)(this.signer)) {
+            return this.signer.account?.address;
+        }
+        throw new Error("Unable to get signer address");
+    }
+    async getBalance(address) {
+        if ((0, utils_1.isWalletClient)(this.signer)) {
+            return this.signer.getBalance({ address });
+        }
+        throw new Error("Unable to get balance");
+    }
+    async estimateGas(tx) {
+        if ((0, utils_1.isWalletClient)(this.signer)) {
+            return this.signer.estimateGas(tx);
+        }
+        throw new Error("Unable to estimate gas");
+    }
+    async sendTransaction(tx) {
+        if ((0, utils_1.isWalletClient)(this.signer)) {
+            return this.signer.sendTransaction(tx);
+        }
+        throw new Error("Unable to send transaction");
     }
     async updatePoolMetadata(poolId, poolMetadata, callback) {
         try {
@@ -122,9 +187,12 @@ class AlloBase {
                 protocol: 1,
                 pointer: metadata_cid,
             };
-            const tx = await this.contract.updatePoolMetadata(poolId, metadata);
+            const tx = await (await this.getContract()).write("updatePoolMetadata", [poolId, metadata]);
             callback?.("pending");
-            const receipt = await tx.wait();
+            const walletClient = this.signer;
+            const receipt = await walletClient.waitForTransactionReceipt({
+                hash: tx.hash,
+            });
             callback?.("confirmed");
             return receipt;
         }

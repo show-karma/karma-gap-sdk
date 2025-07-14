@@ -1,6 +1,6 @@
 import { MultiRevocationRequest } from "@ethereum-attestation-service/eas-sdk";
 import { CallbackStatus, Hex, RawAttestationPayload, RawMultiAttestPayload, SignerOrProvider } from "core/types";
-import { Transaction } from "ethers";
+import { Transaction } from "../../utils/unified-types";
 import { AttestationWithTx } from "../types/attestations";
 export declare class GapContract {
     static nonces: {
@@ -19,7 +19,7 @@ export declare class GapContract {
      * @returns
      */
     private static getRSV;
-    static getSignerAddress(signer: SignerOrProvider): Promise<any>;
+    static getSignerAddress(signer: SignerOrProvider): Promise<Hex>;
     /**
      * Get nonce for the transaction
      * @param address
@@ -33,6 +33,13 @@ export declare class GapContract {
      * @returns
      */
     static attest(signer: SignerOrProvider, payload: RawAttestationPayload, callback?: ((status: CallbackStatus) => void) & ((status: string) => void)): Promise<AttestationWithTx>;
+    /**
+     * Send a single attestation using ZeroDev paymaster
+     * @param signer
+     * @param payload
+     * @returns
+     */
+    private static attestWithPaymaster;
     static attestBySig(signer: SignerOrProvider, payload: RawAttestationPayload): Promise<{
         tx: Transaction[];
         uids: `0x${string}`[];
@@ -44,14 +51,28 @@ export declare class GapContract {
      */
     static multiAttest(signer: SignerOrProvider, payload: RawMultiAttestPayload[], callback?: Function): Promise<AttestationWithTx>;
     /**
-     * Performs a referenced multi attestation.
+     * Performs a referenced multi attestation using ZeroDev paymaster.
+     * Uses smart account capabilities for gasless transactions.
+     *
+     * @returns an array with the attestation UIDs.
+     */
+    private static multiAttestWithPaymaster;
+    /**
+     * Performs a multi revocation using ZeroDev paymaster.
+     * Uses smart account capabilities for gasless transactions.
+     *
+     * @returns an empty array since revocations don't produce UIDs.
+     */
+    private static multiRevokeWithPaymaster;
+    /**
+     * Performs a referenced multi attestation by signature.
      *
      * @returns an array with the attestation UIDs.
      */
     static multiAttestBySig(signer: SignerOrProvider, payload: RawMultiAttestPayload[]): Promise<AttestationWithTx>;
     static multiRevoke(signer: SignerOrProvider, payload: MultiRevocationRequest[]): Promise<AttestationWithTx>;
     /**
-     * Performs a referenced multi attestation.
+     * Performs a multi revocation by signature.
      *
      * @returns an array with the attestation UIDs.
      */
@@ -92,10 +113,10 @@ export declare class GapContract {
      */
     static addProjectAdmin(signer: SignerOrProvider, projectUID: Hex, newAdmin: Hex): Promise<any>;
     /**
-     * RemoveProject Admin
+     * Remove Project Admin
      * @param signer
      * @param projectUID
-     * @param newAdmin
+     * @param oldAdmin
      * @returns
      */
     static removeProjectAdmin(signer: SignerOrProvider, projectUID: Hex, oldAdmin: Hex): Promise<any>;

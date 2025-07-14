@@ -1,36 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isEthersProvider = isEthersProvider;
-exports.isEthersSigner = isEthersSigner;
 exports.ethersProviderToViemClient = ethersProviderToViemClient;
 exports.ethersSignerToViemClient = ethersSignerToViemClient;
-exports.adaptEthersToViem = adaptEthersToViem;
 const viem_1 = require("viem");
 const viem_provider_1 = require("./viem-provider");
-/**
- * Provider adapter for backward compatibility
- * Converts ethers providers to viem clients
- * This allows existing code using ethers to work with the viem-based SDK
- */
-/**
- * Type guard to check if provider is an ethers provider
- */
-function isEthersProvider(provider) {
-    return (provider &&
-        (typeof provider.getNetwork === "function" ||
-            typeof provider.getSigner === "function" ||
-            typeof provider._isProvider === "boolean" ||
-            provider.constructor?.name?.includes("Provider")));
-}
-/**
- * Type guard to check if signer is an ethers signer
- */
-function isEthersSigner(signer) {
-    return (signer &&
-        typeof signer.getAddress === "function" &&
-        typeof signer.signMessage === "function" &&
-        typeof signer.signTransaction === "function");
-}
 /**
  * Convert ethers provider to viem public client
  * @param provider - Ethers provider instance
@@ -157,21 +130,5 @@ async function ethersSignerToViemClient(signer) {
     catch (error) {
         console.error("Error converting ethers signer to viem:", error);
         throw new Error(`Failed to convert ethers signer: ${error instanceof Error ? error.message : "Unknown error"}`);
-    }
-}
-/**
- * Unified adapter that handles both providers and signers
- * @param providerOrSigner - Ethers provider or signer
- * @returns Viem client (public or wallet)
- */
-async function adaptEthersToViem(providerOrSigner) {
-    if (isEthersSigner(providerOrSigner)) {
-        return ethersSignerToViemClient(providerOrSigner);
-    }
-    else if (isEthersProvider(providerOrSigner)) {
-        return ethersProviderToViemClient(providerOrSigner);
-    }
-    else {
-        throw new Error("Invalid provider or signer: must be an ethers provider or signer");
     }
 }

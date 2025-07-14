@@ -3,7 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.createEASInstance = createEASInstance;
 exports.connectEAS = connectEAS;
 const eas_sdk_1 = require("@ethereum-attestation-service/eas-sdk");
-const provider_adapter_1 = require("./provider-adapter");
 const compatibility_1 = require("./compatibility");
 /**
  * Creates an EAS instance that's compatible with both ethers and viem
@@ -21,10 +20,6 @@ function createEASInstance(contractAddress) {
  * If it's already an ethers signer, it connects directly.
  */
 function connectEAS(eas, signerOrProvider) {
-    // If it's already an ethers wallet/provider, connect directly
-    if ((0, provider_adapter_1.isEthersSigner)(signerOrProvider) || signerOrProvider.provider) {
-        return eas.connect(signerOrProvider);
-    }
     // If it's a viem client, we need to create an ethers-compatible wrapper
     if ((0, compatibility_1.isWalletClient)(signerOrProvider)) {
         // Create an ethers provider that wraps the viem client

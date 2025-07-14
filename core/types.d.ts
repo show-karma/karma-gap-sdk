@@ -1,9 +1,19 @@
-import { BytesLike } from "ethers";
+import type { WalletClient, PublicClient, Transport, Chain, Account, Hex as ViemHex } from "viem";
 import { AttestationRequestData, EAS, MultiAttestationRequest, SchemaItem } from "@ethereum-attestation-service/eas-sdk";
 import { Attestation } from "./class";
 import { Fetcher } from "./class/Fetcher";
-export type Hex = `0x${string}`;
-export type SignerOrProvider = any;
+import { KernelAccountClient } from "@zerodev/sdk";
+export type Hex = ViemHex;
+export type BytesLike = Hex | Uint8Array;
+export type SignerOrProvider = WalletClient<Transport, Chain, Account> | PublicClient<Transport, Chain> | KernelAccountClient;
+export interface ZeroDevPaymasterConfig {
+    /** Enable paymaster for gas sponsorship */
+    enabled: boolean;
+}
+export interface ZeroDevConfig {
+    /** Use ZeroDev for gasless transactions instead of Gelato */
+    enabled: boolean;
+}
 export interface SchemaInterface<T extends string = string> {
     name: string;
     schema: SchemaItem[];

@@ -7,7 +7,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.createContract = createContract;
 exports.supportsWrites = supportsWrites;
 const viem_1 = require("viem");
-const provider_adapter_1 = require("./provider-adapter");
 /**
  * Create a universal contract instance
  * @param address - Contract address
@@ -102,9 +101,6 @@ async function createContract(address, abi, provider) {
  * Helper to check if a provider supports write operations
  */
 function supportsWrites(provider) {
-    if ((0, provider_adapter_1.isEthersSigner)(provider)) {
-        return true;
-    }
     if (provider?.mode === "walletClient") {
         return true;
     }

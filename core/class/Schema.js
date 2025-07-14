@@ -1,11 +1,45 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Schema = void 0;
 const eas_sdk_1 = require("@ethereum-attestation-service/eas-sdk");
 const SchemaError_1 = require("./SchemaError");
+const unified_types_1 = require("../utils/unified-types");
 const consts_1 = require("../consts");
 const GapContract_1 = require("./contract/GapContract");
-const ethers_1 = require("ethers");
+const migration_helpers_1 = require("../utils/migration-helpers");
 /**
  * Represents the EAS Schema and provides methods to encode and decode the schema,
  * and validate the schema references.
@@ -123,7 +157,7 @@ class Schema {
             throw new SchemaError_1.SchemaError("INVALID_SCHEMA_FIELD", `Field ${name} is of type ${type} but value is not a number.`);
         }
         if (type.includes("address") &&
-            !(0, ethers_1.isAddress)(value) &&
+            !(0, migration_helpers_1.isAddress)(value) &&
             value !== consts_1.zeroAddress) {
             throw new SchemaError_1.SchemaError("INVALID_SCHEMA_FIELD", `Field ${name} is of type ${type} but value is not a valid address.`);
         }
@@ -172,7 +206,9 @@ class Schema {
      * @returns
      */
     async attestOffchain({ data, signer, to, refUID }) {
-        const eas = await this.gap.eas.getOffchain();
+        const { connectEAS } = await Promise.resolve().then(() => __importStar(require("../utils/eas-wrapper")));
+        const connectedEas = connectEAS(this.gap.eas, signer);
+        const eas = await connectedEas.getOffchain();
         const payload = {
             data,
             version: eas.version,
@@ -192,7 +228,8 @@ class Schema {
      * @returns
      */
     async revokeOffchain(uid, signer) {
-        const eas = this.gap.eas.connect(signer);
+        const { connectEAS } = await Promise.resolve().then(() => __importStar(require("../utils/eas-wrapper")));
+        const eas = connectEAS(this.gap.eas, signer);
         return eas.revokeOffchain(uid);
     }
     /**
@@ -202,7 +239,8 @@ class Schema {
      * @returns
      */
     async multiRevokeOffchain(uids, signer) {
-        const eas = this.gap.eas.connect(signer);
+        const { connectEAS } = await Promise.resolve().then(() => __importStar(require("../utils/eas-wrapper")));
+        const eas = connectEAS(this.gap.eas, signer);
         return eas.multiRevokeOffchain(uids);
     }
     /**
@@ -220,7 +258,8 @@ class Schema {
      * @returns {Object} An object containing the attestation results, including the CID if 'ipfsKey' is enabled.
      */
     async attest({ data, to, signer, refUID, callback, }) {
-        const eas = this.gap.eas.connect(signer);
+        const { connectEAS } = await Promise.resolve().then(() => __importStar(require("../utils/eas-wrapper")));
+        const eas = connectEAS(this.gap.eas, signer);
         if (this.references && !refUID)
             throw new SchemaError_1.AttestationError("INVALID_REFERENCE", "Attestation schema references another schema but no reference UID was provided.");
         if (this.isJsonSchema()) {
@@ -238,7 +277,7 @@ class Schema {
                     recipient: to,
                     expirationTime: 0n,
                     revocable: true,
-                    data: this.schema,
+                    data: this.encode(this.schema), // Use encoded data for raw payload as well
                     refUID,
                     value: 0n,
                 },
@@ -262,11 +301,7 @@ class Schema {
             const uidResult = await uid.wait();
             callback?.("confirmed");
             return {
-                tx: [
-                    {
-                        hash: uidResult,
-                    },
-                ],
+                tx: [(0, unified_types_1.createTransaction)(uidResult)],
                 uids: [uidResult],
             };
         }
@@ -287,7 +322,8 @@ class Schema {
             if (this.references && !entity.refUID)
                 throw new SchemaError_1.SchemaError("INVALID_REF_UID", `Entity ${entity.schema.name} references another schema but no reference UID was provided.`);
         });
-        const eas = this.gap.eas.connect(signer);
+        const { connectEAS } = await Promise.resolve().then(() => __importStar(require("../utils/eas-wrapper")));
+        const eas = connectEAS(this.gap.eas, signer);
         const entityBySchema = entities.reduce((acc, entity) => {
             const schema = entity.schema.uid;
             if (!acc[schema])
@@ -316,7 +352,7 @@ class Schema {
                 callback("confirmed");
             return res;
         });
-        const tx = txResult.map((item) => ({ hash: item }));
+        const tx = txResult.map((item) => (0, unified_types_1.createTransaction)(item));
         return {
             tx,
             uids: txResult,
@@ -336,7 +372,8 @@ class Schema {
             acc[schemaId].push(uid);
             return acc;
         }, {});
-        const eas = this.gap.eas.connect(signer);
+        const { connectEAS } = await Promise.resolve().then(() => __importStar(require("../utils/eas-wrapper")));
+        const eas = connectEAS(this.gap.eas, signer);
         const payload = Object.entries(groupBySchema).map(([schema, uids]) => ({
             schema,
             data: uids.map((uid) => ({ uid })),
@@ -348,7 +385,7 @@ class Schema {
         await tx.wait();
         callback?.("confirmed");
         return {
-            tx: [{ hash: tx.tx.hash }],
+            tx: [(0, unified_types_1.createTransaction)(tx.tx.hash)],
             uids: payload.map((p) => p.data.map((d) => d.uid)).flat(),
         };
     }
