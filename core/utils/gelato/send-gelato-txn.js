@@ -23,9 +23,9 @@ async function sendByUrl(...params) {
  */
 async function sendByApiKey(...params) {
     const { apiKey } = GAP_1.GAP?.gelatoOpts || {};
-    if (!apiKey && params[1] === "{apiKey}")
-        throw new Error("No api key provided.");
-    if (apiKey && params[1] === "{apiKey}")
+    if (!apiKey && params[1] === '{apiKey}')
+        throw new Error('No api key provided.');
+    if (apiKey && params[1] === '{apiKey}')
         params[1] = apiKey;
     const client = new relay_sdk_1.GelatoRelay();
     const relayResponse = await client.sponsoredCall(...params);
@@ -46,10 +46,10 @@ async function sendByApiKey(...params) {
  */
 async function sendGelatoTxn(...params) {
     if (!GAP_1.GAP.gelatoOpts)
-        throw new Error("Gelato opts not set.");
+        throw new Error('Gelato opts not set.');
     const { env_gelatoApiKey, sponsorUrl, useGasless, contained } = GAP_1.GAP.gelatoOpts;
     if (!useGasless)
-        throw new Error("Gasless is not enabled.");
+        throw new Error('Gasless is not enabled.');
     if ((sponsorUrl && contained && env_gelatoApiKey) ||
         (sponsorUrl && !contained)) {
         return sendByUrl(...params);
@@ -59,7 +59,6 @@ async function sendGelatoTxn(...params) {
 }
 /**
  * Builds the arguments for a sponsored call using GelatoRelay
- * Compatible with both ethers and viem chain IDs
  * @param data Populated contract call.
  * @param chainId
  * @param target target contract address (Hex)
@@ -84,10 +83,10 @@ data, chainId, target) {
     return [
         {
             data,
-            chainId: BigInt(chainId), // Convert to bigint for Gelato SDK
+            chainId,
             target,
         },
-        "{apiKey}", // filled in the api
+        '{apiKey}', // filled in the api
         {
             retries: 3,
         },

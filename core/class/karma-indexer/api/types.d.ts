@@ -5,6 +5,11 @@ export type ExternalLink = {
     type: string;
     url: string;
 };
+export type ExternalCustomLink = {
+    type: 'custom';
+    url: string;
+    name: string;
+};
 export interface ITag {
     name: string;
 }
@@ -160,6 +165,7 @@ export interface IGrantResponse extends IAttestationResponse {
     external?: {
         [key: string]: string[];
     };
+    amount?: Hex;
 }
 export interface IMemberDetails extends IAttestationResponse {
     name: string;
@@ -182,7 +188,7 @@ export interface IProjectDetails extends IAttestationResponse {
         missionSummary?: string;
         locationOfImpact?: string;
         imageURL: string;
-        links?: ExternalLink[];
+        links?: Array<ExternalLink | ExternalCustomLink>;
         tags?: ITag[];
         slug?: string;
         type: "project-details";
@@ -231,6 +237,7 @@ export interface IProjectResponse extends IAttestationResponse {
     symlinks: Hex[];
     endorsements: IProjectEndorsement[];
     milestones: IProjectMilestoneResponse[];
+    payoutAddress?: Hex;
 }
 export interface ICommunityDetails extends IAttestationResponse {
     type: "CommunityDetails";

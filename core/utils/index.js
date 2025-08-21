@@ -21,12 +21,3 @@ __exportStar(require("./map-filter"), exports);
 __exportStar(require("./serialize-bigint"), exports);
 __exportStar(require("./to-unix"), exports);
 __exportStar(require("./get-ipfs-data"), exports);
-// Viem utilities
-__exportStar(require("./viem-provider"), exports);
-__exportStar(require("./provider-adapter"), exports);
-__exportStar(require("./migration-helpers"), exports);
-__exportStar(require("./viem-contracts"), exports);
-__exportStar(require("./account-abstraction"), exports);
-__exportStar(require("./compatibility"), exports);
-__exportStar(require("./eas-wrapper"), exports);
-__exportStar(require("./unified-types"), exports);

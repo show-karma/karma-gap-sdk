@@ -3,7 +3,7 @@ import { Hex } from "core/types";
 import { Project } from "../entities/Project";
 import { GapSchema } from "../GapSchema";
 import { GrantUpdate } from "../entities/GrantUpdate";
-import { Transaction } from "../../utils/unified-types";
+import { Transaction } from "ethers";
 /** Attestation interfaces */
 export type AttestationWithTx = {
     uids: Hex[];
@@ -13,6 +13,11 @@ export type ExternalLink = {
     type: string;
     url: string;
 }[];
+export type ExternalCustomLink = {
+    type: 'custom';
+    url: string;
+    name: string;
+};
 export interface ICommunityDetails {
     name: string;
     description: string;
@@ -107,7 +112,7 @@ export interface IProjectDetails {
     missionSummary?: string;
     locationOfImpact?: string;
     imageURL: string;
-    links?: ExternalLink;
+    links?: Array<ExternalLink[0] | ExternalCustomLink>;
     tags?: ITag[];
     externalIds?: string[];
     slug?: string;
@@ -125,7 +130,7 @@ export declare class ProjectDetails extends Attestation<IProjectDetails> impleme
     missionSummary?: string;
     locationOfImpact?: string;
     imageURL: string;
-    links: ExternalLink;
+    links: Array<ExternalLink[0] | ExternalCustomLink>;
     tags: ITag[];
     slug: string;
     type: string;

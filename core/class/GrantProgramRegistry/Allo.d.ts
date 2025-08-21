@@ -1,26 +1,17 @@
-import { type Hex } from "viem";
-import { CreatePoolArgs } from "@allo-team/allo-v2-sdk/dist/Allo/types";
-import { SignerOrProvider } from "../../types";
+import { ethers } from "ethers";
 export declare class AlloBase {
-    private allo;
-    private pinataJWTToken;
     private signer;
     private contract;
-    private chainId;
-    constructor(signer: SignerOrProvider, pinataJWTToken: string, chainId: number);
-    private getContract;
+    private allo;
+    private pinataJWTToken;
+    constructor(signer: ethers.Signer, pinataJWTToken: string, chainId: number);
     saveAndGetCID(data: any, pinataMetadata?: {
         name: string;
     }): Promise<any>;
-    encodeStrategyInitData(applicationStart: number, applicationEnd: number, roundStart: number, roundEnd: number, payoutToken: string): Promise<Hex>;
-    encodeFundPool(poolId: number, amount: bigint): Promise<Hex>;
-    estimateCreateProgramGas(createPoolArgs: CreatePoolArgs): Promise<bigint>;
-    getWalletBalance(): Promise<string>;
-    createProgram(createPoolArgs: CreatePoolArgs): Promise<bigint>;
-    private getPoolIdFromReceipt;
-    private getSignerAddress;
-    private getBalance;
-    private estimateGas;
-    private sendTransaction;
-    updatePoolMetadata(poolId: string, poolMetadata: any, callback?: Function): Promise<import("viem").TransactionReceipt>;
+    encodeStrategyInitData(applicationStart: number, applicationEnd: number, roundStart: number, roundEnd: number, payoutToken: string): Promise<string>;
+    createGrant(args: any, callback?: Function): Promise<{
+        poolId: string;
+        txHash: string;
+    }>;
+    updatePoolMetadata(poolId: string, poolMetadata: any, callback?: Function): Promise<any>;
 }

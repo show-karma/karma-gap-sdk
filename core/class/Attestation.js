@@ -214,7 +214,7 @@ class Attestation {
                         expirationTime: 0n,
                         revocable: this.schema.revocable || true,
                         value: 0n,
-                        data: this.schema.encode(), // Always use encoded data for contract calls
+                        data: (encode ? this.schema.encode() : this.schema.schema),
                         recipient: this.recipient,
                     },
                 ],

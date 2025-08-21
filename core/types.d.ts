@@ -1,19 +1,9 @@
-import type { WalletClient, PublicClient, Transport, Chain, Account, Hex as ViemHex } from "viem";
+import { BytesLike } from "ethers";
 import { AttestationRequestData, EAS, MultiAttestationRequest, SchemaItem } from "@ethereum-attestation-service/eas-sdk";
 import { Attestation } from "./class";
 import { Fetcher } from "./class/Fetcher";
-import { KernelAccountClient } from "@zerodev/sdk";
-export type Hex = ViemHex;
-export type BytesLike = Hex | Uint8Array;
-export type SignerOrProvider = WalletClient<Transport, Chain, Account> | PublicClient<Transport, Chain> | KernelAccountClient;
-export interface ZeroDevPaymasterConfig {
-    /** Enable paymaster for gas sponsorship */
-    enabled: boolean;
-}
-export interface ZeroDevConfig {
-    /** Use ZeroDev for gasless transactions instead of Gelato */
-    enabled: boolean;
-}
+export type Hex = `0x${string}`;
+export type SignerOrProvider = any;
 export interface SchemaInterface<T extends string = string> {
     name: string;
     schema: SchemaItem[];
@@ -39,7 +29,7 @@ export interface AttestArgs<T = unknown> {
 }
 export type TSchemaName = "Community" | "CommunityDetails" | "Grant" | "GrantDetails" | "GrantVerified" | "MemberOf" | "MemberDetails" | "Milestone" | "MilestoneCompleted" | "MilestoneApproved" | "Project" | "ProjectDetails" | "Details" | "ProjectImpact" | "ProjectUpdate" | "ProjectUpdateStatus" | "ProjectPointer" | "GrantUpdate" | "GrantUpdateStatus" | "ProjectEndorsement" | "ProjectMilestone" | "ProjectMilestoneStatus" | "ContributorProfile";
 export type TResolvedSchemaNames = "Community" | "Grant" | "GrantVerified" | "MemberOf" | "MilestoneCompleted" | "MilestoneApproved" | "Project" | "Details" | "ProjectUpdateStatus" | "GrantUpdateStatus" | "ProjectUpdateStatus" | "ProjectMilestoneStatus" | "ContributorProfile";
-export type TExternalLink = "twitter" | "github" | "website" | "linkedin" | "discord" | "pitchDeck" | "demoVideo" | "farcaster";
+export type TExternalLink = "twitter" | "github" | "website" | "linkedin" | "discord" | "pitchDeck" | "demoVideo" | "farcaster" | "custom";
 export type TNetwork = "optimism" | "celo" | "optimism-sepolia" | "arbitrum" | "sepolia" | "sei" | "sei-testnet" | "base-sepolia" | "lisk" | "scroll";
 /**
  * Generic GAP Facade interface.
