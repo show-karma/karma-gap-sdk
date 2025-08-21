@@ -17,6 +17,7 @@ export interface IContributorProfile {
   github?: string;
   twitter?: string;
   linkedin?: string;
+  farcaster?: string;
 }
 
 export class ContributorProfile
@@ -28,6 +29,7 @@ export class ContributorProfile
   github?: string;
   twitter?: string;
   linkedin?: string;
+  farcaster?: string;
 
   constructor(data: AttestationArgs<IContributorProfile, GapSchema>) {
     (data.data as any).type = "contributor-profile";

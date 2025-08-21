@@ -1,4 +1,4 @@
-import { BytesLike } from "ethers";
+mport { BytesLike } from "ethers";
 import {
   AttestationRequestData,
   EAS,
@@ -23,7 +23,7 @@ export interface SchemaInterface<T extends string = string> {
   references?: T;
   uid: Hex;
   revocable?: boolean;
-  oldSchemas?: {uid: string; raw: SchemaItem[]}[]; 
+  oldSchemas?: { uid: string; raw: SchemaItem[] }[];
 }
 
 export interface MultiRevokeArgs {
@@ -87,6 +87,9 @@ export type TExternalLink =
   | "website"
   | "linkedin"
   | "discord"
+  | "pitchDeck"
+  | "demoVideo"
+  | "farcaster"
   | "custom";
 
 export type TNetwork =
@@ -99,7 +102,9 @@ export type TNetwork =
   | "sepolia"
   | "sei"
   | "sei-testnet"
-  | "base-sepolia";
+  | "base-sepolia"
+  | "lisk"
+  | "scroll";
 
 /**
  * Generic GAP Facade interface.
@@ -157,7 +162,7 @@ export interface EASNetworkConfig {
   oldSchemas?: {
     name: string;
     uid: string;
-    raw: SchemaItem[]
+    raw: SchemaItem[];
   }[];
 }
 

@@ -122,11 +122,21 @@ export class Project extends Attestation<IProject> {
   }
 
   isOwner(signer: SignerOrProvider, publicAddress?: string): Promise<boolean> {
-    return GapContract.isProjectOwner(signer, this.uid, this.chainID, publicAddress);
+    return GapContract.isProjectOwner(
+      signer,
+      this.uid,
+      this.chainID,
+      publicAddress
+    );
   }
 
   isAdmin(signer: SignerOrProvider, publicAddress?: string): Promise<boolean> {
-    return GapContract.isProjectAdmin(signer, this.uid, this.chainID, publicAddress);
+    return GapContract.isProjectAdmin(
+      signer,
+      this.uid,
+      this.chainID,
+      publicAddress
+    );
   }
 
   /**
@@ -345,13 +355,14 @@ export class Project extends Attestation<IProject> {
   }
 
   static from(attestations: IProjectResponse[], network: TNetwork): Project[] {
+    const allSchemas = new AllGapSchemas();
     return attestations.map((attestation) => {
       const project = new Project({
         ...attestation,
         data: {
           project: true,
         },
-        schema: new AllGapSchemas().findSchema(
+        schema: allSchemas.findSchema(
           "Project",
           chainIdToNetwork[attestation.chainID] as TNetwork
         ),
@@ -365,7 +376,7 @@ export class Project extends Attestation<IProject> {
           data: {
             ...details.data,
           },
-          schema: new AllGapSchemas().findSchema(
+          schema: allSchemas.findSchema(
             "ProjectDetails",
             chainIdToNetwork[attestation.chainID] as TNetwork
           ),
@@ -391,7 +402,7 @@ export class Project extends Attestation<IProject> {
             data: {
               memberOf: true,
             },
-            schema: new AllGapSchemas().findSchema(
+            schema: allSchemas.findSchema(
               "MemberOf",
               chainIdToNetwork[attestation.chainID] as TNetwork
             ),
@@ -405,7 +416,7 @@ export class Project extends Attestation<IProject> {
               data: {
                 ...details.data,
               },
-              schema: new AllGapSchemas().findSchema(
+              schema: allSchemas.findSchema(
                 "MemberDetails",
                 chainIdToNetwork[attestation.chainID] as TNetwork
               ),
@@ -456,7 +467,7 @@ export class Project extends Attestation<IProject> {
             data: {
               ...pi.data,
             },
-            schema: new AllGapSchemas().findSchema(
+            schema: allSchemas.findSchema(
               "ProjectDetails",
               chainIdToNetwork[attestation.chainID] as TNetwork
             ),

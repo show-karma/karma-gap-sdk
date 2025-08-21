@@ -1,0 +1,155 @@
+DatabaseEntities:
+  attestation: _id, uid, schemaUID, refUID, attester, recipient, revoked, revocationTime, createdAt, updatedAt, chainID, type, data, external, txid
+  category: _id, name, communityId, createdAt, updatedAt
+  project_category: _id, category, attestationId, createdAt, updatedAt
+  project_contact: _id, attestationId, name, email, telegram, createdAt, updatedAt
+  project_subscription: _id, name, email, subscriptionUids, createdAt, updatedAt
+  program_registry: _id, programId, profileId, chainID, name, isValid, createdAtBlock, createdByAddress, metadata, updatedAtBlock, projectNumber, projectType, registryAddress, anchorAddress, txHash, createdAt, updatedAt, approvedAt
+  embeddings: _id, entityId, entityType, embeddings, createdAt, updatedAt
+  offchain_program_registry: _id, profileID, name, chainID, metadata, isValid, createdAt, updatedAt
+  bulk_project_subscription: _id, email, publicAddress, createdAt, updatedAt
+  project_request_intro: _id, projectUID, chainID, email, telegram, message, status, createdAt, updatedAt
+  external_impact: _id, data, isOnchain, createdAt, updatedAt
+  milestone_evaluations: _id, projectUID, grantUID, chainID, milestoneUID, description, completionText, rating, reasoning, model, createdAt, updatedAt
+  project_member_invite_link: _id, attestationId, hash, revoked, createdAt, updatedAt
+  impact_indicators: _id, name, description, unitOfMeasure, communityUID, chainID, createdAt, updatedAt
+  impact_segments: _id, name, description, type, categoryId, createdAt, updatedAt, impact_indicators
+  impact_indicator_datapoints: _id, value, startDate, endDate, proof, projectUID, chainID, impactIndicatorId, createdAt, updatedAt
+
+# This is how GAP stores its entities
+Community:
+  type: attestation[]
+  reference: type("Community")
+  description: Used as the main entity for communities
+  relationships:
+    Details:
+      type: attestation
+      reference: refUID(Community.uid), type("CommunityDetails")
+      description: Details about the Community - always use the latest CommunityDetails by createdAt
+
+    Grant:
+      type: attestation
+      reference: refUID(Project.uid) data.communityUID(Community.uid), type("Grant")
+      description: Grants within a community recieved by a project
+      extras: external.gitcoin => contains gitcoin projectIds for the project, external.octant => contains octant projectIds for the project
+      relationships:
+        Details:
+          type: attestation
+          reference: refUID(Grant.uid), type("GrantDetails")
+          description: Details about the Grant - always use the latest GrantDetails by createdAt
+
+        Project:
+          type: attestation[]
+          reference: refUID(Project.uid), uid(Grant.uid), type("Project")
+          description: Used as the main entity for the projects
+          extras: external.oso[] => contains OSO(Open Source Obeservatory) slugs for the project, external.contractAddresses[] = ["0x123", "0x456"], contract addresses of the project
+          relationships:
+            Details:
+              type: attestation
+              reference: refUID(Project.uid), type("ProjectDetails")
+              description: Details about the Project - always use the latest ProjectDetails by createdAt
+
+            ProjectPointer:
+              type: attestation[]
+              reference: refUID(ProjectB.uid), type("ProjectPointer"), data.ogProjectUID(ProjectA.uid)
+              description: Pointer to the original project - used for merging projects
+
+            ProjectImpact:
+              type: attestation[]
+              reference: refUID(Project.uid), type("ProjectImpact")
+              description: Impacts of the project
+              relationship:
+                ProjectImpactVerified:
+                  type: attestation[]
+                  reference: refUID(ProjectImpact.uid), type("ProjectImpactVerified")
+                  description: Used to show the show verifications of the Project Impact
+
+            ProjectMilestone:
+              type: attestation[]
+              reference: refUID(Project.uid), type("ProjectMilestone")
+              description: Milestones of the project
+              relationships:
+                ProjectMilestoneCompleted:
+                  type: attestation[]
+                  reference: refUID(ProjectMilestone.uid), type("ProjectMilestoneCompleted")
+                  description: Entity to track if a milestone is completed
+
+            ProjectEndorsement:
+              type: attestation[]
+              reference: refUID(Project.uid), type("ProjectEndorsement")
+              description: Endorsements of the project
+
+            ProjectUpdate:
+              type: attestation[]
+              reference: refUID(Project.uid), type("ProjectUpdate")
+              description: Updates of the project
+
+            MemberOf:
+              type: attestation[]
+              reference: refUID(Project.uid), type("MemberOf")
+              description: Members of the project are represented in recipient(0x{string})
+
+            ProjectCategory:
+              type: project_category[]
+              references: attestationId(Project._id), categoryId(Category._id)
+              description: Mapping of categories to projects
+
+        GrantUpdate:
+          type: attestation[]
+          reference: refUID(Grant.uid), type("GrantUpdate")
+          description: Updates of a recieved Grant
+          relationships:
+            GrantUpdateStatus:
+              type: attestation
+              reference: refUID(GrantUpdate.uid), type("GrantUpdateStatus")
+              description: Used to describe the status of a GrantUpdate. data.type("grant-update-verified") is used to show verified
+
+        Milestone:
+          type: attestation[]
+          reference: refUID(Grant.uid), type("Milestone")
+          description: Milestones of a grant
+          relationships:
+            MilestoneStatus:
+              type: attestation
+              reference: refUID(Milestone.uid), type("MilestoneStatus")
+              description: Used to describe the status of a Milestone. data.type("verified") is used to show verified and data.type("completed") is for completed
+
+        Program:
+          type: program_registry
+          reference: data.programId(`${Program.programId}_${Program.chainID}`), type("GrantDetails")
+          description: Contains all the Grant programs in the funding map
+          relationships:
+            Community:
+              type: attestation[]
+              reference: metadata.communityRef[](Community.uid)
+              description: Communities linked to this program explicitly
+
+    ImpactIndicators:
+      type: impact_indicators[]
+      reference: communityUID(Community.uid)
+      description: Indicators within a Community
+      relationships:
+        ImpactIndicatorDatapoints:
+          type: impact_indicator_datapoints[]
+          reference: impactIndicatorId(ImpactIndicator._id), projectUID(Project.uid))
+          description: Data points stored for an Impact Indicator for a project
+
+    Category:
+      type: category
+      reference: communityId(Community._id)
+      description: Categories of projects in a community
+      relationships:
+        ProjectCategory:
+          type: project_category[]
+          reference: categoryId(Category._id) attestationId(Project._id)
+          description: Mapping of Categories to Projects
+
+        ImpactSegment:
+          type: impact_segments
+          reference: categoryId(Category._id)
+          description: Impact segments our output/outcome groups of indicators for a category of projects
+          relationships:
+            ImpactIndicator:
+              type: impact_indicators
+              reference: impact_indicators(impact_indicators._id)[]
+              description: List of impact indicators grouped under this impact segment
