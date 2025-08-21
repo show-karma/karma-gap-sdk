@@ -1,4 +1,4 @@
-mport { BytesLike } from "ethers";
+import { BytesLike } from "ethers";
 import {
   AttestationRequestData,
   EAS,
