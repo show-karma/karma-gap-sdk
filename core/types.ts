@@ -86,7 +86,8 @@ export type TExternalLink =
   | "github"
   | "website"
   | "linkedin"
-  | "discord";
+  | "discord"
+  | "custom";
 
 export type TNetwork =
   // | "mainnet"
