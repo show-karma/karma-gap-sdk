@@ -13,6 +13,11 @@ export type AttestationWithTx = {
 };
 
 export type ExternalLink = { type: string; url: string }[];
+export type ExternalCustomLink = { 
+  type: 'custom';
+  url: string;
+  name: string
+};
 
 export interface ICommunityDetails {
   name: string;
@@ -135,7 +140,7 @@ export interface IProjectDetails {
   missionSummary?: string;
   locationOfImpact?: string;
   imageURL: string;
-  links?: ExternalLink;
+  links?: Array<ExternalLink[0] | ExternalCustomLink>;
   tags?: ITag[];
   externalIds?: string[];
   slug?: string;
@@ -156,7 +161,7 @@ export class ProjectDetails
   missionSummary?: string;
   locationOfImpact?: string;
   imageURL: string;
-  links: ExternalLink = [];
+  links: Array<ExternalLink[0] | ExternalCustomLink> = [];
   tags: ITag[] = [];
   slug: string;
   type = "project-details";

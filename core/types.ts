@@ -89,7 +89,8 @@ export type TExternalLink =
   | "discord"
   | "pitchDeck"
   | "demoVideo"
-  | "farcaster";
+  | "farcaster"
+  | "custom";
 
 export type TNetwork =
   // | "mainnet"

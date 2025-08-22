@@ -3,6 +3,11 @@ import { IGrantUpdateBase } from "core/shared/types";
 export type Hex = `0x${string}`;
 export type JSONStr = string;
 export type ExternalLink = { type: string; url: string };
+export type ExternalCustomLink = { 
+  type: 'custom';
+  url: string;
+  name: string
+};
 export interface ITag {
   name: string;
 }
@@ -187,7 +192,7 @@ export interface IProjectDetails extends IAttestationResponse {
     missionSummary?: string;
     locationOfImpact?: string;
     imageURL: string;
-    links?: ExternalLink[];
+    links?: Array<ExternalLink | ExternalCustomLink>;
     tags?: ITag[];
     slug?: string;
     type: "project-details";
