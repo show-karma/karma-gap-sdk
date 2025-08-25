@@ -7,6 +7,16 @@ const Attestation_1 = require("../Attestation");
 const SchemaError_1 = require("../SchemaError");
 const GapContract_1 = require("../contract/GapContract");
 const attestations_1 = require("../types/attestations");
+/**
+ * Milestone class represents a milestone that can be attested to one or multiple grants.
+ *
+ * It provides methods to:
+ * - Create, complete, approve, reject, and verify milestones
+ * - Attest a milestone to a single grant
+ * - Attest a milestone to multiple grants in a single transaction
+ * - Complete, approve, and verify milestones across multiple grants
+ * - Revoke multiple milestone attestations at once
+ */
 class Milestone extends Attestation_1.Attestation {
     constructor() {
         super(...arguments);
@@ -44,6 +54,66 @@ class Milestone extends Attestation_1.Attestation {
             schema: schema,
             recipient: this.recipient,
         });
+    }
+    /**
+     * Approves this milestone across multiple grants. If the milestones are not completed,
+     * it will throw an error.
+     * @param signer - The signer to use for attestation
+     * @param milestoneUIDs - Array of milestone UIDs to approve
+     * @param data - Optional approval data
+     * @param callback - Optional callback function for status updates
+     * @returns Promise with transaction and UIDs
+     */
+    async approveMultipleGrants(signer, milestoneUIDs, data, callback) {
+        // Validate that all milestones are completed
+        if (!this.completed)
+            throw new SchemaError_1.AttestationError("ATTEST_ERROR", "Milestone is not completed");
+        const schema = this.schema.gap.findSchema("MilestoneCompleted");
+        if (this.schema.isJsonSchema()) {
+            schema.setValue("json", JSON.stringify({
+                type: "approved",
+                ...data,
+            }));
+        }
+        else {
+            schema.setValue("type", "approved");
+            schema.setValue("reason", data?.reason || "");
+            schema.setValue("proofOfWork", data?.proofOfWork || "");
+        }
+        // Create approval attestations for each milestone
+        const approvalPayloads = [];
+        for (const milestoneUID of milestoneUIDs) {
+            const approved = new attestations_1.MilestoneCompleted({
+                data: {
+                    type: "approved",
+                    ...data,
+                },
+                refUID: milestoneUID,
+                schema,
+                recipient: this.recipient,
+            });
+            // Add approval to the payload
+            approvalPayloads.push([
+                approved,
+                await approved.payloadFor(0), // Index doesn't matter for approval
+            ]);
+        }
+        // Attest all approvals at once
+        const result = await GapContract_1.GapContract.multiAttest(signer, approvalPayloads.map((p) => p[1]), callback);
+        // Save the first approval to this milestone instance
+        if (result.uids.length > 0) {
+            this.approved = new attestations_1.MilestoneCompleted({
+                data: {
+                    type: "approved",
+                    ...data,
+                },
+                refUID: milestoneUIDs[0],
+                uid: result.uids[0],
+                schema,
+                recipient: this.recipient,
+            });
+        }
+        return result;
     }
     /**
      * Revokes the approved status of the milestone. If the milestone is not approved,
@@ -100,6 +170,42 @@ class Milestone extends Attestation_1.Attestation {
         return { tx, uids };
     }
     /**
+     * Revokes multiple milestone attestations at once.
+     * This method can be used to revoke multiple milestone attestations in a single transaction.
+     *
+     * @param signer - The signer to use for revocation
+     * @param attestationsToRevoke - Array of objects containing schemaId and uid of attestations to revoke
+     * @param callback - Optional callback function for status updates
+     * @returns Promise with transaction and UIDs of revoked attestations
+     */
+    async revokeMultipleAttestations(signer, attestationsToRevoke, callback) {
+        if (attestationsToRevoke.length === 0) {
+            throw new SchemaError_1.AttestationError("ATTEST_ERROR", "No attestations specified for revocation");
+        }
+        // Group the attestations by schema ID
+        const groupedAttestations = attestationsToRevoke.reduce((acc, { schemaId, uid }) => {
+            if (!acc[schemaId]) {
+                acc[schemaId] = [];
+            }
+            acc[schemaId].push(uid);
+            return acc;
+        }, {});
+        // Convert to the format expected by GapContract.multiRevoke
+        const revocationPayload = Object.entries(groupedAttestations).map(([schemaId, uids]) => ({
+            schema: schemaId,
+            data: uids.map((uid) => ({
+                uid,
+                value: 0n, // EAS contract requires a value field as BigInt
+            })),
+        }));
+        // Use GapContract.multiRevoke directly with the correct payload format
+        const result = await GapContract_1.GapContract.multiRevoke(signer, revocationPayload);
+        if (callback) {
+            callback("confirmed");
+        }
+        return result;
+    }
+    /**
      * Marks a milestone as completed. If the milestone is already completed,
      * it will throw an error.
      * @param signer
@@ -129,6 +235,87 @@ class Milestone extends Attestation_1.Attestation {
             recipient: this.recipient,
         });
         return { tx, uids };
+    }
+    /**
+     * Marks a milestone as completed across multiple grants. If the milestone is already completed,
+     * it will throw an error.
+     * @param signer - The signer to use for attestation
+     * @param grantIndices - Array of grant indices to attest this milestone to, or array of milestone UIDs
+     * @param data - Optional completion data
+     * @param callback - Optional callback function for status updates
+     * @returns Promise with transaction and UIDs
+     */
+    async completeForMultipleGrants(signer, grantIndicesOrMilestoneUIDs = [0], data, callback) {
+        // Check if we're dealing with UIDs instead of indices
+        const isUids = grantIndicesOrMilestoneUIDs.length > 0 &&
+            typeof grantIndicesOrMilestoneUIDs[0] === "string";
+        let milestoneUIDs = [];
+        if (isUids) {
+            // We already have milestone UIDs
+            milestoneUIDs = grantIndicesOrMilestoneUIDs;
+        }
+        else {
+            // First attest the milestone to multiple grants if not already attested
+            const attestResult = await this.attestToMultipleGrants(signer, grantIndicesOrMilestoneUIDs, callback);
+            milestoneUIDs = attestResult.uids;
+        }
+        // Now complete the milestone for each attested milestone
+        const schema = this.schema.gap.findSchema("MilestoneCompleted");
+        if (this.schema.isJsonSchema()) {
+            schema.setValue("json", JSON.stringify({
+                type: "completed",
+                ...data,
+            }));
+        }
+        else {
+            schema.setValue("type", "completed");
+            schema.setValue("reason", data?.reason || "");
+            schema.setValue("proofOfWork", data?.proofOfWork || "");
+        }
+        // Create completion attestations for each milestone
+        const completionPayloads = [];
+        for (let i = 0; i < milestoneUIDs.length; i++) {
+            const milestoneUID = milestoneUIDs[i];
+            // Only set this.uid if we're dealing with indices and need to update the current milestone
+            if (!isUids) {
+                this.uid = milestoneUID; // Set the current UID to the milestone being completed
+            }
+            const completed = new attestations_1.MilestoneCompleted({
+                data: {
+                    type: "completed",
+                    ...data,
+                },
+                refUID: milestoneUID,
+                schema,
+                recipient: this.recipient,
+            });
+            // Add completed status to the payload
+            completionPayloads.push([completed, await completed.payloadFor(i)]);
+        }
+        // Attest all completions at once
+        const completionResult = await GapContract_1.GapContract.multiAttest(signer, completionPayloads.map((p) => p[1]), callback);
+        // Save the first completion to this milestone instance
+        if (completionResult.uids.length > 0 && !isUids) {
+            this.completed = new attestations_1.MilestoneCompleted({
+                data: {
+                    type: "completed",
+                    ...data,
+                },
+                refUID: milestoneUIDs[0],
+                uid: completionResult.uids[0],
+                schema,
+                recipient: this.recipient,
+            });
+        }
+        return isUids
+            ? completionResult // If we're using UIDs directly, just return completion result
+            : {
+                tx: [
+                    ...(milestoneUIDs.length ? [{ hash: "" }] : []),
+                    ...completionResult.tx,
+                ],
+                uids: [...milestoneUIDs, ...completionResult.uids],
+            };
     }
     /**
      * Revokes the completed status of the milestone. If the milestone is not completed,
@@ -175,6 +362,92 @@ class Milestone extends Attestation_1.Attestation {
             }));
         }
         return payload.slice(currentPayload.length, payload.length);
+    }
+    /**
+     * Creates the payload for a multi-attestation across multiple grants.
+     *
+     * This method allows for the same milestone to be attested to multiple grants
+     * in a single transaction.
+     *
+     * @param currentPayload - Current payload to append to
+     * @param grantIndices - Array of grant indices to attest this milestone to
+     * @returns The multi-attest payload with all grant attestations
+     */
+    async multiGrantAttestPayload(currentPayload = [], grantIndices = [0]) {
+        this.assertPayload();
+        const payload = [...currentPayload];
+        const milestoneIndices = [];
+        // Create milestone attestation for each grant
+        for (const grantIdx of grantIndices) {
+            const milestoneIdx = payload.push([this, await this.payloadFor(grantIdx)]) - 1;
+            milestoneIndices.push(milestoneIdx);
+        }
+        // Add completed status if exists for each milestone
+        if (this.completed) {
+            for (const milestoneIdx of milestoneIndices) {
+                payload.push([
+                    this.completed,
+                    await this.completed.payloadFor(milestoneIdx),
+                ]);
+            }
+        }
+        // Add verifications if exist for each milestone
+        if (this.verified.length > 0) {
+            for (const milestoneIdx of milestoneIndices) {
+                await Promise.all(this.verified.map(async (m) => {
+                    const payloadForMilestone = await m.payloadFor(milestoneIdx);
+                    if (Array.isArray(payloadForMilestone)) {
+                        payloadForMilestone.forEach((item) => payload.push(item));
+                    }
+                }));
+            }
+        }
+        return payload.slice(currentPayload.length, payload.length);
+    }
+    /**
+     * Attests this milestone to multiple grants in a single transaction.
+     *
+     * @param signer - The signer to use for attestation
+     * @param grantIndices - Array of grant indices to attest this milestone to, or array of grant UIDs
+     * @param callback - Optional callback function for status updates
+     * @returns Promise with transaction and UIDs
+     */
+    async attestToMultipleGrants(signer, grantIndices = [0], callback) {
+        this.assertPayload();
+        // Check if we're dealing with Hex UIDs instead of indices
+        const isUids = grantIndices.length > 0 && typeof grantIndices[0] === "string";
+        if (isUids) {
+            // Direct approach - create individual milestone instances for each grant UID
+            const grantUIDs = grantIndices;
+            const allPayloads = [];
+            for (const grantUID of grantUIDs) {
+                // Create a new milestone for each grant with direct reference
+                const grantMilestone = new Milestone({
+                    schema: this.schema,
+                    recipient: this.recipient,
+                    data: this.data,
+                    refUID: grantUID,
+                });
+                // Generate payload for this grant
+                const payload = await grantMilestone.multiAttestPayload();
+                // Add each item from payload to allPayloads
+                payload.forEach((item) => allPayloads.push(item));
+            }
+            // Attest all milestones in a single transaction
+            const result = await GapContract_1.GapContract.multiAttest(signer, allPayloads.map((p) => p[1]), callback);
+            return result;
+        }
+        else {
+            // Original implementation using grantIndices
+            const payload = await this.multiGrantAttestPayload([], grantIndices);
+            const { uids, tx } = await GapContract_1.GapContract.multiAttest(signer, payload.map((p) => p[1]), callback);
+            if (Array.isArray(uids)) {
+                uids.forEach((uid, index) => {
+                    payload[index][0].uid = uid;
+                });
+            }
+            return { tx, uids };
+        }
     }
     /**
      * @inheritdoc
@@ -317,6 +590,68 @@ class Milestone extends Attestation_1.Attestation {
             recipient: this.recipient,
         }));
         return { tx, uids };
+    }
+    /**
+     * Verifies this milestone across multiple grants. If the milestones are not completed,
+     * it will throw an error.
+     * @param signer - The signer to use for attestation
+     * @param milestoneUIDs - Array of milestone UIDs to verify
+     * @param data - Optional verification data
+     * @param callback - Optional callback function for status updates
+     * @returns Promise with transaction and UIDs
+     */
+    async verifyMultipleGrants(signer, milestoneUIDs, data, callback) {
+        // Validate that all milestones are completed
+        if (!this.completed)
+            throw new SchemaError_1.AttestationError("ATTEST_ERROR", "Milestone is not completed");
+        const schema = this.schema.gap.findSchema("MilestoneCompleted");
+        if (this.schema.isJsonSchema()) {
+            schema.setValue("json", JSON.stringify({
+                type: "verified",
+                ...data,
+            }));
+        }
+        else {
+            schema.setValue("type", "verified");
+            schema.setValue("reason", data?.reason || "");
+            schema.setValue("proofOfWork", data?.proofOfWork || "");
+        }
+        // Create verification attestations for each milestone
+        const verificationPayloads = [];
+        for (const milestoneUID of milestoneUIDs) {
+            const verified = new attestations_1.MilestoneCompleted({
+                data: {
+                    type: "verified",
+                    ...data,
+                },
+                refUID: milestoneUID,
+                schema,
+                recipient: this.recipient,
+            });
+            // Add verification to the payload
+            verificationPayloads.push([
+                verified,
+                await verified.payloadFor(0), // Index doesn't matter for verification
+            ]);
+        }
+        // Attest all verifications at once
+        const result = await GapContract_1.GapContract.multiAttest(signer, verificationPayloads.map((p) => p[1]), callback);
+        // Save the verifications to this milestone instance
+        if (result.uids.length > 0) {
+            for (let i = 0; i < result.uids.length; i++) {
+                this.verified.push(new attestations_1.MilestoneCompleted({
+                    data: {
+                        type: "verified",
+                        ...data,
+                    },
+                    refUID: milestoneUIDs[i],
+                    uid: result.uids[i],
+                    schema,
+                    recipient: this.recipient,
+                }));
+            }
+        }
+        return result;
     }
 }
 exports.Milestone = Milestone;

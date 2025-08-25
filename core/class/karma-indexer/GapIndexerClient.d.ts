@@ -2,7 +2,7 @@ import { TSchemaName, IAttestation, Hex } from "core/types";
 import { Attestation } from "../Attestation";
 import { GapSchema } from "../GapSchema";
 import { Fetcher } from "../Fetcher";
-import { Community, Project, Grant, Milestone, MemberOf } from "../entities";
+import { Community, Project, Grant, Milestone, MemberOf, Track } from "../entities";
 import { Grantee } from "../types/attestations";
 import { ICommunityAdminsResponse } from "./api/types";
 import { ProjectMilestone } from "../entities/ProjectMilestone";
@@ -40,4 +40,27 @@ export declare class GapIndexerClient extends Fetcher {
     milestonesOf(grants: Grant[]): Promise<Milestone[]>;
     membersOf(projects: Project[]): Promise<MemberOf[]>;
     slugExists(slug: string): Promise<boolean>;
+    /**
+     * Track related methods
+     */
+    getTracks(communityUID: string, includeArchived?: boolean): Promise<Track[]>;
+    getTrackById(id: string): Promise<Track>;
+    createTrack(trackData: {
+        name: string;
+        description?: string;
+        communityUID: string;
+    }): Promise<Track>;
+    updateTrack(id: string, trackData: {
+        name?: string;
+        description?: string;
+        communityUID?: string;
+    }): Promise<Track>;
+    archiveTrack(id: string): Promise<Track>;
+    assignTracksToProgram(programId: string, trackIds: string[]): Promise<any[]>;
+    unassignTrackFromProgram(programId: string, trackId: string): Promise<any>;
+    getTracksForProgram(programId: string): Promise<Track[]>;
+    getTracksForProject(projectId: string, programId: string, activeOnly?: boolean): Promise<Track[]>;
+    assignTracksToProject(projectId: string, programId: string, trackIds: string[]): Promise<any[]>;
+    unassignTracksFromProject(projectId: string, programId: string, trackIds: string[]): Promise<any[]>;
+    getProjectsByTrack(communityId: string, programId: string, trackId?: string): Promise<any[]>;
 }

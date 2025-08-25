@@ -1,5 +1,5 @@
 import { AxiosGQL } from "../../GraphQL/AxiosGQL";
-import { Hex, IAttestationResponse, ICommunityResponse, ICommunityAdminsResponse, IGrantResponse, IProjectResponse, ISearchResponse, IProjectMilestoneResponse } from "./types";
+import { Hex, IAttestationResponse, ICommunityResponse, ICommunityAdminsResponse, IGrantResponse, IProjectResponse, ISearchResponse, IProjectMilestoneResponse, ITrackResponse, ITrackAssignmentResponse, IProjectTrackResponse } from "./types";
 export declare class GapIndexerApi extends AxiosGQL {
     constructor(url: string);
     attestation(uid: Hex): Promise<import("axios").AxiosResponse<IAttestationResponse, any>>;
@@ -47,4 +47,27 @@ export declare class GapIndexerApi extends AxiosGQL {
      */
     milestonesOf(uid: Hex): Promise<import("axios").AxiosResponse<any, any>>;
     slugExists(slug: string): Promise<boolean>;
+    /**
+     * Tracks
+     */
+    getTracks(communityUID: string, includeArchived?: boolean): Promise<import("axios").AxiosResponse<ITrackResponse[], any>>;
+    getTrackById(id: string): Promise<import("axios").AxiosResponse<ITrackResponse, any>>;
+    createTrack(data: {
+        name: string;
+        description?: string;
+        communityUID: string;
+    }): Promise<import("axios").AxiosResponse<ITrackResponse, any>>;
+    updateTrack(id: string, data: {
+        name?: string;
+        description?: string;
+        communityUID?: string;
+    }): Promise<import("axios").AxiosResponse<ITrackResponse, any>>;
+    archiveTrack(id: string): Promise<import("axios").AxiosResponse<ITrackResponse, any>>;
+    assignTracksToProgram(programId: string, trackIds: string[]): Promise<import("axios").AxiosResponse<ITrackAssignmentResponse[], any>>;
+    unassignTrackFromProgram(programId: string, trackId: string): Promise<import("axios").AxiosResponse<ITrackAssignmentResponse, any>>;
+    getTracksForProgram(programId: string): Promise<import("axios").AxiosResponse<ITrackResponse[], any>>;
+    getTracksForProject(projectId: string, programId: string, activeOnly?: boolean): Promise<import("axios").AxiosResponse<ITrackResponse[], any>>;
+    assignTracksToProject(projectId: string, programId: string, trackIds: string[]): Promise<import("axios").AxiosResponse<any[], any>>;
+    unassignTracksFromProject(projectId: string, programId: string, trackIds: string[]): Promise<import("axios").AxiosResponse<any[], any>>;
+    getProjectsByTrack(communityId: string, programId: string, trackId?: string): Promise<import("axios").AxiosResponse<IProjectTrackResponse[], any>>;
 }

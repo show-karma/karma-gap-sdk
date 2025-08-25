@@ -483,4 +483,6 @@ Schema.schemas = {
     sei: [],
     "sei-testnet": [],
     "base-sepolia": [],
+    lisk: [],
+    scroll: [],
 };

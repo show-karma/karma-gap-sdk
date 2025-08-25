@@ -152,5 +152,56 @@ class GapIndexerClient extends Fetcher_1.Fetcher {
     async slugExists(slug) {
         return await this.apiClient.slugExists(slug);
     }
+    /**
+     * Track related methods
+     */
+    async getTracks(communityUID, includeArchived = false) {
+        const { data } = await this.apiClient.getTracks(communityUID, includeArchived);
+        return entities_1.Track.from(data, this.gap.network);
+    }
+    async getTrackById(id) {
+        const { data } = await this.apiClient.getTrackById(id);
+        return entities_1.Track.from([data], this.gap.network)[0];
+    }
+    async createTrack(trackData) {
+        const { data } = await this.apiClient.createTrack(trackData);
+        return entities_1.Track.from([data], this.gap.network)[0];
+    }
+    async updateTrack(id, trackData) {
+        const { data } = await this.apiClient.updateTrack(id, trackData);
+        return entities_1.Track.from([data], this.gap.network)[0];
+    }
+    async archiveTrack(id) {
+        const { data } = await this.apiClient.archiveTrack(id);
+        return entities_1.Track.from([data], this.gap.network)[0];
+    }
+    async assignTracksToProgram(programId, trackIds) {
+        const { data } = await this.apiClient.assignTracksToProgram(programId, trackIds);
+        return data;
+    }
+    async unassignTrackFromProgram(programId, trackId) {
+        const { data } = await this.apiClient.unassignTrackFromProgram(programId, trackId);
+        return data;
+    }
+    async getTracksForProgram(programId) {
+        const { data } = await this.apiClient.getTracksForProgram(programId);
+        return entities_1.Track.from(data, this.gap.network);
+    }
+    async getTracksForProject(projectId, programId, activeOnly = true) {
+        const { data } = await this.apiClient.getTracksForProject(projectId, programId, activeOnly);
+        return entities_1.Track.from(data, this.gap.network);
+    }
+    async assignTracksToProject(projectId, programId, trackIds) {
+        const { data } = await this.apiClient.assignTracksToProject(projectId, programId, trackIds);
+        return data;
+    }
+    async unassignTracksFromProject(projectId, programId, trackIds) {
+        const { data } = await this.apiClient.unassignTracksFromProject(projectId, programId, trackIds);
+        return data;
+    }
+    async getProjectsByTrack(communityId, programId, trackId) {
+        const { data } = await this.apiClient.getProjectsByTrack(communityId, programId, trackId);
+        return data;
+    }
 }
 exports.GapIndexerClient = GapIndexerClient;

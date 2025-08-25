@@ -1,8 +1,14 @@
+import { IGrantUpdateBase } from "core/shared/types";
 export type Hex = `0x${string}`;
 export type JSONStr = string;
 export type ExternalLink = {
     type: string;
     url: string;
+};
+export type ExternalCustomLink = {
+    type: 'custom';
+    url: string;
+    name: string;
 };
 export interface ITag {
     name: string;
@@ -60,14 +66,18 @@ export interface IGrantUpdateStatus extends IAttestationResponse {
     data: {
         type: "approved" | "rejected" | "completed";
         reason?: string;
+        pitchDeck?: string;
+        demoVideo?: string;
+        trackExplanations?: Array<{
+            trackId: string;
+            trackName: string;
+            explanation: string;
+        }>;
     };
 }
 export interface IGrantUpdate extends IAttestationResponse {
-    data: {
-        text: string;
-        title: string;
+    data: IGrantUpdateBase & {
         type: "grant-update";
-        proofOfWork?: string;
     };
     verified?: IGrantUpdateStatus[];
 }
@@ -81,8 +91,20 @@ export interface IProjectUpdateStatus extends IAttestationResponse {
 }
 export interface IProjectUpdate extends IAttestationResponse {
     data: {
-        text: string;
         title: string;
+        text: string;
+        startDate?: Date;
+        endDate?: Date;
+        grants?: string[];
+        indicators?: {
+            name: string;
+            indicatorId: string;
+        }[];
+        deliverables?: {
+            name: string;
+            proof: string;
+            description: string;
+        }[];
         type: "project-update";
     };
     verified?: IProjectUpdateStatus[];
@@ -128,6 +150,7 @@ export interface IGrantDetails extends IAttestationResponse {
         programId?: string;
         type: "grant-details";
         fundUsage?: string;
+        selectedTrackIds?: string[];
     };
 }
 export interface IGrantResponse extends IAttestationResponse {
@@ -138,7 +161,7 @@ export interface IGrantResponse extends IAttestationResponse {
     details?: IGrantDetails;
     milestones: IMilestoneResponse[];
     completed?: IGrantUpdate;
-    project: ISummaryProject;
+    project: IProjectResponse;
     updates: IGrantUpdate[];
     community: ICommunityResponse;
     members: Hex[];
@@ -149,6 +172,7 @@ export interface IGrantResponse extends IAttestationResponse {
     external?: {
         [key: string]: string[];
     };
+    amount?: Hex;
 }
 export interface IMemberDetails extends IAttestationResponse {
     name: string;
@@ -171,7 +195,7 @@ export interface IProjectDetails extends IAttestationResponse {
         missionSummary?: string;
         locationOfImpact?: string;
         imageURL: string;
-        links?: ExternalLink[];
+        links?: Array<ExternalLink | ExternalCustomLink>;
         tags?: ITag[];
         slug?: string;
         type: "project-details";
@@ -220,6 +244,7 @@ export interface IProjectResponse extends IAttestationResponse {
     symlinks: Hex[];
     endorsements: IProjectEndorsement[];
     milestones: IProjectMilestoneResponse[];
+    payoutAddress?: Hex;
 }
 export interface ICommunityDetails extends IAttestationResponse {
     type: "CommunityDetails";
@@ -250,5 +275,35 @@ export interface ICommunityAdminsResponse {
 export interface ISearchResponse {
     projects: IProjectResponse[];
     communities: ICommunityResponse[];
+}
+export interface ITrackResponse {
+    id: string;
+    name: string;
+    description?: string;
+    communityUID: string;
+    isArchived: boolean;
+    createdAt: string;
+    updatedAt: string;
+    programId?: string;
+    isActive?: boolean;
+    chainID?: number;
+}
+export interface ITrackAssignmentResponse {
+    id: string;
+    programId: string;
+    chainID: number;
+    trackId: string;
+    track: ITrackResponse;
+}
+export interface IProjectTrackResponse {
+    projectUID: string;
+    chainID: number;
+    programId: string;
+    track: ITrackResponse;
+    project: {
+        uid: string;
+        chainID: number;
+        details: any;
+    };
 }
 export {};

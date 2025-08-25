@@ -29,8 +29,8 @@ export interface AttestArgs<T = unknown> {
 }
 export type TSchemaName = "Community" | "CommunityDetails" | "Grant" | "GrantDetails" | "GrantVerified" | "MemberOf" | "MemberDetails" | "Milestone" | "MilestoneCompleted" | "MilestoneApproved" | "Project" | "ProjectDetails" | "Details" | "ProjectImpact" | "ProjectUpdate" | "ProjectUpdateStatus" | "ProjectPointer" | "GrantUpdate" | "GrantUpdateStatus" | "ProjectEndorsement" | "ProjectMilestone" | "ProjectMilestoneStatus" | "ContributorProfile";
 export type TResolvedSchemaNames = "Community" | "Grant" | "GrantVerified" | "MemberOf" | "MilestoneCompleted" | "MilestoneApproved" | "Project" | "Details" | "ProjectUpdateStatus" | "GrantUpdateStatus" | "ProjectUpdateStatus" | "ProjectMilestoneStatus" | "ContributorProfile";
-export type TExternalLink = "twitter" | "github" | "website" | "linkedin" | "discord";
-export type TNetwork = "optimism" | "celo" | "optimism-sepolia" | "arbitrum" | "sepolia" | "sei" | "sei-testnet" | "base-sepolia";
+export type TExternalLink = "twitter" | "github" | "website" | "linkedin" | "discord" | "pitchDeck" | "demoVideo" | "farcaster" | "custom";
+export type TNetwork = "optimism" | "celo" | "optimism-sepolia" | "arbitrum" | "sepolia" | "sei" | "sei-testnet" | "base-sepolia" | "lisk" | "scroll";
 /**
  * Generic GAP Facade interface.
  * This supplies the GAP class with the necessary properties.

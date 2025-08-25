@@ -4,24 +4,25 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.GAP = void 0;
+const CommunityResolverABI_json_1 = __importDefault(require("../abi/CommunityResolverABI.json"));
 const MultiAttester_json_1 = __importDefault(require("../abi/MultiAttester.json"));
 const ProjectResolver_json_1 = __importDefault(require("../abi/ProjectResolver.json"));
-const CommunityResolverABI_json_1 = __importDefault(require("../abi/CommunityResolverABI.json"));
-const types_1 = require("../types");
-const Schema_1 = require("./Schema");
-const GapSchema_1 = require("./GapSchema");
 const eas_sdk_1 = require("@ethereum-attestation-service/eas-sdk");
-const consts_1 = require("../consts");
 const ethers_1 = require("ethers");
 const package_json_1 = require("../../package.json");
-const GraphQL_1 = require("./GraphQL");
+const consts_1 = require("../consts");
+const types_1 = require("../types");
 const get_web3_provider_1 = require("../utils/get-web3-provider");
+const GapSchema_1 = require("./GapSchema");
+const GraphQL_1 = require("./GraphQL");
+const Schema_1 = require("./Schema");
 /**
  * GAP SDK Facade.
  *
  * This is the main class that is used to interact with the GAP SDK.
  *
- * This class can behave as a singleton or as a regular class.
+ * This class implements the singleton pattern to ensure only one instance exists
+ * throughout the application lifecycle.
  *
  * Using this class, the user will be able to:
  *
@@ -56,11 +57,15 @@ const get_web3_provider_1 = require("../utils/get-web3-provider");
  *
  * const schemas = MountEntities(Networks.sepolia);
  *
- * const gap = new GAP({
+ * // Initialize the singleton instance
+ * const gap = GAP.getInstance({
  *   network: "sepolia",
  *   owner: "0xd7d1DB401EA825b0325141Cd5e6cd7C2d01825f2",
  *   schemas: Object.values(schemas),
  * });
+ *
+ * // Later in the code, get the same instance
+ * const sameGap = GAP.getInstance();
  *
  * gap.fetcher
  *   .fetchProjects()
@@ -71,6 +76,32 @@ const get_web3_provider_1 = require("../utils/get-web3-provider");
  * ```
  */
 class GAP extends types_1.Facade {
+    /**
+     * Get the singleton instance of GAP for a specific network.
+     * If no instance exists for the network, creates one with the provided args.
+     * @param args Optional initialization arguments
+     * @returns The singleton instance of GAP for the specified network
+     */
+    static getInstance(args) {
+        if (!args) {
+            throw new Error("Network must be specified when getting GAP instance");
+        }
+        const existingInstance = GAP.instances.get(args.network);
+        if (existingInstance) {
+            return existingInstance;
+        }
+        if (!args) {
+            throw new Error("Initialization arguments required for first instance");
+        }
+        const newInstance = new GAP(args);
+        GAP.instances.set(args.network, newInstance);
+        return newInstance;
+    }
+    /**
+     * Creates a new instance of GAP.
+     * You can either use this constructor directly or use the singleton pattern via getInstance().
+     * @param args Initialization arguments
+     */
     constructor(args) {
         super();
         /**
@@ -82,13 +113,13 @@ class GAP extends types_1.Facade {
             let slug = text
                 .toLowerCase()
                 // Remove emojis
-                .replace(/([\uE000-\uF8FF]|\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDDFF])/g, '')
+                .replace(/([\uE000-\uF8FF]|\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDDFF])/g, "")
                 // Remove basic text emoticons
-                .replace(/[:;=][()DP]/g, '')
+                .replace(/[:;=][()DP]/g, "")
                 .replace(/ /g, "-")
                 .replace(/[^\w-]+/g, "")
                 .trim()
-                .replace(/^-+|-+$/g, ''); // Remove leading and trailing hyphens
+                .replace(/^-+|-+$/g, ""); // Remove leading and trailing hyphens
             const checkSlug = async (currentSlug, counter = 0) => {
                 const slugToCheck = counter === 0 ? currentSlug : `${currentSlug}-${counter}`;
                 const slugExists = await this.fetch.slugExists(slugToCheck);
@@ -114,6 +145,7 @@ class GAP extends types_1.Facade {
         this._schemas = schemas.map((schema) => new GapSchema_1.GapSchema(schema, this, false, args.globalSchemas ? !args.globalSchemas : false));
         Schema_1.Schema.validate(this.network);
         console.info(`Loaded GAP SDK v${package_json_1.version} for network ${this.network}`);
+        GAP.instances.set(this.network, this);
     }
     assertGelatoOpts(args) {
         if (args.gelatoOpts &&
@@ -253,4 +285,5 @@ class GAP extends types_1.Facade {
     }
 }
 exports.GAP = GAP;
+GAP.instances = new Map();
 GAP._gelatoOpts = null;

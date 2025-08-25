@@ -1,11 +1,10 @@
+import { IGrantUpdateBase } from "core/shared/types";
+import { Transaction } from "ethers";
 import { SignerOrProvider, TNetwork } from "../../../core/types";
 import { Attestation } from "../Attestation";
-import { Transaction } from "ethers";
 export interface _IGrantUpdate extends GrantUpdate {
 }
-export interface IGrantUpdate {
-    title: string;
-    text: string;
+export interface IGrantUpdate extends IGrantUpdateBase {
     type?: string;
     proofOfWork?: string;
     pitchDeck?: string;
@@ -24,6 +23,13 @@ export interface IGrantUpdateStatus {
 export declare class GrantUpdateStatus extends Attestation<IGrantUpdateStatus> implements IGrantUpdateStatus {
     type: `grant-update-${IStatus}`;
     reason?: string;
+    pitchDeck?: string;
+    demoVideo?: string;
+    trackExplanations?: Array<{
+        trackId: string;
+        trackName: string;
+        explanation: string;
+    }>;
 }
 export declare class GrantUpdate extends Attestation<IGrantUpdate> implements IGrantUpdate {
     title: string;
