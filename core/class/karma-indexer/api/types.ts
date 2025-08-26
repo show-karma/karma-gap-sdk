@@ -69,6 +69,13 @@ export interface IGrantUpdateStatus extends IAttestationResponse {
   data: {
     type: "approved" | "rejected" | "completed";
     reason?: string;
+    pitchDeck?: string;
+    demoVideo?: string;
+    trackExplanations?: Array<{
+      trackId: string;
+      trackName: string;
+      explanation: string;
+    }>;
   };
 }
 export interface IGrantUpdate extends IAttestationResponse {

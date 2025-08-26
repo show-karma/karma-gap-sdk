@@ -11,6 +11,14 @@ import { AttestationError } from "../SchemaError";
 export interface _IGrantUpdate extends GrantUpdate {}
 export interface IGrantUpdate extends IGrantUpdateBase {
   type?: string;
+  proofOfWork?: string;
+  pitchDeck?: string;
+  demoVideo?: string;
+  trackExplanations?: Array<{
+    trackId: string;
+    trackName: string;
+    explanation: string;
+  }>;
 }
 
 type IStatus = "verified";
@@ -26,6 +34,13 @@ export class GrantUpdateStatus
 {
   type: `grant-update-${IStatus}`;
   reason?: string;
+  pitchDeck?: string;
+  demoVideo?: string;
+  trackExplanations?: Array<{
+    trackId: string;
+    trackName: string;
+    explanation: string;
+  }>;
 }
 
 export class GrantUpdate
@@ -35,6 +50,13 @@ export class GrantUpdate
   title: string;
   text: string;
   proofOfWork: string;
+  pitchDeck?: string;
+  demoVideo?: string;
+  trackExplanations?: Array<{
+    trackId: string;
+    trackName: string;
+    explanation: string;
+  }>;
   verified: GrantUpdateStatus[] = [];
 
   /**
