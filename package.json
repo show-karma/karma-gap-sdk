@@ -18,6 +18,7 @@
     "csv-upload": "npx ts-node ./csv-upload/scripts/run.ts",
     "test-file": "npx ts-node ./test-file-indexer-api.ts",
     "test-milestone": "npx ts-node ./milestone-workflow-example.ts",
+    "create-community": "npx ts-node ./create-community-example.ts",
     "publish-npm": "npm version patch && tsc && cd .dist && npm publish --scope=@show-karma/karma-gap-sdk --access public"
   },
   "dependencies": {
@@ -26,6 +27,7 @@
     "@gelatonetwork/relay-sdk": "^5.2.0",
     "@types/sha256": "^0.2.0",
     "axios": "^1.4.0",
+    "dotenv": "^17.2.3",
     "ethers": "6.11.0",
     "sha256": "^0.2.0",
     "simple-ts-job-runner": "^1.0.12"
