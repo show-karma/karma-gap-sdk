@@ -1,25 +1,25 @@
+import CommunityResolverABI from "../abi/CommunityResolverABI.json";
 import MulticallABI from "../abi/MultiAttester.json";
 import ProjectResolverABI from "../abi/ProjectResolver.json";
-import CommunityResolverABI from "../abi/CommunityResolverABI.json";
 
+import { EAS } from "@ethereum-attestation-service/eas-sdk";
+import { ethers } from "ethers";
+import { version } from "../../package.json";
+import { MountEntities, Networks } from "../consts";
 import {
   AttestArgs,
   Facade,
   SchemaInterface,
+  SignerOrProvider,
   TNetwork,
   TSchemaName,
-  SignerOrProvider,
 } from "../types";
-import { Schema } from "./Schema";
-import { GapSchema } from "./GapSchema";
-import { EAS } from "@ethereum-attestation-service/eas-sdk";
-import { MountEntities, Networks } from "../consts";
-import { ethers } from "ethers";
-import { version } from "../../package.json";
-import { Fetcher } from "./Fetcher";
-import { RemoteStorage } from "./remote-storage/RemoteStorage";
-import { GapEasClient } from "./GraphQL";
 import { getWeb3Provider } from "../utils/get-web3-provider";
+import { Fetcher } from "./Fetcher";
+import { GapSchema } from "./GapSchema";
+import { GapEasClient } from "./GraphQL";
+import { RemoteStorage } from "./remote-storage/RemoteStorage";
+import { Schema } from "./Schema";
 
 interface GAPArgs {
   network: TNetwork;
@@ -120,7 +120,8 @@ interface GAPArgs {
  *
  * This is the main class that is used to interact with the GAP SDK.
  *
- * This class can behave as a singleton or as a regular class.
+ * This class implements the singleton pattern to ensure only one instance exists
+ * throughout the application lifecycle.
  *
  * Using this class, the user will be able to:
  *
@@ -155,11 +156,15 @@ interface GAPArgs {
  *
  * const schemas = MountEntities(Networks.sepolia);
  *
- * const gap = new GAP({
+ * // Initialize the singleton instance
+ * const gap = GAP.getInstance({
  *   network: "sepolia",
  *   owner: "0xd7d1DB401EA825b0325141Cd5e6cd7C2d01825f2",
  *   schemas: Object.values(schemas),
  * });
+ *
+ * // Later in the code, get the same instance
+ * const sameGap = GAP.getInstance();
  *
  * gap.fetcher
  *   .fetchProjects()
@@ -171,6 +176,7 @@ interface GAPArgs {
  */
 export class GAP extends Facade {
   private static remoteStorage?: RemoteStorage;
+  private static instances: Map<TNetwork, GAP> = new Map();
 
   readonly fetch: Fetcher;
   readonly network: TNetwork;
@@ -178,6 +184,36 @@ export class GAP extends Facade {
   private _schemas: GapSchema[];
   private static _gelatoOpts = null;
 
+  /**
+   * Get the singleton instance of GAP for a specific network.
+   * If no instance exists for the network, creates one with the provided args.
+   * @param args Optional initialization arguments
+   * @returns The singleton instance of GAP for the specified network
+   */
+  static getInstance(args?: GAPArgs): GAP {
+    if (!args) {
+      throw new Error("Network must be specified when getting GAP instance");
+    }
+
+    const existingInstance = GAP.instances.get(args.network);
+    if (existingInstance) {
+      return existingInstance;
+    }
+
+    if (!args) {
+      throw new Error("Initialization arguments required for first instance");
+    }
+
+    const newInstance = new GAP(args);
+    GAP.instances.set(args.network, newInstance);
+    return newInstance;
+  }
+
+  /**
+   * Creates a new instance of GAP.
+   * You can either use this constructor directly or use the singleton pattern via getInstance().
+   * @param args Initialization arguments
+   */
   constructor(args: GAPArgs) {
     super();
 
@@ -214,6 +250,8 @@ export class GAP extends Facade {
     Schema.validate(this.network);
 
     console.info(`Loaded GAP SDK v${version} for network ${this.network}`);
+
+    GAP.instances.set(this.network, this);
   }
 
   private assertGelatoOpts(args: GAPArgs) {
@@ -283,23 +321,30 @@ export class GAP extends Facade {
     let slug = text
       .toLowerCase()
       // Remove emojis
-      .replace(/([\uE000-\uF8FF]|\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDDFF])/g, '')
+      .replace(
+        /([\uE000-\uF8FF]|\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDDFF])/g,
+        ""
+      )
       // Remove basic text emoticons
-      .replace(/[:;=][()DP]/g, '')
+      .replace(/[:;=][()DP]/g, "")
       .replace(/ /g, "-")
       .replace(/[^\w-]+/g, "")
       .trim()
-      .replace(/^-+|-+$/g, ''); // Remove leading and trailing hyphens
-    
-    const checkSlug = async (currentSlug: string, counter: number = 0): Promise<string> => {
-      const slugToCheck = counter === 0 ? currentSlug : `${currentSlug}-${counter}`;
+      .replace(/^-+|-+$/g, ""); // Remove leading and trailing hyphens
+
+    const checkSlug = async (
+      currentSlug: string,
+      counter: number = 0
+    ): Promise<string> => {
+      const slugToCheck =
+        counter === 0 ? currentSlug : `${currentSlug}-${counter}`;
       const slugExists = await this.fetch.slugExists(slugToCheck);
-      
+
       if (slugExists) {
         return checkSlug(currentSlug, counter + 1);
       }
-      
-      return slugToCheck.toLowerCase(); 
+
+      return slugToCheck.toLowerCase();
     };
 
     return checkSlug(slug);

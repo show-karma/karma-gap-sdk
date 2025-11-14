@@ -7,3 +7,4 @@ export * from "./GrantUpdate";
 export * from "./ProjectUpdate";
 export * from "./ProjectPointer";
 export * from "./ContributorProfile";
+export * from "./Track";

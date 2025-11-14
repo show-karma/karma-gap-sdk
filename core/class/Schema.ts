@@ -104,6 +104,8 @@ export abstract class Schema<T extends string = string>
     sei: [],
     "sei-testnet": [],
     "base-sepolia": [],
+    lisk: [],
+    scroll: [],
   };
 
   protected encoder: SchemaEncoder;

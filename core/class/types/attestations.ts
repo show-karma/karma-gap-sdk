@@ -13,6 +13,11 @@ export type AttestationWithTx = {
 };
 
 export type ExternalLink = { type: string; url: string }[];
+export type ExternalCustomLink = { 
+  type: 'custom';
+  url: string;
+  name: string
+};
 
 export interface ICommunityDetails {
   name: string;
@@ -51,6 +56,7 @@ export interface IGrantDetails {
   startDate?: number;
   programId?: string;
   fundUsage?: string;
+  selectedTrackIds?: string[];
 }
 export class GrantDetails
   extends Attestation<IGrantDetails>
@@ -69,6 +75,7 @@ export class GrantDetails
   type = "grant-details";
   startDate?: number;
   fundUsage?: string;
+  selectedTrackIds?: string[];
 }
 
 export interface IGrantRound {
@@ -133,7 +140,7 @@ export interface IProjectDetails {
   missionSummary?: string;
   locationOfImpact?: string;
   imageURL: string;
-  links?: ExternalLink;
+  links?: Array<ExternalLink[0] | ExternalCustomLink>;
   tags?: ITag[];
   externalIds?: string[];
   slug?: string;
@@ -154,7 +161,7 @@ export class ProjectDetails
   missionSummary?: string;
   locationOfImpact?: string;
   imageURL: string;
-  links: ExternalLink = [];
+  links: Array<ExternalLink[0] | ExternalCustomLink> = [];
   tags: ITag[] = [];
   slug: string;
   type = "project-details";
