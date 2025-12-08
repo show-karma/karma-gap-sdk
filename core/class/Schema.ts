@@ -106,6 +106,8 @@ export abstract class Schema<T extends string = string>
     "base-sepolia": [],
     lisk: [],
     scroll: [],
+    base: [],
+    polygon: [],
   };
 
   protected encoder: SchemaEncoder;

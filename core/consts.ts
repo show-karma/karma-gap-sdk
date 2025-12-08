@@ -34,6 +34,8 @@ export const chainIdToNetwork = {
   1329: "sei",
   1135: "lisk",
   534352: "scroll",
+  8453: "base",
+  137: "polygon"
 };
 
 export const nullRef =
@@ -580,6 +582,85 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       ContributorProfile: null
     },
   },
+  "base": {
+    chainId: 8453,
+    url: "https://base.easscan.org/graphql",
+    rpcUrl: "https://mainnet.base.org",
+    contracts: {
+      eas: "0x4200000000000000000000000000000000000021",
+      schema: "0x4200000000000000000000000000000000000020",
+      multicall: "0x7177AdC0f924b695C0294A40C4C5FEFf5EE1E141",
+      projectResolver: "0xd2eD366393FDfd243931Fe48e9fb65A192B0018c",
+      communityResolver: "0x6dC1D6b864e8BEf815806f9e4677123496e12026",
+      donations: "0x5f4A21e16b04f9944229DF6CD2724088e3457B0e",
+      airdropNFT: null,
+    },
+    schemas: {
+      Community:
+        "0x721c17b065dccc5c916e0c2708d0ef50f1810591b76d0402ff6fe5accbd8488f",
+      Details:
+        "0x70a3f615f738fc6a4f56100692ada93d947c028b840940d97af7e7d6f0fa0577",
+      Grant:
+        "0x12837231f48acbca4e1e7f4416f684f3353bd4d71d4f03a09d29e5ffa6f21a50",
+      GrantVerified:
+        "0xb7eab95609c821624edc3c3a5a6c787bdc9da6c91393a967fb22b0e274c619dd",
+      MemberOf:
+        "0x7fbb8a65924d8ad2ae12356e04b1418043e8361ba3b1b6c917de2e23df3ec81c",
+      MilestoneApproved:
+        "0xb7eab95609c821624edc3c3a5a6c787bdc9da6c91393a967fb22b0e274c619dd",
+      MilestoneCompleted:
+        "0xb7eab95609c821624edc3c3a5a6c787bdc9da6c91393a967fb22b0e274c619dd",
+      GrantUpdateStatus:
+        "0xb7eab95609c821624edc3c3a5a6c787bdc9da6c91393a967fb22b0e274c619dd",
+      Project:
+        "0x5a6b36ac106c74541efad39f8430751dd843bb78729bf7ffc296eca4cbb8d8f3",
+      ProjectUpdateStatus:
+        "0xb7eab95609c821624edc3c3a5a6c787bdc9da6c91393a967fb22b0e274c619dd",
+      ProjectMilestoneStatus:
+        "0xb7eab95609c821624edc3c3a5a6c787bdc9da6c91393a967fb22b0e274c619dd",
+      ContributorProfile: "0xdfb8ad353dd144235bd45ae38803db6ffe066081770370f603709b9dec9ba8ff"
+    },
+  },
+  "polygon": {
+    chainId: 137,
+    url: "https://polygon.easscan.org/graphql",
+    rpcUrl: "https://polygon-rpc.com/",
+    contracts: {
+      eas: "0x5E634ef5355f45A855d02D66eCD687b1502AF790",
+      schema: "0x7876EEF51A891E737AF8ba5A5E0f0Fd29073D5a7",
+      multicall: "0x2B2a82637299F9614f4F4833C946cC7b749C6814",
+      projectResolver: "0xA37e6F58289F2c3e650b0cdF3Bb1000889e8d07C",
+      communityResolver: "0x710Add6c51327c44d9208aA0Aef2e7011D3678BF",
+      donations: "0x5f4A21e16b04f9944229DF6CD2724088e3457B0e",
+      airdropNFT: null,
+    },
+    schemas: {
+      Community:
+        "0x884bd33b1d7fce5c637e85aef538e83a8a87157d7df2d357e6cc8d4c59b89400",
+      Details:
+        "0x2038ec9d8d0ab60324065aa0b4961d3f93d725f1c71f67b9f1ef209114c75f7f",
+      Grant:
+        "0x2cedad5cda259c921f3380eedd5920be86a7dfe9496848cc8afc7f01159dfd65",
+      GrantVerified:
+        "0xe4b229d7051c27bb64cca0d29d92377143e6d5b9e076416e997c38d4cb40a399",
+      MemberOf:
+        "0x2cfa4adacb1efcd0ff408d749fd12bb36cd5f88aa0822f633962d4bd5c8023aa",
+      MilestoneApproved:
+        "0xe4b229d7051c27bb64cca0d29d92377143e6d5b9e076416e997c38d4cb40a399",
+      MilestoneCompleted:
+        "0xe4b229d7051c27bb64cca0d29d92377143e6d5b9e076416e997c38d4cb40a399",
+      GrantUpdateStatus:
+        "0xe4b229d7051c27bb64cca0d29d92377143e6d5b9e076416e997c38d4cb40a399",
+      Project:
+        "0x7f0e4ac5f7cbe2a39af317b46bad7e86b053f76109c364d197447d9da34e821a",
+      ProjectUpdateStatus:
+        "0xe4b229d7051c27bb64cca0d29d92377143e6d5b9e076416e997c38d4cb40a399",
+      ProjectMilestoneStatus:
+        "0xe4b229d7051c27bb64cca0d29d92377143e6d5b9e076416e997c38d4cb40a399",
+      ContributorProfile: "0x281f0afbb0313c6ff851400c4ed317fe9741be75e7e20c337dfd403059523bea"
+    },
+  },
+
 };
 
 const DetailsSchema = [{ type: "string", name: "json", value: null }];
