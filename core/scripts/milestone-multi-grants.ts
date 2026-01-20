@@ -5,18 +5,36 @@ import { ethers } from "ethers";
 import { GAP } from "../class/GAP";
 import { Milestone } from "../class/entities/Milestone";
 import { Grant } from "../class/entities/Grant";
-import { Hex, SignerOrProvider } from "../types";
+import { GAPRpcConfig, Hex, SignerOrProvider } from "../types";
 import { GapContract } from "../class/contract/GapContract";
 import { MultiAttestPayload } from "../types";
+import "dotenv/config";
 
 async function main() {
-  // Initialize GAP with your network and signer
-  // Replace with your actual RPC URL and private key
-  const provider = new ethers.JsonRpcProvider("YOUR_RPC_URL");
-  const signer = new ethers.Wallet("YOUR_PRIVATE_KEY", provider);
+  // Read RPC URL from environment variable
+  const rpcUrl = process.env.RPC_OPTIMISM;
+  if (!rpcUrl) {
+    throw new Error("RPC URL not found. Set RPC_OPTIMISM environment variable.");
+  }
+
+  // Read private key from environment variable
+  const privateKey = process.env.PRIVATE_KEY;
+  if (!privateKey) {
+    throw new Error("Private key not found. Set PRIVATE_KEY environment variable.");
+  }
+
+  // Initialize provider and signer
+  const provider = new ethers.JsonRpcProvider(rpcUrl);
+  const signer = new ethers.Wallet(privateKey, provider);
+
+  // Configure RPC URLs for GAP
+  const rpcUrls: GAPRpcConfig = {
+    10: rpcUrl, // optimism
+  };
+
   const gap = new GAP({
     network: "optimism",
-    // Additional GAP options can be specified here if needed
+    rpcUrls,
   });
 
   try {

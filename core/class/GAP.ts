@@ -9,12 +9,13 @@ import { MountEntities, Networks } from "../consts";
 import {
   AttestArgs,
   Facade,
+  GAPRpcConfig,
   SchemaInterface,
   SignerOrProvider,
   TNetwork,
   TSchemaName,
 } from "../types";
-import { getWeb3Provider } from "../utils/get-web3-provider";
+import { getWeb3Provider, registerRpcUrls } from "../utils/get-web3-provider";
 import { Fetcher } from "./Fetcher";
 import { GapSchema } from "./GapSchema";
 import { GapEasClient } from "./GraphQL";
@@ -30,6 +31,22 @@ interface GAPArgs {
    */
   apiClient?: Fetcher;
   schemas?: SchemaInterface<TSchemaName>[];
+  /**
+   * RPC URL configuration for the networks you need to use.
+   * Maps chain IDs to RPC endpoint URLs.
+   *
+   * @example
+   * ```typescript
+   * const gap = new GAP({
+   *   network: "optimism",
+   *   rpcUrls: {
+   *     10: "https://opt-mainnet.g.alchemy.com/v2/YOUR_KEY",
+   *     42161: "https://arb-mainnet.g.alchemy.com/v2/YOUR_KEY",
+   *   },
+   * });
+   * ```
+   */
+  rpcUrls?: GAPRpcConfig;
   /**
    * Defined if the transactions will be gasless or not.
    *
@@ -221,6 +238,11 @@ export class GAP extends Facade {
       args.schemas || Object.values(MountEntities(Networks[args.network]));
 
     this.network = args.network;
+
+    // Register RPC URLs if provided
+    if (args.rpcUrls) {
+      registerRpcUrls(args.rpcUrls);
+    }
 
     this._eas = new EAS(Networks[args.network].contracts.eas);
 

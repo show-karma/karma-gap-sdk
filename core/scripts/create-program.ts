@@ -1,11 +1,17 @@
 import { AlloRegistry } from "../class/GrantProgramRegistry/AlloRegistry";
 import { ethers } from "ethers";
-import { Networks } from "../consts";
-
 import keys from "../../config/keys.json";
+import "dotenv/config";
 
 const networkName = "sepolia";
-const web3 = new ethers.JsonRpcProvider(Networks[networkName].rpcUrl);
+
+// Read RPC URL from environment variable
+const rpcUrl = process.env[`RPC_${networkName.toUpperCase().replace("-", "_")}`];
+if (!rpcUrl) {
+  throw new Error(`RPC URL not found. Set RPC_${networkName.toUpperCase().replace("-", "_")} environment variable.`);
+}
+
+const web3 = new ethers.JsonRpcProvider(rpcUrl);
 const wallet = new ethers.Wallet(keys.privateKey, web3);
 const signer = wallet.connect(web3);
 

@@ -8,8 +8,15 @@ import { ethers } from "ethers";
 import keys from "../../config/keys.json";
 import { GapSchema } from "../class/GapSchema";
 import { writeFileSync } from "fs";
+import "dotenv/config";
 
-const web3 = new ethers.JsonRpcProvider("https://eth-sepolia-public.unifra.io");
+// Read RPC URL from environment variable for sepolia (default network)
+const rpcUrl = process.env.RPC_SEPOLIA;
+if (!rpcUrl) {
+  throw new Error("RPC URL not found. Set RPC_SEPOLIA environment variable.");
+}
+
+const web3 = new ethers.JsonRpcProvider(rpcUrl);
 const wallet = new ethers.Wallet(keys.privateKey, web3);
 
 const contract = new ethers.Contract(
