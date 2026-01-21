@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.5.0] - 2025-01-20
+## [0.5.0] - 2026-01-20
 
 ### Breaking Changes
 
@@ -34,9 +34,16 @@ const gap = new GAP({
 ```typescript
 import { GAP, type GAPRpcConfig } from "@show-karma/karma-gap-sdk";
 
+// Helper to ensure RPC URL is defined
+const requireEnv = (key: string): string => {
+  const value = process.env[key];
+  if (!value) throw new Error(`Missing required env var: ${key}`);
+  return value;
+};
+
 const rpcUrls: GAPRpcConfig = {
-  10: process.env.OPTIMISM_RPC_URL,   // optimism
-  42161: process.env.ARBITRUM_RPC_URL, // arbitrum
+  10: requireEnv("OPTIMISM_RPC_URL"),     // optimism
+  42161: requireEnv("ARBITRUM_RPC_URL"),  // arbitrum
   // Only configure networks you need
 };
 
@@ -109,8 +116,9 @@ export type GAPRpcConfig = Partial<Record<SupportedChainId, string>>;
 
 - `GAPRpcConfig` type for RPC URL configuration
 - `SupportedChainId` type for type-safe chain ID references
-- `registerRpcUrls` utility function (for advanced usage)
-- `clearRpcRegistry` utility function (for testing)
+- `gap.getProvider(chainId)` instance method for getting providers with instance-scoped RPC config
+- `gap.rpcConfig` readonly property to access the instance's RPC configuration
+- `clearProviderCache` utility function (for testing only)
 - `.env.example` file with RPC URL placeholders
 
 ## [0.4.x] and earlier

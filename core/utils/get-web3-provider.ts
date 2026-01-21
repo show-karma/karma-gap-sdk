@@ -1,44 +1,67 @@
 import { ethers } from "ethers";
-import { GAPRpcConfig } from "../types";
-
-const providers: Record<number, ethers.JsonRpcProvider> = {};
-let rpcUrlRegistry: Record<number, string> = {};
+import { GAPRpcConfig, SupportedChainId } from "../types";
 
 /**
- * Register RPC URLs for use by getWeb3Provider.
- * This is called internally by GAP when initialized with rpcUrls.
- *
- * @param config - RPC URL configuration mapping chain IDs to RPC URLs
+ * Global provider cache keyed by "chainId:rpcUrl" to allow caching
+ * while supporting different RPC URLs for the same chain.
  */
-export const registerRpcUrls = (config: GAPRpcConfig): void => {
-  rpcUrlRegistry = { ...rpcUrlRegistry, ...config };
+const providers: Map<string, ethers.JsonRpcProvider> = new Map();
+
+/**
+ * Validate that a string is a valid URL.
+ * @internal
+ */
+const isValidUrl = (url: string): boolean => {
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
 };
 
 /**
- * Clear all registered RPC URLs and cached providers.
- * Useful for testing or when reconfiguring the SDK.
- */
-export const clearRpcRegistry = (): void => {
-  rpcUrlRegistry = {};
-  Object.keys(providers).forEach((key) => delete providers[Number(key)]);
-};
-
-/**
- * Get a Web3 provider for a specific chain ID.
+ * Get a Web3 provider for a specific chain ID using the provided RPC configuration.
  *
  * @param chainId - The chain ID to get a provider for
+ * @param config - RPC URL configuration mapping chain IDs to RPC URLs
  * @returns An ethers JsonRpcProvider for the specified chain
- * @throws Error if no RPC URL is configured for the chain ID
+ * @throws Error if no RPC URL is configured for the chain ID or if the URL is invalid
  */
-export const getWeb3Provider = (chainId: number): ethers.JsonRpcProvider => {
-  const rpcUrl = rpcUrlRegistry[chainId];
+export const getWeb3Provider = (
+  chainId: number,
+  config: GAPRpcConfig
+): ethers.JsonRpcProvider => {
+  const rpcUrl = config[chainId as SupportedChainId];
 
   if (!rpcUrl) {
-    throw new Error(`RPC URL not configured for chain ${chainId}`);
+    throw new Error(
+      `RPC URL not configured for chain ${chainId}. ` +
+        `Please provide an RPC URL in the rpcUrls configuration when initializing GAP.`
+    );
   }
 
-  if (!providers[chainId]) {
-    providers[chainId] = new ethers.JsonRpcProvider(rpcUrl);
+  if (!isValidUrl(rpcUrl)) {
+    throw new Error(
+      `Invalid RPC URL for chain ${chainId}: "${rpcUrl}". ` +
+        `Please provide a valid URL (e.g., "https://mainnet.infura.io/v3/YOUR_KEY").`
+    );
   }
-  return providers[chainId];
+
+  const cacheKey = `${chainId}:${rpcUrl}`;
+  let provider = providers.get(cacheKey);
+  if (!provider) {
+    provider = new ethers.JsonRpcProvider(rpcUrl);
+    providers.set(cacheKey, provider);
+  }
+  return provider;
+};
+
+/**
+ * Clear all cached providers.
+ * Useful for testing or when reconfiguring the SDK.
+ * @internal - This is an internal function, not part of the public API.
+ */
+export const clearProviderCache = (): void => {
+  providers.clear();
 };

@@ -11,9 +11,10 @@ const networkName = "sepolia";
 const chainId = Networks[networkName].chainId;
 
 // Read RPC URL from environment variable
-const rpcUrl = process.env[`RPC_${networkName.toUpperCase().replace("-", "_")}`];
+const envVarName = `RPC_${networkName.toUpperCase().replace(/-/g, "_")}`;
+const rpcUrl = process.env[envVarName];
 if (!rpcUrl) {
-  throw new Error(`RPC URL not found. Set RPC_${networkName.toUpperCase().replace("-", "_")} environment variable.`);
+  throw new Error(`RPC URL not found. Set ${envVarName} environment variable.`);
 }
 
 const web3 = new ethers.JsonRpcProvider(rpcUrl);

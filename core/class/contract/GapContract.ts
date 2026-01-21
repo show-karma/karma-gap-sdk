@@ -4,6 +4,7 @@ import {
 } from "@ethereum-attestation-service/eas-sdk";
 import {
   CallbackStatus,
+  GAPRpcConfig,
   Hex,
   RawAttestationPayload,
   RawMultiAttestPayload,
@@ -371,19 +372,21 @@ export class GapContract {
 
   /**
    * Check if the signer is the owner of the project
-   * @param signer
-   * @param projectUID
-   * @param projectChainId
-   * @param publicAddress
-   * @returns
+   * @param signer - Signer or provider
+   * @param projectUID - The project UID
+   * @param projectChainId - The chain ID where the project exists
+   * @param publicAddress - Optional public address to check (uses signer address if not provided)
+   * @param rpcConfig - Optional RPC config for cross-chain operations. If not provided, uses the signer's chain.
+   * @returns Whether the address is a project owner
    */
   static async isProjectOwner(
     signer: SignerOrProvider,
     projectUID: Hex,
     projectChainId: number,
-    publicAddress?: string
+    publicAddress?: string,
+    rpcConfig?: GAPRpcConfig
   ): Promise<boolean> {
-    const contract = await GAP.getProjectResolver(signer, projectChainId);
+    const contract = await GAP.getProjectResolver(signer, rpcConfig, projectChainId);
     const address = publicAddress || (await this.getSignerAddress(signer));
     const isOwner = await contract.isOwner(projectUID, address);
     return isOwner;
@@ -391,19 +394,21 @@ export class GapContract {
 
   /**
    * Check if the signer is admin of the project
-   * @param signer
-   * @param projectUID
-   * @param projectChainId
-   * @param publicAddress
-   * @returns
+   * @param signer - Signer or provider
+   * @param projectUID - The project UID
+   * @param projectChainId - The chain ID where the project exists
+   * @param publicAddress - Optional public address to check (uses signer address if not provided)
+   * @param rpcConfig - Optional RPC config for cross-chain operations. If not provided, uses the signer's chain.
+   * @returns Whether the address is a project admin
    */
   static async isProjectAdmin(
     signer: SignerOrProvider,
     projectUID: Hex,
     projectChainId: number,
-    publicAddress?: string
+    publicAddress?: string,
+    rpcConfig?: GAPRpcConfig
   ): Promise<boolean> {
-    const contract = await GAP.getProjectResolver(signer, projectChainId);
+    const contract = await GAP.getProjectResolver(signer, rpcConfig, projectChainId);
     const address = publicAddress || (await this.getSignerAddress(signer));
     const isAdmin = await contract.isAdmin(projectUID, address);
     return isAdmin;

@@ -5,13 +5,17 @@ import "dotenv/config";
 
 const schemaRegistryContractAddress = "0x4200000000000000000000000000000000000020";
 
+// Network name for this script (lisk)
+const networkName = "lisk";
+
 (async () => {
 const schemaRegistry = new SchemaRegistry(schemaRegistryContractAddress);
 
-// Read RPC URL from environment variable
-const rpcUrl = process.env.RPC_LISK;
+// Read RPC URL from environment variable using consistent pattern
+const envVarName = `RPC_${networkName.toUpperCase().replace(/-/g, "_")}`;
+const rpcUrl = process.env[envVarName];
 if (!rpcUrl) {
-  throw new Error("RPC URL not found. Set RPC_LISK environment variable.");
+  throw new Error(`RPC URL not found. Set ${envVarName} environment variable.`);
 }
 
 const web3 = new ethers.JsonRpcProvider(rpcUrl);
