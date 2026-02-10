@@ -54,6 +54,7 @@ export interface IGrantDetails {
   questions?: IGrantDetailsQuestion[];
   type?: string;
   startDate?: number;
+  receivedDate?: number;
   programId?: string;
   fundUsage?: string;
   selectedTrackIds?: string[];
@@ -74,6 +75,7 @@ export class GrantDetails
   questions?: IGrantDetailsQuestion[];
   type = "grant-details";
   startDate?: number;
+  receivedDate?: number;
   fundUsage?: string;
   selectedTrackIds?: string[];
 }
