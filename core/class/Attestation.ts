@@ -20,7 +20,6 @@ import { GAP } from "./GAP";
 import { GapSchema } from "./GapSchema";
 import { Networks, nullRef } from "../consts";
 import { GapContract } from "./contract/GapContract";
-import { IpfsStorage } from "./remote-storage/IpfsStorage";
 import { AttestationWithTx } from "./types/attestations";
 
 export interface AttestationArgs<T = unknown, S extends Schema = Schema> {

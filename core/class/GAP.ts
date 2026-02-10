@@ -18,7 +18,6 @@ import { getWeb3Provider } from "../utils/get-web3-provider";
 import { Fetcher } from "./Fetcher";
 import { GapSchema } from "./GapSchema";
 import { GapEasClient } from "./GraphQL";
-import { RemoteStorage } from "./remote-storage/RemoteStorage";
 import { Schema } from "./Schema";
 
 interface GAPArgs {
@@ -107,12 +106,6 @@ interface GAPArgs {
      */
     useGasless?: boolean;
   };
-  /**
-   * Defines a remote storage client to be used to store data.
-   * If defined, all the details data from an attestation will
-   * be stored in the remote storage, e.g. IPFS.
-   */
-  remoteStorage?: RemoteStorage;
 }
 
 /**
@@ -175,7 +168,6 @@ interface GAPArgs {
  * ```
  */
 export class GAP extends Facade {
-  private static remoteStorage?: RemoteStorage;
   private static instances: Map<TNetwork, GAP> = new Map();
 
   readonly fetch: Fetcher;
@@ -234,8 +226,6 @@ export class GAP extends Facade {
 
     this.assertGelatoOpts(args);
     GAP._gelatoOpts = args.gelatoOpts;
-
-    GAP.remoteStorage = args.remoteStorage;
 
     this._schemas = schemas.map(
       (schema) =>
@@ -475,7 +465,4 @@ export class GAP extends Facade {
     this._gelatoOpts.useGasless = useGasLess;
   }
 
-  static get remoteClient() {
-    return this.remoteStorage;
-  }
 }
