@@ -432,13 +432,6 @@ export class GAP extends Facade {
           (await signer.getChainId())
       );
 
-    if (chainId && !rpcConfig) {
-      throw new Error(
-        `rpcConfig is required when specifying chainId for cross-chain operations. ` +
-        `Either provide rpcConfig or omit chainId to use the signer's chain.`
-      );
-    }
-
     const provider =
       chainId && rpcConfig
         ? getWeb3Provider(chainId, rpcConfig)
@@ -473,13 +466,6 @@ export class GAP extends Facade {
         (await signer.provider.getNetwork())?.chainId ||
           (await signer.getChainId())
       );
-
-    if (chainId && !rpcConfig) {
-      throw new Error(
-        `rpcConfig is required when specifying chainId for cross-chain operations. ` +
-        `Either provide rpcConfig or omit chainId to use the signer's chain.`
-      );
-    }
 
     const provider =
       chainId && rpcConfig
