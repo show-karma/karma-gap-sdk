@@ -14,6 +14,7 @@
     "type": "git"
   },
   "scripts": {
+    "build": "tsc -p tsconfig.json",
     "test": "npx tsc -p tsconfig.json --noEmit",
     "deploy": "npx ts-node ./core/scripts/deploy.ts",
     "csv-upload": "npx ts-node ./csv-upload/scripts/run.ts",
