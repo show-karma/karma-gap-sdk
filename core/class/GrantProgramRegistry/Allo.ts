@@ -6,7 +6,6 @@ import { AbiCoder } from "ethers";
 import { Allo } from "@allo-team/allo-v2-sdk/";
 import { CreatePoolArgs } from "@allo-team/allo-v2-sdk/dist/Allo/types";
 import { TransactionData } from "@allo-team/allo-v2-sdk/dist/Common/types";
-import axios from "axios";
 
 // ABI fragment for the Initialized event
 const INITIALIZED_EVENT = ["event Initialized(uint256 poolId, bytes data)"];
@@ -15,9 +14,8 @@ export class AlloBase {
   private signer: ethers.Signer;
   private contract: ethers.Contract;
   private allo: Allo;
-  private pinataJWTToken: string;
 
-  constructor(signer: ethers.Signer, pinataJWTToken: string, chainId: number) {
+  constructor(signer: ethers.Signer, chainId: number) {
     this.signer = signer;
     this.contract = new ethers.Contract(
       AlloContracts.alloProxy,
@@ -25,31 +23,6 @@ export class AlloBase {
       signer
     );
     this.allo = new Allo({ chain: chainId });
-    this.pinataJWTToken = pinataJWTToken;
-  }
-
-  async saveAndGetCID(
-    data: any,
-    pinataMetadata = { name: "via karma-gap-sdk" }
-  ) {
-    try {
-      const res = await axios.post(
-        "https://api.pinata.cloud/pinning/pinJSONToIPFS",
-        {
-          pinataContent: data,
-          pinataMetadata: pinataMetadata,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${this.pinataJWTToken}`,
-          },
-        }
-      );
-      return res.data.IpfsHash;
-    } catch (error) {
-      console.log(error);
-    }
   }
 
   async encodeStrategyInitData(
@@ -76,7 +49,7 @@ export class AlloBase {
     return initStrategyData;
   }
 
-  async createGrant(args: any, callback?: Function) {
+  async createGrant(args: any & { metadataCid: string }, callback?: Function) {
     console.log("Creating grant...");
     const walletBalance = await this.signer.provider.getBalance(
       await this.signer.getAddress()
@@ -89,14 +62,9 @@ export class AlloBase {
     );
 
     try {
-      const metadata_cid = await this.saveAndGetCID({
-        round: args.roundMetadata,
-        application: args.applicationMetadata,
-      });
-
       const metadata = {
         protocol: BigInt(1),
-        pointer: metadata_cid,
+        pointer: args.metadataCid,
       };
 
       const initStrategyData = (await this.encodeStrategyInitData(
@@ -164,15 +132,14 @@ export class AlloBase {
 
   async updatePoolMetadata(
     poolId: string,
-    poolMetadata: any,
+    metadataCid: string,
     callback?: Function
   ) {
     try {
       callback?.("preparing");
-      const metadata_cid = await this.saveAndGetCID(poolMetadata);
       const metadata = {
         protocol: 1,
-        pointer: metadata_cid,
+        pointer: metadataCid,
       };
 
       const tx = await this.contract.updatePoolMetadata(poolId, metadata);

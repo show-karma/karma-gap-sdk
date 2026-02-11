@@ -6,5 +6,3 @@ export * from './SchemaError';
 export * from './entities';
 export * from './Fetcher';
 export * from './karma-indexer/GapIndexerClient';
-export * from './remote-storage/IpfsStorage';
-export * from './remote-storage/RemoteStorage';
