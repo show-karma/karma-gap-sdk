@@ -233,10 +233,6 @@ class GAP extends types_1.Facade {
         const currentChainId = chainId ||
             Number((await signer.provider.getNetwork())?.chainId ||
                 (await signer.getChainId()));
-        if (chainId && !rpcConfig) {
-            throw new Error(`rpcConfig is required when specifying chainId for cross-chain operations. ` +
-                `Either provide rpcConfig or omit chainId to use the signer's chain.`);
-        }
         const provider = chainId && rpcConfig
             ? (0, get_web3_provider_1.getWeb3Provider)(chainId, rpcConfig)
             : signer;
@@ -258,10 +254,6 @@ class GAP extends types_1.Facade {
         const currentChainId = chainId ||
             Number((await signer.provider.getNetwork())?.chainId ||
                 (await signer.getChainId()));
-        if (chainId && !rpcConfig) {
-            throw new Error(`rpcConfig is required when specifying chainId for cross-chain operations. ` +
-                `Either provide rpcConfig or omit chainId to use the signer's chain.`);
-        }
         const provider = chainId && rpcConfig
             ? (0, get_web3_provider_1.getWeb3Provider)(chainId, rpcConfig)
             : signer;
