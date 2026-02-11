@@ -109,6 +109,38 @@ export type TNetwork =
   | "polygon";
 
 /**
+ * Supported chain IDs for GAP SDK networks
+ */
+export type SupportedChainId =
+  | 10        // optimism
+  | 11155420  // optimism-sepolia
+  | 42161     // arbitrum
+  | 11155111  // sepolia
+  | 84532     // base-sepolia
+  | 42220     // celo
+  | 1328      // sei-testnet
+  | 1329      // sei
+  | 1135      // lisk
+  | 534352    // scroll
+  | 8453      // base
+  | 137;      // polygon
+
+/**
+ * RPC configuration for GAP SDK.
+ * Maps chain IDs to RPC URLs.
+ * Only configure the networks you need to use.
+ *
+ * @example
+ * ```typescript
+ * const rpcUrls: GAPRpcConfig = {
+ *   10: "https://opt-mainnet.g.alchemy.com/v2/YOUR_KEY",
+ *   42161: "https://arb-mainnet.g.alchemy.com/v2/YOUR_KEY",
+ * };
+ * ```
+ */
+export type GAPRpcConfig = Partial<Record<SupportedChainId, string>>;
+
+/**
  * Generic GAP Facade interface.
  * This supplies the GAP class with the necessary properties.
  */
@@ -146,7 +178,6 @@ export type MultiAttestPayload = [Attestation, RawMultiAttestPayload][];
 
 export interface EASNetworkConfig {
   url: string;
-  rpcUrl: string;
   chainId: number;
   contracts: {
     eas: Hex;
