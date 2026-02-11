@@ -150,7 +150,8 @@ export interface IGrantDetails extends IAttestationResponse {
     assetAndChainId?: [Hex, number];
     payoutAddress: Hex;
     questions: { type: string; query: string; explanation: string }[];
-    startDate: number;
+    startDate?: number;
+    receivedDate?: number;
     programId?: string;
     type: "grant-details";
     fundUsage?: string;
