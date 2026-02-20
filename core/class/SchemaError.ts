@@ -14,7 +14,6 @@ const SchemaErrorCodes = {
   INVALID_REF_UID: 50013,
   REVOKATION_ERROR: 50014,
   NOT_REVOCABLE: 50015,
-  REMOTE_STORAGE_UPLOAD: 50016,
 };
 
 export class SchemaError extends Error {
@@ -39,4 +38,3 @@ export class SchemaError extends Error {
 }
 
 export class AttestationError extends SchemaError {}
-export class RemoteStorageError extends SchemaError {}

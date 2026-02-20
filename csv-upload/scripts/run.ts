@@ -32,7 +32,6 @@ interface Keys {
   privateKey: string;
   rpcURL: string;
   gapAPI: string;
-  ipfsKey: string;
 }
 
 interface Config {
@@ -54,9 +53,7 @@ interface NetworkConfig {
   networkName: TNetwork;
   rpcURL: string;
   gapAPI: string;
-  ipfsURL: string;
   privateKey: string;
-  ipfsKey: string;
   gapAccessToken: string;
 }
 
@@ -72,9 +69,7 @@ function loadConfig(): NetworkConfig {
       DEFAULT_CONFIG.DEFAULT_NETWORK === "optimism-sepolia"
         ? "https://gapstagapi.karmahq.xyz"
         : "https://gapapi.karmahq.xyz",
-    ipfsURL: `${keys.gapAPI}/ipfs`,
     privateKey: keys.privateKey,
-    ipfsKey: keys.ipfsKey,
     gapAccessToken: gapAccessToken,
   };
 }

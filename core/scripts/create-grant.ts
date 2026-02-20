@@ -22,7 +22,7 @@ const wallet = new ethers.Wallet(keys.privateKey, web3);
 const signer = wallet.connect(web3);
 
 export async function main() {
-  const allo = new AlloBase(signer, keys.ipfsToken, chainId);
+  const allo = new AlloBase(signer, chainId);
 
   const _currentTimestamp = (await signer?.provider?.getBlock(
     await signer?.provider?.getBlockNumber()

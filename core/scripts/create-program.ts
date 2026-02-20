@@ -16,7 +16,7 @@ const wallet = new ethers.Wallet(keys.privateKey, web3);
 const signer = wallet.connect(web3);
 
 export async function main() {
-  const alloRegistry = new AlloRegistry(signer, keys.ipfsToken);
+  const alloRegistry = new AlloRegistry(signer);
 
   const nonce = 12310;
   const name = "Karma Gap Registry";
@@ -36,10 +36,11 @@ export async function main() {
   };
   const owner = await signer.getAddress();
 
+  const metadataCid = ""; // TODO: provide metadata CID
   const response = await alloRegistry.createProgram(
     nonce,
     metadata.title,
-    metadata,
+    metadataCid,
     owner,
     [owner]
   );
