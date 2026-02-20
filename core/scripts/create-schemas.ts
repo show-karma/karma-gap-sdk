@@ -1,15 +1,24 @@
-import { EAS, SchemaEncoder, SchemaRegistry } from "@ethereum-attestation-service/eas-sdk";
+import { SchemaRegistry } from "@ethereum-attestation-service/eas-sdk";
 import { ethers } from 'ethers';
 import keys from "../../config/keys.json";
-import { Networks, zeroAddress } from "../consts";
-import { resolve } from "path";
+import "dotenv/config";
 
 const schemaRegistryContractAddress = "0x4200000000000000000000000000000000000020";
+
+// Network name for this script (lisk)
+const networkName = "lisk";
 
 (async () => {
 const schemaRegistry = new SchemaRegistry(schemaRegistryContractAddress);
 
-const web3 = new ethers.JsonRpcProvider("https://lisk.drpc.org");
+// Read RPC URL from environment variable using consistent pattern
+const envVarName = `RPC_${networkName.toUpperCase().replace(/-/g, "_")}`;
+const rpcUrl = process.env[envVarName];
+if (!rpcUrl) {
+  throw new Error(`RPC URL not found. Set ${envVarName} environment variable.`);
+}
+
+const web3 = new ethers.JsonRpcProvider(rpcUrl);
 const wallet = new ethers.Wallet(keys.privateKey, web3);
 schemaRegistry.connect(wallet);
 

@@ -4,6 +4,7 @@ import * as csv from "fast-csv";
 import * as fs from "fs";
 import {
   GAP,
+  GAPRpcConfig,
   Grant,
   Hex,
   MemberOf,
@@ -78,7 +79,12 @@ const config = loadConfig();
 const web3 = new ethers.JsonRpcProvider(config.rpcURL);
 const wallet = new ethers.Wallet(config.privateKey, web3);
 
-const gap = GAP.getInstance({ network: config.networkName });
+// Configure RPC URLs for GAP
+const rpcUrls: GAPRpcConfig = {
+  [CHAIN_IDS[config.networkName]]: config.rpcURL,
+};
+
+const gap = GAP.getInstance({ network: config.networkName, rpcUrls });
 
 interface CSV {
   Project: string;

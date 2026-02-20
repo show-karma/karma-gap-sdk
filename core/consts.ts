@@ -53,8 +53,6 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
   optimism: {
     chainId: 10,
     url: "https://optimism.easscan.org/graphql",
-    rpcUrl:
-      "https://opt-mainnet.g.alchemy.com/v2/fx2SlVDrPbXwPMQT4v0lRT1PABA16Myl",
     contracts: {
       eas: "0x4200000000000000000000000000000000000021",
       schema: "0x4200000000000000000000000000000000000020",
@@ -120,8 +118,6 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
   "optimism-sepolia": {
     chainId: 11155420,
     url: "https://optimism-sepolia.easscan.org/graphql",
-    rpcUrl:
-      "https://opt-sepolia.g.alchemy.com/v2/9FEqTNKmgO7X7ll92ALJrEih7Jjhldf-",
     contracts: {
       communityResolver: "0xa5B7bbFD545A1a816aa8cBE28a1F0F2Cca58363d",
       eas: "0x4200000000000000000000000000000000000021",
@@ -188,8 +184,6 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
   arbitrum: {
     chainId: 42161,
     url: "https://arbitrum.easscan.org/graphql",
-    rpcUrl:
-      "https://arb-mainnet.g.alchemy.com/v2/okcKBSKXvLuSCbas6QWGvKuh-IcHHSOr",
     contracts: {
       eas: "0xbD75f629A22Dc1ceD33dDA0b68c546A1c035c458",
       schema: "0xA310da9c5B885E7fb3fbA9D66E9Ba6Df512b78eB",
@@ -255,8 +249,6 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
   sepolia: {
     chainId: 11155111,
     url: "https://sepolia.easscan.org/graphql",
-    rpcUrl:
-      "https://eth-sepolia.g.alchemy.com/v2/_M6YQg_DoVKuMisaFHSVZL-EcdkTbhUi",
     contracts: {
       eas: "0xC2679fBD37d54388Ce493F1DB75320D236e1815e",
       schema: "0x0a7E2Ff54e76B8E6659aedc9103FB21c038050D0",
@@ -296,7 +288,6 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
   "base-sepolia": {
     chainId: 84532,
     url: "https://base-sepolia.easscan.org/graphql",
-    rpcUrl: "https://sepolia.base.org",
     contracts: {
       eas: "0x4200000000000000000000000000000000000021",
       schema: "0x4200000000000000000000000000000000000020",
@@ -335,7 +326,6 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
   celo: {
     chainId: 42220,
     url: "https://celo.easscan.org/graphql",
-    rpcUrl: "https://forno.celo.org",
     contracts: {
       eas: "0x72E1d8ccf5299fb36fEfD8CC4394B8ef7e98Af92",
       schema: "0x5ece93bE4BDCF293Ed61FA78698B594F2135AF34",
@@ -401,7 +391,6 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
   sei: {
     chainId: 1329,
     url: "https://sei.easscan.org/graphql",
-    rpcUrl: "https://muddy-orbital-arrow.sei-pacific.quiknode.pro/594552c3ab4ed4106b40402c16dba137ab279d40",
     contracts: {
       eas: "0x391020888b0adBA584A67693458b374e4141f838",
       schema: "0x80A4B50f549a8271e10A6C8e79172cb56f35fD57",
@@ -467,7 +456,6 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
   "sei-testnet": {
     chainId: 1328,
     url: "https://sei-testnet.easscan.org/graphql",
-    rpcUrl: "https://evm-rpc-testnet.sei-apis.com",
     contracts: {
       eas: "0x4F166ed0A038ECdEEefa7Dc508f15991762974Fe",
       schema: "0x906a57aCa067178e76e6eBDF4C7b26CBcAEC0Edd",
@@ -506,8 +494,6 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
   lisk: {
     chainId: 1135,
     url: "https://lisk.easscan.org/graphql",
-    rpcUrl:
-      "https://lisk.drpc.org",
     contracts: {
       eas: "0x4200000000000000000000000000000000000021",
       schema: "0x4200000000000000000000000000000000000020",
@@ -546,7 +532,6 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
   scroll: {
     chainId: 534352,
     url: "https://scroll.easscan.org/graphql",
-    rpcUrl: "https://scroll-mainnet.g.alchemy.com/v2/SsQRSwtqtBMGmXQCDH9lYb4U8p9QnqXK",
     contracts: {
       eas: "0xC47300428b6AD2c7D03BB76D05A176058b47E6B0",
       schema: "0xD2CDF46556543316e7D34e8eDc4624e2bB95e3B6",
@@ -612,7 +597,6 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
   "base": {
     chainId: 8453,
     url: "https://base.easscan.org/graphql",
-    rpcUrl: "https://mainnet.base.org",
     contracts: {
       eas: "0x4200000000000000000000000000000000000021",
       schema: "0x4200000000000000000000000000000000000020",
@@ -678,7 +662,6 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
   "polygon": {
     chainId: 137,
     url: "https://polygon.easscan.org/graphql",
-    rpcUrl: "https://polygon-rpc.com/",
     contracts: {
       eas: "0x5E634ef5355f45A855d02D66eCD687b1502AF790",
       schema: "0x7876EEF51A891E737AF8ba5A5E0f0Fd29073D5a7",
