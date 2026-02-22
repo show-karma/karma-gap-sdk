@@ -1,10 +1,10 @@
-# Karma GAP SDK
+# Karma SDK
 
 ## Summary
 
-- [Karma GAP SDK](#karma-gap-sdk)
+- [Karma SDK](#karma-sdk)
   - [Summary](#summary)
-  - [1. What is GAP SDK?](#1-what-is-gap-sdk)
+  - [1. What is Karma SDK?](#1-what-is-karma-sdk)
   - [2. Architecture](#2-architecture)
     - [Attestations](#attestations)
   - [3. Getting started](#3-getting-started)
@@ -19,9 +19,9 @@
   - [9. Import cost](#9-import-cost)
   - [Contact Us](#contact-us)
 
-## 1. What is GAP SDK?
+## 1. What is Karma SDK?
 
-The GAP SDK is a library for easy integration with [Grantee Accountability Protocol](https://gap.karmahq.xyz). Using this library, you will be able to:
+The Karma SDK is a library for easy integration with [Karma](https://gap.karmahq.xyz). Using this library, you will be able to:
 
 - Fetch and display Communities, Projects, Members, Grants, Milestones, and all of their dependencies.
 - Create, update and delete all of the above.

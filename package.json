@@ -4,7 +4,7 @@
     "access": "public"
   },
   "version": "0.4.15",
-  "description": "Simple and easy interface between EAS and Karma GAP.",
+  "description": "Simple and easy interface between EAS and Karma.",
   "main": "./index.js",
   "author": "KarmaHQ",
   "license": "MIT",
