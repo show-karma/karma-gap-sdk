@@ -6,7 +6,7 @@
 
 ## Start Here
 
-1. Read `README.md` (comprehensive 870-line guide) for API usage and examples
+1. Read `readme.md` (comprehensive guide) for API usage and examples
 2. Understand the module hierarchy below
 3. Load only the specific module files you need
 
@@ -14,7 +14,7 @@
 
 ## Module Hierarchy
 
-```
+```text
 GAP (facade)
 ├── Fetcher (abstract data retrieval - EAS GraphQL or custom API)
 ├── GapSchema (schema management)
@@ -38,7 +38,7 @@ GAP (facade)
 | Schema changes | `core/class/GapSchema.ts`, `core/class/Schema.ts` |
 | Contract interaction | `core/class/contract/`, `core/abi/` |
 | Custom API integration | `core/class/karma-indexer/` |
-| Gasless transactions | `core/utils/gelato.ts` |
+| Gasless transactions | `core/class/Gelato/Gelato.ts`, `core/utils/gelato/` |
 | IPFS storage | `core/class/remote-storage/` |
 | Network configs | `core/consts.ts`, `core/types.ts` |
 | GraphQL queries | `core/class/GraphQL/` |
