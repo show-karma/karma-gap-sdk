@@ -126,7 +126,8 @@ export class Project extends Attestation<IProject> {
       signer,
       this.uid,
       this.chainID,
-      publicAddress
+      publicAddress,
+      this.schema.gap.rpcConfig
     );
   }
 
@@ -135,7 +136,8 @@ export class Project extends Attestation<IProject> {
       signer,
       this.uid,
       this.chainID,
-      publicAddress
+      publicAddress,
+      this.schema.gap.rpcConfig
     );
   }
 
