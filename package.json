@@ -21,6 +21,7 @@
     "test-file": "npx ts-node ./test-file-indexer-api.ts",
     "test-milestone": "npx ts-node ./milestone-workflow-example.ts",
     "create-community": "npx ts-node ./create-community-example.ts",
+    "revoke": "npx ts-node ./core/scripts/revoke-attestation.ts",
     "publish-npm": "npm version patch && tsc && cd .dist && npm publish --scope=@show-karma/karma-gap-sdk --access public"
   },
   "dependencies": {
