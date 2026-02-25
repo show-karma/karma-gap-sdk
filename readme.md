@@ -30,7 +30,7 @@ The Karma SDK is a library for easy integration with [Karma](https://gap.karmahq
 
 ## 2. Architecture
 
-The GAP SDK is module-based and adheres to specific parameters to ensure organization and ease of maintenance. At its core, the SDK is divided into the following modules:
+The Karma SDK is module-based and adheres to specific parameters to ensure organization and ease of maintenance. At its core, the SDK is divided into the following modules:
 
 1. **GAP Facade**: This object is responsible for centralizing resources within the SDK, providing all the tools and methods required to retrieve attestations from the network and convert them into concrete objects for display, attestation, modification, and revocation. The GAP Facade includes the `fetcher` module and stores all the necessary settings for the instance.
 
@@ -40,7 +40,7 @@ The GAP SDK is module-based and adheres to specific parameters to ensure organiz
 
 4. **Entities**: An entity represents a specific attestation `type` customized to fulfill specific requirements, such as data processing prior to attestation or method overrides. An entity always extends the `Attestation` module and inherits all its features.
 
-5. **Contract**: To meet the requirements of this SDK, a custom intermediary contract is utilized to add an abstraction layer to the original EAS contracts. This is essential for a better user experience, reduced gas costs, and monitoring. Karma's GAP SDK employs a special contract for this purpose. For more information, please refer to the [Gap Contracts](https://github.com/show-karma/gap-contracts) repository.
+5. **Contract**: To meet the requirements of this SDK, a custom intermediary contract is utilized to add an abstraction layer to the original EAS contracts. This is essential for a better user experience, reduced gas costs, and monitoring. Karma SDK employs a special contract for this purpose. For more information, please refer to the [Gap Contracts](https://github.com/show-karma/gap-contracts) repository.
 
 6. **Fetcher**: This **abstract module** is responsible for interacting with EAS or a custom API to retrieve attestations and transform them into instances of `Attestation`. The `Fetcher` module is indispensable if a custom API is desired.
 
@@ -50,7 +50,7 @@ Here's an example of how all these modules work together when retrieving Project
 
 In this diagram, you can already discern the benefits of using a Custom API to obtain data from the network and construct your own indexer, as opposed to relying on EAS's GraphQL API. We will delve into this further in [Section 8](#8-custom-api).
 
-> **Note**: GAP currently does not fully support multichain, and creating more than one instance can result in unexpected errors when using the fetcher. This feature is currently under development.
+> **Note**: Karma currently does not fully support multichain, and creating more than one instance can result in unexpected errors when using the fetcher. This feature is currently under development.
 
 ### Attestations
 
@@ -76,13 +76,13 @@ This example can be applied to all the entities in the diagram below, each of wh
 
 ## 3. Getting started
 
-After setting up your project, install GAP SDK with `yarn` or `npm`:
+After setting up your project, install Karma SDK with `yarn` or `npm`:
 
 `$ yarn add karma-gap-sdk`
 
 `$ npm i karma-gap-sdk`
 
-After installing, you can instantiate GAP:
+After installing, you can instantiate `GAP`:
 
 ```ts
 // gap.client.ts;
@@ -112,7 +112,7 @@ export class MyCustomApiClient extends Fetcher {
 }
 ```
 
-[..] Then you can use it on GAP client. More details about how to implement a custom fetcher on [Section 8](#8-custom-api).
+[..] Then you can use it on the Karma client. More details about how to implement a custom fetcher on [Section 8](#8-custom-api).
 
 ```ts
 // gap.client.ts;
@@ -135,7 +135,7 @@ The `ipfsKey` is utilized to upload a project's data to the InterPlanetary File 
 
 ## 4. Fetching Entities
 
-After initializing the GAP client, you are now able to fetch entities available including:
+After initializing the Karma client, you are now able to fetch entities available including:
 
 - Communities
 - Projects
@@ -177,7 +177,7 @@ gap.fetch
 
 ## 5. Creating entities in the Frontend
 
-Creating entities (by adding attestations) using the GAP SDK is quite straightforward. Developers only need to define what they want to attest, and we provide facilities for this module. To avoid frequent wallet pop-ups for individual entity attestations, we've developed a special contract that handles multiple attestations and their relationships. This means you can transact once and attest multiple times. Let's walk through an example:
+Creating entities (by adding attestations) using the Karma SDK is quite straightforward. Developers only need to define what they want to attest, and we provide facilities for this module. To avoid frequent wallet pop-ups for individual entity attestations, we've developed a special contract that handles multiple attestations and their relationships. This means you can transact once and attest multiple times. Let's walk through an example:
 
 Suppose a user wants to create a project, and this project will include:
 
@@ -188,7 +188,7 @@ Suppose a user wants to create a project, and this project will include:
 
 > To attest a grant, it will require a community, so consider that a community already exists. To create a community, the user needs to go through [this link](https://tally.so/r/wd0jeq).
 
-After setting up the GAP client, you can proceed to:
+After setting up the Karma client, you can proceed to:
 
 ```ts
 // get-dummy-project.ts
@@ -514,7 +514,7 @@ Before using gasless transactions, it's essential to visit the [Gelato Relay](ht
 
 > For the security of your Gelato account, only enable gasless transactions for the `multiSequentialAttest`, `attest`, and `multiRevoke` methods.
 
-Continuing with how to use gasless transactions, developers will encounter the following options when creating a GAP instance:
+Continuing with how to use gasless transactions, developers will encounter the following options when creating a `GAP` instance:
 
 ````ts
 interface GAPArgs {
@@ -775,7 +775,7 @@ new GAP({
 })
 ```
 
-These are all the settings needed to enable gasless transactions with the GAP SDK, and from this point forward, users should not be required to pay for gas.
+These are all the settings needed to enable gasless transactions with the Karma SDK, and from this point forward, users should not be required to pay for gas.
 
 > Please note that with this option, you will cover the gas fees through Gelato.
 
@@ -832,7 +832,7 @@ export class MyFetcher extends Fetcher {
 
 > You can check a functional example [here](https://github.com/show-karma/karma-gap-sdk/blob/dev/core/class/karma-indexer/GapIndexerClient.ts).
 
-After implementing your own client, you can setup the GAP client:
+After implementing your own client, you can setup the Karma client:
 
 ```ts
 // gap.client.ts;
@@ -855,7 +855,7 @@ export default gap;
 Unfortunately, the import cost of the SDK is quite high due some dependencies that we use on the project as `@ethereum-attestation-service/eas-contracts`, `@gelatonetwork/relay-sdk` and `ethers`.
 We plan to do some changes in the future to minify these import costs like replace `ethers` to use other lightweight libraries like `viem`.
 
-If you just want to use GAP SDK to fetch infos from the network, you can use our `GapIndexerApi` class.
+If you just want to use the Karma SDK to fetch infos from the network, you can use our `GapIndexerApi` class.
 
 This way you can **avoid** the import cost of the SDK.
 
