@@ -5,15 +5,24 @@ import { ApplicationMetadata, RoundMetadata } from "../class/types/allo";
 import keys from "../../config/keys.json";
 import { AlloContracts } from "../consts";
 import { GrantArgs, Address } from "../class/types/allo";
+import "dotenv/config";
 
 const networkName = "sepolia";
 const chainId = Networks[networkName].chainId;
-const web3 = new ethers.JsonRpcProvider(Networks[networkName].rpcUrl);
+
+// Read RPC URL from environment variable
+const envVarName = `RPC_${networkName.toUpperCase().replace(/-/g, "_")}`;
+const rpcUrl = process.env[envVarName];
+if (!rpcUrl) {
+  throw new Error(`RPC URL not found. Set ${envVarName} environment variable.`);
+}
+
+const web3 = new ethers.JsonRpcProvider(rpcUrl);
 const wallet = new ethers.Wallet(keys.privateKey, web3);
 const signer = wallet.connect(web3);
 
 export async function main() {
-  const allo = new AlloBase(signer, keys.ipfsToken, chainId);
+  const allo = new AlloBase(signer, chainId);
 
   const _currentTimestamp = (await signer?.provider?.getBlock(
     await signer?.provider?.getBlockNumber()

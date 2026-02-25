@@ -9,6 +9,7 @@ import { MountEntities, Networks } from "../consts";
 import {
   AttestArgs,
   Facade,
+  GAPRpcConfig,
   SchemaInterface,
   SignerOrProvider,
   TNetwork,
@@ -18,7 +19,6 @@ import { getWeb3Provider } from "../utils/get-web3-provider";
 import { Fetcher } from "./Fetcher";
 import { GapSchema } from "./GapSchema";
 import { GapEasClient } from "./GraphQL";
-import { RemoteStorage } from "./remote-storage/RemoteStorage";
 import { Schema } from "./Schema";
 
 interface GAPArgs {
@@ -30,6 +30,37 @@ interface GAPArgs {
    */
   apiClient?: Fetcher;
   schemas?: SchemaInterface<TSchemaName>[];
+  /**
+   * RPC URL configuration for the networks you need to use.
+   * Maps chain IDs to RPC endpoint URLs.
+   *
+   * @example
+   * ```typescript
+   * // Using literal strings
+   * const gap = new GAP({
+   *   network: "optimism",
+   *   rpcUrls: {
+   *     10: "https://opt-mainnet.g.alchemy.com/v2/YOUR_KEY",
+   *     42161: "https://arb-mainnet.g.alchemy.com/v2/YOUR_KEY",
+   *   },
+   * });
+   *
+   * // Using environment variables (with validation)
+   * const requireEnv = (key: string): string => {
+   *   const value = process.env[key];
+   *   if (!value) throw new Error(`Missing: ${key}`);
+   *   return value;
+   * };
+   *
+   * const gap = new GAP({
+   *   network: "optimism",
+   *   rpcUrls: {
+   *     10: requireEnv("OPTIMISM_RPC_URL"),
+   *   },
+   * });
+   * ```
+   */
+  rpcUrls?: GAPRpcConfig;
   /**
    * Defined if the transactions will be gasless or not.
    *
@@ -107,12 +138,6 @@ interface GAPArgs {
      */
     useGasless?: boolean;
   };
-  /**
-   * Defines a remote storage client to be used to store data.
-   * If defined, all the details data from an attestation will
-   * be stored in the remote storage, e.g. IPFS.
-   */
-  remoteStorage?: RemoteStorage;
 }
 
 /**
@@ -175,11 +200,11 @@ interface GAPArgs {
  * ```
  */
 export class GAP extends Facade {
-  private static remoteStorage?: RemoteStorage;
   private static instances: Map<TNetwork, GAP> = new Map();
 
   readonly fetch: Fetcher;
   readonly network: TNetwork;
+  readonly rpcConfig: GAPRpcConfig;
 
   private _schemas: GapSchema[];
   private static _gelatoOpts = null;
@@ -190,18 +215,10 @@ export class GAP extends Facade {
    * @param args Optional initialization arguments
    * @returns The singleton instance of GAP for the specified network
    */
-  static getInstance(args?: GAPArgs): GAP {
-    if (!args) {
-      throw new Error("Network must be specified when getting GAP instance");
-    }
-
+  static getInstance(args: GAPArgs): GAP {
     const existingInstance = GAP.instances.get(args.network);
     if (existingInstance) {
       return existingInstance;
-    }
-
-    if (!args) {
-      throw new Error("Initialization arguments required for first instance");
     }
 
     const newInstance = new GAP(args);
@@ -221,6 +238,7 @@ export class GAP extends Facade {
       args.schemas || Object.values(MountEntities(Networks[args.network]));
 
     this.network = args.network;
+    this.rpcConfig = args.rpcUrls ?? {};
 
     this._eas = new EAS(Networks[args.network].contracts.eas);
 
@@ -234,8 +252,6 @@ export class GAP extends Facade {
 
     this.assertGelatoOpts(args);
     GAP._gelatoOpts = args.gelatoOpts;
-
-    GAP.remoteStorage = args.remoteStorage;
 
     this._schemas = schemas.map(
       (schema) =>
@@ -371,6 +387,17 @@ export class GAP extends Facade {
   }
 
   /**
+   * Get a Web3 provider for a specific chain ID using this instance's RPC configuration.
+   *
+   * @param chainId - The chain ID to get a provider for
+   * @returns An ethers JsonRpcProvider for the specified chain
+   * @throws Error if no RPC URL is configured for the chain ID
+   */
+  getProvider(chainId: number): ethers.JsonRpcProvider {
+    return getWeb3Provider(chainId, this.rpcConfig);
+  }
+
+  /**
    * Get the multicall contract
    * @param signer
    */
@@ -388,11 +415,14 @@ export class GAP extends Facade {
   }
 
   /**
-   * Get the multicall contract
-   * @param signer
+   * Get the project resolver contract
+   * @param signer - The signer or provider to use
+   * @param rpcConfig - RPC URL configuration (required when chainId is provided)
+   * @param chainId - Optional chain ID to use a different chain than the signer's
    */
   static async getProjectResolver(
     signer: SignerOrProvider & { getChainId?: () => Promise<number> },
+    rpcConfig?: GAPRpcConfig,
     chainId?: number
   ) {
     const currentChainId =
@@ -402,20 +432,39 @@ export class GAP extends Facade {
           (await signer.getChainId())
       );
 
-    const provider = chainId ? getWeb3Provider(chainId) : signer;
+    if (chainId && !rpcConfig) {
+      throw new Error(
+        `rpcConfig is required when specifying chainId for cross-chain operations. ` +
+        `Either provide rpcConfig or omit chainId to use the signer's chain.`
+      );
+    }
+
+    const provider =
+      chainId && rpcConfig
+        ? getWeb3Provider(chainId, rpcConfig)
+        : signer;
     const network = Object.values(Networks).find(
       (n) => +n.chainId === Number(currentChainId)
     );
+    if (!network) {
+      throw new Error(
+        `Network with chain ID ${currentChainId} is not supported. ` +
+        `Supported networks: ${Object.keys(Networks).join(", ")}`
+      );
+    }
     const address = network.contracts.projectResolver;
     return new ethers.Contract(address, ProjectResolverABI, provider as any);
   }
 
   /**
-   * Get the multicall contract
-   * @param signer
+   * Get the community resolver contract
+   * @param signer - The signer or provider to use
+   * @param rpcConfig - RPC URL configuration (required when chainId is provided)
+   * @param chainId - Optional chain ID to use a different chain than the signer's
    */
   static async getCommunityResolver(
     signer: SignerOrProvider & { getChainId?: () => Promise<number> },
+    rpcConfig?: GAPRpcConfig,
     chainId?: number
   ) {
     const currentChainId =
@@ -425,10 +474,26 @@ export class GAP extends Facade {
           (await signer.getChainId())
       );
 
-    const provider = chainId ? getWeb3Provider(chainId) : signer;
+    if (chainId && !rpcConfig) {
+      throw new Error(
+        `rpcConfig is required when specifying chainId for cross-chain operations. ` +
+        `Either provide rpcConfig or omit chainId to use the signer's chain.`
+      );
+    }
+
+    const provider =
+      chainId && rpcConfig
+        ? getWeb3Provider(chainId, rpcConfig)
+        : signer;
     const network = Object.values(Networks).find(
       (n) => +n.chainId === Number(currentChainId)
     );
+    if (!network) {
+      throw new Error(
+        `Network with chain ID ${currentChainId} is not supported. ` +
+        `Supported networks: ${Object.keys(Networks).join(", ")}`
+      );
+    }
     const address = network.contracts.communityResolver;
     return new ethers.Contract(address, CommunityResolverABI, provider as any);
   }
@@ -475,7 +540,4 @@ export class GAP extends Facade {
     this._gelatoOpts.useGasless = useGasLess;
   }
 
-  static get remoteClient() {
-    return this.remoteStorage;
-  }
 }

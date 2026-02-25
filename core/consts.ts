@@ -34,6 +34,8 @@ export const chainIdToNetwork = {
   1329: "sei",
   1135: "lisk",
   534352: "scroll",
+  8453: "base",
+  137: "polygon"
 };
 
 export const nullRef =
@@ -51,8 +53,6 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
   optimism: {
     chainId: 10,
     url: "https://optimism.easscan.org/graphql",
-    rpcUrl:
-      "https://opt-mainnet.g.alchemy.com/v2/fx2SlVDrPbXwPMQT4v0lRT1PABA16Myl",
     contracts: {
       eas: "0x4200000000000000000000000000000000000021",
       schema: "0x4200000000000000000000000000000000000020",
@@ -118,8 +118,6 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
   "optimism-sepolia": {
     chainId: 11155420,
     url: "https://optimism-sepolia.easscan.org/graphql",
-    rpcUrl:
-      "https://opt-sepolia.g.alchemy.com/v2/9FEqTNKmgO7X7ll92ALJrEih7Jjhldf-",
     contracts: {
       communityResolver: "0xa5B7bbFD545A1a816aa8cBE28a1F0F2Cca58363d",
       eas: "0x4200000000000000000000000000000000000021",
@@ -186,8 +184,6 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
   arbitrum: {
     chainId: 42161,
     url: "https://arbitrum.easscan.org/graphql",
-    rpcUrl:
-      "https://arb-mainnet.g.alchemy.com/v2/okcKBSKXvLuSCbas6QWGvKuh-IcHHSOr",
     contracts: {
       eas: "0xbD75f629A22Dc1ceD33dDA0b68c546A1c035c458",
       schema: "0xA310da9c5B885E7fb3fbA9D66E9Ba6Df512b78eB",
@@ -253,8 +249,6 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
   sepolia: {
     chainId: 11155111,
     url: "https://sepolia.easscan.org/graphql",
-    rpcUrl:
-      "https://eth-sepolia.g.alchemy.com/v2/_M6YQg_DoVKuMisaFHSVZL-EcdkTbhUi",
     contracts: {
       eas: "0xC2679fBD37d54388Ce493F1DB75320D236e1815e",
       schema: "0x0a7E2Ff54e76B8E6659aedc9103FB21c038050D0",
@@ -294,7 +288,6 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
   "base-sepolia": {
     chainId: 84532,
     url: "https://base-sepolia.easscan.org/graphql",
-    rpcUrl: "https://sepolia.base.org",
     contracts: {
       eas: "0x4200000000000000000000000000000000000021",
       schema: "0x4200000000000000000000000000000000000020",
@@ -333,7 +326,6 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
   celo: {
     chainId: 42220,
     url: "https://celo.easscan.org/graphql",
-    rpcUrl: "https://forno.celo.org",
     contracts: {
       eas: "0x72E1d8ccf5299fb36fEfD8CC4394B8ef7e98Af92",
       schema: "0x5ece93bE4BDCF293Ed61FA78698B594F2135AF34",
@@ -399,7 +391,6 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
   sei: {
     chainId: 1329,
     url: "https://sei.easscan.org/graphql",
-    rpcUrl: "https://muddy-orbital-arrow.sei-pacific.quiknode.pro/594552c3ab4ed4106b40402c16dba137ab279d40",
     contracts: {
       eas: "0x391020888b0adBA584A67693458b374e4141f838",
       schema: "0x80A4B50f549a8271e10A6C8e79172cb56f35fD57",
@@ -465,7 +456,6 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
   "sei-testnet": {
     chainId: 1328,
     url: "https://sei-testnet.easscan.org/graphql",
-    rpcUrl: "https://evm-rpc-testnet.sei-apis.com",
     contracts: {
       eas: "0x4F166ed0A038ECdEEefa7Dc508f15991762974Fe",
       schema: "0x906a57aCa067178e76e6eBDF4C7b26CBcAEC0Edd",
@@ -504,8 +494,6 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
   lisk: {
     chainId: 1135,
     url: "https://lisk.easscan.org/graphql",
-    rpcUrl:
-      "https://lisk.drpc.org",
     contracts: {
       eas: "0x4200000000000000000000000000000000000021",
       schema: "0x4200000000000000000000000000000000000020",
@@ -544,7 +532,6 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
   scroll: {
     chainId: 534352,
     url: "https://scroll.easscan.org/graphql",
-    rpcUrl: "https://scroll-mainnet.g.alchemy.com/v2/SsQRSwtqtBMGmXQCDH9lYb4U8p9QnqXK",
     contracts: {
       eas: "0xC47300428b6AD2c7D03BB76D05A176058b47E6B0",
       schema: "0xD2CDF46556543316e7D34e8eDc4624e2bB95e3B6",
@@ -562,24 +549,182 @@ export const Networks: Record<TNetwork, EASNetworkConfig> = {
       Grant:
         "0x7afa603a89cee2d8f93d30007e2c64efddc6509fd76aa95d2ccd97b6e34acc71",
       GrantVerified:
-        "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
+        "0x837ae97827bdec74d0c8d755331634f730bb8ad00702099e9a6a2bbe193b1511",
       MemberOf:
         "0xb4186a2401f40a4c78768941ef9140e1fbe5fe595053a65d44f31d6df180b712",
       MilestoneApproved:
-        "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
+        "0x837ae97827bdec74d0c8d755331634f730bb8ad00702099e9a6a2bbe193b1511",
       MilestoneCompleted:
-        "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
+        "0x837ae97827bdec74d0c8d755331634f730bb8ad00702099e9a6a2bbe193b1511",
       GrantUpdateStatus:
-        "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
+        "0x837ae97827bdec74d0c8d755331634f730bb8ad00702099e9a6a2bbe193b1511",
       Project:
         "0x672fbaa8a1fb6e1f73a89c84a8e97a808da0750003a9d1d18aba3d39fa165945",
       ProjectUpdateStatus:
-        "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
+        "0x837ae97827bdec74d0c8d755331634f730bb8ad00702099e9a6a2bbe193b1511",
       ProjectMilestoneStatus:
-        "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
+        "0x837ae97827bdec74d0c8d755331634f730bb8ad00702099e9a6a2bbe193b1511",
       ContributorProfile: null
     },
+    oldSchemas: [
+      {
+        name: "GrantVerified",
+        uid: "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
+        raw: oldStatusSchema
+      },
+      {
+        name: "MilestoneApproved",
+        uid: "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
+        raw: oldStatusSchema
+      },
+      {
+        name: "MilestoneCompleted",
+        uid: "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
+        raw: oldStatusSchema
+      },
+      {
+        name: "GrantUpdateStatus",
+        uid: "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
+        raw: oldStatusSchema
+      },
+      {
+        name: "ProjectUpdateStatus",
+        uid: "0xf45fdf2c064073f0623416571c2746085d785cde5a57fd0696ff88bdf78bcbdc",
+        raw: oldStatusSchema
+      },
+    ]
   },
+  "base": {
+    chainId: 8453,
+    url: "https://base.easscan.org/graphql",
+    contracts: {
+      eas: "0x4200000000000000000000000000000000000021",
+      schema: "0x4200000000000000000000000000000000000020",
+      multicall: "0x7177AdC0f924b695C0294A40C4C5FEFf5EE1E141",
+      projectResolver: "0xd2eD366393FDfd243931Fe48e9fb65A192B0018c",
+      communityResolver: "0x6dC1D6b864e8BEf815806f9e4677123496e12026",
+      donations: "0x5f4A21e16b04f9944229DF6CD2724088e3457B0e",
+      airdropNFT: null,
+    },
+    schemas: {
+      Community:
+        "0x721c17b065dccc5c916e0c2708d0ef50f1810591b76d0402ff6fe5accbd8488f",
+      Details:
+        "0x70a3f615f738fc6a4f56100692ada93d947c028b840940d97af7e7d6f0fa0577",
+      Grant:
+        "0x12837231f48acbca4e1e7f4416f684f3353bd4d71d4f03a09d29e5ffa6f21a50",
+      GrantVerified:
+        "0x535417d864b95c33fc0289082617b4004737a12c276ee27effd9f54491942934",
+      MemberOf:
+        "0x7fbb8a65924d8ad2ae12356e04b1418043e8361ba3b1b6c917de2e23df3ec81c",
+      MilestoneApproved:
+        "0x535417d864b95c33fc0289082617b4004737a12c276ee27effd9f54491942934",
+      MilestoneCompleted:
+        "0x535417d864b95c33fc0289082617b4004737a12c276ee27effd9f54491942934",
+      GrantUpdateStatus:
+        "0x535417d864b95c33fc0289082617b4004737a12c276ee27effd9f54491942934",
+      Project:
+        "0x5a6b36ac106c74541efad39f8430751dd843bb78729bf7ffc296eca4cbb8d8f3",
+      ProjectUpdateStatus:
+        "0x535417d864b95c33fc0289082617b4004737a12c276ee27effd9f54491942934",
+      ProjectMilestoneStatus:
+        "0x535417d864b95c33fc0289082617b4004737a12c276ee27effd9f54491942934",
+      ContributorProfile: "0xdfb8ad353dd144235bd45ae38803db6ffe066081770370f603709b9dec9ba8ff"
+    },
+    oldSchemas: [
+      {
+        name: "GrantVerified",
+        uid: "0xb7eab95609c821624edc3c3a5a6c787bdc9da6c91393a967fb22b0e274c619dd",
+        raw: oldStatusSchema
+      },
+      {
+        name: "MilestoneApproved",
+        uid: "0xb7eab95609c821624edc3c3a5a6c787bdc9da6c91393a967fb22b0e274c619dd",
+        raw: oldStatusSchema
+      },
+      {
+        name: "MilestoneCompleted",
+        uid: "0xb7eab95609c821624edc3c3a5a6c787bdc9da6c91393a967fb22b0e274c619dd",
+        raw: oldStatusSchema
+      },
+      {
+        name: "GrantUpdateStatus",
+        uid: "0xb7eab95609c821624edc3c3a5a6c787bdc9da6c91393a967fb22b0e274c619dd",
+        raw: oldStatusSchema
+      },
+      {
+        name: "ProjectUpdateStatus",
+        uid: "0xb7eab95609c821624edc3c3a5a6c787bdc9da6c91393a967fb22b0e274c619dd",
+        raw: oldStatusSchema
+      },
+    ]
+  },
+  "polygon": {
+    chainId: 137,
+    url: "https://polygon.easscan.org/graphql",
+    contracts: {
+      eas: "0x5E634ef5355f45A855d02D66eCD687b1502AF790",
+      schema: "0x7876EEF51A891E737AF8ba5A5E0f0Fd29073D5a7",
+      multicall: "0x2B2a82637299F9614f4F4833C946cC7b749C6814",
+      projectResolver: "0xA37e6F58289F2c3e650b0cdF3Bb1000889e8d07C",
+      communityResolver: "0x710Add6c51327c44d9208aA0Aef2e7011D3678BF",
+      donations: "0x5f4A21e16b04f9944229DF6CD2724088e3457B0e",
+      airdropNFT: null,
+    },
+    schemas: {
+      Community:
+        "0x884bd33b1d7fce5c637e85aef538e83a8a87157d7df2d357e6cc8d4c59b89400",
+      Details:
+        "0x2038ec9d8d0ab60324065aa0b4961d3f93d725f1c71f67b9f1ef209114c75f7f",
+      Grant:
+        "0x2cedad5cda259c921f3380eedd5920be86a7dfe9496848cc8afc7f01159dfd65",
+      GrantVerified:
+        "0xefa705f5baaf91745bb4706fa4aa55156c5d9c3cd6834fcc4912bcb51ad5bea3",
+      MemberOf:
+        "0x2cfa4adacb1efcd0ff408d749fd12bb36cd5f88aa0822f633962d4bd5c8023aa",
+      MilestoneApproved:
+        "0xefa705f5baaf91745bb4706fa4aa55156c5d9c3cd6834fcc4912bcb51ad5bea3",
+      MilestoneCompleted:
+        "0xefa705f5baaf91745bb4706fa4aa55156c5d9c3cd6834fcc4912bcb51ad5bea3",
+      GrantUpdateStatus:
+        "0xefa705f5baaf91745bb4706fa4aa55156c5d9c3cd6834fcc4912bcb51ad5bea3",
+      Project:
+        "0x7f0e4ac5f7cbe2a39af317b46bad7e86b053f76109c364d197447d9da34e821a",
+      ProjectUpdateStatus:
+        "0xefa705f5baaf91745bb4706fa4aa55156c5d9c3cd6834fcc4912bcb51ad5bea3",
+      ProjectMilestoneStatus:
+        "0xefa705f5baaf91745bb4706fa4aa55156c5d9c3cd6834fcc4912bcb51ad5bea3",
+      ContributorProfile: "0x281f0afbb0313c6ff851400c4ed317fe9741be75e7e20c337dfd403059523bea"
+    },
+    oldSchemas: [
+      {
+        name: "GrantVerified",
+        uid: "0xe4b229d7051c27bb64cca0d29d92377143e6d5b9e076416e997c38d4cb40a399",
+        raw: oldStatusSchema
+      },
+      {
+        name: "MilestoneApproved",
+        uid: "0xe4b229d7051c27bb64cca0d29d92377143e6d5b9e076416e997c38d4cb40a399",
+        raw: oldStatusSchema
+      },
+      {
+        name: "MilestoneCompleted",
+        uid: "0xe4b229d7051c27bb64cca0d29d92377143e6d5b9e076416e997c38d4cb40a399",
+        raw: oldStatusSchema
+      },
+      {
+        name: "GrantUpdateStatus",
+        uid: "0xe4b229d7051c27bb64cca0d29d92377143e6d5b9e076416e997c38d4cb40a399",
+        raw: oldStatusSchema
+      },
+      {
+        name: "ProjectUpdateStatus",
+        uid: "0xe4b229d7051c27bb64cca0d29d92377143e6d5b9e076416e997c38d4cb40a399",
+        raw: oldStatusSchema
+      },
+    ]
+  },
+
 };
 
 const DetailsSchema = [{ type: "string", name: "json", value: null }];

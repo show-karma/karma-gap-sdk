@@ -2,59 +2,30 @@ import { ethers } from "ethers";
 import AlloRegistryABI from "../../abi/AlloRegistry.json";
 import { AlloContracts } from "../../consts";
 import { ProfileMetadata } from "../types/allo";
-import axios from "axios";
 
 export class AlloRegistry {
   private contract: ethers.Contract;
-  private pinataJWTToken: string;
 
-  constructor(signer: ethers.Signer, pinataJWTToken: string) {
+  constructor(signer: ethers.Signer) {
     this.contract = new ethers.Contract(
       AlloContracts.registry,
       AlloRegistryABI,
       signer
     );
-
-    this.pinataJWTToken = pinataJWTToken;
-  }
-
-  async saveAndGetCID(
-    data: any,
-    pinataMetadata = { name: "via karma-gap-sdk" }
-  ) {
-    try {
-      const res = await axios.post(
-        "https://api.pinata.cloud/pinning/pinJSONToIPFS",
-        {
-          pinataContent: data,
-          pinataMetadata: pinataMetadata,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${this.pinataJWTToken}`,
-          },
-        }
-      );
-      return res.data.IpfsHash;
-    } catch (error) {
-      console.log(error);
-    }
   }
 
   async createProgram(
     nonce: number,
     name: string,
-    profileMetadata: ProfileMetadata,
+    metadataCid: string,
     owner: string,
     members: string[]
   ) {
     console.log("Creating program...");
     try {
-      const metadata_cid = await this.saveAndGetCID(profileMetadata);
       const metadata = {
         protocol: 1,
-        pointer: metadata_cid,
+        pointer: metadataCid,
       };
 
       const tx = await this.contract.createProfile(
@@ -82,13 +53,12 @@ export class AlloRegistry {
 
   async updateProgramMetadata(
     profileId: string,
-    profileMetadata: ProfileMetadata
+    metadataCid: string
   ) {
     try {
-      const metadata_cid = await this.saveAndGetCID(profileMetadata);
       const metadata = {
         protocol: 1,
-        pointer: metadata_cid,
+        pointer: metadataCid,
       };
 
       const tx = await this.contract.updateProfileMetadata(profileId, metadata);
