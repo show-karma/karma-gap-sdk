@@ -1,7 +1,7 @@
-# Karma GAP SDK - Cursor Rules
+# Karma SDK - Cursor Rules
 
 ## Project Overview
-The Karma GAP SDK is a library for easy integration with the Grantee Accountability Protocol. It provides tools to fetch and display Communities, Projects, Members, Grants, Milestones, and their dependencies, as well as create, update, and delete these entities. The SDK also supports gasless transactions with Gelato Relay and custom API endpoints for faster queries.
+The Karma SDK is a library for easy integration with Karma. It provides tools to fetch and display Communities, Projects, Members, Grants, Milestones, and their dependencies, as well as create, update, and delete these entities. The SDK also supports gasless transactions with Gelato Relay and custom API endpoints for faster queries.
 
 ## Architecture Guidelines
 When working with this codebase, understand that it follows a modular architecture with these key components:
