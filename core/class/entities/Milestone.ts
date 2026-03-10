@@ -53,6 +53,83 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
   type = "milestone";
   priority?: number;
   /**
+   * Edits this milestone by revoking the current attestation and re-attesting with updated data.
+   * Only milestones in PENDING state (not completed, approved, or verified) can be edited.
+   * @param signer - The signer to use for revocation and re-attestation
+   * @param newData - Partial milestone data to update (only provided fields are overridden)
+   * @param callback - Optional callback function for status updates
+   */
+  async edit(
+    signer: SignerOrProvider,
+    newData: Partial<IMilestone>,
+    callback?: Function
+  ): Promise<AttestationWithTx> {
+    if (this.completed || this.approved || this.verified?.length) {
+      throw new AttestationError(
+        "ATTEST_ERROR",
+        "Cannot edit milestone that is not in PENDING state"
+      );
+    }
+
+    // Step 1: Revoke current attestation
+    await this.revoke(signer, callback);
+
+    // Step 2: Update data with new fields
+    const updatedData = { ...this.data, ...newData };
+    this.setValues(updatedData);
+
+    // Step 3: Re-attest with updated data
+    return this.attest(signer, callback);
+  }
+
+  /**
+   * Edits the completion of this milestone by revoking the current completion
+   * attestation and re-completing with updated data.
+   * Only milestones in COMPLETED state (not yet approved or verified) can have
+   * their completion edited.
+   * @param signer - The signer to use for revocation and re-attestation
+   * @param newData - Updated completion data (reason and/or proofOfWork)
+   * @param callback - Optional callback function for status updates
+   */
+  async editCompletion(
+    signer: SignerOrProvider,
+    newData: { reason?: string; proofOfWork?: string },
+    callback?: Function
+  ): Promise<AttestationWithTx> {
+    if (!this.completed) {
+      throw new AttestationError(
+        "ATTEST_ERROR",
+        "Milestone is not completed"
+      );
+    }
+
+    if (this.approved) {
+      throw new AttestationError(
+        "ATTEST_ERROR",
+        "Cannot edit completion of an approved milestone"
+      );
+    }
+
+    if (this.verified?.length) {
+      throw new AttestationError(
+        "ATTEST_ERROR",
+        "Cannot edit completion of a verified milestone"
+      );
+    }
+
+    // Step 1: Revoke current completion attestation
+    await this.revokeCompletion(signer, callback);
+
+    // Step 2: Re-complete with updated data
+    const completionData: IMilestoneCompleted = {
+      reason: newData.reason ?? this.completed?.data?.reason ?? "",
+      proofOfWork: newData.proofOfWork ?? this.completed?.data?.proofOfWork ?? "",
+    };
+
+    return this.complete(signer, completionData, callback);
+  }
+
+  /**
    * Approves this milestone. If the milestone is not completed or already approved,
    * it will throw an error.
    * @param signer
