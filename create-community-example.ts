@@ -83,7 +83,7 @@ async function main() {
     }
     console.log(`Transaction Hash: ${result.tx[0].hash}`);
     console.log(
-      `\nYou can view your community at: https://gap.karmahq.xyz/community/${communityDetails.slug}`
+      `\nYou can view your community at: https://www.karmahq.xyz/community/${communityDetails.slug}`
     );
 
     // Fetch the created community to verify
