@@ -21,7 +21,7 @@
 
 ## 1. What is Karma SDK?
 
-The Karma SDK is a library for easy integration with [Karma](https://gap.karmahq.xyz). Using this library, you will be able to:
+The Karma SDK is a library for easy integration with [Karma](https://www.karmahq.xyz). Using this library, you will be able to:
 
 - Fetch and display Communities, Projects, Members, Grants, Milestones, and all of their dependencies.
 - Create, update and delete all of the above.
