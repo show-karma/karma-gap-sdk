@@ -12,6 +12,7 @@ import {
   GAPRpcConfig,
   SchemaInterface,
   SignerOrProvider,
+  SupportedChainId,
   TNetwork,
   TSchemaName,
 } from "../types";
@@ -432,17 +433,18 @@ export class GAP extends Facade {
           (await signer.getChainId())
       );
 
-    if (chainId && !rpcConfig) {
-      throw new Error(
-        `rpcConfig is required when specifying chainId for cross-chain operations. ` +
-        `Either provide rpcConfig or omit chainId to use the signer's chain.`
-      );
-    }
-
-    const provider =
+    // Use rpcConfig provider if available for the target chain,
+    // otherwise fall back to signer (which may already be a provider
+    // for the correct chain, e.g. when created by the frontend).
+    const rpcUrl =
       chainId && rpcConfig
-        ? getWeb3Provider(chainId, rpcConfig)
-        : signer;
+        ? rpcConfig[chainId as SupportedChainId]
+        : undefined;
+
+    const provider = rpcUrl
+      ? getWeb3Provider(chainId!, rpcConfig!)
+      : signer;
+
     const network = Object.values(Networks).find(
       (n) => +n.chainId === Number(currentChainId)
     );
@@ -474,17 +476,18 @@ export class GAP extends Facade {
           (await signer.getChainId())
       );
 
-    if (chainId && !rpcConfig) {
-      throw new Error(
-        `rpcConfig is required when specifying chainId for cross-chain operations. ` +
-        `Either provide rpcConfig or omit chainId to use the signer's chain.`
-      );
-    }
-
-    const provider =
+    // Use rpcConfig provider if available for the target chain,
+    // otherwise fall back to signer (which may already be a provider
+    // for the correct chain, e.g. when created by the frontend).
+    const rpcUrl =
       chainId && rpcConfig
-        ? getWeb3Provider(chainId, rpcConfig)
-        : signer;
+        ? rpcConfig[chainId as SupportedChainId]
+        : undefined;
+
+    const provider = rpcUrl
+      ? getWeb3Provider(chainId!, rpcConfig!)
+      : signer;
+
     const network = Object.values(Networks).find(
       (n) => +n.chainId === Number(currentChainId)
     );
