@@ -256,8 +256,11 @@ export class GapIndexerClient extends Fetcher {
     throw new Error("Method not implemented.");
   }
 
-  async slugExists(slug: string): Promise<boolean> {
-    return await this.apiClient.slugExists(slug);
+  async slugExists(
+    slug: string,
+    type?: "project" | "community"
+  ): Promise<boolean> {
+    return await this.apiClient.slugExists(slug, type);
   }
 
   /**

@@ -333,7 +333,10 @@ export class GAP extends Facade {
    * @param text
    * @returns
    */
-  generateSlug = async (text: string): Promise<string> => {
+  generateSlug = async (
+    text: string,
+    type?: "project" | "community"
+  ): Promise<string> => {
     let slug = text
       .toLowerCase()
       // Remove emojis
@@ -354,7 +357,7 @@ export class GAP extends Facade {
     ): Promise<string> => {
       const slugToCheck =
         counter === 0 ? currentSlug : `${currentSlug}-${counter}`;
-      const slugExists = await this.fetch.slugExists(slugToCheck);
+      const slugExists = await this.fetch.slugExists(slugToCheck, type);
 
       if (slugExists) {
         return checkSlug(currentSlug, counter + 1);
