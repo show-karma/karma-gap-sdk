@@ -427,7 +427,7 @@ export class GapEasClient extends Fetcher {
     return withDetails;
   }
 
-  async slugExists(slug: string) {
+  async slugExists(slug: string, _type?: "project" | "community") {
     const details = this.gap.findSchema("ProjectDetails");
 
     const query = gqlQueries.attestationsOf(details.uid, "slug");

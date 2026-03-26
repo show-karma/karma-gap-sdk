@@ -22,6 +22,8 @@ const Endpoints = {
     all: () => "/communities",
     admins: (uid: string) => `/communities/${uid}/admins`,
     byUidOrSlug: (uidOrSlug: string) => `/communities/${uidOrSlug}`,
+    checkSlugAvailability: (slug: string) =>
+      `/v2/communities/slug/check/${slug}`,
     grants: (uidOrSlug: string, page: number = 0, pageLimit: number = 100) =>
       `/communities/${uidOrSlug}/grants?${page ? `page=${page}` : ""}${
         pageLimit ? `&pageLimit=${pageLimit}` : ""
@@ -318,10 +320,15 @@ export class GapIndexerApi extends AxiosGQL {
     return response;
   }
 
-  async slugExists(slug: string): Promise<boolean> {
-    const { data } = await this.client.get<{ available: boolean }>(
-      Endpoints.project.checkSlugAvailability(slug)
-    );
+  async slugExists(
+    slug: string,
+    type?: "project" | "community"
+  ): Promise<boolean> {
+    const endpoint =
+      type === "community"
+        ? Endpoints.communities.checkSlugAvailability(slug)
+        : Endpoints.project.checkSlugAvailability(slug);
+    const { data } = await this.client.get<{ available: boolean }>(endpoint);
     return !data.available;
   }
 

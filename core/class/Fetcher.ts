@@ -213,7 +213,10 @@ export abstract class Fetcher extends AxiosGQL {
    * @param slug
    * @returns
    */
-  abstract slugExists(slug: string): Promise<boolean>;
+  abstract slugExists(
+    slug: string,
+    type?: "project" | "community"
+  ): Promise<boolean>;
 
   /**
    * Get grants for a project by an external uid
