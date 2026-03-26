@@ -12,6 +12,8 @@
   },
   "exclude": [
     "**/.dist",
+    "**/__tests__",
+    "**/__tests__/*",
     "**/config",
     "**/config/*",
     "**/scripts",
