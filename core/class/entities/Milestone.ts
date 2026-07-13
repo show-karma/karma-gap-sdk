@@ -333,7 +333,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
       schema.setValue("type", "cancelled");
       schema.setValue("reason", reason);
     }
-    await this.attestStatus(signer, schema, callback);
+    const { uids } = await this.attestStatus(signer, schema, callback);
 
     this.cancelled = new MilestoneCompleted({
       data: {
@@ -341,6 +341,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
         reason,
       },
       refUID: this.uid,
+      uid: uids?.[0],
       schema: schema,
       recipient: this.recipient,
     });
@@ -864,6 +865,20 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
           ...attestation.rejected,
           data: {
             ...attestation.completed.data,
+          },
+          schema: new AllGapSchemas().findSchema(
+            "MilestoneCompleted",
+            chainIdToNetwork[attestation.chainID] as TNetwork
+          ),
+          chainID: attestation.chainID,
+        });
+      }
+
+      if (attestation.cancelled) {
+        milestone.cancelled = new MilestoneCompleted({
+          ...attestation.cancelled,
+          data: {
+            ...attestation.cancelled.data,
           },
           schema: new AllGapSchemas().findSchema(
             "MilestoneCompleted",
