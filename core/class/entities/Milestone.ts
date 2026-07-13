@@ -326,6 +326,12 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
         "Cannot cancel a completed or verified milestone"
       );
 
+    if (this.cancelled)
+      throw new AttestationError(
+        "ATTEST_ERROR",
+        "Milestone is already cancelled"
+      );
+
     const schema = this.schema.gap.findSchema("MilestoneCompleted");
     if (this.schema.isJsonSchema()) {
       schema.setValue("json", JSON.stringify({ type: "cancelled", reason }));
