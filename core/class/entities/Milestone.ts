@@ -65,7 +65,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
     newData: Partial<IMilestone>,
     callback?: Function
   ): Promise<AttestationWithTx> {
-    if (this.completed || this.approved || this.verified?.length) {
+    if (this.completed || this.approved || this.verified?.length || this.cancelled) {
       throw new AttestationError(
         "ATTEST_ERROR",
         "Cannot edit milestone that is not in PENDING state"
