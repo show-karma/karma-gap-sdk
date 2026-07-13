@@ -114,7 +114,7 @@ export class MemberDetails
 }
 
 export interface IMilestoneCompleted {
-  type?: "approved" | "rejected" | "completed" | "verified";
+  type?: "approved" | "rejected" | "completed" | "verified" | "cancelled";
   reason?: string;
   proofOfWork?: string;
 }
@@ -122,7 +122,7 @@ export class MilestoneCompleted
   extends Attestation<IMilestoneCompleted>
   implements IMilestoneCompleted
 {
-  type: "approved" | "rejected" | "completed" | "verified";
+  type: "approved" | "rejected" | "completed" | "verified" | "cancelled";
   reason?: string;
   proofOfWork?: string;
 }

@@ -49,6 +49,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
   completed: MilestoneCompleted;
   approved: MilestoneCompleted;
   rejected: MilestoneCompleted;
+  cancelled: MilestoneCompleted;
   verified: MilestoneCompleted[] = [];
   type = "milestone";
   priority?: number;
@@ -306,6 +307,58 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
       {
         schemaId: this.completed.schema.uid,
         uid: this.completed.uid,
+      },
+    ]);
+    return { tx, uids };
+  }
+
+  /**
+   * Cancels this milestone. A cancelled milestone will not be delivered and is
+   * kept, badged "cancelled", for the program's records. Only milestones that
+   * are not yet completed or verified can be cancelled.
+   * @param signer
+   * @param reason
+   */
+  async cancel(signer: SignerOrProvider, reason = "", callback?: Function) {
+    if (this.completed || this.verified?.length)
+      throw new AttestationError(
+        "ATTEST_ERROR",
+        "Cannot cancel a completed or verified milestone"
+      );
+
+    const schema = this.schema.gap.findSchema("MilestoneCompleted");
+    if (this.schema.isJsonSchema()) {
+      schema.setValue("json", JSON.stringify({ type: "cancelled", reason }));
+    } else {
+      schema.setValue("type", "cancelled");
+      schema.setValue("reason", reason);
+    }
+    await this.attestStatus(signer, schema, callback);
+
+    this.cancelled = new MilestoneCompleted({
+      data: {
+        type: "cancelled",
+        reason,
+      },
+      refUID: this.uid,
+      schema: schema,
+      recipient: this.recipient,
+    });
+  }
+
+  /**
+   * Revokes the cancelled status of the milestone (un-cancel). If the milestone
+   * is not cancelled, it will throw an error.
+   * @param signer
+   */
+  async revokeCancel(signer: SignerOrProvider) {
+    if (!this.cancelled)
+      throw new AttestationError("ATTEST_ERROR", "Milestone is not cancelled");
+
+    const { tx, uids } = await this.cancelled.schema.multiRevoke(signer, [
+      {
+        schemaId: this.cancelled.schema.uid,
+        uid: this.cancelled.uid,
       },
     ]);
     return { tx, uids };
