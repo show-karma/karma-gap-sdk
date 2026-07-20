@@ -52,6 +52,7 @@ export interface IMilestoneResponse extends IAttestationResponse {
   completed?: IMilestoneCompleted;
   approved?: IMilestoneCompleted;
   rejected?: IMilestoneCompleted;
+  cancelled?: IMilestoneCompleted;
   verified?: IMilestoneCompleted[];
   data: {
     title: string;
