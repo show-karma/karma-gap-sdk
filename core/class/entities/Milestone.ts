@@ -319,7 +319,11 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
    * @param signer
    * @param reason
    */
-  async cancel(signer: SignerOrProvider, reason = "", callback?: Function) {
+  async cancel(
+    signer: SignerOrProvider,
+    reason = "",
+    callback?: Function
+  ): Promise<AttestationWithTx> {
     if (this.completed || this.verified?.length)
       throw new AttestationError(
         "ATTEST_ERROR",
@@ -339,7 +343,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
       schema.setValue("type", "cancelled");
       schema.setValue("reason", reason);
     }
-    const { uids } = await this.attestStatus(signer, schema, callback);
+    const { tx, uids } = await this.attestStatus(signer, schema, callback);
 
     this.cancelled = new MilestoneCompleted({
       data: {
@@ -351,6 +355,8 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
       schema: schema,
       recipient: this.recipient,
     });
+
+    return { tx, uids };
   }
 
   /**
