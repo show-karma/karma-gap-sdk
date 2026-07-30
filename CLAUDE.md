@@ -60,6 +60,8 @@ GAP (facade)
 
 ```bash
 yarn build              # Build the SDK
+yarn test               # Jest unit tests (core/__tests__)
+yarn test:coverage      # Jest with coverage
 yarn lint               # ESLint
 yarn format             # Prettier
 ```
@@ -68,7 +70,7 @@ yarn format             # Prettier
 
 ## Critical Notes
 
-- No test framework currently configured - manual examples in `core/scripts/`
+- Jest unit tests live in `core/__tests__/`; manual examples in `core/scripts/`
 - Uses ethers v6 (not v5) - different API from older versions
 - All entities extend base `Attestation` class
 - EAS SDK dependency: `@ethereum-attestation-service/eas-sdk`

@@ -3,6 +3,8 @@ export * from "./types";
 export * from "./utils";
 export * from "./class/GAP";
 export * from "./class/GapSchema";
+export * from "./class/SchemaError";
+export * from "./class/karma-indexer/GapIndexerError";
 export * from "./class/types/attestations";
 export * from "./class/entities";
 export * from "./abi";

@@ -105,7 +105,7 @@ describe("Milestone.edit()", () => {
     it("should call revoke on current attestation, then re-attest", async () => {
       const milestone = createTestMilestone();
 
-      await (milestone as Record<string, Function>).edit(mockSigner, {
+      await (milestone as unknown as Record<string, Function>).edit(mockSigner, {
         title: "Updated Title",
         description: "Updated Description"
       });
@@ -119,7 +119,7 @@ describe("Milestone.edit()", () => {
     it("should call setValues with merged data (old + new)", async () => {
       const milestone = createTestMilestone();
 
-      await (milestone as Record<string, Function>).edit(mockSigner, {
+      await (milestone as unknown as Record<string, Function>).edit(mockSigner, {
         title: "New Title"
       });
 
@@ -137,7 +137,7 @@ describe("Milestone.edit()", () => {
     it("should preserve unchanged fields during partial update", async () => {
       const milestone = createTestMilestone();
 
-      await (milestone as Record<string, Function>).edit(mockSigner, {
+      await (milestone as unknown as Record<string, Function>).edit(mockSigner, {
         title: "New Title Only"
       });
 
@@ -150,7 +150,7 @@ describe("Milestone.edit()", () => {
     it("should update all supported fields when fully provided", async () => {
       const milestone = createTestMilestone();
 
-      await (milestone as Record<string, Function>).edit(mockSigner, {
+      await (milestone as unknown as Record<string, Function>).edit(mockSigner, {
         title: "New Title",
         description: "New Description",
         endsAt: 1767225600,
@@ -169,7 +169,7 @@ describe("Milestone.edit()", () => {
     it("should return the result from attest()", async () => {
       const milestone = createTestMilestone();
 
-      const result = await (milestone as Record<string, Function>).edit(
+      const result = await (milestone as unknown as Record<string, Function>).edit(
         mockSigner,
         { title: "New" }
       );
@@ -187,11 +187,11 @@ describe("Milestone.edit()", () => {
         completed: {
           uid: "0xCompletedUID",
           data: { type: "completed", reason: "Done" }
-        } as MilestoneCompleted
+        } as unknown as MilestoneCompleted
       });
 
       await expect(
-        (milestone as Record<string, Function>).edit(mockSigner, { title: "Nope" })
+        (milestone as unknown as Record<string, Function>).edit(mockSigner, { title: "Nope" })
       ).rejects.toThrow("Cannot edit milestone that is not in PENDING state");
 
       expect(milestone._mocks.revoke).not.toHaveBeenCalled();
@@ -202,11 +202,11 @@ describe("Milestone.edit()", () => {
         approved: {
           uid: "0xApprovedUID",
           data: { type: "approved", reason: "Good" }
-        } as MilestoneCompleted
+        } as unknown as MilestoneCompleted
       });
 
       await expect(
-        (milestone as Record<string, Function>).edit(mockSigner, { title: "Nope" })
+        (milestone as unknown as Record<string, Function>).edit(mockSigner, { title: "Nope" })
       ).rejects.toThrow("Cannot edit milestone that is not in PENDING state");
     });
 
@@ -216,12 +216,12 @@ describe("Milestone.edit()", () => {
           {
             uid: "0xVerifiedUID",
             data: { type: "verified", reason: "Verified" }
-          } as MilestoneCompleted
+          } as unknown as MilestoneCompleted
         ]
       });
 
       await expect(
-        (milestone as Record<string, Function>).edit(mockSigner, { title: "Nope" })
+        (milestone as unknown as Record<string, Function>).edit(mockSigner, { title: "Nope" })
       ).rejects.toThrow("Cannot edit milestone that is not in PENDING state");
     });
 
@@ -233,7 +233,7 @@ describe("Milestone.edit()", () => {
       });
 
       await expect(
-        (milestone as Record<string, Function>).edit(mockSigner, { title: "Allowed" })
+        (milestone as unknown as Record<string, Function>).edit(mockSigner, { title: "Allowed" })
       ).resolves.not.toThrow();
 
       expect(milestone._mocks.revoke).toHaveBeenCalledTimes(1);
@@ -258,7 +258,7 @@ describe("Milestone.edit()", () => {
         return { tx: {}, uids: ["0xNew" as Hex] };
       });
 
-      await (milestone as Record<string, Function>).edit(mockSigner, {
+      await (milestone as unknown as Record<string, Function>).edit(mockSigner, {
         title: "New"
       });
 
@@ -301,7 +301,7 @@ describe("Milestone.editCompletion()", () => {
           reason: "Original completion reason",
           proofOfWork: "https://example.com/original-proof"
         }
-      } as MilestoneCompleted,
+      } as unknown as MilestoneCompleted,
       approved: overrides?.approved || undefined,
       verified: overrides?.verified || [],
       revokeCompletion: revokeCompletionMock,
@@ -344,7 +344,7 @@ describe("Milestone.editCompletion()", () => {
     it("should revoke old completion and re-complete with updated data", async () => {
       const milestone = createCompletedMilestone();
 
-      await (milestone as Record<string, Function>).editCompletion(mockSigner, {
+      await (milestone as unknown as Record<string, Function>).editCompletion(mockSigner, {
         reason: "Updated completion reason",
         proofOfWork: "https://example.com/updated-proof"
       });
@@ -365,7 +365,7 @@ describe("Milestone.editCompletion()", () => {
       const milestone = createCompletedMilestone();
 
       // Only update reason, proofOfWork should be preserved from original
-      await (milestone as Record<string, Function>).editCompletion(mockSigner, {
+      await (milestone as unknown as Record<string, Function>).editCompletion(mockSigner, {
         reason: "New reason only"
       });
 
@@ -382,7 +382,7 @@ describe("Milestone.editCompletion()", () => {
     it("should return the result from complete()", async () => {
       const milestone = createCompletedMilestone();
 
-      const result = await (milestone as Record<string, Function>).editCompletion(
+      const result = await (milestone as unknown as Record<string, Function>).editCompletion(
         mockSigner,
         { reason: "Updated" }
       );
@@ -400,7 +400,7 @@ describe("Milestone.editCompletion()", () => {
       milestone.completed = undefined as unknown as MilestoneCompleted;
 
       await expect(
-        (milestone as Record<string, Function>).editCompletion(mockSigner, {
+        (milestone as unknown as Record<string, Function>).editCompletion(mockSigner, {
           reason: "Nope"
         })
       ).rejects.toThrow("Milestone is not completed");
@@ -413,11 +413,11 @@ describe("Milestone.editCompletion()", () => {
         approved: {
           uid: "0xApprovedUID",
           data: { type: "approved", reason: "Approved" }
-        } as MilestoneCompleted
+        } as unknown as MilestoneCompleted
       });
 
       await expect(
-        (milestone as Record<string, Function>).editCompletion(mockSigner, {
+        (milestone as unknown as Record<string, Function>).editCompletion(mockSigner, {
           reason: "Nope"
         })
       ).rejects.toThrow("Cannot edit completion of an approved milestone");
@@ -429,12 +429,12 @@ describe("Milestone.editCompletion()", () => {
           {
             uid: "0xVerifiedUID",
             data: { type: "verified" }
-          } as MilestoneCompleted
+          } as unknown as MilestoneCompleted
         ]
       });
 
       await expect(
-        (milestone as Record<string, Function>).editCompletion(mockSigner, {
+        (milestone as unknown as Record<string, Function>).editCompletion(mockSigner, {
           reason: "Nope"
         })
       ).rejects.toThrow("Cannot edit completion of a verified milestone");

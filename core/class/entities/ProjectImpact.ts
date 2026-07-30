@@ -3,7 +3,7 @@ import { Attestation, AttestationArgs } from "../Attestation";
 import { GapSchema } from "../GapSchema";
 import { AttestationError } from "../SchemaError";
 import { AllGapSchemas } from "../AllGapSchemas";
-import { chainIdToNetwork } from "../../consts";
+import { networkOfChain } from "../../utils/network-of-chain";
 import { Transaction } from "ethers";
 
 export interface _IProjectImpact extends ProjectImpact {}
@@ -142,7 +142,7 @@ export class ProjectImpact
         },
         schema: new AllGapSchemas().findSchema(
           "ProjectImpact",
-          chainIdToNetwork[attestation.chainID] as TNetwork
+          networkOfChain(attestation.chainID, network)
         ),
         chainID: attestation.chainID,
       });
@@ -157,7 +157,7 @@ export class ProjectImpact
               },
               schema: new AllGapSchemas().findSchema(
                 "GrantUpdateStatus",
-                chainIdToNetwork[attestation.chainID] as TNetwork
+                networkOfChain(attestation.chainID, network)
               ),
               chainID: attestation.chainID,
             })

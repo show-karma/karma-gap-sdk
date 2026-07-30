@@ -19,13 +19,14 @@ before editing SDK code.
 
 - Run `yarn build` for behavior/type changes when practical.
 - Run `yarn lint` and `yarn format` when relevant.
-- There is no full test framework configured; use existing scripts/examples for
-  smoke checks when needed and state what was run.
+- Run `yarn test` (Jest, specs live in `core/__tests__/`) for behavior changes.
 
 ## Commands
 
 ```bash
 yarn build
+yarn test
+yarn test:coverage
 yarn lint
 yarn format
 ```

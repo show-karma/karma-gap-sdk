@@ -4,7 +4,11 @@ import {
   SignerOrProvider,
   TNetwork,
 } from "core/types";
-import { chainIdToNetwork, nullRef } from "../../consts";
+import { nullRef } from "../../consts";
+import {
+  networkOfChain,
+  requireNetworkOfChain,
+} from "../../utils/network-of-chain";
 import { mapFilter } from "../../utils";
 import { AllGapSchemas } from "../AllGapSchemas";
 import { Attestation } from "../Attestation";
@@ -366,7 +370,7 @@ export class Project extends Attestation<IProject> {
         },
         schema: allSchemas.findSchema(
           "Project",
-          chainIdToNetwork[attestation.chainID] as TNetwork
+          networkOfChain(attestation.chainID, network)
         ),
         chainID: attestation.chainID,
       });
@@ -380,7 +384,7 @@ export class Project extends Attestation<IProject> {
           },
           schema: allSchemas.findSchema(
             "ProjectDetails",
-            chainIdToNetwork[attestation.chainID] as TNetwork
+            networkOfChain(attestation.chainID, network)
           ),
           chainID: attestation.chainID,
         });
@@ -406,7 +410,7 @@ export class Project extends Attestation<IProject> {
             },
             schema: allSchemas.findSchema(
               "MemberOf",
-              chainIdToNetwork[attestation.chainID] as TNetwork
+              networkOfChain(attestation.chainID, network)
             ),
             chainID: attestation.chainID,
           });
@@ -420,7 +424,7 @@ export class Project extends Attestation<IProject> {
               },
               schema: allSchemas.findSchema(
                 "MemberDetails",
-                chainIdToNetwork[attestation.chainID] as TNetwork
+                networkOfChain(attestation.chainID, network)
               ),
               chainID: attestation.chainID,
             });
@@ -471,7 +475,7 @@ export class Project extends Attestation<IProject> {
             },
             schema: allSchemas.findSchema(
               "ProjectDetails",
-              chainIdToNetwork[attestation.chainID] as TNetwork
+              networkOfChain(attestation.chainID, network)
             ),
             chainID: attestation.chainID,
           });
@@ -577,6 +581,11 @@ export class Project extends Attestation<IProject> {
     targetChainId: number,
     callback?: Function
   ): Promise<AttestationWithTx> {
+    const targetNetwork = requireNetworkOfChain(
+      targetChainId,
+      "Project.attestGhostProjectImpact"
+    );
+
     const { tx, uids } = await this.attestGhostProject(signer, targetChainId);
     const ghostProjectUid = uids[0];
 
@@ -590,7 +599,7 @@ export class Project extends Attestation<IProject> {
       refUID: ghostProjectUid,
       schema: allGapSchemas.findSchema(
         "ProjectDetails",
-        chainIdToNetwork[targetChainId]
+        targetNetwork
       ),
       chainID: targetChainId,
     });
@@ -620,12 +629,17 @@ export class Project extends Attestation<IProject> {
   }
 
   async attestGhostProject(signer: SignerOrProvider, targetChainId: number) {
+    const targetNetwork = requireNetworkOfChain(
+      targetChainId,
+      "Project.attestGhostProject"
+    );
+
     const allGapSchemas = new AllGapSchemas();
     const project = new Project({
       data: { project: true },
       schema: allGapSchemas.findSchema(
         "Project",
-        chainIdToNetwork[targetChainId]
+        targetNetwork
       ),
       recipient: this.recipient,
       chainID: targetChainId,
@@ -640,7 +654,7 @@ export class Project extends Attestation<IProject> {
       recipient: this.recipient,
       schema: allGapSchemas.findSchema(
         "ProjectDetails",
-        chainIdToNetwork[targetChainId]
+        targetNetwork
       ),
     });
 

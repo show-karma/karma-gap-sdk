@@ -3,7 +3,7 @@ import { Attestation, AttestationArgs } from "../Attestation";
 import { GapSchema } from "../GapSchema";
 import { AttestationError } from "../SchemaError";
 import { AllGapSchemas } from "../AllGapSchemas";
-import { chainIdToNetwork } from "../../../core/consts";
+import { networkOfChain } from "../../utils/network-of-chain";
 import { Transaction } from "ethers";
 import { Hex, IProjectMilestoneResponse } from "../karma-indexer/api/types";
 import {
@@ -208,7 +208,7 @@ export class ProjectMilestone
         },
         schema: new AllGapSchemas().findSchema(
           "ProjectMilestone",
-          chainIdToNetwork[attestation.chainID] as TNetwork
+          networkOfChain(attestation.chainID, network)
         ),
         chainID: attestation.chainID,
       });
@@ -227,7 +227,7 @@ export class ProjectMilestone
               },
               schema: new AllGapSchemas().findSchema(
                 "ProjectMilestoneStatus",
-                chainIdToNetwork[attestation.chainID] as TNetwork
+                networkOfChain(attestation.chainID, network)
               ),
               chainID: attestation.chainID,
             })
@@ -242,7 +242,7 @@ export class ProjectMilestone
           },
           schema: new AllGapSchemas().findSchema(
             "MilestoneCompleted",
-            chainIdToNetwork[attestation.chainID] as TNetwork
+            networkOfChain(attestation.chainID, network)
           ),
           chainID: attestation.chainID,
         });

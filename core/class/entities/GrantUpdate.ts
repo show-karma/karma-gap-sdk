@@ -1,6 +1,6 @@
 import { IGrantUpdateBase } from "core/shared/types";
 import { Transaction } from "ethers";
-import { chainIdToNetwork } from "../../../core/consts";
+import { networkOfChain } from "../../utils/network-of-chain";
 import { SignerOrProvider, TNetwork } from "../../../core/types";
 import { AllGapSchemas } from "../AllGapSchemas";
 import { Attestation } from "../Attestation";
@@ -159,7 +159,7 @@ export class GrantUpdate
         },
         schema: new AllGapSchemas().findSchema(
           "GrantUpdate",
-          chainIdToNetwork[attestation.chainID] as TNetwork
+          networkOfChain(attestation.chainID, network)
         ),
         chainID: attestation.chainID,
       });
@@ -174,7 +174,7 @@ export class GrantUpdate
               },
               schema: new AllGapSchemas().findSchema(
                 "GrantUpdateStatus",
-                chainIdToNetwork[attestation.chainID] as TNetwork
+                networkOfChain(attestation.chainID, network)
               ),
               chainID: attestation.chainID,
             })

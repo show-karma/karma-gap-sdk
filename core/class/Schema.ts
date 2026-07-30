@@ -17,7 +17,11 @@ import {
   RawAttestationPayload,
   TNetwork,
 } from "../types";
-import { AttestationError, SchemaError } from "./SchemaError";
+import {
+  AttestationError,
+  SchemaError,
+  SchemaNetworkError,
+} from "./SchemaError";
 import { ethers, Transaction } from "ethers";
 import { useDefaultAttestation, zeroAddress } from "../consts";
 import { GAP } from "./GAP";
@@ -488,8 +492,22 @@ export abstract class Schema<T extends string = string>
     };
   }
 
+  /**
+   * Returns the schema list registered for a network.
+   * @throws {SchemaNetworkError} if the network has no entry in the registry.
+   */
+  protected static schemasOf(network: TNetwork): Schema[] {
+    const schemas = this.schemas[network];
+
+    if (!schemas) {
+      throw new SchemaNetworkError(network, Object.keys(this.schemas));
+    }
+
+    return schemas;
+  }
+
   static exists(name: string, network: TNetwork) {
-    return this.schemas[network].find((schema) => schema.name === name);
+    return this.schemasOf(network).find((schema) => schema.name === name);
   }
 
   /**
@@ -500,21 +518,22 @@ export abstract class Schema<T extends string = string>
    * @param schemas
    */
   static add<T extends Schema>(network: TNetwork, ...schemas: T[]) {
+    const registered = this.schemasOf(network);
+
     schemas.forEach((schema) => {
-      if (!this.exists(schema.name, network))
-        this.schemas[network].push(schema);
+      if (!this.exists(schema.name, network)) registered.push(schema);
     });
   }
 
   static getAll<T extends Schema>(network: TNetwork): T[] {
-    return this.schemas[network] as T[];
+    return this.schemasOf(network) as T[];
   }
 
   static get<N extends string, T extends Schema>(
     name: N,
     network: TNetwork
   ): T {
-    const schema = this.schemas[network].find(
+    const schema = this.schemasOf(network).find(
       (schema) => schema.name === name || schema.uid === name
     );
 
@@ -542,7 +561,7 @@ export abstract class Schema<T extends string = string>
   }
 
   static getNames(network: TNetwork): string[] {
-    return Schema.schemas[network].map((schema) => schema.name);
+    return Schema.schemasOf(network).map((schema) => schema.name);
   }
 
   /**
@@ -553,7 +572,7 @@ export abstract class Schema<T extends string = string>
   static validate(network: TNetwork): true {
     const errors: SchemaError[] = [];
 
-    this.schemas[network].forEach((schema) => {
+    this.schemasOf(network).forEach((schema) => {
       if (!schema.references || Schema.exists(schema.references, network))
         return;
       else
@@ -637,7 +656,7 @@ export abstract class Schema<T extends string = string>
    * the changes made to it will reflect the original instance.
    */
   get children() {
-    return Schema.schemas[this.gap.network].filter(
+    return Schema.schemasOf(this.gap.network).filter(
       (schema) =>
         schema.references === this.name || schema.references === this.uid
     );

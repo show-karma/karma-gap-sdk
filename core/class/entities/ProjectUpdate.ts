@@ -3,7 +3,7 @@ import { Attestation } from "../Attestation";
 import { GapSchema } from "../GapSchema";
 import { AttestationError } from "../SchemaError";
 import { AllGapSchemas } from "../AllGapSchemas";
-import { chainIdToNetwork } from "../../../core/consts";
+import { networkOfChain } from "../../utils/network-of-chain";
 import { Transaction } from "ethers";
 import { Hex } from "../karma-indexer/api/types";
 import { AttestationWithTx } from "../types/attestations";
@@ -148,7 +148,7 @@ export class ProjectUpdate
         },
         schema: new AllGapSchemas().findSchema(
           "ProjectUpdate",
-          chainIdToNetwork[attestation.chainID] as TNetwork
+          networkOfChain(attestation.chainID, network)
         ),
         chainID: attestation.chainID,
       });
@@ -163,7 +163,7 @@ export class ProjectUpdate
               },
               schema: new AllGapSchemas().findSchema(
                 "ProjectUpdateStatus",
-                chainIdToNetwork[attestation.chainID] as TNetwork
+                networkOfChain(attestation.chainID, network)
               ),
               chainID: attestation.chainID,
             })

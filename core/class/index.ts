@@ -6,3 +6,4 @@ export * from './SchemaError';
 export * from './entities';
 export * from './Fetcher';
 export * from './karma-indexer/GapIndexerClient';
+export * from './karma-indexer/GapIndexerError';

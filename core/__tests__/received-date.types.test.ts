@@ -46,5 +46,9 @@ const attestationReceivedDate: number | undefined =
 const indexerReceivedDate: number | undefined =
   indexerGrantDetails.data.receivedDate;
 
-void attestationReceivedDate;
-void indexerReceivedDate;
+describe("receivedDate typing", () => {
+  it("exposes receivedDate as an optional number on both grant-details shapes", () => {
+    expect(attestationReceivedDate).toBe(1704844800);
+    expect(indexerReceivedDate).toBe(1704844800);
+  });
+});

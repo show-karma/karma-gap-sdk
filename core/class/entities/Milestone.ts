@@ -1,5 +1,5 @@
 import { Transaction } from "ethers";
-import { chainIdToNetwork } from "../../consts";
+import { networkOfChain } from "../../utils/network-of-chain";
 import {
   Hex,
   MultiAttestPayload,
@@ -839,7 +839,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
         },
         schema: new AllGapSchemas().findSchema(
           "Milestone",
-          chainIdToNetwork[attestation.chainID] as TNetwork
+          networkOfChain(attestation.chainID, network)
         ),
         chainID: attestation.chainID,
       });
@@ -852,7 +852,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
           },
           schema: new AllGapSchemas().findSchema(
             "MilestoneCompleted",
-            chainIdToNetwork[attestation.chainID] as TNetwork
+            networkOfChain(attestation.chainID, network)
           ),
           chainID: attestation.chainID,
         });
@@ -866,7 +866,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
           },
           schema: new AllGapSchemas().findSchema(
             "MilestoneCompleted",
-            chainIdToNetwork[attestation.chainID] as TNetwork
+            networkOfChain(attestation.chainID, network)
           ),
           chainID: attestation.chainID,
         });
@@ -880,7 +880,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
           },
           schema: new AllGapSchemas().findSchema(
             "MilestoneCompleted",
-            chainIdToNetwork[attestation.chainID] as TNetwork
+            networkOfChain(attestation.chainID, network)
           ),
           chainID: attestation.chainID,
         });
@@ -894,7 +894,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
           },
           schema: new AllGapSchemas().findSchema(
             "MilestoneCompleted",
-            chainIdToNetwork[attestation.chainID] as TNetwork
+            networkOfChain(attestation.chainID, network)
           ),
           chainID: attestation.chainID,
         });
@@ -910,7 +910,7 @@ export class Milestone extends Attestation<IMilestone> implements IMilestone {
               },
               schema: new AllGapSchemas().findSchema(
                 "MilestoneCompleted",
-                chainIdToNetwork[attestation.chainID] as TNetwork
+                networkOfChain(attestation.chainID, network)
               ),
               chainID: attestation.chainID,
             })

@@ -14,6 +14,8 @@ const SchemaErrorCodes = {
   INVALID_REF_UID: 50013,
   REVOKATION_ERROR: 50014,
   NOT_REVOCABLE: 50015,
+  NETWORK_NOT_REGISTERED: 50016,
+  UNSUPPORTED_CHAIN: 50017,
 };
 
 export class SchemaError extends Error {
@@ -27,6 +29,7 @@ export class SchemaError extends Error {
     originalError?: any
   ) {
     super(`${code}${append ? `: ${append}` : ""}`);
+    this.name = new.target.name;
     this._message = append || code.replace(/_/g, " ");
     this.code = SchemaErrorCodes[code];
     this.originalError = originalError;
@@ -38,3 +41,30 @@ export class SchemaError extends Error {
 }
 
 export class AttestationError extends SchemaError {}
+
+/**
+ * Thrown when a schema registry is asked for a network it has no schemas for.
+ *
+ * This replaces the `TypeError: Cannot read properties of undefined (reading
+ * 'find')` that used to surface when an attestation carried an unmapped chain.
+ */
+export class SchemaNetworkError extends SchemaError {
+  constructor(network: unknown, availableNetworks: string[]) {
+    super(
+      "NETWORK_NOT_REGISTERED",
+      `No schemas registered for network "${String(
+        network
+      )}". Available networks: ${availableNetworks.join(", ")}`
+    );
+  }
+}
+
+/**
+ * Thrown when a caller explicitly targets a chain id the SDK has no network
+ * mapping for, where falling back to another network would be unsafe.
+ */
+export class UnsupportedChainError extends SchemaError {
+  constructor(append: string) {
+    super("UNSUPPORTED_CHAIN", append);
+  }
+}

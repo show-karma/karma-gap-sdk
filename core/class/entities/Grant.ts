@@ -9,7 +9,8 @@ import { IMilestone, Milestone } from "./Milestone";
 import { GapSchema } from "../GapSchema";
 import { GAP } from "../GAP";
 import { AttestationError } from "../SchemaError";
-import { chainIdToNetwork, nullRef } from "../../consts";
+import { nullRef } from "../../consts";
+import { networkOfChain } from "../../utils/network-of-chain";
 import {
   Hex,
   MultiAttestPayload,
@@ -249,7 +250,7 @@ export class Grant extends Attestation<IGrant> {
         },
         schema: new AllGapSchemas().findSchema(
           "Grant",
-          chainIdToNetwork[attestation.chainID] as TNetwork
+          networkOfChain(attestation.chainID, network)
         ),
         chainID: attestation.chainID,
       });
@@ -263,7 +264,7 @@ export class Grant extends Attestation<IGrant> {
           },
           schema: new AllGapSchemas().findSchema(
             "GrantDetails",
-            chainIdToNetwork[attestation.chainID] as TNetwork
+            networkOfChain(attestation.chainID, network)
           ),
           chainID: attestation.chainID,
         });
@@ -291,7 +292,7 @@ export class Grant extends Attestation<IGrant> {
           },
           schema: new AllGapSchemas().findSchema(
             "GrantDetails",
-            chainIdToNetwork[attestation.chainID] as TNetwork
+            networkOfChain(attestation.chainID, network)
           ),
           chainID: attestation.chainID,
         });

@@ -1,6 +1,7 @@
 import { Attestation, AttestationArgs } from "../Attestation";
 import { AttestationWithTx } from "../types/attestations";
-import { chainIdToNetwork, nullRef } from "../../consts";
+import { nullRef } from "../../consts";
+import { networkOfChain } from "../../utils/network-of-chain";
 import { AttestationError } from "../SchemaError";
 import { GapSchema } from "../GapSchema";
 import {
@@ -100,7 +101,7 @@ export class ContributorProfile
       },
       schema: new AllGapSchemas().findSchema(
         "ContributorProfile",
-        chainIdToNetwork[attestation.chainID] as TNetwork
+        networkOfChain(attestation.chainID, network)
       ),
       chainID: attestation.chainID,
     });

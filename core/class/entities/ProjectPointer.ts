@@ -1,7 +1,7 @@
 import { TNetwork } from "../../../core/types";
 import { Attestation } from "../Attestation";
 import { AllGapSchemas } from "../AllGapSchemas";
-import { chainIdToNetwork } from "../../../core/consts";
+import { networkOfChain } from "../../utils/network-of-chain";
 
 export interface _IProjectPointer extends ProjectPointer {}
 
@@ -28,7 +28,7 @@ export class ProjectPointer
         },
         schema: new AllGapSchemas().findSchema(
           "ProjectUpdate",
-          chainIdToNetwork[attestation.chainID] as TNetwork
+          networkOfChain(attestation.chainID, network)
         ),
         chainID: attestation.chainID,
       });
