@@ -123,6 +123,17 @@ describe("GapIndexerClient response validation", () => {
       }
     );
 
+    it("forwards a trimmed slug so padding never reaches the request path", async () => {
+      const spy = jest
+        .spyOn(GapIndexerApi.prototype, "projectBySlug")
+        .mockResolvedValue({ data: "" } as never);
+
+      await expect(client.projectBySlug("  my-project  ")).rejects.toThrow(
+        MalformedResponseError
+      );
+      expect(spy).toHaveBeenCalledWith("my-project");
+    });
+
     it("maps a valid single-entity body unchanged", async () => {
       jest.spyOn(GapIndexerApi.prototype, "projectBySlug").mockResolvedValue({
         data: {

@@ -124,7 +124,7 @@ export abstract class Schema<T extends string = string>
 
   readonly gap: GAP;
 
-  readonly oldSchemas?: {uid: string; raw: SchemaItem[]}[]; 
+  readonly oldSchemas?: { uid: string; raw: SchemaItem[] }[];
   /**
    * Creates a new schema instance
    * @param args
@@ -485,7 +485,7 @@ export abstract class Schema<T extends string = string>
     callback?.("pending");
     await tx.wait();
     callback?.("confirmed");
-    
+
     return {
       tx: [{ hash: tx.tx.hash } as Transaction],
       uids: payload.map((p) => p.data.map((d) => d.uid)).flat(),
@@ -593,6 +593,9 @@ export abstract class Schema<T extends string = string>
    * @param schemas
    */
   static replaceAll(schemas: Schema[], network: TNetwork) {
+    // Asserts the network is registered so a typo cannot silently create a
+    // schema list under a key nothing else will ever look up.
+    this.schemasOf(network);
     this.schemas[network] = schemas;
   }
 
@@ -601,16 +604,16 @@ export abstract class Schema<T extends string = string>
    * @throws {SchemaError} if desired schema name does not exist.
    */
   static replaceOne(schema: Schema, network: TNetwork) {
-    const idx = this.schemas[network].findIndex(
-      (item) => schema.name === item.name
-    );
+    const registered = this.schemasOf(network);
+    const idx = registered.findIndex((item) => schema.name === item.name);
+
     if (!~idx)
       throw new SchemaError(
         "SCHEMA_NOT_FOUND",
         `Schema ${schema.name} not found.`
       );
 
-    this.schemas[idx] = schema;
+    registered[idx] = schema;
   }
 
   /**
@@ -670,5 +673,4 @@ export abstract class Schema<T extends string = string>
       this.setValue(item.name, item.value);
     });
   }
-
 }

@@ -72,12 +72,12 @@ export class GapIndexerClient extends Fetcher {
   async attestation<T = unknown>(
     uid: `0x${string}`
   ): Promise<Attestation<T, GapSchema>> {
-    assertIdentifier("Attestation", "uid", uid);
+    const attestationUid = assertIdentifier("Attestation", "uid", uid);
 
-    const { data } = await this.apiClient.attestation(uid);
+    const { data } = await this.apiClient.attestation(attestationUid);
     const attestation = assertAttestationBody<IAttestation>(
       "Attestation",
-      uid,
+      attestationUid,
       data
     );
 
@@ -128,14 +128,21 @@ export class GapIndexerClient extends Fetcher {
   }
 
   async communitiesOf(address: Hex, withGrants: boolean): Promise<Community[]> {
-    assertIdentifier("Communities of grantee", "address", address);
+    const granteeAddress = assertIdentifier(
+      "Communities of grantee",
+      "address",
+      address
+    );
 
-    const { data } = await this.apiClient.communitiesOf(address, withGrants);
+    const { data } = await this.apiClient.communitiesOf(
+      granteeAddress,
+      withGrants
+    );
 
     return Community.from(
       assertAttestationList<ICommunityResponse>(
         "Communities of grantee",
-        address,
+        granteeAddress,
         data
       ),
       this.gap.network
@@ -143,14 +150,18 @@ export class GapIndexerClient extends Fetcher {
   }
 
   async adminOf(address: Hex): Promise<Community[]> {
-    assertIdentifier("Communities administered by", "address", address);
+    const adminAddress = assertIdentifier(
+      "Communities administered by",
+      "address",
+      address
+    );
 
-    const { data } = await this.apiClient.adminOf(address);
+    const { data } = await this.apiClient.adminOf(adminAddress);
 
     return Community.from(
       assertAttestationList<ICommunityResponse>(
         "Communities administered by",
-        address,
+        adminAddress,
         data
       ),
       this.gap.network
@@ -161,16 +172,20 @@ export class GapIndexerClient extends Fetcher {
     address: Hex,
     withGrants: boolean
   ): Promise<Community[]> {
-    assertIdentifier("Communities administered by", "address", address);
+    const adminAddress = assertIdentifier(
+      "Communities administered by",
+      "address",
+      address
+    );
 
     const { data } = await this.client.get<Community[]>(
-      Endpoints.grantees.communitiesAdmin(address, withGrants)
+      Endpoints.grantees.communitiesAdmin(adminAddress, withGrants)
     );
 
     return Community.from(
       assertAttestationList<ICommunityResponse>(
         "Communities administered by",
-        address,
+        adminAddress,
         data
       ),
       this.gap.network
@@ -182,12 +197,12 @@ export class GapIndexerClient extends Fetcher {
   }
 
   async communityBySlug(slug: string): Promise<Community> {
-    assertIdentifier("Community", "uid or slug", slug);
+    const communitySlug = assertIdentifier("Community", "uid or slug", slug);
 
-    const { data } = await this.apiClient.communityBySlug(slug);
+    const { data } = await this.apiClient.communityBySlug(communitySlug);
     const community = assertAttestationBody<ICommunityResponse>(
       "Community",
-      slug,
+      communitySlug,
       data
     );
 
@@ -199,19 +214,19 @@ export class GapIndexerClient extends Fetcher {
   }
 
   async communityAdmins(uid: `0x${string}`): Promise<ICommunityAdminsResponse> {
-    assertIdentifier("Community admins", "uid", uid);
+    const communityUid = assertIdentifier("Community admins", "uid", uid);
 
-    const { data } = await this.apiClient.communityAdmins(uid);
+    const { data } = await this.apiClient.communityAdmins(communityUid);
     return data;
   }
 
   async projectBySlug(slug: string): Promise<Project> {
-    assertIdentifier("Project", "uid or slug", slug);
+    const projectSlug = assertIdentifier("Project", "uid or slug", slug);
 
-    const { data } = await this.apiClient.projectBySlug(slug);
+    const { data } = await this.apiClient.projectBySlug(projectSlug);
     const project = assertAttestationBody<IProjectResponse>(
       "Project",
-      slug,
+      projectSlug,
       data
     );
 
@@ -252,14 +267,18 @@ export class GapIndexerClient extends Fetcher {
   }
 
   async projectsOf(grantee: `0x${string}`): Promise<Project[]> {
-    assertIdentifier("Projects of grantee", "address", grantee);
+    const granteeAddress = assertIdentifier(
+      "Projects of grantee",
+      "address",
+      grantee
+    );
 
-    const { data } = await this.apiClient.projectsOf(grantee);
+    const { data } = await this.apiClient.projectsOf(granteeAddress);
 
     return Project.from(
       assertAttestationList<IProjectResponse>(
         "Projects of grantee",
-        grantee,
+        granteeAddress,
         data
       ),
       this.gap.network
@@ -267,14 +286,18 @@ export class GapIndexerClient extends Fetcher {
   }
 
   async projectMilestones(uidOrSlug: string): Promise<ProjectMilestone[]> {
-    assertIdentifier("Project milestones", "uid or slug", uidOrSlug);
+    const projectRef = assertIdentifier(
+      "Project milestones",
+      "uid or slug",
+      uidOrSlug
+    );
 
-    const { data } = await this.apiClient.projectMilestones(uidOrSlug);
+    const { data } = await this.apiClient.projectMilestones(projectRef);
 
     return ProjectMilestone.from(
       assertAttestationList<IProjectMilestoneResponse>(
         "Project milestones",
-        uidOrSlug,
+        projectRef,
         data
       ),
       this.gap.network
@@ -297,12 +320,23 @@ export class GapIndexerClient extends Fetcher {
     grantee: `0x${string}`,
     withCommunity?: boolean
   ): Promise<Grant[]> {
-    assertIdentifier("Grants of grantee", "address", grantee);
+    const granteeAddress = assertIdentifier(
+      "Grants of grantee",
+      "address",
+      grantee
+    );
 
-    const { data } = await this.apiClient.grantsOf(grantee, withCommunity);
+    const { data } = await this.apiClient.grantsOf(
+      granteeAddress,
+      withCommunity
+    );
 
     return Grant.from(
-      assertAttestationList<IGrantResponse>("Grants of grantee", grantee, data),
+      assertAttestationList<IGrantResponse>(
+        "Grants of grantee",
+        granteeAddress,
+        data
+      ),
       this.gap.network
     );
   }
@@ -330,14 +364,18 @@ export class GapIndexerClient extends Fetcher {
   }
 
   async grantsForExtProject(projectExtId: string): Promise<Grant[]> {
-    assertIdentifier("Grants of external project", "external id", projectExtId);
+    const externalId = assertIdentifier(
+      "Grants of external project",
+      "external id",
+      projectExtId
+    );
 
-    const { data } = await this.apiClient.grantsForExtProject(projectExtId);
+    const { data } = await this.apiClient.grantsForExtProject(externalId);
 
     return Grant.from(
       assertAttestationList<IGrantResponse>(
         "Grants of external project",
-        projectExtId,
+        externalId,
         data
       ),
       this.gap.network
@@ -349,10 +387,10 @@ export class GapIndexerClient extends Fetcher {
     page: number = 0,
     pageLimit: number = 100
   ) {
-    assertIdentifier("Grants of community", "uid", uid);
+    const communityUid = assertIdentifier("Grants of community", "uid", uid);
 
     const { data } = await this.apiClient.grantsByCommunity(
-      uid,
+      communityUid,
       page,
       pageLimit
     );
@@ -360,7 +398,7 @@ export class GapIndexerClient extends Fetcher {
     return Grant.from(
       assertAttestationList<IGrantResponse>(
         "Grants of community",
-        uid,
+        communityUid,
         data?.data
       ),
       this.gap.network

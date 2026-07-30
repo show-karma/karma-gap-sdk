@@ -11,6 +11,11 @@ import {
 } from "../utils/network-of-chain";
 import { TNetwork } from "../types";
 
+/** `SchemaErrorCodes.SCHEMA_NOT_FOUND` — the codes map itself is not exported. */
+const SCHEMA_NOT_FOUND_CODE = 50005;
+/** `SchemaErrorCodes.NETWORK_NOT_REGISTERED`. */
+const NETWORK_NOT_REGISTERED_CODE = 50016;
+
 describe("AllGapSchemas.findSchema", () => {
   const allSchemas = new AllGapSchemas();
 
@@ -50,13 +55,20 @@ describe("AllGapSchemas.findSchema", () => {
       expect((error as Error).name).toBe("SchemaNetworkError");
       expect(error).toBeInstanceOf(SchemaError);
       expect(error).not.toBeInstanceOf(TypeError);
+      expect((error as SchemaError).code).toBe(NETWORK_NOT_REGISTERED_CODE);
     }
   });
 
   it("throws a schema-not-found error for an unknown schema on a known network", () => {
-    expect(() =>
-      allSchemas.findSchema("NotASchema" as never, "optimism")
-    ).toThrow(/NotASchema/);
+    try {
+      allSchemas.findSchema("NotASchema" as never, "optimism");
+      throw new Error("expected findSchema to throw");
+    } catch (error) {
+      expect(error).toBeInstanceOf(SchemaError);
+      expect(error).not.toBeInstanceOf(SchemaNetworkError);
+      expect((error as SchemaError).code).toBe(SCHEMA_NOT_FOUND_CODE);
+      expect((error as SchemaError).message).toMatch(/NotASchema/);
+    }
   });
 });
 
@@ -70,6 +82,15 @@ describe("Schema statics", () => {
     ["getNames", () => Schema.getNames(UNKNOWN_NETWORK)],
     ["validate", () => Schema.validate(UNKNOWN_NETWORK)],
     ["add", () => Schema.add(UNKNOWN_NETWORK)],
+    [
+      "replaceOne",
+      () =>
+        Schema.replaceOne(
+          { name: "Project" } as unknown as Schema,
+          UNKNOWN_NETWORK
+        ),
+    ],
+    ["replaceAll", () => Schema.replaceAll([], UNKNOWN_NETWORK)],
   ])("%s throws a named error for an unregistered network", (_label, call) => {
     expect(call).toThrow(SchemaNetworkError);
     expect(call).toThrow(/filecoin/);

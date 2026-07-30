@@ -186,6 +186,7 @@ describe("Milestone.edit()", () => {
       const milestone = createTestMilestone({
         completed: {
           uid: "0xCompletedUID",
+          type: "completed",
           data: { type: "completed", reason: "Done" }
         } as unknown as MilestoneCompleted
       });
@@ -201,6 +202,7 @@ describe("Milestone.edit()", () => {
       const milestone = createTestMilestone({
         approved: {
           uid: "0xApprovedUID",
+          type: "approved",
           data: { type: "approved", reason: "Good" }
         } as unknown as MilestoneCompleted
       });
@@ -215,6 +217,7 @@ describe("Milestone.edit()", () => {
         verified: [
           {
             uid: "0xVerifiedUID",
+            type: "verified",
             data: { type: "verified", reason: "Verified" }
           } as unknown as MilestoneCompleted
         ]
@@ -297,6 +300,7 @@ describe("Milestone.editCompletion()", () => {
       uid: "0xMilestoneUID" as Hex,
       completed: {
         uid: "0xOldCompletionUID",
+        type: "completed",
         data: {
           reason: "Original completion reason",
           proofOfWork: "https://example.com/original-proof"
@@ -412,6 +416,7 @@ describe("Milestone.editCompletion()", () => {
       const milestone = createCompletedMilestone({
         approved: {
           uid: "0xApprovedUID",
+          type: "approved",
           data: { type: "approved", reason: "Approved" }
         } as unknown as MilestoneCompleted
       });
@@ -428,6 +433,7 @@ describe("Milestone.editCompletion()", () => {
         verified: [
           {
             uid: "0xVerifiedUID",
+            type: "verified",
             data: { type: "verified" }
           } as unknown as MilestoneCompleted
         ]

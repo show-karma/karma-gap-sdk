@@ -27,6 +27,9 @@ function isAttestationShaped(body: unknown): body is AttestationShaped {
  * answers 200 with a bare array — the caller would then get a `MalformedResponseError`
  * for a request that never should have left the process.
  *
+ * Returns the trimmed identifier so surrounding whitespace never reaches the
+ * request path — callers must use the return value, not the raw argument.
+ *
  * @throws {InvalidIdentifierError} when the identifier is empty or whitespace only.
  */
 export function assertIdentifier<T extends string>(
@@ -38,7 +41,8 @@ export function assertIdentifier<T extends string>(
     throw new InvalidIdentifierError(resource, identifierName);
   }
 
-  return value;
+  // Trimming preserves the template-literal shape of branded ids such as `Hex`.
+  return value.trim() as T;
 }
 
 /**
