@@ -175,6 +175,38 @@ gap.fetch
   });
 ```
 
+### Fetch errors
+
+Fetchers validate their arguments and the response body before mapping, so a bad
+request or a malformed API answer surfaces as a typed error instead of a
+`TypeError` from deep inside the mappers:
+
+| Error                     | Raised when                                                                                     |
+| ------------------------- | ----------------------------------------------------------------------------------------------- |
+| `InvalidIdentifierError`  | A uid/slug argument is empty or whitespace. Thrown **before** the request is made.                |
+| `MalformedResponseError`  | The API answered `200` with something that is not the requested entity (empty body, array, ...). |
+
+Both extend `GapIndexerError`, which is distinct from transport errors, so you
+can tell "the indexer is unreachable" apart from "the indexer answered with
+something unusable":
+
+```ts
+import { GapIndexerError } from "@show-karma/karma-gap-sdk";
+
+try {
+  const project = await gap.fetch.projectBySlug(slug);
+} catch (error) {
+  if (error instanceof GapIndexerError) {
+    // Bad identifier or unusable response — not worth retrying.
+  }
+  throw error;
+}
+```
+
+Schema lookups raise `SchemaNetworkError` when a network has no registered
+schemas, and `UnsupportedChainError` when a call explicitly targets a chain id
+outside `chainIdToNetwork`. Both name the offending value in the message.
+
 ## 5. Creating entities in the Frontend
 
 Creating entities (by adding attestations) using the Karma SDK is quite straightforward. Developers only need to define what they want to attest, and we provide facilities for this module. To avoid frequent wallet pop-ups for individual entity attestations, we've developed a special contract that handles multiple attestations and their relationships. This means you can transact once and attest multiple times. Let's walk through an example:
