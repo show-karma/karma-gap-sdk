@@ -1,4 +1,7 @@
-import { InvalidIdentifierError, MalformedResponseError } from "./GapIndexerError";
+import {
+  InvalidIdentifierError,
+  MalformedResponseError,
+} from "./GapIndexerError";
 
 /**
  * Minimal shape every attestation-backed indexer response must satisfy before
@@ -26,11 +29,11 @@ function isAttestationShaped(body: unknown): body is AttestationShaped {
  *
  * @throws {InvalidIdentifierError} when the identifier is empty or whitespace only.
  */
-export function assertIdentifier(
+export function assertIdentifier<T extends string>(
   resource: string,
   identifierName: string,
-  value: string | undefined | null
-): string {
+  value: T | undefined | null
+): T {
   if (typeof value !== "string" || value.trim().length === 0) {
     throw new InvalidIdentifierError(resource, identifierName);
   }

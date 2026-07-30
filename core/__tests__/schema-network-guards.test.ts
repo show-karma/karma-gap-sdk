@@ -97,11 +97,14 @@ describe("networkOfChain", () => {
     ["null", null],
     ["unmapped (filecoin)", 314],
     ["unmapped (mainnet)", 1],
-  ])("falls back to the caller network when the chain id is %s", (_l, chainId) => {
-    expect(networkOfChain(chainId as number | undefined | null, "optimism")).toBe(
-      "optimism"
-    );
-  });
+  ])(
+    "falls back to the caller network when the chain id is %s",
+    (_l, chainId) => {
+      expect(
+        networkOfChain(chainId as number | undefined | null, "optimism")
+      ).toBe("optimism");
+    }
+  );
 
   it("does not treat chain id 0 as a supported chain", () => {
     expect(networkOfChain(0, "optimism")).toBe("optimism");
@@ -119,13 +122,16 @@ describe("requireNetworkOfChain", () => {
     ["unmapped", 314],
   ])("throws a named error when the chain id is %s", (_label, chainId) => {
     expect(() =>
-      requireNetworkOfChain(chainId as number | undefined | null, "Project.ghost")
+      requireNetworkOfChain(
+        chainId as number | undefined | null,
+        "Project.ghost"
+      )
     ).toThrow(UnsupportedChainError);
   });
 
   it("names the offending chain id and the calling context", () => {
-    expect(() => requireNetworkOfChain(314, "Project.attestGhostProject")).toThrow(
-      /Project\.attestGhostProject: chain id 314 is not supported/
-    );
+    expect(() =>
+      requireNetworkOfChain(314, "Project.attestGhostProject")
+    ).toThrow(/Project\.attestGhostProject: chain id 314 is not supported/);
   });
 });

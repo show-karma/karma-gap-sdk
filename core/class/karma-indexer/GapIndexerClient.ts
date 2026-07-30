@@ -317,10 +317,7 @@ export class GapIndexerClient extends Fetcher {
       projects?.[0]?.uid
     );
 
-    const { data } = await this.apiClient.grantsFor(
-      projectUid as Hex,
-      withCommunity
-    );
+    const { data } = await this.apiClient.grantsFor(projectUid, withCommunity);
 
     return Grant.from(
       assertAttestationList<IGrantResponse>(
@@ -377,7 +374,7 @@ export class GapIndexerClient extends Fetcher {
       grants?.[0]?.uid
     );
 
-    const { data } = await this.apiClient.milestonesOf(grantUid as Hex);
+    const { data } = await this.apiClient.milestonesOf(grantUid);
 
     return Milestone.from(
       assertAttestationList<IMilestoneResponse>(

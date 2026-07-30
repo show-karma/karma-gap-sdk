@@ -84,7 +84,7 @@ export class GapSchema extends Schema implements IGapSchema {
    */
   get children() {
     return mapFilter(
-      GapSchema.schemas[this.gap.network],
+      GapSchema.schemasOf(this.gap.network),
       (s) => s.references === this.name || s.references === this.uid,
       (s: Schema<TSchemaName>) => new GapSchema(s, s.gap, false, true)
     );

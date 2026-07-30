@@ -1,9 +1,10 @@
 // Imported through the package barrel on purpose: `core/index.ts` loads `GAP`
 // before the entity modules, which is the order that resolves the pre-existing
 // Schema <-> GapContract <-> GAP import cycle.
-import { GAP } from "../index";
+import { GAP, Grant, Project } from "../index";
 import { GapIndexerClient } from "../class/karma-indexer/GapIndexerClient";
 import { GapIndexerApi } from "../class/karma-indexer/api/GapIndexerApi";
+import type { Hex } from "../types";
 import {
   GapIndexerError,
   InvalidIdentifierError,
@@ -17,8 +18,20 @@ import {
  * `TypeError: Cannot read properties of undefined (reading 'find')`.
  */
 
-const UID = "0x1111111111111111111111111111111111111111111111111111111111111111";
-const ADDRESS = "0x2222222222222222222222222222222222222222";
+const UID =
+  "0x1111111111111111111111111111111111111111111111111111111111111111" as Hex;
+const ADDRESS = "0x2222222222222222222222222222222222222222" as Hex;
+const BLANK = "" as Hex;
+
+/**
+ * Replaces one `GapIndexerApi` method with a resolved axios-like envelope.
+ * Keeps the method name literal so a rename breaks the test at compile time.
+ */
+function mockApi<K extends keyof GapIndexerApi>(method: K, body: unknown) {
+  jest
+    .spyOn(GapIndexerApi.prototype, method)
+    .mockResolvedValue({ data: body } as never);
+}
 
 function attestationBase(chainID: number) {
   return {
@@ -46,7 +59,10 @@ const MALFORMED_BODIES: [string, unknown][] = [
   ["undefined", undefined],
   ["an error object", { error: "Bad Gateway", statusCode: 502 }],
   ["an HTML string", "<html><body>502</body></html>"],
-  ["an object with a non-numeric chainID", { ...attestationBase(10), chainID: "10" }],
+  [
+    "an object with a non-numeric chainID",
+    { ...attestationBase(10), chainID: "10" },
+  ],
 ];
 
 const BLANK_IDENTIFIERS: [string, string][] = [
@@ -58,7 +74,7 @@ describe("GapIndexerClient response validation", () => {
   let client: GapIndexerClient;
 
   beforeEach(() => {
-    client = new GapIndexerClient("https://indexer.test" as never);
+    client = new GapIndexerClient("https://indexer.test");
     // eslint-disable-next-line no-new
     new GAP({ network: "optimism", apiClient: client });
   });
@@ -78,9 +94,9 @@ describe("GapIndexerClient response validation", () => {
         await expect(client.projectBySlug("my-project")).rejects.toBeInstanceOf(
           MalformedResponseError
         );
-        await expect(client.projectBySlug("my-project")).rejects.not.toBeInstanceOf(
-          TypeError
-        );
+        await expect(
+          client.projectBySlug("my-project")
+        ).rejects.not.toBeInstanceOf(TypeError);
         expect(spy).toHaveBeenCalled();
       }
     );
@@ -128,7 +144,7 @@ describe("GapIndexerClient response validation", () => {
     it("throws before any network call for a blank uid", async () => {
       const spy = jest.spyOn(GapIndexerApi.prototype, "projectBySlug");
 
-      await expect(client.projectById("" as never)).rejects.toBeInstanceOf(
+      await expect(client.projectById(BLANK)).rejects.toBeInstanceOf(
         InvalidIdentifierError
       );
       expect(spy).not.toHaveBeenCalled();
@@ -139,7 +155,7 @@ describe("GapIndexerClient response validation", () => {
         .spyOn(GapIndexerApi.prototype, "projectBySlug")
         .mockResolvedValue({ data: [] } as never);
 
-      await expect(client.projectById(UID as never)).rejects.toBeInstanceOf(
+      await expect(client.projectById(UID)).rejects.toBeInstanceOf(
         MalformedResponseError
       );
     });
@@ -153,9 +169,9 @@ describe("GapIndexerClient response validation", () => {
           .spyOn(GapIndexerApi.prototype, "communityBySlug")
           .mockResolvedValue({ data: body } as never);
 
-        await expect(client.communityBySlug("a-community")).rejects.toBeInstanceOf(
-          MalformedResponseError
-        );
+        await expect(
+          client.communityBySlug("a-community")
+        ).rejects.toBeInstanceOf(MalformedResponseError);
       }
     );
 
@@ -188,7 +204,7 @@ describe("GapIndexerClient response validation", () => {
     it("throws before any network call for a blank uid", async () => {
       const spy = jest.spyOn(GapIndexerApi.prototype, "attestation");
 
-      await expect(client.attestation("" as never)).rejects.toBeInstanceOf(
+      await expect(client.attestation(BLANK)).rejects.toBeInstanceOf(
         InvalidIdentifierError
       );
       expect(spy).not.toHaveBeenCalled();
@@ -199,7 +215,7 @@ describe("GapIndexerClient response validation", () => {
         .spyOn(GapIndexerApi.prototype, "attestation")
         .mockResolvedValue({ data: "" } as never);
 
-      await expect(client.attestation(UID as never)).rejects.toBeInstanceOf(
+      await expect(client.attestation(UID)).rejects.toBeInstanceOf(
         MalformedResponseError
       );
     });
@@ -242,7 +258,7 @@ describe("GapIndexerClient response validation", () => {
         .spyOn(GapIndexerApi.prototype, "grantsByCommunity")
         .mockResolvedValue({ data: {} } as never);
 
-      await expect(client.grantsByCommunity(UID as never)).rejects.toBeInstanceOf(
+      await expect(client.grantsByCommunity(UID)).rejects.toBeInstanceOf(
         MalformedResponseError
       );
     });
@@ -250,7 +266,7 @@ describe("GapIndexerClient response validation", () => {
     it("throws before any network call for a blank community uid", async () => {
       const spy = jest.spyOn(GapIndexerApi.prototype, "grantsByCommunity");
 
-      await expect(client.grantsByCommunity("" as never)).rejects.toBeInstanceOf(
+      await expect(client.grantsByCommunity(BLANK)).rejects.toBeInstanceOf(
         InvalidIdentifierError
       );
       expect(spy).not.toHaveBeenCalled();
@@ -258,55 +274,72 @@ describe("GapIndexerClient response validation", () => {
   });
 
   describe("guarded fetchers", () => {
-    type ApiMethod = keyof GapIndexerApi;
+    type ListFetcher = [
+      label: string,
+      mockApi: (body: unknown) => void,
+      call: () => Promise<unknown>,
+    ];
 
-    const listFetchers: [string, ApiMethod, () => Promise<unknown>][] = [
-      ["communities", "communities", () => client.communities()],
+    const projectRef = [{ uid: UID }] as unknown as Project[];
+    const grantRef = [{ uid: UID }] as unknown as Grant[];
+
+    const listFetchers: ListFetcher[] = [
       [
-        "communitiesOf",
-        "communitiesOf",
-        () => client.communitiesOf(ADDRESS as never, false),
+        "communities",
+        (body) => mockApi("communities", body),
+        () => client.communities(),
       ],
-      ["adminOf", "adminOf", () => client.adminOf(ADDRESS as never)],
-      ["searchProjects", "searchProjects", () => client.searchProjects("q")],
+      [
+        "communitiesOf",
+        (body) => mockApi("communitiesOf", body),
+        () => client.communitiesOf(ADDRESS, false),
+      ],
+      [
+        "adminOf",
+        (body) => mockApi("adminOf", body),
+        () => client.adminOf(ADDRESS),
+      ],
+      [
+        "searchProjects",
+        (body) => mockApi("searchProjects", body),
+        () => client.searchProjects("q"),
+      ],
       [
         "projectsOf",
-        "projectsOf",
-        () => client.projectsOf(ADDRESS as never),
+        (body) => mockApi("projectsOf", body),
+        () => client.projectsOf(ADDRESS),
       ],
       [
         "projectMilestones",
-        "projectMilestones",
+        (body) => mockApi("projectMilestones", body),
         () => client.projectMilestones("a-project"),
       ],
       [
         "grantsOf",
-        "grantsOf",
-        () => client.grantsOf(ADDRESS as never, false),
+        (body) => mockApi("grantsOf", body),
+        () => client.grantsOf(ADDRESS, false),
       ],
       [
         "grantsForExtProject",
-        "grantsForExtProject",
+        (body) => mockApi("grantsForExtProject", body),
         () => client.grantsForExtProject("ext-1"),
       ],
       [
         "grantsFor",
-        "grantsFor",
-        () => client.grantsFor([{ uid: UID }] as never),
+        (body) => mockApi("grantsFor", body),
+        () => client.grantsFor(projectRef),
       ],
       [
         "milestonesOf",
-        "milestonesOf",
-        () => client.milestonesOf([{ uid: UID }] as never),
+        (body) => mockApi("milestonesOf", body),
+        () => client.milestonesOf(grantRef),
       ],
     ];
 
     it.each(listFetchers)(
       "%s throws a named error on a non-array body",
-      async (_label, apiMethod, call) => {
-        jest
-          .spyOn(GapIndexerApi.prototype, apiMethod as never)
-          .mockResolvedValue({ data: "" } as never);
+      async (_label, mock, call) => {
+        mock("");
 
         await expect(call()).rejects.toBeInstanceOf(MalformedResponseError);
       }
@@ -314,26 +347,24 @@ describe("GapIndexerClient response validation", () => {
 
     it.each(listFetchers)(
       "%s maps an empty list without throwing",
-      async (_label, apiMethod, call) => {
-        jest
-          .spyOn(GapIndexerApi.prototype, apiMethod as never)
-          .mockResolvedValue({ data: [] } as never);
+      async (_label, mock, call) => {
+        mock([]);
 
         await expect(call()).resolves.toEqual([]);
       }
     );
 
     const identifierGuards: [string, () => Promise<unknown>][] = [
-      ["communitiesOf", () => client.communitiesOf("" as never, false)],
-      ["adminOf", () => client.adminOf("" as never)],
-      ["communitiesAdminOf", () => client.communitiesAdminOf("" as never, false)],
-      ["communityAdmins", () => client.communityAdmins("" as never)],
-      ["projectsOf", () => client.projectsOf("" as never)],
+      ["communitiesOf", () => client.communitiesOf(BLANK, false)],
+      ["adminOf", () => client.adminOf(BLANK)],
+      ["communitiesAdminOf", () => client.communitiesAdminOf(BLANK, false)],
+      ["communityAdmins", () => client.communityAdmins(BLANK)],
+      ["projectsOf", () => client.projectsOf(BLANK)],
       ["projectMilestones", () => client.projectMilestones("  ")],
-      ["grantsOf", () => client.grantsOf("" as never, false)],
+      ["grantsOf", () => client.grantsOf(BLANK, false)],
       ["grantsForExtProject", () => client.grantsForExtProject("")],
-      ["grantsFor", () => client.grantsFor([] as never)],
-      ["milestonesOf", () => client.milestonesOf([] as never)],
+      ["grantsFor", () => client.grantsFor([])],
+      ["milestonesOf", () => client.milestonesOf([])],
     ];
 
     it.each(identifierGuards)(

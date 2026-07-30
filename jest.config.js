@@ -8,19 +8,7 @@ module.exports = {
     "^core/(.*)$": "<rootDir>/core/$1",
   },
   transform: {
-    "^.+\\.tsx?$": [
-      "ts-jest",
-      {
-        tsconfig: {
-          module: "commonjs",
-          target: "es2020",
-          lib: ["es2020"],
-          esModuleInterop: true,
-          resolveJsonModule: true,
-          skipLibCheck: true,
-        },
-      },
-    ],
+    "^.+\\.tsx?$": ["ts-jest", { tsconfig: "<rootDir>/tsconfig.test.json" }],
   },
   collectCoverageFrom: [
     "core/class/AllGapSchemas.ts",
