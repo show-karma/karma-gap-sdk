@@ -87,6 +87,7 @@ After installing, you can instantiate `GAP`:
 ```ts
 // gap.client.ts;
 import { GAP } from "@show-karma/karma-gap-sdk";
+import { GapIndexerClient } from "@show-karma/karma-gap-sdk/core/class/karma-indexer/GapIndexerClient";
 
 const client = new GAP({
   globalSchemas: false,
@@ -860,7 +861,9 @@ If you just want to use the Karma SDK to fetch infos from the network, you can u
 This way you can **avoid** the import cost of the SDK.
 
 ```ts
-const getProjectInfo = () => {
+import { GapIndexerApi } from "@show-karma/karma-gap-sdk/core/class/karma-indexer/api/GapIndexerApi";
+
+const getProjectInfo = async () => {
   const gapIndexerApi = new GapIndexerApi("https://api.karmahq.org");
   const project = await gapIndexerApi.projectBySlug(<YOUR_PROJECT_SLUG_OR_UID>).then((res) => res.data);
   return project;
