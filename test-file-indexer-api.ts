@@ -2,11 +2,11 @@ import { GAP } from "./core/class/GAP";
 import { GapIndexerClient } from "./core/class/karma-indexer/GapIndexerClient";
 import { Hex } from "./core/types";
 
-const apiUrl = "https://gapstagapi.karmahq.xyz";
+const apiUrl = "https://stagapi.karmahq.org";
 const projectId = "my-awesome-project";
 
 async function test() {
-  // const indexer = new GapIndexerApi('https://gapstagapi.karmahq.xyz');
+  // const indexer = new GapIndexerApi('https://stagapi.karmahq.org');
   const gap = new GAP({
     globalSchemas: false,
     network: "optimism-sepolia",

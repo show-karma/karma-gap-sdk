@@ -1,0 +1,4 @@
+allowBuilds:
+  classic-level: set this to true or false
+  keccak: set this to true or false
+  secp256k1: set this to true or false

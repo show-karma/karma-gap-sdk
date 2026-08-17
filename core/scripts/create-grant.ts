@@ -36,6 +36,8 @@ export async function main() {
     name: "Sepolia Test Round #3",
     support: {
       info: "Email",
+      // Stays on karmahq.xyz: SPF/DKIM/DMARC are not provisioned for
+      // karmahq.org, so flipping the sender domain silently degrades delivery.
       type: "mahesh@karmahq.xyz",
     },
     roundType: "public",

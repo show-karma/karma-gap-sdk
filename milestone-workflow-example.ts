@@ -16,7 +16,7 @@ import {
 import { GapContract } from "./core/class/contract/GapContract";
 
 // Configuration
-const API_URL = "https://gapstagapi.karmahq.xyz";
+const API_URL = "https://stagapi.karmahq.org";
 const PROJECT_ID = "your-project-id-here"; // Replace with your actual project ID or slug
 const RPC_URL = "your-rpc-url-here"; // Replace with your RPC URL
 const PRIVATE_KEY = "your-private-key-here"; // Replace with your private key
