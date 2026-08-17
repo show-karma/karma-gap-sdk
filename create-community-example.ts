@@ -10,7 +10,7 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 // Configuration
-const API_URL = process.env.API_URL || "https://gapstagapi.karmahq.xyz";
+const API_URL = process.env.API_URL || "https://stagapi.karmahq.org";
 const RPC_URL = process.env.RPC_URL || "https://sepolia.optimism.io"; // Replace with your RPC URL
 const PRIVATE_KEY = process.env.PRIVATE_KEY; // Your private key from .env file
 
@@ -83,7 +83,7 @@ async function main() {
     }
     console.log(`Transaction Hash: ${result.tx[0].hash}`);
     console.log(
-      `\nYou can view your community at: https://www.karmahq.xyz/community/${communityDetails.slug}`
+      `\nYou can view your community at: https://www.karmahq.org/community/${communityDetails.slug}`
     );
 
     // Fetch the created community to verify

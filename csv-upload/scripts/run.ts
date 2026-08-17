@@ -67,8 +67,8 @@ function loadConfig(): NetworkConfig {
     rpcURL: keys.rpcURL,
     gapAPI:
       DEFAULT_CONFIG.DEFAULT_NETWORK === "optimism-sepolia"
-        ? "https://gapstagapi.karmahq.xyz"
-        : "https://gapapi.karmahq.xyz",
+        ? "https://stagapi.karmahq.org"
+        : "https://api.karmahq.org",
     privateKey: keys.privateKey,
     gapAccessToken: gapAccessToken,
   };

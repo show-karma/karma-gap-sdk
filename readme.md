@@ -21,7 +21,7 @@
 
 ## 1. What is Karma SDK?
 
-The Karma SDK is a library for easy integration with [Karma](https://www.karmahq.xyz). Using this library, you will be able to:
+The Karma SDK is a library for easy integration with [Karma](https://www.karmahq.org). Using this library, you will be able to:
 
 - Fetch and display Communities, Projects, Members, Grants, Milestones, and all of their dependencies.
 - Create, update and delete all of the above.
@@ -87,11 +87,12 @@ After installing, you can instantiate `GAP`:
 ```ts
 // gap.client.ts;
 import { GAP } from "@show-karma/karma-gap-sdk";
+import { GapIndexerClient } from "@show-karma/karma-gap-sdk/core/class/karma-indexer/GapIndexerClient";
 
 const client = new GAP({
   globalSchemas: false,
   network: "optimism", // can be any of our supported networks. you can check here -> https://github.com/show-karma/karma-gap-sdk/blob/main/core/types.ts#L80
-  apiClient: new GapIndexerClient("https://gapapi.karmahq.xyz"), // custom api client, see Section 8;
+  apiClient: new GapIndexerClient("https://api.karmahq.org"), // custom api client, see Section 8;
 });
 
 export default client;
@@ -860,8 +861,10 @@ If you just want to use the Karma SDK to fetch infos from the network, you can u
 This way you can **avoid** the import cost of the SDK.
 
 ```ts
-const getProjectInfo = () => {
-  const gapIndexerApi = new GapIndexerApi("https://gapapi.karmahq.xyz");
+import { GapIndexerApi } from "@show-karma/karma-gap-sdk/core/class/karma-indexer/api/GapIndexerApi";
+
+const getProjectInfo = async () => {
+  const gapIndexerApi = new GapIndexerApi("https://api.karmahq.org");
   const project = await gapIndexerApi.projectBySlug(<YOUR_PROJECT_SLUG_OR_UID>).then((res) => res.data);
   return project;
 }

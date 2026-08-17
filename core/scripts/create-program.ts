@@ -23,10 +23,10 @@ export async function main() {
   const metadata = {
     title: name,
     description: `Karma Gap Registry`,
-    website: "www.karmahq.xyz",
+    website: "https://www.karmahq.org",
     projectTwitter: "karmahq_",
-    logoImg: "www.karmahq.xyz/logo/karma-gap-logo.svg",
-    bannerImg: "www.karmahq.xyz/logo/karma-gap-logo.svg",
+    logoImg: "https://www.karmahq.org/logo/karma-gap-logo.svg",
+    bannerImg: "https://www.karmahq.org/logo/karma-gap-logo.svg",
     logoImgData: {},
     bannerImgData: {},
     credentials: {},
